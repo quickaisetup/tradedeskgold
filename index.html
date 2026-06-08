@@ -2365,7 +2365,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
           <button class="tv-tf-btn" data-tf="60" onclick="setTVInterval('60',this)">1H</button>
         </div>
       </div>
-      <div id="tv-chart-wrap" style="height:460px;width:100%"></div>
+      <div id="tv-chart-wrap" style="height:580px;width:100%"></div>
     </div>
 
     <!-- TF GRID -->
@@ -8759,11 +8759,11 @@ function initTVChart() {
     allow_symbol_change: false, save_image: false,
     hide_side_toolbar: true,
     studies: [
-      // Known-good shorthand IDs first (these reliably loaded before) —
-      // putting them ahead of the newer object-format MA entries avoids
-      // whatever ordering quirk was dropping AO when it came last.
+      // Keep just one momentum oscillator (MACD) so the lower-pane area
+      // takes proportionally less of the chart, leaving more room for
+      // price action + the MA stack. AO can still be added manually via
+      // the chart's own "Indicators" button if wanted for a session.
       'STD;MACD',
-      'STD;Awesome_Oscillator',
       { id: 'MAExp@tv-basicstudies', inputs: { length: 9 } },
       { id: 'MAExp@tv-basicstudies', inputs: { length: 20 } },
       { id: 'MASimple@tv-basicstudies', inputs: { length: 50 } },
