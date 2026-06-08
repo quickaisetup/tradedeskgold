@@ -3407,6 +3407,61 @@ function tzBuildOpts() {
     cont.appendChild(btn);
   });
 }
+// ── AUTO-DETECT TIMEZONE AT SIGNUP ───────────────────
+// Maps the browser's IANA timezone (or its UTC offset, as a fallback) onto
+// one of our supported TZ_OPTIONS so new users don't have to set it manually.
+// Never overrides a timezone the user (or a previous session) already chose.
+function _tzOffsetMinutes(iana) {
+  var now = new Date();
+  var utcDate = new Date(now.toLocaleString('en-US', { timeZone: 'UTC' }));
+  var tzDate  = new Date(now.toLocaleString('en-US', { timeZone: iana }));
+  return Math.round((tzDate - utcDate) / 60000);
+}
+function _tdAutoDetectTimezone() {
+  try {
+    if (localStorage.getItem('td_tz')) return; // already set — respect user's choice
+    var browserTZ = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    if (!browserTZ) return;
+
+    // 1. Exact IANA match against our supported list
+    var match = TZ_OPTIONS.filter(function(o){ return o.iana === browserTZ; })[0];
+
+    // 2. Common aliases — nearby cities/regions that share the same trading-relevant offset
+    if (!match) {
+      var ALIASES = {
+        'Asia/Phnom_Penh':'Asia/Bangkok','Asia/Vientiane':'Asia/Bangkok','Asia/Ho_Chi_Minh':'Asia/Bangkok','Asia/Jakarta':'Asia/Bangkok',
+        'Asia/Kuala_Lumpur':'Asia/Singapore','Asia/Manila':'Asia/Singapore','Asia/Hong_Kong':'Asia/Singapore','Asia/Shanghai':'Asia/Singapore','Asia/Taipei':'Asia/Singapore','Asia/Brunei':'Asia/Singapore',
+        'Asia/Seoul':'Asia/Tokyo','Asia/Osaka':'Asia/Tokyo',
+        'Asia/Abu_Dhabi':'Asia/Dubai','Asia/Muscat':'Asia/Dubai',
+        'Europe/Lisbon':'Europe/London','Europe/Dublin':'Europe/London',
+        'Europe/Paris':'Europe/Berlin','Europe/Amsterdam':'Europe/Berlin','Europe/Madrid':'Europe/Berlin','Europe/Rome':'Europe/Berlin',
+        'Europe/Brussels':'Europe/Berlin','Europe/Zurich':'Europe/Berlin','Europe/Vienna':'Europe/Berlin','Europe/Warsaw':'Europe/Berlin','Europe/Stockholm':'Europe/Berlin','Europe/Copenhagen':'Europe/Berlin',
+        'America/Toronto':'America/New_York','America/Detroit':'America/New_York','America/Chicago':'America/New_York','America/Denver':'America/New_York','America/Los_Angeles':'America/New_York','America/Sao_Paulo':'America/New_York'
+      };
+      var aliasIana = ALIASES[browserTZ];
+      if (aliasIana) match = TZ_OPTIONS.filter(function(o){ return o.iana === aliasIana; })[0];
+    }
+
+    // 3. Last resort — pick whichever supported zone currently shares the closest UTC offset
+    if (!match) {
+      var localOffset = -new Date().getTimezoneOffset();
+      var best = null, bestDiff = Infinity;
+      TZ_OPTIONS.forEach(function(o) {
+        try {
+          var diff = Math.abs(_tzOffsetMinutes(o.iana) - localOffset);
+          if (diff < bestDiff) { bestDiff = diff; best = o; }
+        } catch(e) {}
+      });
+      match = best;
+    }
+
+    if (match) {
+      setTZ(match);
+      console.log('[tz] Auto-detected timezone at signup:', browserTZ, '→', match.name);
+    }
+  } catch(e) { console.warn('[tz] auto-detect failed:', e.message); }
+}
+
 function tzToggle() {
   var dd = document.getElementById('tz-dropdown');
   if (!dd) return;
@@ -10584,8 +10639,12 @@ window.tdlDoSignup = async function() {
       if (avatarFile && avatarFile[0]) {
         await tdlUploadAvatar(sb, result.data.user.id, avatarFile[0]);
       }
+      // New account — auto-detect & set their timezone from the browser so
+      // they don't have to find it manually in the dropdown.
+      _tdAutoDetectTimezone();
       await tdlOnAuth(result.data.user);
     } else {
+      _tdAutoDetectTimezone();
       var ok = document.getElementById('tdl-su-ok');
       ok.textContent = '✓ Account created! Check your email to confirm, then sign in.';
       ok.style.display = 'block';
