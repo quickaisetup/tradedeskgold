@@ -8759,14 +8759,15 @@ function initTVChart() {
     allow_symbol_change: false, save_image: false,
     hide_side_toolbar: true,
     studies: [
-      // Keep just one momentum oscillator (MACD) so the lower-pane area
-      // takes proportionally less of the chart, leaving more room for
-      // price action + the MA stack. AO can still be added manually via
-      // the chart's own "Indicators" button if wanted for a session.
+      // The widget appears to silently cap how many auto-loaded studies it
+      // will render (AO kept vanishing once the MA stack pushed the count
+      // past ~4-5). Trimmed to the most load-bearing set so BOTH oscillators
+      // reliably show: MACD + AO, plus the two MAs that matter most for
+      // top-down trend context (50 & 200 — the "golden/death cross" pair).
+      // 9 & 20 EMAs can still be added manually via "Indicators" if wanted.
       'STD;MACD',
-      { id: 'MAExp@tv-basicstudies', inputs: { length: 9 } },
-      { id: 'MAExp@tv-basicstudies', inputs: { length: 20 } },
-      { id: 'MASimple@tv-basicstudies', inputs: { length: 50 } },
+      'STD;Awesome_Oscillator',
+      { id: 'MAExp@tv-basicstudies', inputs: { length: 50 } },
       { id: 'MASimple@tv-basicstudies', inputs: { length: 200 } }
     ],
     support_host: 'https://www.tradingview.com'
