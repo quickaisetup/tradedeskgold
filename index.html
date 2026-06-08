@@ -11093,7 +11093,7 @@ function lbCardHtml(row, rank, isMe) {
     ? '<img src="' + row.avatar_url + '" alt="" style="width:100%;height:100%;border-radius:50%;object-fit:cover;display:block">'
     : initials;
   var rankCls = rank === 1 ? 'gold' : rank === 2 ? 'silver' : rank === 3 ? 'bronze' : '';
-  var nameLabel = isMe ? 'You' : ('@' + row.username);
+  var nameLabel = '@' + row.username;
   // Use the SAME persisted streak_score the trader's own sidebar shows —
   // not a re-derived count — so the badge here can never disagree with it.
   var score = row.streak_score;
