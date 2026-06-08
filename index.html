@@ -140,7 +140,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 .lb-strip-title{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);font-weight:700}
 .lb-strip-title::before{content:'';width:3px;height:9px;border-radius:2px;background:var(--gold);opacity:0.6;display:inline-block}
 .lb-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-.lb-card{display:flex;flex-direction:column;align-items:flex-start;gap:0;background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:10px 12px;transition:border-color .15s}
+.lb-card{display:flex;align-items:center;gap:10px;background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:10px 14px;transition:border-color .15s}
 .lb-card:hover{border-color:rgba(255,255,255,0.15)}
 .lb-card.me{border-color:rgba(240,188,78,0.5);background:rgba(240,188,78,0.06)}
 .lb-card-top{display:flex;align-items:center;gap:8px;margin-bottom:8px;width:100%}
@@ -148,7 +148,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 .lb-rank.gold{color:#f0bc4e}
 .lb-rank.silver{color:#cfd6dd}
 .lb-rank.bronze{color:#d8975a}
-.lb-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;font-weight:700;color:#0e0f11;flex-shrink:0;letter-spacing:0.02em}
+.lb-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;font-weight:700;color:#0e0f11;flex-shrink:0;letter-spacing:0.02em}
 .lb-name-row{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-bottom:3px}
 .lb-name{font-family:var(--mono);font-size:10.5px;color:var(--text);font-weight:700;letter-spacing:0.02em}
 .lb-tag{font-family:var(--mono);font-size:7px;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);background:rgba(240,188,78,0.12);border:1px solid rgba(240,188,78,0.25);border-radius:3px;padding:1px 4px;white-space:nowrap}
@@ -2275,56 +2275,52 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
     </div>
     <div class="lb-row" id="lb-row">
       <div class="lb-card">
-        <div class="lb-card-top">
-          <div class="lb-rank gold">#1</div>
-          <div class="lb-avatar" style="background:#f0bc4e">JM</div>
-          <div><div class="lb-name-row"><span class="lb-name">@jmarlow_fx</span></div><span class="lb-tag">Legend</span></div>
+        <div class="lb-rank gold">#1</div>
+        <div class="lb-avatar" style="background:#f0bc4e">JM</div>
+        <div style="flex:1;min-width:0">
+          <div class="lb-name-row"><span class="lb-name">@jmarlow_fx</span><span class="lb-tag">Legend</span></div>
+          <div style="display:flex;gap:10px;margin-top:4px">
+            <div class="lb-stat"><div class="lb-stat-lbl">Yesterday</div><div class="lb-stat-val">+$1,240</div></div>
+            <div class="lb-stat"><div class="lb-stat-lbl">This week</div><div class="lb-stat-val">+$6,820</div></div>
+            <div class="lb-stat"><div class="lb-stat-lbl">Streak</div><div class="lb-stat-val neutral">21d</div></div>
+          </div>
         </div>
-        <div class="lb-divider"></div>
-        <div class="lb-stat-row">
-          <div class="lb-stat"><div class="lb-stat-lbl">Yesterday</div><div class="lb-stat-val">+$1,240</div></div>
-          <div class="lb-stat"><div class="lb-stat-lbl">This week</div><div class="lb-stat-val">+$6,820</div></div>
-        </div>
-        <div class="lb-streak">21 day streak</div>
       </div>
       <div class="lb-card">
-        <div class="lb-card-top">
-          <div class="lb-rank silver">#2</div>
-          <div class="lb-avatar" style="background:#a8d8f0">RV</div>
-          <div><div class="lb-name-row"><span class="lb-name">@reyna_v</span></div><span class="lb-tag">Elite</span></div>
+        <div class="lb-rank silver">#2</div>
+        <div class="lb-avatar" style="background:#a8d8f0">RV</div>
+        <div style="flex:1;min-width:0">
+          <div class="lb-name-row"><span class="lb-name">@reyna_v</span><span class="lb-tag">Elite</span></div>
+          <div style="display:flex;gap:10px;margin-top:4px">
+            <div class="lb-stat"><div class="lb-stat-lbl">Yesterday</div><div class="lb-stat-val">+$860</div></div>
+            <div class="lb-stat"><div class="lb-stat-lbl">This week</div><div class="lb-stat-val">+$4,930</div></div>
+            <div class="lb-stat"><div class="lb-stat-lbl">Streak</div><div class="lb-stat-val neutral">18d</div></div>
+          </div>
         </div>
-        <div class="lb-divider"></div>
-        <div class="lb-stat-row">
-          <div class="lb-stat"><div class="lb-stat-lbl">Yesterday</div><div class="lb-stat-val">+$860</div></div>
-          <div class="lb-stat"><div class="lb-stat-lbl">This week</div><div class="lb-stat-val">+$4,930</div></div>
-        </div>
-        <div class="lb-streak">18 day streak</div>
       </div>
       <div class="lb-card">
-        <div class="lb-card-top">
-          <div class="lb-rank bronze">#3</div>
-          <div class="lb-avatar" style="background:#d8975a">TK</div>
-          <div><div class="lb-name-row"><span class="lb-name">@tkimura</span></div><span class="lb-tag">Elite</span></div>
+        <div class="lb-rank bronze">#3</div>
+        <div class="lb-avatar" style="background:#d8975a">TK</div>
+        <div style="flex:1;min-width:0">
+          <div class="lb-name-row"><span class="lb-name">@tkimura</span><span class="lb-tag">Elite</span></div>
+          <div style="display:flex;gap:10px;margin-top:4px">
+            <div class="lb-stat"><div class="lb-stat-lbl">Yesterday</div><div class="lb-stat-val">+$540</div></div>
+            <div class="lb-stat"><div class="lb-stat-lbl">This week</div><div class="lb-stat-val">+$4,180</div></div>
+            <div class="lb-stat"><div class="lb-stat-lbl">Streak</div><div class="lb-stat-val neutral">16d</div></div>
+          </div>
         </div>
-        <div class="lb-divider"></div>
-        <div class="lb-stat-row">
-          <div class="lb-stat"><div class="lb-stat-lbl">Yesterday</div><div class="lb-stat-val">+$540</div></div>
-          <div class="lb-stat"><div class="lb-stat-lbl">This week</div><div class="lb-stat-val">+$4,180</div></div>
-        </div>
-        <div class="lb-streak">16 day streak</div>
       </div>
       <div class="lb-card me">
-        <div class="lb-card-top">
-          <div class="lb-rank">#7</div>
-          <div class="lb-avatar" style="background:#4ed68a">YOU</div>
-          <div><div class="lb-name-row"><span class="lb-name">@you</span><span class="lb-tag green">You</span></div></div>
+        <div class="lb-rank">#7</div>
+        <div class="lb-avatar" style="background:#4ed68a">YO</div>
+        <div style="flex:1;min-width:0">
+          <div class="lb-name-row"><span class="lb-name">@you</span><span class="lb-tag green">You</span></div>
+          <div style="display:flex;gap:10px;margin-top:4px">
+            <div class="lb-stat"><div class="lb-stat-lbl">Yesterday</div><div class="lb-stat-val">+$210</div></div>
+            <div class="lb-stat"><div class="lb-stat-lbl">This week</div><div class="lb-stat-val">+$1,350</div></div>
+            <div class="lb-stat"><div class="lb-stat-lbl">Streak</div><div class="lb-stat-val neutral">6d</div></div>
+          </div>
         </div>
-        <div class="lb-divider"></div>
-        <div class="lb-stat-row">
-          <div class="lb-stat"><div class="lb-stat-lbl">Yesterday</div><div class="lb-stat-val">+$210</div></div>
-          <div class="lb-stat"><div class="lb-stat-lbl">This week</div><div class="lb-stat-val">+$1,350</div></div>
-        </div>
-        <div class="lb-streak">6 day streak</div>
       </div>
     </div>
   </div>
@@ -11216,17 +11212,16 @@ function lbCardHtml(row, rank, isMe) {
   var yestColor = (Number(row.yesterday_pnl)||0) < 0 ? '#f06060' : '#4ed68a';
   var weekColor = (Number(row.week_pnl)||0) < 0 ? '#f06060' : '#4ed68a';
   return '<div class="lb-card' + (isMe ? ' me' : '') + '">'
-    + '<div class="lb-card-top">'
-    +   '<div class="lb-rank ' + rankCls + '">#' + rank + '</div>'
-    +   '<div class="lb-avatar" style="background:' + (row.avatar_url ? 'transparent' : color) + ';overflow:hidden">' + avatarInner + '</div>'
-    +   '<div><div class="lb-name-row"><span class="lb-name">' + nameLabel + '</span>' + meTag + '</div>' + tierTag + '</div>'
+    + '<div class="lb-rank ' + rankCls + '">#' + rank + '</div>'
+    + '<div class="lb-avatar" style="background:' + (row.avatar_url ? 'transparent' : color) + ';overflow:hidden">' + avatarInner + '</div>'
+    + '<div style="flex:1;min-width:0">'
+    +   '<div class="lb-name-row"><span class="lb-name">' + nameLabel + '</span>' + meTag + tierTag + '</div>'
+    +   '<div style="display:flex;gap:10px;margin-top:4px">'
+    +     '<div class="lb-stat"><div class="lb-stat-lbl">Yesterday</div><div class="lb-stat-val" style="color:' + yestColor + '">' + yest + '</div></div>'
+    +     '<div class="lb-stat"><div class="lb-stat-lbl">This week</div><div class="lb-stat-val" style="color:' + weekColor + '">' + week + '</div></div>'
+    +     '<div class="lb-stat"><div class="lb-stat-lbl">Streak</div><div class="lb-stat-val neutral">' + score + 'd</div></div>'
+    +   '</div>'
     + '</div>'
-    + '<div class="lb-divider"></div>'
-    + '<div class="lb-stat-row">'
-    +   '<div class="lb-stat"><div class="lb-stat-lbl">Yesterday</div><div class="lb-stat-val" style="color:' + yestColor + '">' + yest + '</div></div>'
-    +   '<div class="lb-stat"><div class="lb-stat-lbl">This week</div><div class="lb-stat-val" style="color:' + weekColor + '">' + week + '</div></div>'
-    + '</div>'
-    + '<div class="lb-streak">' + score + ' day streak</div>'
     + '</div>';
 }
 function renderLeaderboard(rows) {
