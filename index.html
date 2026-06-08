@@ -11087,14 +11087,11 @@ function lbTierFor(score) {
   return t;
 }
 function lbDisplayName(row) {
-  // Prefer the trader's real name (first + last) — falls back to their
-  // @username/handle only if no name is set on their profile.
-  var full = ((row.first_name || '') + ' ' + (row.last_name || '')).trim();
-  return full || ('@' + row.username);
+  return '@' + row.username;
 }
 function lbCardHtml(row, rank, isMe) {
   var displayName = lbDisplayName(row);
-  var initials = lbInitials(((row.first_name||'')+' '+(row.last_name||'')).trim() || row.username);
+  var initials = lbInitials(row.username);
   var color = LB_PALETTE[(rank - 1) % LB_PALETTE.length];
   var avatarInner = row.avatar_url
     ? '<img src="' + row.avatar_url + '" alt="" style="width:100%;height:100%;border-radius:50%;object-fit:cover;display:block">'
