@@ -116,8 +116,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 .ai-card-date{font-family:var(--mono);font-size:9px;color:var(--text3)}
 
 /* FEEDBACK BUTTON + MODAL */
-#fb-btn{display:flex;align-items:center;gap:7px;width:calc(100% - 20px);margin:auto 10px 10px;padding:9px 14px;background:linear-gradient(135deg,rgba(49,22,106,0.85),rgba(39,42,111,0.8));border:1px solid rgba(139,92,246,0.5);border-radius:10px;color:#a78bfa;font-family:var(--mono);font-size:9px;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;transition:all .18s;position:sticky;bottom:10px;flex-shrink:0;box-shadow:0 2px 12px rgba(0,0,0,0.5)}
-#fb-btn:hover{background:linear-gradient(135deg,rgba(139,92,246,0.38),rgba(99,102,241,0.25));border-color:rgba(139,92,246,0.7);color:#c4b5fd;box-shadow:0 0 14px rgba(139,92,246,0.25)}
+#fb-btn{display:flex;align-items:center;gap:7px;position:fixed;bottom:12px;right:10px;width:180px;padding:9px 14px;background:linear-gradient(135deg,rgba(49,22,106,0.95),rgba(39,42,111,0.92));border:1px solid rgba(139,92,246,0.55);border-radius:10px;color:#a78bfa;font-family:var(--mono);font-size:9px;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;transition:all .18s;z-index:199;box-shadow:0 2px 16px rgba(0,0,0,0.6),0 0 10px rgba(139,92,246,0.15)}
+#fb-btn:hover{background:linear-gradient(135deg,rgba(109,40,217,0.95),rgba(79,70,229,0.88));border-color:rgba(167,139,250,0.7);color:#c4b5fd;box-shadow:0 0 18px rgba(139,92,246,0.35)}
 #fb-btn svg{flex-shrink:0;opacity:0.85}
 #fb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:3000;align-items:center;justify-content:center}
 #fb-overlay.open{display:flex}
@@ -988,6 +988,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
   border-left:2px solid rgba(255,255,255,0.06);
   display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;font-family:var(--mono);
   transition:border-color 0.7s ease,box-shadow 0.7s ease;
+  padding-bottom:52px;
 }
 #right-panel.bull-panel{border-left-color:rgba(78,214,138,0.5);box-shadow:-2px 0 24px rgba(78,214,138,0.07)}
 #right-panel.bear-panel{border-left-color:rgba(240,96,96,0.5);box-shadow:-2px 0 24px rgba(240,96,96,0.07)}
@@ -3254,13 +3255,14 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
     </div>
   </div>
 
-  <!-- FEEDBACK BUTTON -->
-  <button id="fb-btn" onclick="openFeedback()">
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-    Ideas &amp; Feedback
-  </button>
 
 </div>
+
+<!-- FEEDBACK BUTTON — fixed to viewport, aligned to bottom of right panel, outside scroll flow so it never covers sidebar content and always receives clicks -->
+<button id="fb-btn" onclick="openFeedback()">
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+  Ideas &amp; Feedback
+</button>
 
 <!-- FEEDBACK MODAL -->
 <div id="fb-overlay" onclick="if(event.target===this)closeFeedback()">
