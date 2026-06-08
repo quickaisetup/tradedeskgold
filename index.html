@@ -289,9 +289,17 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 .tf-card.bear{border-color:var(--rb);background:var(--rd)}
 .tf-card.range{border-color:var(--gb);background:var(--gd)}
 .tf-name{font-family:var(--display);font-size:19px;letter-spacing:0.04em;color:var(--text3);margin-bottom:8px;display:flex;align-items:center;gap:5px}
-.tf-name-chart{display:inline-flex;align-items:center;opacity:0.28;transition:opacity .15s;cursor:pointer;flex-shrink:0;padding:2px}
-.tf-name-chart:hover{opacity:0.7}
-.tf-card:hover .tf-name-chart{opacity:0.45}
+.tf-chart-dot{
+  width:7px;height:7px;border-radius:50%;
+  border:1.5px solid rgba(255,255,255,0.3);
+  background:transparent;
+  cursor:pointer;flex-shrink:0;
+  transition:all .2s;margin-left:2px;
+}
+.tf-chart-dot:hover{border-color:rgba(255,255,255,0.7)}
+.tf-chart-dot.active{background:var(--gold);border-color:var(--gold);box-shadow:0 0 5px rgba(240,188,78,0.6)}
+.tf-card.bull .tf-chart-dot.active{background:var(--green);border-color:var(--green);box-shadow:0 0 5px rgba(78,214,138,0.5)}
+.tf-card.bear .tf-chart-dot.active{background:var(--red);border-color:var(--red);box-shadow:0 0 5px rgba(240,96,96,0.5)}
 .tf-card.bull .tf-name{color:var(--green)}
 .tf-card.bear .tf-name{color:var(--red)}
 .tf-card.range .tf-name{color:var(--gold)}
@@ -1479,6 +1487,15 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
   #vt-main{font-size:26px!important}
   #score-num{font-size:36px!important}
 
+  /* ── CHART — full bleed on mobile ── */
+  #tv-chart-wrap{height:320px!important}
+  .card:has(#tv-chart-wrap){
+    margin-left:-14px!important;margin-right:-14px!important;
+    border-radius:0!important;border-left:none!important;border-right:none!important;
+  }
+  #tv-tf-switch{flex-wrap:wrap;gap:3px}
+  #tv-tf-switch span{display:none} /* hide "Analysis TF:" label */
+
   /* ── CARD PADDING ── */
   .card{padding:14px!important}
 
@@ -2631,7 +2648,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 
       <!-- 1M -->
       <div class="tf-card" id="tfc-1M" style="cursor:default">
-        <div class="tf-name" style="font-size:13px">1M<span class="tf-name-chart" title="Open chart" onclick="setTVInterval('M')"><svg width="11" height="9" viewBox="0 0 11 9" fill="none"><polyline points="1,8 4,4 6.5,6 10,1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+        <div class="tf-name" style="font-size:13px">1M<span class="tf-chart-dot" data-tf-dot="M" title="Switch chart to 1M" onclick="setTVIntervalFromCard('M')"></span></div>
         <div style="font-family:var(--mono);font-size:8px;color:var(--text3);margin-bottom:4px;letter-spacing:0.08em;text-transform:uppercase">Bias <span style="color:var(--text3);font-size:7px;opacity:0.6">(context only)</span></div>
         <div class="bias-btns" id="bias-1M">
           <button class="bb" onclick="toggleBias('1M','bull',this)">BULL</button>
@@ -2649,7 +2666,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 
       <!-- 1W -->
       <div class="tf-card" id="tfc-1W" style="cursor:default">
-        <div class="tf-name">1W<span class="tf-name-chart" title="Open chart" onclick="setTVInterval('W')"><svg width="11" height="9" viewBox="0 0 11 9" fill="none"><polyline points="1,8 4,4 6.5,6 10,1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+        <div class="tf-name">1W<span class="tf-chart-dot" data-tf-dot="W" title="Switch chart to 1W" onclick="setTVIntervalFromCard('W')"></span></div>
         <div style="font-family:var(--mono);font-size:8px;color:var(--text3);margin-bottom:4px;letter-spacing:0.08em;text-transform:uppercase">Bias</div>
         <div class="bias-btns" id="bias-1W">
           <button class="bb" onclick="toggleBias('1W','bull',this)">BULL</button>
@@ -2667,7 +2684,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 
       <!-- Daily -->
       <div class="tf-card" id="tfc-D" style="cursor:default">
-        <div class="tf-name">Daily<span class="tf-name-chart" title="Open chart" onclick="setTVInterval('D')"><svg width="11" height="9" viewBox="0 0 11 9" fill="none"><polyline points="1,8 4,4 6.5,6 10,1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+        <div class="tf-name">Daily<span class="tf-chart-dot" data-tf-dot="D" title="Switch chart to Daily" onclick="setTVIntervalFromCard('D')"></span></div>
         <div style="font-family:var(--mono);font-size:8px;color:var(--text3);margin-bottom:4px;letter-spacing:0.08em;text-transform:uppercase">Bias</div>
         <div class="bias-btns" id="bias-D">
           <button class="bb" onclick="toggleBias('D','bull',this)">BULL</button>
@@ -2685,7 +2702,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 
       <!-- 4H -->
       <div class="tf-card" id="tfc-4H" style="cursor:default">
-        <div class="tf-name">4H<span class="tf-name-chart" title="Open chart" onclick="setTVInterval('240')"><svg width="11" height="9" viewBox="0 0 11 9" fill="none"><polyline points="1,8 4,4 6.5,6 10,1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+        <div class="tf-name">4H<span class="tf-chart-dot" data-tf-dot="240" title="Switch chart to 4H" onclick="setTVIntervalFromCard('240')"></span></div>
         <div style="font-family:var(--mono);font-size:8px;color:var(--text3);margin-bottom:4px;letter-spacing:0.08em;text-transform:uppercase">Bias</div>
         <div class="bias-btns" id="bias-4H" style="margin-bottom:6px">
           <button class="bb" onclick="toggleBias('4H','bull',this)">BULL</button>
@@ -2729,7 +2746,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 
       <!-- 1H -->
       <div class="tf-card" id="tfc-1H" style="cursor:default">
-        <div class="tf-name">1H<span class="tf-name-chart" title="Open chart" onclick="setTVInterval('60')"><svg width="11" height="9" viewBox="0 0 11 9" fill="none"><polyline points="1,8 4,4 6.5,6 10,1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+        <div class="tf-name">1H<span class="tf-chart-dot" data-tf-dot="60" title="Switch chart to 1H" onclick="setTVIntervalFromCard('60')"></span></div>
         <div style="font-family:var(--mono);font-size:8px;color:var(--text3);margin-bottom:4px;letter-spacing:0.08em;text-transform:uppercase">Bias</div>
         <div class="bias-btns" id="bias-1H" style="margin-bottom:6px">
           <button class="bb" onclick="toggleBias('1H','bull',this)">BULL</button>
@@ -9095,7 +9112,19 @@ function setTVInterval(interval, btn) {
   document.querySelectorAll('#tv-tf-switch .tv-tf-btn').forEach(function(b){ b.classList.remove('sel'); });
   var activeBtn = btn || document.querySelector('#tv-tf-switch .tv-tf-btn[data-tf="' + interval + '"]');
   if (activeBtn) activeBtn.classList.add('sel');
+  // update TF card dots
+  document.querySelectorAll('.tf-chart-dot').forEach(function(d){ d.classList.remove('active'); });
+  var activeDot = document.querySelector('.tf-chart-dot[data-tf-dot="' + interval + '"]');
+  if (activeDot) activeDot.classList.add('active');
   initTVChart();
+}
+// called from TF card dots — scrolls chart into view on mobile
+function setTVIntervalFromCard(interval) {
+  setTVInterval(interval);
+  var chartWrap = document.getElementById('tv-chart-wrap');
+  if (chartWrap && window.innerWidth <= 768) {
+    setTimeout(function(){ chartWrap.scrollIntoView({behavior:'smooth', block:'start'}); }, 120);
+  }
 }
 
 // ── FOREX FACTORY CALENDAR ────────────────────────────
@@ -12522,6 +12551,9 @@ function mobPnlFromDB() {
 }
 document.addEventListener('DOMContentLoaded', function() {
   setTimeout(mobProfileSync, 1800);
+  // mark default active TF dot (4H)
+  var defaultDot = document.querySelector('.tf-chart-dot[data-tf-dot="240"]');
+  if (defaultDot) defaultDot.classList.add('active');
   // re-sync whenever right panel updates
   var rn = document.getElementById('rp-rank-name');
   if (rn) { var obs = new MutationObserver(mobProfileSync); obs.observe(rn, {childList:true,subtree:true,characterData:true}); }
