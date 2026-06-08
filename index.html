@@ -3158,6 +3158,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
     <div id="leo-sym-tabs">
       <button class="leo-sym-tab active" onclick="leoSetSymbol('XAUUSD',this)">XAUUSD</button>
       <button class="leo-sym-tab" onclick="leoSetSymbol('DXY',this)">DXY</button>
+      <button class="leo-sym-tab" onclick="leoAddCustomTab()" title="Add a TradingView ticker (e.g. OANDA:EURUSD, NASDAQ:AAPL)" style="color:rgba(240,188,78,0.6)">+ Add</button>
     </div>
   </div>
 
@@ -7540,6 +7541,64 @@ function leoSetSymbol(sym, btn) {
   leoLoadIframes();
 }
 
+// ── CUSTOM TICKER TABS — user can add any TradingView symbol ──
+// Persisted in localStorage so the tab "stays there" across sessions/reloads.
+var LEO_CUSTOM_KEY = 'leo_custom_tickers_v1';
+
+function _leoLoadCustomTabs() {
+  try { return JSON.parse(localStorage.getItem(LEO_CUSTOM_KEY) || '[]'); }
+  catch(e) { return []; }
+}
+function _leoSaveCustomTabs(list) {
+  try { localStorage.setItem(LEO_CUSTOM_KEY, JSON.stringify(list)); } catch(e) {}
+}
+
+function leoRenderCustomTabs() {
+  var tabs = document.getElementById('leo-sym-tabs');
+  var addBtn = tabs ? tabs.querySelector('.leo-sym-tab[onclick="leoAddCustomTab()"]') : null;
+  if (!tabs || !addBtn) return;
+  // Remove any previously-rendered custom tabs (avoid duplicates on re-open)
+  tabs.querySelectorAll('.leo-sym-tab.leo-custom-tab').forEach(function(b){ b.remove(); });
+  _leoLoadCustomTabs().forEach(function(item) {
+    LEO_SYMBOL_MAP[item.label] = item.sym;
+    var b = document.createElement('button');
+    b.className = 'leo-sym-tab leo-custom-tab';
+    b.textContent = item.label;
+    b.title = item.sym;
+    b.onclick = function() { leoSetSymbol(item.label, b); };
+    b.oncontextmenu = function(e) { e.preventDefault(); leoRemoveCustomTab(item.label); };
+    tabs.insertBefore(b, addBtn);
+  });
+}
+
+function leoAddCustomTab() {
+  var raw = prompt('Enter the TradingView ticker symbol to chart\n(e.g. OANDA:EURUSD, NASDAQ:AAPL, BINANCE:BTCUSDT):', '');
+  if (!raw) return;
+  raw = raw.trim().toUpperCase();
+  if (!raw) return;
+  // Use whatever's after the colon (or the whole thing) as the short tab label
+  var label = raw.indexOf(':') > -1 ? raw.split(':')[1] : raw;
+  var list = _leoLoadCustomTabs().filter(function(x){ return x.label !== label; });
+  list.push({ label: label, sym: raw });
+  _leoSaveCustomTabs(list);
+  LEO_SYMBOL_MAP[label] = raw;
+  leoRenderCustomTabs();
+  // Switch to the newly-added ticker and open its chart
+  var newBtn = document.querySelector('.leo-sym-tab.leo-custom-tab[title="' + raw + '"]');
+  leoSetSymbol(label, newBtn);
+}
+
+function leoRemoveCustomTab(label) {
+  if (!confirm('Remove "' + label + '" ticker tab?')) return;
+  var list = _leoLoadCustomTabs().filter(function(x){ return x.label !== label; });
+  _leoSaveCustomTabs(list);
+  delete LEO_SYMBOL_MAP[label];
+  leoRenderCustomTabs();
+  // Fall back to XAUUSD if the removed tab was active
+  var xau = document.querySelector('.leo-sym-tab[onclick*="XAUUSD"]');
+  leoSetSymbol('XAUUSD', xau);
+}
+
 // ── CANDLE COUNTDOWN ─────────────────────────────────
 function leoCdFmt(secs) {
   if (secs <= 0) return '00:00';
@@ -7616,6 +7675,7 @@ function openLiveExec() {
 
   if (!_leoInited) {
     _leoInited = true;
+    leoRenderCustomTabs();
     leoLoadIframes();
     leoFetchLivePrice();
     _leoLiveTimer = setInterval(leoFetchLivePrice, 3000);
