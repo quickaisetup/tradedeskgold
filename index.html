@@ -8759,14 +8759,15 @@ function initTVChart() {
     allow_symbol_change: false, save_image: false,
     hide_side_toolbar: true,
     studies: [
-      // The widget appears to silently cap how many auto-loaded studies it
-      // will render (AO kept vanishing once the MA stack pushed the count
-      // past ~4-5). Trimmed to the most load-bearing set so BOTH oscillators
-      // reliably show: MACD + AO, plus the two MAs that matter most for
-      // top-down trend context (50 & 200 — the "golden/death cross" pair).
-      // 9 & 20 EMAs can still be added manually via "Indicators" if wanted.
+      // NOTE: the widget appears to silently cap how many auto-loaded studies
+      // it will render (AO vanished once total count pushed past ~4-5).
+      // Re-adding EMA 9 & 20 brings us back to 6 total — if AO or MACD
+      // disappear again, trim this back to the 4-study set (MACD, AO,
+      // EMA50, SMA200) that's confirmed to work reliably.
       'STD;MACD',
       'STD;Awesome_Oscillator',
+      { id: 'MAExp@tv-basicstudies', inputs: { length: 9 } },
+      { id: 'MAExp@tv-basicstudies', inputs: { length: 20 } },
       { id: 'MAExp@tv-basicstudies', inputs: { length: 50 } },
       { id: 'MASimple@tv-basicstudies', inputs: { length: 200 } }
     ],
