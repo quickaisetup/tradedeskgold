@@ -11086,14 +11086,21 @@ function lbTierFor(score) {
   for (var i = 0; i < LB_TIERS.length; i++) { if (d >= LB_TIERS[i].min) t = LB_TIERS[i]; }
   return t;
 }
+function lbDisplayName(row) {
+  // Prefer the trader's real name (first + last) — falls back to their
+  // @username/handle only if no name is set on their profile.
+  var full = ((row.first_name || '') + ' ' + (row.last_name || '')).trim();
+  return full || ('@' + row.username);
+}
 function lbCardHtml(row, rank, isMe) {
-  var initials = lbInitials(row.username);
+  var displayName = lbDisplayName(row);
+  var initials = lbInitials(((row.first_name||'')+' '+(row.last_name||'')).trim() || row.username);
   var color = LB_PALETTE[(rank - 1) % LB_PALETTE.length];
   var avatarInner = row.avatar_url
     ? '<img src="' + row.avatar_url + '" alt="" style="width:100%;height:100%;border-radius:50%;object-fit:cover;display:block">'
     : initials;
   var rankCls = rank === 1 ? 'gold' : rank === 2 ? 'silver' : rank === 3 ? 'bronze' : '';
-  var nameLabel = '@' + row.username;
+  var nameLabel = displayName;
   // Use the SAME persisted streak_score the trader's own sidebar shows —
   // not a re-derived count — so the badge here can never disagree with it.
   var score = row.streak_score;
