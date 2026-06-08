@@ -114,6 +114,29 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 .ai-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
 .ai-card-title{font-family:var(--mono);font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--gold)}
 .ai-card-date{font-family:var(--mono);font-size:9px;color:var(--text3)}
+
+/* TRADER LEADERBOARD STRIP */
+.lb-strip{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:10px 14px;margin-bottom:14px}
+.lb-strip-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:6px}
+.lb-strip-title{display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--gold)}
+.lb-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px}
+.lb-row::-webkit-scrollbar{height:5px}
+.lb-row::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:3px}
+.lb-card{flex:0 0 auto;display:flex;align-items:center;gap:8px;background:var(--bg3);border:1px solid var(--border2);border-radius:9px;padding:6px 13px 6px 8px;min-width:198px;transition:border-color .15s}
+.lb-card:hover{border-color:rgba(240,188,78,0.3)}
+.lb-card.me{border-color:rgba(240,188,78,0.45);background:rgba(240,188,78,0.07)}
+.lb-rank{font-family:var(--display);font-size:14px;color:var(--text3);width:20px;text-align:center;flex-shrink:0}
+.lb-rank.gold{color:#f0bc4e}
+.lb-rank.silver{color:#cfd6dd}
+.lb-rank.bronze{color:#d8975a}
+.lb-avatar{width:29px;height:29px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9.5px;font-weight:700;color:#0e0f11;flex-shrink:0;letter-spacing:0.02em}
+.lb-name-row{display:flex;align-items:center;gap:5px}
+.lb-name{font-family:var(--mono);font-size:10px;color:var(--text);font-weight:600;letter-spacing:0.02em}
+.lb-tag{font-family:var(--mono);font-size:7px;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);background:rgba(240,188,78,0.12);border:1px solid rgba(240,188,78,0.25);border-radius:3px;padding:1px 4px;white-space:nowrap}
+.lb-tag.dim{color:var(--text3);background:transparent;border-color:var(--border2)}
+.lb-tag.green{color:#4ed68a;background:rgba(78,214,138,0.12);border-color:rgba(78,214,138,0.25)}
+.lb-stats{font-family:var(--mono);font-size:8.5px;color:var(--text3);letter-spacing:0.03em;margin-top:2px;white-space:nowrap}
+.lb-stats b{color:#4ed68a;font-weight:700}
 .ai-text{font-size:14px;color:var(--text);line-height:1.7}
 .ai-loading{display:flex;align-items:center;gap:8px;color:var(--text3);font-family:var(--mono);font-size:11px}
 .ai-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);animation:pulse 1.2s ease-in-out infinite}
@@ -2219,6 +2242,72 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
     </div>
     </label>
   </div>
+  <!-- TRADER LEADERBOARD -->
+  <div class="lb-strip">
+    <div class="lb-strip-head">
+      <div class="lb-strip-title"><span style="font-size:13px">🏆</span> Trader Leaderboard</div>
+      <span style="font-family:var(--mono);font-size:8px;color:var(--text3);letter-spacing:0.07em">This week · ranked by clean days &amp; consistency</span>
+    </div>
+    <div class="lb-row">
+      <div class="lb-card">
+        <div class="lb-rank gold">#1</div>
+        <div class="lb-avatar" style="background:#f0bc4e">JM</div>
+        <div>
+          <div class="lb-name-row"><span class="lb-name">@jmarlow_fx</span><span class="lb-tag">Legend</span></div>
+          <div class="lb-stats"><b>+24.6%</b> · 21 clean days</div>
+        </div>
+      </div>
+      <div class="lb-card">
+        <div class="lb-rank silver">#2</div>
+        <div class="lb-avatar" style="background:#a8d8f0">RV</div>
+        <div>
+          <div class="lb-name-row"><span class="lb-name">@reyna_v</span><span class="lb-tag">Elite</span></div>
+          <div class="lb-stats"><b>+19.2%</b> · 18 clean days</div>
+        </div>
+      </div>
+      <div class="lb-card">
+        <div class="lb-rank bronze">#3</div>
+        <div class="lb-avatar" style="background:#d8975a">TK</div>
+        <div>
+          <div class="lb-name-row"><span class="lb-name">@tkimura</span><span class="lb-tag">Elite</span></div>
+          <div class="lb-stats"><b>+17.8%</b> · 16 clean days</div>
+        </div>
+      </div>
+      <div class="lb-card">
+        <div class="lb-rank">#4</div>
+        <div class="lb-avatar" style="background:#7fb3d9">AH</div>
+        <div>
+          <div class="lb-name-row"><span class="lb-name">@a_haddad</span><span class="lb-tag dim">Trader V</span></div>
+          <div class="lb-stats"><b>+14.3%</b> · 13 clean days</div>
+        </div>
+      </div>
+      <div class="lb-card">
+        <div class="lb-rank">#5</div>
+        <div class="lb-avatar" style="background:#c9a3ff">SL</div>
+        <div>
+          <div class="lb-name-row"><span class="lb-name">@s_liang</span><span class="lb-tag dim">Trader IV</span></div>
+          <div class="lb-stats"><b>+11.7%</b> · 10 clean days</div>
+        </div>
+      </div>
+      <div class="lb-card me">
+        <div class="lb-rank">#7</div>
+        <div class="lb-avatar" style="background:#4ed68a">YOU</div>
+        <div>
+          <div class="lb-name-row"><span class="lb-name">You</span><span class="lb-tag green">Climbing ↑</span></div>
+          <div class="lb-stats"><b>+9.4%</b> · 6 clean days</div>
+        </div>
+      </div>
+      <div class="lb-card">
+        <div class="lb-rank">#8</div>
+        <div class="lb-avatar" style="background:#e08a8a">MO</div>
+        <div>
+          <div class="lb-name-row"><span class="lb-name">@m_okafor</span><span class="lb-tag dim">Trader II</span></div>
+          <div class="lb-stats"><b>+4.8%</b> · 3 clean days</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- AI EXPLAINER -->
   <div id="exp-ai" class="td-explainer">
     <button class="td-explainer-dismiss" onclick="dismissExplainer('exp-ai')">✕</button>
