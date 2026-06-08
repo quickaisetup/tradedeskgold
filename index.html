@@ -279,6 +279,9 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 .tgl{font-family:var(--mono);font-size:9px;letter-spacing:0.06em;padding:5px 9px;border-radius:4px;border:1px solid var(--border2);background:var(--bg4);color:var(--text2);cursor:pointer;transition:all 0.15s}
 .tgl:hover{color:var(--text);border-color:rgba(255,255,255,0.3)}
 .tgl.sel{border-color:var(--gold);background:rgba(240,188,78,0.2);color:var(--gold);font-weight:600;box-shadow:0 0 6px rgba(240,188,78,0.25)}
+.tv-tf-btn{font-family:var(--mono);font-size:9px;letter-spacing:0.06em;padding:3px 8px;border-radius:3px;border:1px solid var(--border2);background:var(--bg4);color:var(--text2);cursor:pointer;transition:all 0.15s}
+.tv-tf-btn:hover{color:var(--text);border-color:rgba(255,255,255,0.3)}
+.tv-tf-btn.sel{border-color:var(--gold);background:rgba(240,188,78,0.2);color:var(--gold);font-weight:700;box-shadow:0 0 6px rgba(240,188,78,0.25)}
 /* Instrument tabs (top-down analysis) — bigger & bolder than regular toggle buttons */
 #td-instr-tabs{gap:8px}
 #td-instr-tabs .tgl{font-size:12px;letter-spacing:0.08em;padding:9px 20px;border-radius:7px;border-width:1.5px;font-weight:600}
@@ -2343,13 +2346,19 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 
     <!-- XAUUSD CHART -->
     <div class="card" style="padding:0;overflow:hidden;margin-bottom:10px">
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 14px;border-bottom:1px solid var(--border)">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 14px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:8px">
         <div style="font-family:var(--mono);font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text2);display:flex;align-items:center;gap:8px">
           <span style="width:6px;height:6px;border-radius:50%;background:var(--gold);display:inline-block"></span>
           <span id="tv-chart-title">XAUUSD · Gold Spot</span>
-          <span id="tv-active-label" style="color:var(--gold);background:var(--gd);border:1px solid var(--gb);border-radius:3px;padding:1px 6px;font-size:8px">4H</span>
         </div>
-        <span style="font-family:var(--mono);font-size:8px;color:var(--text3)">click a TF card to switch</span>
+        <div id="tv-tf-switch" style="display:flex;align-items:center;gap:4px;font-family:var(--mono);font-size:9px;letter-spacing:0.06em">
+          <span style="color:var(--text3);font-size:8px;margin-right:2px">Analysis TF:</span>
+          <button class="tv-tf-btn" data-tf="M" onclick="setTVInterval('M',this)">1M</button>
+          <button class="tv-tf-btn" data-tf="W" onclick="setTVInterval('W',this)">1W</button>
+          <button class="tv-tf-btn" data-tf="D" onclick="setTVInterval('D',this)">1D</button>
+          <button class="tv-tf-btn sel" data-tf="240" onclick="setTVInterval('240',this)">4H</button>
+          <button class="tv-tf-btn" data-tf="60" onclick="setTVInterval('60',this)">1H</button>
+        </div>
       </div>
       <div id="tv-chart-wrap" style="height:460px;width:100%"></div>
     </div>
@@ -8738,7 +8747,7 @@ function initTVChart() {
     gridColor: 'rgba(255,255,255,0.04)',
     hide_top_toolbar: false, hide_legend: false,
     allow_symbol_change: false, save_image: false,
-    hide_side_toolbar: true, studies: ['STD;EMA'],
+    hide_side_toolbar: true, studies: ['STD;EMA', 'STD;MACD', 'STD;Awesome_Oscillator'],
     support_host: 'https://www.tradingview.com'
   });
   container.appendChild(script);
@@ -8748,11 +8757,12 @@ var TF_MAP   = {'M':'M','W':'W','D':'D','240':'240','60':'60','1':'1','5':'5','1
 var TF_LABEL = {'M':'1M','W':'1W','D':'1D','240':'4H','60':'1H','1':'1m','5':'5m','15':'15m'};
 var TF_CARD  = {'M':'tfc-1M','W':'tfc-1W','D':'tfc-D','240':'tfc-4H','60':'tfc-1H'};
 
-function setTVInterval(interval) {
+function setTVInterval(interval, btn) {
   interval = TF_MAP[interval] || interval;
   _tvInterval = interval;
-  var lbl = document.getElementById('tv-active-label');
-  if (lbl) lbl.textContent = TF_LABEL[interval] || interval;
+  document.querySelectorAll('#tv-tf-switch .tv-tf-btn').forEach(function(b){ b.classList.remove('sel'); });
+  var activeBtn = btn || document.querySelector('#tv-tf-switch .tv-tf-btn[data-tf="' + interval + '"]');
+  if (activeBtn) activeBtn.classList.add('sel');
   initTVChart();
 }
 
