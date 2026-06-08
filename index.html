@@ -8757,7 +8757,22 @@ function initTVChart() {
     gridColor: 'rgba(255,255,255,0.04)',
     hide_top_toolbar: false, hide_legend: false,
     allow_symbol_change: false, save_image: false,
-    hide_side_toolbar: true, studies: ['STD;EMA', 'STD;MACD', 'STD;Awesome_Oscillator'],
+    hide_side_toolbar: true,
+    hide_volume: true,
+    studies: ['STD;EMA', 'STD;MACD', 'STD;Awesome_Oscillator'],
+    // Tone the auto-loaded oscillators down — they're support indicators, the
+    // price action should stay the visual focus. Thinner lines, muted colors,
+    // smaller histogram bars so MACD/AO read as "context", not centerpieces.
+    studies_overrides: {
+      'macd.macd.linewidth': 1,
+      'macd.macd.color': 'rgba(106,163,245,0.55)',
+      'macd.signal.linewidth': 1,
+      'macd.signal.color': 'rgba(240,188,78,0.5)',
+      'macd.histogram.color.0': 'rgba(240,96,96,0.35)',
+      'macd.histogram.color.1': 'rgba(78,214,138,0.35)',
+      'Awesome Oscillator.color.0': 'rgba(240,96,96,0.4)',
+      'Awesome Oscillator.color.1': 'rgba(78,214,138,0.4)'
+    },
     support_host: 'https://www.tradingview.com'
   });
   container.appendChild(script);
