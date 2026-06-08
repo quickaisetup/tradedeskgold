@@ -5064,6 +5064,10 @@ function setTV(id, field, val, btn) {
     btn.closest('.toggle-group').querySelectorAll('.tgl').forEach(function(b) { b.classList.remove('sel'); });
     btn.classList.add('sel');
   }
+  if (field === 'instrument') {
+    var lbl = document.getElementById('tkr-lbl-' + id);
+    if (lbl) lbl.textContent = val + ' · ' + getSession();
+  }
   checkSaveReady(id);
 }
 
@@ -5148,18 +5152,61 @@ function setMistakeCustom(id, val) {
 
 var _MIC_SVG = '<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><rect x="8.5" y="1" width="7" height="12" rx="3.5"/><path d="M5 11.5a7 7 0 0 0 14 0v-.5a1 1 0 0 0-2 0v.5a5 5 0 0 1-10 0v-.5a1 1 0 0 0-2 0v.5z"/><rect x="11" y="18" width="2" height="3"/><rect x="7.5" y="20.5" width="9" height="2" rx="1"/></svg>';
 
+// ── CUSTOM TICKERS for trade-logging form ────────────
+// "Gold" is always the default/first option; traders can add more (persisted)
+// so they can log trades on other instruments too.
+var TD_CUSTOM_TICKERS_KEY = 'td_custom_tickers_v1';
+
+function _tdLoadCustomTickers() {
+  try { return JSON.parse(localStorage.getItem(TD_CUSTOM_TICKERS_KEY) || '[]'); }
+  catch(e) { return []; }
+}
+function _tdSaveCustomTickers(list) {
+  try { localStorage.setItem(TD_CUSTOM_TICKERS_KEY, JSON.stringify(list)); } catch(e) {}
+}
+
+function buildTickerButtons(id) {
+  var t = state.trades.find(function(x){ return x.id === id; });
+  var cur = (t && t.instrument) || 'Gold';
+  var html = '<button class="tgl' + (cur === 'Gold' ? ' sel' : '') + '" onclick="setTV(' + id + ',\'instrument\',\'Gold\',this)">Gold</button>';
+  _tdLoadCustomTickers().forEach(function(tk) {
+    html += '<button class="tgl' + (cur === tk ? ' sel' : '') + '" onclick="setTV(' + id + ',\'instrument\',\'' + tk + '\',this)">' + tk + '</button>';
+  });
+  html += '<button class="tgl" onclick="addCustomTicker(' + id + ')" style="color:rgba(240,188,78,0.6)" title="Add another instrument/ticker">+ Add</button>';
+  return html;
+}
+
+function addCustomTicker(id) {
+  var raw = prompt('Enter the instrument/ticker you want to log trades for\n(e.g. EURUSD, US30, BTCUSD, NAS100):', '');
+  if (!raw) return;
+  raw = raw.trim().toUpperCase();
+  if (!raw) return;
+  var list = _tdLoadCustomTickers();
+  if (list.indexOf(raw) === -1) { list.push(raw); _tdSaveCustomTickers(list); }
+  // Set this trade's instrument to the new ticker
+  var t = state.trades.find(function(x){ return x.id === id; });
+  if (t) t.instrument = raw;
+  // Re-render every open trade form's ticker group so the new option appears
+  // everywhere (and the originating form shows it selected) — it "stays there".
+  document.querySelectorAll('[id^="tkr-grp-"]').forEach(function(grp) {
+    var fid = parseInt(grp.id.replace('tkr-grp-', ''), 10);
+    grp.innerHTML = buildTickerButtons(fid);
+  });
+  checkSaveReady(id);
+}
+
 function buildTradeForm(id) {
   var confItems = ['Fib 0.764','Fib 0.618','Fib 0.5','Fib 0.382','Support/Resistance','Trendline','Liquidity sweep','Prev high/low','AO divergence','Elliott wave','Volume spike','Other'];
   var mistakeItems = ['Entered too early','Anticipated — no confirmation','SL too tight','Tightened SL inside noise','Removed SL','Added to loser','Missed 50% at 1R','Revenge trade','Overtraded','Traded outside hours','Overleveraged','Ignored HTF bias'];
   return '<div class="trade-form-header">' +
     '<span class="trade-num">Trade #' + id + '</span>' +
     '<div style="display:flex;align-items:center;gap:8px">' +
-    '<span style="font-family:var(--mono);font-size:9px;color:var(--text3)">Gold &middot; ' + getSession() + '</span>' +
+    '<span style="font-family:var(--mono);font-size:9px;color:var(--text3)" id="tkr-lbl-' + id + '">' + ((function(){var t=state.trades.find(function(x){return x.id===id});return (t&&t.instrument)||'Gold';})()) + ' &middot; ' + getSession() + '</span>' +
     '<button class="close-trade" onclick="duplicateTrade(' + id + ')" style="border-color:rgba(240,188,78,0.3);color:rgba(240,188,78,0.7)" onmouseover="this.style.borderColor=\'rgba(240,188,78,0.6)\';this.style.color=\'var(--gold)\'" onmouseout="this.style.borderColor=\'rgba(240,188,78,0.3)\';this.style.color=\'rgba(240,188,78,0.7)\'">⧉ Duplicate</button>' +
     '<button class="close-trade" onclick="removeTrade(' + id + ')">Remove</button>' +
     '</div></div>' +
     '<div class="form-grid">' +
-    '<div class="form-field"><label>Ticker</label><div class="toggle-group"><button class="tgl sel" onclick="setTV(' + id + ',\'instrument\',\'Gold\',this)">Gold</button></div></div>' +
+    '<div class="form-field"><label>Ticker</label><div class="toggle-group" id="tkr-grp-' + id + '">' + buildTickerButtons(id) + '</div></div>' +
     '<div class="form-field"><label>Trade type</label><div class="toggle-group"><button class="tgl" onclick="setTradeType(' + id + ',\'Alex\',this)">Alex</button><button class="tgl" onclick="setTradeType(' + id + ',\'Own\',this)">Own</button></div></div>' +
     '<div class="form-field"><label>Direction</label><div class="toggle-group"><button class="tgl" onclick="setTV(' + id + ',\'direction\',\'Long\',this)">Long</button><button class="tgl" onclick="setTV(' + id + ',\'direction\',\'Short\',this)">Short</button></div></div>' +
     '<div class="form-field"><label>Risk %</label><div class="toggle-group"><button class="tgl" onclick="setTV(' + id + ',\'riskPct\',\'0.25\',this)">0.25%</button><button class="tgl" onclick="setTV(' + id + ',\'riskPct\',\'0.5\',this)">0.5%</button><button class="tgl" onclick="setTV(' + id + ',\'riskPct\',\'1.0\',this)">1.0%</button></div></div>' +
@@ -5337,7 +5384,7 @@ async function saveTrade(id) {
   var basePayload = {
     type: 'trade', date: new Date().toLocaleDateString('en-GB'),
     dateISO: t._dateISO || null, // use original trade date if loaded from DB (prevents re-dating to today)
-    time: t.time, session: t.session, instrument: 'Gold',
+    time: t.time, session: t.session, instrument: t.instrument || 'Gold',
     direction: t.direction||'', type2: t.type||'', setup: t.setup||'',
     tfTrigger: t.tfTrigger||'', entryType: t.entryType||'',
     entry: t.entry||'', sl: t.sl||'', tp: t.tp||'',
