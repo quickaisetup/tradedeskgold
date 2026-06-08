@@ -5353,6 +5353,7 @@ async function saveTrade(id) {
   };
 
   // ── If trade has a Supabase ID → UPDATE, else INSERT ─
+  var _wasNew = !t._sbId;
   if (t._sbId) {
     // Single update (account field already stored in the row)
     await postToSheets(Object.assign({}, basePayload, { account: accts.join('+') }));
@@ -5362,6 +5363,14 @@ async function saveTrade(id) {
       return postToSheets(Object.assign({}, basePayload, { account: acct }));
     });
     await Promise.all(saves);
+  }
+
+  // Apply this trade's USD result to the matching account's running balance —
+  // only once, on first save (otherwise re-saving/editing would double-count).
+  // removeTrade() already reverses this with sign -1 when a trade is deleted.
+  if (_wasNew && !t._balanceApplied) {
+    _updateAccountBalance(t, +1);
+    t._balanceApplied = true;
   }
 
   t.saved = true;
