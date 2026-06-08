@@ -1350,6 +1350,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
   /* ── PROFILE STRIP & TODAY CARD — show on mobile only ── */
   #mob-profile-strip{display:flex!important}
   #tfc-today{display:block!important}
+  /* hide original direction/pivot card — covered by TODAY TF card on mobile */
+  #dir-pivot-card{display:none!important}
 
   /* ── LIVE EXECUTION BUTTON — hidden on mobile, replaced by FAB in nav ── */
   #live-exec-btn{display:none!important}
@@ -2803,12 +2805,18 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
           <button class="bb" onclick="mobPivotClick('bear',this)">↓ Below</button>
           <button class="bb" onclick="mobPivotClick('neu',this)">@ At</button>
         </div>
+        <div style="font-family:var(--mono);font-size:7.5px;color:var(--text3);letter-spacing:0.08em;text-transform:uppercase;margin:8px 0 5px">London open</div>
+        <div style="display:flex;flex-direction:column;gap:3px" id="mob-london-btns">
+          <button class="bb" onclick="mobLondonClick('bull',this)">↑ Pushed up</button>
+          <button class="bb" onclick="mobLondonClick('bear',this)">↓ Pushed down</button>
+          <button class="bb" onclick="mobLondonClick('range',this)">↔ Choppy</button>
+        </div>
       </div>
 
     </div>
 
     <!-- DIRECTION / PIVOT / LONDON — below TF grid -->
-    <div class="card" style="margin-bottom:12px;padding:12px 18px">
+    <div id="dir-pivot-card" class="card" style="margin-bottom:12px;padding:12px 18px">
       <div style="display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:16px;align-items:start">
         <div>
           <div style="font-family:var(--mono);font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3);margin-bottom:6px">Today's direction</div>
@@ -12481,6 +12489,12 @@ function mobPivotClick(dir, btn) {
   var real = document.querySelector('#pivot-btns .bb[onclick*="\''+dir+'\'"]');
   if (real) real.click();
   document.querySelectorAll('#mob-pivot-btns .bb').forEach(function(b){ b.classList.remove('active','sel'); });
+  if (btn) btn.classList.add('active');
+}
+function mobLondonClick(dir, btn) {
+  var real = document.querySelector('#london-btns .bb[onclick*="\''+dir+'\'"]');
+  if (real) real.click();
+  document.querySelectorAll('#mob-london-btns .bb').forEach(function(b){ b.classList.remove('active','sel'); });
   if (btn) btn.classList.add('active');
 }
 
