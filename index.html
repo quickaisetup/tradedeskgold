@@ -6651,9 +6651,11 @@ var TRADER_PROFILE = {
 async function loadBriefing(force) {
   var focusEl = document.getElementById('ai-briefing-body');
   var patsEl = document.getElementById('ai-patterns-body');
+  // No longer require a personal API key — AI calls are routed through our
+  // server-side proxy (/api/ai-proxy), which uses the shared ANTHROPIC_API_KEY
+  // set in Vercel's environment variables. `apiKey` (if present) is forwarded
+  // only as an optional identifier.
   var apiKey = localStorage.getItem(API_KEY);
-  var noKey = '<p style="font-family:var(--mono);font-size:11px;color:var(--text3)">Add your API key to enable AI panels.</p>';
-  if (!apiKey) { if (focusEl) focusEl.innerHTML = noKey; if (patsEl) patsEl.innerHTML = noKey; return; }
 
   // ── Daily cache: only call API once per day unless forced ──
   var nowBkk = _tzNow();
@@ -9767,11 +9769,13 @@ window.loadEdgePanel = async function(forceAI) {
     }
 
     // ── 4. AI insight ─────────────────────────────────────
+    // No longer require a personal API key — routed through /api/ai-proxy
+    // (server-side ANTHROPIC_API_KEY in Vercel). `apiKey` forwarded as optional id.
     var apiKey = localStorage.getItem('td_api_key');
     // Don't auto-show cached result on load — only show when button pressed
     if (!forceAI) return;
 
-    if (!apiKey) {
+    if (false) {
       var aiEl2 = document.getElementById('edge-ai');
       if (aiEl2) { aiEl2.style.display='block'; aiEl2.innerHTML = '<span style="color:var(--text3);font-size:10px">Add your Anthropic API key in settings to enable AI coaching.</span>'; }
       return;
