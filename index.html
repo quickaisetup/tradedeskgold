@@ -10550,14 +10550,25 @@ window.loadEdgePanel = async function(forceAI) {
     // analysis — so the AI "edge" insights reflect THAT instrument's track
     // record, not a mix of Gold + whatever else you've logged.
     var _edgeInstrument = (typeof _tdActiveInstrument !== 'undefined' && _tdActiveInstrument) || 'Gold';
+    // First try to fetch trades filtered by instrument
     var tRes = await sb.from('trades')
-      .select('date,direction,setup,session,result,r_achieved,mindset,instrument')
+      .select('date,direction,setup,session,result,r_achieved,risk_pct,mindset,instrument')
       .eq('user_id', uid)
       .eq('instrument', _edgeInstrument);
+    var trades = tRes.data || [];
+    // Fall back: if no trades found with instrument filter, fetch all trades
+    // (handles legacy trades saved before instrument column was populated)
+    if (!tRes.error && trades.length === 0) {
+      var tResAll = await sb.from('trades')
+        .select('date,direction,setup,session,result,r_achieved,risk_pct,mindset,instrument')
+        .eq('user_id', uid);
+      if (!tResAll.error && tResAll.data && tResAll.data.length > 0) {
+        trades = tResAll.data;
+      }
+    }
     var mRes = await sb.from('morning_analysis')
       .select('date,score')
       .eq('user_id', uid);
-    var trades = tRes.data || [];
     var mornings = mRes.data || [];
 
     if (tRes.error) console.warn('[edge] trades fetch error:', tRes.error.message);
@@ -12107,6 +12118,7 @@ function tdlPatchApp() {
           notes:             payload.notes || '',
           account:           payload.account || '',
           usd_achieved:      parseFloat(payload.usdAchieved) || null,
+          instrument:        payload.instrument || 'Gold',
         };
         if (payload.sbId) {
           // UPDATE existing row — no duplicate
