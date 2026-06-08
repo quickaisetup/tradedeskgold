@@ -3102,7 +3102,10 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
   <div id="rp-gauge-section">
     <div id="rp-gauge-mode-row">
       <div id="rp-gauge-lbl">Bias Score</div>
-      <div id="rp-gauge-mode">— no mode —</div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <button id="rp-gauge-instr-btn" onclick="rpCycleInstrument()" title="This gauge shows the active top-down analysis tab — click to switch instrument" style="font-family:var(--mono);font-size:8px;letter-spacing:0.1em;text-transform:uppercase;padding:4px 10px;border-radius:20px;border:1px solid rgba(240,188,78,0.4);color:var(--gold);background:rgba(240,188,78,0.12);cursor:pointer;white-space:nowrap;font-weight:700;transition:all .15s">GOLD ⇄</button>
+        <div id="rp-gauge-mode">— no mode —</div>
+      </div>
     </div>
     <div id="rp-gauge-wrap">
       <svg viewBox="0 0 200 104" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -3842,7 +3845,7 @@ function initExplainers() {
 }
 document.addEventListener('DOMContentLoaded', initExplainers);
 document.addEventListener('DOMContentLoaded', function() {
-  try { renderAnalysisInstrumentTabs(); } catch(e) {}
+  try { renderAnalysisInstrumentTabs(); _tdUpdateGaugeInstrBadge(); } catch(e) {}
 });
 document.addEventListener('DOMContentLoaded', function() {
   if (localStorage.getItem('td_is_admin') === '1') {
@@ -4275,6 +4278,26 @@ function _tdRestoreAnalysisSnapshot(instrument) {
 // Switch the active top-down-analysis tab — stashes the outgoing tab's work,
 // clears the screen, then loads the incoming tab's saved snapshot (if any).
 // Gold's flow is untouched: it still autosaves to Supabase + drives AI briefings.
+function _tdAllInstruments() {
+  return ['Gold'].concat(_tdLoadAnalysisTickers());
+}
+
+// The Bias Score gauge (right panel) always reflects whichever instrument tab
+// is active in Top-down analysis — this badge makes that explicit and lets you
+// cycle between instruments without scrolling up to the tab bar.
+function _tdUpdateGaugeInstrBadge() {
+  var b = document.getElementById('rp-gauge-instr-btn');
+  if (b) b.textContent = _tdActiveInstrument.toUpperCase() + ' ⇄';
+}
+
+function rpCycleInstrument() {
+  var list = _tdAllInstruments();
+  if (list.length < 2) { addAnalysisInstrument(); return; }
+  var idx = list.indexOf(_tdActiveInstrument);
+  var next = list[(idx + 1) % list.length];
+  switchAnalysisInstrument(next, _tdFindInstrTabBtn(next));
+}
+
 function switchAnalysisInstrument(name, btn) {
   if (name === _tdActiveInstrument) return;
   _tdSaveAnalysisSnapshot(_tdActiveInstrument);
@@ -4285,6 +4308,7 @@ function switchAnalysisInstrument(name, btn) {
   _tdClearAnalysisDOM();
   _tdRestoreAnalysisSnapshot(name);
   if (typeof initTVChart === 'function') initTVChart();
+  _tdUpdateGaugeInstrBadge();
 }
 
 function toggleBias(tf, val, btn) {
