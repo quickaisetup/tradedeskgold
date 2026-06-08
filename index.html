@@ -8759,12 +8759,6 @@ function initTVChart() {
     allow_symbol_change: false, save_image: false,
     hide_side_toolbar: true,
     studies: ['STD;EMA', 'STD;MACD', 'STD;Awesome_Oscillator'],
-    // Thin out the auto-loaded oscillator lines a touch so they read as
-    // supporting context rather than competing with price action.
-    studies_overrides: {
-      'macd.macd.linewidth': 1,
-      'macd.signal.linewidth': 1
-    },
     support_host: 'https://www.tradingview.com'
   });
   container.appendChild(script);
