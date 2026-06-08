@@ -279,6 +279,11 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 .tgl{font-family:var(--mono);font-size:9px;letter-spacing:0.06em;padding:5px 9px;border-radius:4px;border:1px solid var(--border2);background:var(--bg4);color:var(--text2);cursor:pointer;transition:all 0.15s}
 .tgl:hover{color:var(--text);border-color:rgba(255,255,255,0.3)}
 .tgl.sel{border-color:var(--gold);background:rgba(240,188,78,0.2);color:var(--gold);font-weight:600;box-shadow:0 0 6px rgba(240,188,78,0.25)}
+/* Instrument tabs (top-down analysis) — bigger & bolder than regular toggle buttons */
+#td-instr-tabs{gap:8px}
+#td-instr-tabs .tgl{font-size:12px;letter-spacing:0.08em;padding:9px 20px;border-radius:7px;border-width:1.5px;font-weight:600}
+#td-instr-tabs .tgl.sel{box-shadow:0 0 14px rgba(240,188,78,0.4);transform:translateY(-1px)}
+#td-instr-tabs .tgl[data-role="add-instr"]{font-weight:500;border-style:dashed}
 .tgl.sel-green{border-color:var(--green);background:rgba(78,214,138,0.2);color:var(--green);font-weight:600;box-shadow:0 0 6px rgba(78,214,138,0.25)}
 .tgl.sel-red{border-color:var(--red);background:rgba(240,96,96,0.2);color:var(--red);font-weight:600;box-shadow:0 0 6px rgba(240,96,96,0.25)}
 .toggle-group{display:flex;gap:4px;flex-wrap:wrap}
@@ -2341,7 +2346,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
       <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 14px;border-bottom:1px solid var(--border)">
         <div style="font-family:var(--mono);font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text2);display:flex;align-items:center;gap:8px">
           <span style="width:6px;height:6px;border-radius:50%;background:var(--gold);display:inline-block"></span>
-          XAUUSD · Gold Spot
+          <span id="tv-chart-title">XAUUSD · Gold Spot</span>
           <span id="tv-active-label" style="color:var(--gold);background:var(--gd);border:1px solid var(--gb);border-radius:3px;padding:1px 6px;font-size:8px">4H</span>
         </div>
         <span style="font-family:var(--mono);font-size:8px;color:var(--text3)">click a TF card to switch</span>
@@ -4279,6 +4284,7 @@ function switchAnalysisInstrument(name, btn) {
   if (activeBtn) activeBtn.classList.add('sel');
   _tdClearAnalysisDOM();
   _tdRestoreAnalysisSnapshot(name);
+  if (typeof initTVChart === 'function') initTVChart();
 }
 
 function toggleBias(tf, val, btn) {
@@ -8596,9 +8602,23 @@ document.addEventListener('DOMContentLoaded', async function() {
 // ── TRADINGVIEW CHART ─────────────────────────────────
 var _tvInterval = '240';
 
+// Resolve a TradingView symbol string for the active analysis instrument.
+// "Gold" keeps its known-good symbol; custom tickers are passed through as
+// typed (TradingView resolves common tickers like BTCUSD/EURUSD/US30 directly).
+function _tdChartSymbolFor(name) {
+  if (!name || name === 'Gold') return 'CAPITALCOM:XAUUSD';
+  return name;
+}
+function _tdChartTitleFor(name) {
+  if (!name || name === 'Gold') return 'XAUUSD · Gold Spot';
+  return name;
+}
+
 function initTVChart() {
   var wrap = document.getElementById('tv-chart-wrap');
   if (!wrap) return;
+  var titleEl = document.getElementById('tv-chart-title');
+  if (titleEl) titleEl.textContent = _tdChartTitleFor(typeof _tdActiveInstrument !== 'undefined' ? _tdActiveInstrument : 'Gold');
   wrap.innerHTML = '';
   var container = document.createElement('div');
   container.className = 'tradingview-widget-container';
@@ -8618,7 +8638,7 @@ function initTVChart() {
   script.async = true;
   script.textContent = JSON.stringify({
     autosize: true,
-    symbol: 'CAPITALCOM:XAUUSD',
+    symbol: _tdChartSymbolFor(typeof _tdActiveInstrument !== 'undefined' ? _tdActiveInstrument : 'Gold'),
     interval: _tvInterval,
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'Etc/UTC',
     theme: 'dark', style: '1', locale: 'en',
