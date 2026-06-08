@@ -10550,28 +10550,22 @@ window.loadEdgePanel = async function(forceAI) {
     // analysis — so the AI "edge" insights reflect THAT instrument's track
     // record, not a mix of Gold + whatever else you've logged.
     var _edgeInstrument = (typeof _tdActiveInstrument !== 'undefined' && _tdActiveInstrument) || 'Gold';
-    // First try to fetch trades filtered by instrument
+    // Fetch all trades for this user — instrument filtering is done client-side
+    // so legacy trades without an instrument column still show up
     var tRes = await sb.from('trades')
-      .select('date,direction,setup,session,result,r_achieved,risk_pct,mindset,instrument')
-      .eq('user_id', uid)
-      .eq('instrument', _edgeInstrument);
-    var trades = tRes.data || [];
-    // Fall back: if no trades found with instrument filter, fetch all trades
-    // (handles legacy trades saved before instrument column was populated)
-    if (!tRes.error && trades.length === 0) {
-      var tResAll = await sb.from('trades')
-        .select('date,direction,setup,session,result,r_achieved,risk_pct,mindset,instrument')
-        .eq('user_id', uid);
-      if (!tResAll.error && tResAll.data && tResAll.data.length > 0) {
-        trades = tResAll.data;
-      }
-    }
+      .select('date,direction,setup,session,result,r_achieved,mindset')
+      .eq('user_id', uid);
+    if (tRes.error) console.warn('[edge] trades fetch error:', tRes.error.message);
+    var allTrades = tRes.data || [];
+    // Prefer trades matching the active instrument; fall back to all trades
+    var trades = allTrades.filter(function(t){ return !t.instrument || t.instrument === _edgeInstrument; });
+    if (trades.length === 0) trades = allTrades;
+    console.log('[edge] uid='+uid+' allTrades='+allTrades.length+' filtered='+trades.length+' instrument='+_edgeInstrument);
     var mRes = await sb.from('morning_analysis')
       .select('date,score')
       .eq('user_id', uid);
     var mornings = mRes.data || [];
 
-    if (tRes.error) console.warn('[edge] trades fetch error:', tRes.error.message);
     if (mRes.error) console.warn('[edge] morning fetch error:', mRes.error.message);
 
     if (!trades.length) {
@@ -10579,7 +10573,7 @@ window.loadEdgePanel = async function(forceAI) {
       edgeChip('edge-stat-short', 'Short', '—', 'no data', 'var(--text3)');
       edgeChip('edge-stat-score', 'Score edge', '—', 'no data', 'var(--text3)');
       edgeChip('edge-stat-setup', 'Best setup', '—', 'no data', 'var(--text3)');
-      if (aiEl) aiEl.innerHTML = '<span style="color:var(--text3);font-size:10px">Log ' + _edgeInstrument + ' trades to see your edge.</span>';
+      if (aiEl) aiEl.innerHTML = '<span style="color:var(--text3);font-size:10px">No trades found in your journal yet. Save a few trades first and come back.</span>';
       return;
     }
 
