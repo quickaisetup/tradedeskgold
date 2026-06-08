@@ -2330,6 +2330,12 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
     <div class="section-header"><span class="section-num">02</span><span class="section-title">Top-down analysis</span><div class="section-line"></div><span class="section-check" id="check-analysis">Done ✓</span></div>
     <div id="exp-analysis" class="td-explainer"><button class="td-explainer-dismiss" onclick="dismissExplainer('exp-analysis')">✕</button><div class="td-explainer-body"><b>Read the market top-down</b> — start at 1M, end at 1H.<ul><li>Set <b>Bias</b> (Bull/Bear/Neutral) on each timeframe</li><li>Set <b>Trend</b> direction — this scores automatically</li><li>Add AO &amp; MACD signals on 4H and 1H</li><li>The <b>score</b> tells you whether to buy, sell or wait</li></ul></div></div>
 
+    <!-- INSTRUMENT TABS — do top-down analysis on more than one pair -->
+    <div id="td-instr-tabs" class="toggle-group" style="margin-bottom:10px">
+      <button class="tgl sel" onclick="switchAnalysisInstrument('Gold',this)">Gold</button>
+      <button class="tgl" data-role="add-instr" onclick="addAnalysisInstrument()" style="color:rgba(240,188,78,0.6)" title="Add another instrument to run top-down analysis on (saved locally per day)">+ Add</button>
+    </div>
+
     <!-- XAUUSD CHART -->
     <div class="card" style="padding:0;overflow:hidden;margin-bottom:10px">
       <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 14px;border-bottom:1px solid var(--border)">
@@ -3831,6 +3837,9 @@ function initExplainers() {
 }
 document.addEventListener('DOMContentLoaded', initExplainers);
 document.addEventListener('DOMContentLoaded', function() {
+  try { renderAnalysisInstrumentTabs(); } catch(e) {}
+});
+document.addEventListener('DOMContentLoaded', function() {
   if (localStorage.getItem('td_is_admin') === '1') {
     var adminBtn = document.getElementById('admin-console-btn-wrap');
     if (adminBtn) adminBtn.style.display = 'block';
@@ -3989,6 +3998,10 @@ const tfState = {};
 
 // Save full analysis state to localStorage keyed by today's date
 function _saveTFStateLocal() {
+  // Only Gold drives the day's main saved analysis (Supabase + this localStorage
+  // snapshot). Other instrument tabs use their own separate snapshot keys
+  // (see _tdSaveAnalysisSnapshot) so they never overwrite Gold's saved data.
+  if (typeof _tdActiveInstrument !== 'undefined' && _tdActiveInstrument !== 'Gold') return;
   try {
     var today = new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
     // Market direction — find selected button
@@ -4008,6 +4021,7 @@ function _saveTFStateLocal() {
 }
 // Restore full analysis state from localStorage by clicking the actual DOM buttons
 function _restoreTFStateLocal() {
+  if (typeof _tdActiveInstrument !== 'undefined' && _tdActiveInstrument !== 'Gold') return false;
   try {
     var today = new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
     var saved = localStorage.getItem('td_tfstate_' + today);
@@ -4097,6 +4111,175 @@ function _restoreTFStateLocal() {
   } catch(e) { window._inRestore = false; console.warn('[restore] tfState local error:', e.message); return false; }
 }
 window._restoreTFStateLocal = _restoreTFStateLocal;
+
+// ── MULTI-INSTRUMENT TOP-DOWN ANALYSIS ───────────────────────
+// "Gold" stays the primary/default instrument — its analysis keeps saving to
+// Supabase exactly as before (zero behavior change). Extra instruments you add
+// are tracked locally per-day (localStorage), so switching tabs never loses data
+// and AI briefings (Gold-only, daily-cached) don't get re-triggered or re-billed
+// just from switching tabs — token usage stays exactly the same as today.
+var TD_ANALYSIS_TICKERS_KEY = 'td_topdown_tickers_v1';
+var _tdActiveInstrument = 'Gold';
+
+function _tdLoadAnalysisTickers() {
+  try { return JSON.parse(localStorage.getItem(TD_ANALYSIS_TICKERS_KEY) || '[]'); }
+  catch(e) { return []; }
+}
+function _tdSaveAnalysisTickers(list) {
+  try { localStorage.setItem(TD_ANALYSIS_TICKERS_KEY, JSON.stringify(list)); } catch(e) {}
+}
+function _tdTodayBKK() {
+  return new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
+}
+function _tdSnapKey(instrument) {
+  return 'td_topdown_snap_' + _tdTodayBKK() + '_' + instrument;
+}
+
+function _tdFindInstrTabBtn(name) {
+  var bar = document.getElementById('td-instr-tabs');
+  if (!bar) return null;
+  var btns = bar.querySelectorAll('.tgl');
+  for (var i = 0; i < btns.length; i++) { if (btns[i].textContent.trim() === name) return btns[i]; }
+  return null;
+}
+
+function renderAnalysisInstrumentTabs() {
+  var bar = document.getElementById('td-instr-tabs');
+  if (!bar) return;
+  var addBtn = bar.querySelector('[data-role="add-instr"]');
+  bar.querySelectorAll('.td-instr-custom').forEach(function(b){ b.remove(); });
+  _tdLoadAnalysisTickers().forEach(function(name) {
+    var b = document.createElement('button');
+    b.className = 'tgl td-instr-custom' + (name === _tdActiveInstrument ? ' sel' : '');
+    b.textContent = name;
+    b.title = 'Right-click to remove this tab';
+    b.onclick = function(){ switchAnalysisInstrument(name, b); };
+    b.oncontextmenu = function(e){ e.preventDefault(); removeAnalysisInstrument(name); };
+    if (addBtn) bar.insertBefore(b, addBtn); else bar.appendChild(b);
+  });
+}
+
+function addAnalysisInstrument() {
+  var raw = prompt('Enter another instrument/ticker to run top-down analysis on\n(e.g. BTCUSD, EURUSD, US30, NAS100):', '');
+  if (!raw) return;
+  raw = raw.trim().toUpperCase();
+  if (!raw || raw === 'GOLD') return;
+  var list = _tdLoadAnalysisTickers();
+  if (list.indexOf(raw) === -1) { list.push(raw); _tdSaveAnalysisTickers(list); }
+  renderAnalysisInstrumentTabs();
+  switchAnalysisInstrument(raw, _tdFindInstrTabBtn(raw));
+}
+
+function removeAnalysisInstrument(name) {
+  if (!confirm('Remove "' + name + '" from your top-down analysis tabs?\n(Anything you filled in for it stays saved in this browser — the tab just disappears.)')) return;
+  var list = _tdLoadAnalysisTickers().filter(function(x){ return x !== name; });
+  _tdSaveAnalysisTickers(list);
+  if (_tdActiveInstrument === name) switchAnalysisInstrument('Gold', _tdFindInstrTabBtn('Gold'));
+  renderAnalysisInstrumentTabs();
+}
+
+// Capture the currently-displayed analysis (bias/trend/notes/pivot/etc.) into a
+// plain snapshot object — used to stash a tab's work before switching away from it.
+function _tdCaptureAnalysisSnapshot() {
+  function getBias(tf){ return (tfState[tf] && tfState[tf].bias) || []; }
+  function getTrend(tf){ return (tfState[tf] && tfState[tf].trend) || []; }
+  function getNotes(tf){ var el = document.getElementById('tfn-'+tf) || document.getElementById('tfc-notes-'+tf); return el ? el.value : ''; }
+  var md = document.querySelector('#market-direction .bb.sel-bull, #market-direction .bb.sel-bear, #market-direction .bb.sel-range');
+  var lb = document.querySelector('[onclick^="setLondonBias"].sel, [onclick^="setLondonBias"].sel-bull, [onclick^="setLondonBias"].sel-bear, [onclick^="setLondonBias"].sel-range');
+  var tm = document.querySelector('#trading-mode-btns .tgl.sel');
+  var tfs = {};
+  ['1M','1W','D','4H','1H'].forEach(function(tf){ tfs[tf] = { bias: getBias(tf), trend: getTrend(tf) }; });
+  var notes = {};
+  ['1M','1W','D','4H','1H'].forEach(function(tf){ notes[tf] = getNotes(tf); });
+  return {
+    tf: tfs, notes: notes,
+    marketDir: md ? md.textContent.trim() : '',
+    londonBias: lb ? lb.textContent.trim() : '',
+    tradingMode: tm ? tm.textContent.trim() : '',
+    pivot: pivotState || ''
+  };
+}
+
+function _tdSaveAnalysisSnapshot(instrument) {
+  try { localStorage.setItem(_tdSnapKey(instrument), JSON.stringify(_tdCaptureAnalysisSnapshot())); } catch(e) {}
+}
+
+// Directly apply bias/trend selections for one timeframe (no .click() — avoids
+// any risk of toggle functions misfiring mutual-exclusion logic during a swap).
+function _tdApplyBiasTrend(tf, biasArr, trendArr) {
+  if (!tfState[tf]) tfState[tf] = { bias: [], trend: [] };
+  tfState[tf].bias = (biasArr || []).slice();
+  tfState[tf].trend = (trendArr || []).slice();
+  var biasCls  = { bull:'sel-bull', bear:'sel-bear', range:'sel-range', neutral:'sel-range' };
+  var trendCls = { up:'sel-bull', down:'sel-bear', ranging:'sel-range' };
+  var bc = document.getElementById('bias-' + tf);
+  if (bc) bc.querySelectorAll('.bb').forEach(function(b) {
+    var m = (b.getAttribute('onclick')||'').match(/toggleBias\('[^']+',\s*'([^']+)'/);
+    var v = m ? m[1] : null;
+    b.classList.remove('sel','sel-bull','sel-bear','sel-range');
+    b.style.color=''; b.style.borderColor=''; b.style.background='';
+    if (v && tfState[tf].bias.indexOf(v) > -1) b.classList.add(biasCls[v] || 'sel');
+  });
+  var tc = document.getElementById('trend-' + tf);
+  if (tc) tc.querySelectorAll('.bb').forEach(function(b) {
+    var m = (b.getAttribute('onclick')||'').match(/toggleTrend\('[^']+',\s*'([^']+)'/);
+    var v = m ? m[1] : null;
+    b.classList.remove('sel','sel-bull','sel-bear','sel-range');
+    if (v && tfState[tf].trend.indexOf(v) > -1) b.classList.add(trendCls[v] || 'sel');
+  });
+  if (typeof colorTFCard === 'function') colorTFCard(tf);
+}
+
+// Wipe the on-screen analysis back to blank before loading a different instrument's tab
+function _tdClearAnalysisDOM() {
+  ['1M','1W','D','4H','1H'].forEach(function(tf) {
+    _tdApplyBiasTrend(tf, [], []);
+    var nel = document.getElementById('tfn-'+tf) || document.getElementById('tfc-notes-'+tf);
+    if (nel) nel.value = '';
+  });
+  document.querySelectorAll('#market-direction .bb, [onclick^="setLondonBias"], #trading-mode-btns .tgl, #pivot-btns .bb').forEach(function(b) {
+    b.classList.remove('sel','sel-bull','sel-bear','sel-range');
+  });
+  document.querySelectorAll('#tfc-4H .ib, #tfc-1H .ib').forEach(function(b){ b.classList.remove('sel'); });
+  pivotState = null; londonBiasState = null; tradingMode = '';
+  if (typeof updateVerdictAuto === 'function') updateVerdictAuto();
+}
+
+// Load a previously-saved snapshot for `instrument` (today, this browser) back onto screen
+function _tdRestoreAnalysisSnapshot(instrument) {
+  var snap = null;
+  try { var raw = localStorage.getItem(_tdSnapKey(instrument)); snap = raw ? JSON.parse(raw) : null; } catch(e) {}
+  if (!snap) return;
+  ['1M','1W','D','4H','1H'].forEach(function(tf) {
+    var s = (snap.tf && snap.tf[tf]) || { bias:[], trend:[] };
+    _tdApplyBiasTrend(tf, s.bias, s.trend);
+    var nel = document.getElementById('tfn-'+tf) || document.getElementById('tfc-notes-'+tf);
+    if (nel) nel.value = (snap.notes && snap.notes[tf]) || '';
+  });
+  if (snap.marketDir)  document.querySelectorAll('#market-direction .bb').forEach(function(b){ if (b.textContent.trim() === snap.marketDir) b.click(); });
+  if (snap.londonBias) document.querySelectorAll('[onclick^="setLondonBias"]').forEach(function(b){ if (b.textContent.trim() === snap.londonBias) b.click(); });
+  if (snap.tradingMode)document.querySelectorAll('#trading-mode-btns .tgl').forEach(function(b){ if (b.textContent.trim() === snap.tradingMode) b.click(); });
+  if (snap.pivot) {
+    var pivMap = { 'Above':'bull', 'Below':'bear', 'At':'neu' };
+    var pv = pivMap[snap.pivot];
+    if (pv) document.querySelectorAll('#pivot-btns .bb').forEach(function(b){ if ((b.getAttribute('onclick')||'').indexOf("'" + pv + "'") > -1) b.click(); });
+  }
+  if (typeof updateVerdictAuto === 'function') updateVerdictAuto();
+}
+
+// Switch the active top-down-analysis tab — stashes the outgoing tab's work,
+// clears the screen, then loads the incoming tab's saved snapshot (if any).
+// Gold's flow is untouched: it still autosaves to Supabase + drives AI briefings.
+function switchAnalysisInstrument(name, btn) {
+  if (name === _tdActiveInstrument) return;
+  _tdSaveAnalysisSnapshot(_tdActiveInstrument);
+  _tdActiveInstrument = name;
+  document.querySelectorAll('#td-instr-tabs .tgl').forEach(function(b){ b.classList.remove('sel'); });
+  var activeBtn = btn || _tdFindInstrTabBtn(name);
+  if (activeBtn) activeBtn.classList.add('sel');
+  _tdClearAnalysisDOM();
+  _tdRestoreAnalysisSnapshot(name);
+}
 
 function toggleBias(tf, val, btn) {
   if (!tfState[tf]) tfState[tf] = { bias: [], trend: [] };
@@ -4481,6 +4664,10 @@ function updateVerdictAuto() {
 window._lastAutosaveScore = null;
 window._morningAutosaveTimer = null;
 window.scheduleMorningAutosave = function(score) {
+  // Only Gold's analysis autosaves to Supabase — other instrument tabs are
+  // local-only (per-day snapshots), so they never overwrite Gold's saved row
+  // or trigger extra cloud/AI activity just from filling them in.
+  if (typeof _tdActiveInstrument !== 'undefined' && _tdActiveInstrument !== 'Gold') return;
   // Need a logged-in user and a real (non-zero) score
   if (!localStorage.getItem('td_user_id')) return;
   if (!score || score === 0) return;
@@ -5594,6 +5781,15 @@ async function saveAll(dateISOOverride) {
 window._morningSaved = false;
 
 async function saveMorningAnalysis(silent) {
+  // Gold is the only instrument whose top-down analysis syncs to Supabase
+  // (keeps the existing daily-row schema/AI-briefing pipeline untouched).
+  // Other instrument tabs save locally only — see _tdSaveAnalysisSnapshot.
+  if (typeof _tdActiveInstrument !== 'undefined' && _tdActiveInstrument !== 'Gold') {
+    var status0 = document.getElementById('morning-save-status');
+    if (!silent && status0) { status0.textContent = 'Saved locally for ' + _tdActiveInstrument + ' (cloud sync is Gold-only for now)'; status0.style.color = 'var(--text3)'; }
+    _tdSaveAnalysisSnapshot(_tdActiveInstrument);
+    return;
+  }
   var btn = document.getElementById('save-morning-btn');
   var status = document.getElementById('morning-save-status');
   if (!silent) {
