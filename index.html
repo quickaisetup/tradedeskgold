@@ -1251,32 +1251,20 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
   .lvl-card,.trade-form{margin-bottom:8px}
 }
 
-/* ── TODAY CARD (6th TF slot) ── */
-.today-row{display:flex;align-items:center;justify-content:space-between;padding:3px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
-.today-row:last-child{border-bottom:none}
-.today-lbl{font-family:var(--mono);font-size:7.5px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3)}
-.today-val{font-family:var(--mono);font-size:10px;color:var(--text);font-weight:600}
-
-/* ── MOBILE STATS SHEET ── */
-#mob-stats-sheet{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:600;backdrop-filter:blur(3px);align-items:flex-end}
-#mob-stats-sheet.open{display:flex}
-#mob-stats-inner{
-  width:100%;background:#0d0e14;
-  border-top:1px solid rgba(255,255,255,0.1);border-radius:16px 16px 0 0;
-  padding:16px 18px 30px;
-  animation:slideUp .25s ease;
+/* ── MOBILE PROFILE STRIP — hidden on desktop ── */
+#mob-profile-strip{
+  display:none; /* shown via media query on mobile */
+  background:var(--bg2);border:1px solid var(--border);border-radius:12px;
+  padding:12px 14px;margin-bottom:14px;
+  flex-direction:column;gap:10px;
 }
-@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
-#mob-stats-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,0.07)}
-#mob-stats-rank-row{display:flex;align-items:center;gap:12px;margin-bottom:10px}
-#mob-stats-avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,rgba(168,85,247,0.35),rgba(168,85,247,0.1));border:2px solid rgba(168,85,247,0.4);display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:15px;color:#c084fc;flex-shrink:0;overflow:hidden}
-#mob-stats-bar-wrap{height:3px;background:rgba(255,255,255,0.08);border-radius:2px;margin-bottom:5px;overflow:hidden}
-#mob-stats-bar-fill{height:100%;background:var(--gold);border-radius:2px;transition:width .5s ease;width:0%}
-#mob-stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
-.mob-stat-cell{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:10px 12px}
-.mob-stat-lbl{font-family:var(--mono);font-size:7.5px;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:3px}
-.mob-stat-val{font-family:var(--display);font-size:20px;color:#fff;line-height:1;margin-bottom:2px}
-.mob-stat-sub{font-family:var(--mono);font-size:8px;color:rgba(255,255,255,0.35)}
+#mob-prof-left{display:flex;align-items:center;gap:10px}
+#mob-prof-avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,rgba(168,85,247,0.4),rgba(168,85,247,0.12));border:2px solid rgba(168,85,247,0.5);display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:14px;color:#c084fc;flex-shrink:0;overflow:hidden}
+#mob-prof-stats{display:flex;align-items:center;gap:0;background:rgba(0,0,0,0.25);border-radius:8px;overflow:hidden;border:1px solid rgba(255,255,255,0.06)}
+.mob-prof-stat{flex:1;display:flex;flex-direction:column;align-items:center;padding:7px 4px}
+.mob-prof-sep{width:1px;height:32px;background:rgba(255,255,255,0.07);flex-shrink:0}
+.mob-prof-val{font-family:var(--display);font-size:14px;color:#fff;line-height:1;letter-spacing:0.02em}
+.mob-prof-lbl{font-family:var(--mono);font-size:7px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-top:2px}
 
 /* ═══════════════════════════════════════════════════════
    MOBILE OPTIMISATION — max-width 768px
@@ -1350,7 +1338,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
   .mob-nav-fab:active{background:rgba(240,96,96,0.28);box-shadow:0 0 28px rgba(240,96,96,0.5)}
   .mob-nav-fab-dot{width:8px;height:8px;border-radius:50%;background:#f06060;animation:livePulse 1.2s ease-in-out infinite;box-shadow:0 0 6px rgba(240,96,96,0.8);margin-bottom:1px}
 
-  /* ── TODAY CARD — show in 6th TF slot on mobile ── */
+  /* ── PROFILE STRIP & TODAY CARD — show on mobile only ── */
+  #mob-profile-strip{display:flex!important}
   #tfc-today{display:block!important}
 
   /* ── LIVE EXECUTION BUTTON — hidden on mobile, replaced by FAB in nav ── */
@@ -2317,6 +2306,39 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 
 <!-- MAIN -->
 <div class="main">
+
+  <!-- MOBILE PROFILE STRIP — shown only on mobile (hidden via CSS on desktop) -->
+  <div id="mob-profile-strip">
+    <div id="mob-prof-left">
+      <div id="mob-prof-avatar"></div>
+      <div>
+        <div id="mob-prof-name" style="font-family:var(--mono);font-size:10px;font-weight:700;color:var(--text);letter-spacing:0.04em"></div>
+        <div id="mob-prof-rank" style="font-family:var(--display);font-size:13px;letter-spacing:0.06em;color:#888;line-height:1.1"></div>
+      </div>
+    </div>
+    <div id="mob-prof-stats">
+      <div class="mob-prof-stat">
+        <div class="mob-prof-val" id="mob-prof-streak">0</div>
+        <div class="mob-prof-lbl">Streak</div>
+      </div>
+      <div class="mob-prof-sep"></div>
+      <div class="mob-prof-stat">
+        <div class="mob-prof-val" id="mob-prof-today" style="color:#4ed68a">$0</div>
+        <div class="mob-prof-lbl">Today</div>
+      </div>
+      <div class="mob-prof-sep"></div>
+      <div class="mob-prof-stat">
+        <div class="mob-prof-val" id="mob-prof-week" style="color:#4ed68a">$0</div>
+        <div class="mob-prof-lbl">Week</div>
+      </div>
+      <div class="mob-prof-sep"></div>
+      <div class="mob-prof-stat">
+        <div class="mob-prof-val" id="mob-prof-month" style="color:rgba(255,255,255,0.5)">~$0</div>
+        <div class="mob-prof-lbl">Month est.</div>
+      </div>
+    </div>
+  </div>
+
   <div id="streak-banner" style="display:none">
 
     <!-- MAIN ROW -->
@@ -2748,14 +2770,21 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
         <textarea class="tf-note" id="tfn-1H" placeholder="Entry zones..."></textarea>
       </div>
 
-      <!-- TODAY SUMMARY — fills 6th grid slot on mobile -->
+      <!-- TODAY'S DIRECTION — fills 6th grid slot on mobile -->
       <div class="tf-card" id="tfc-today" style="cursor:default;display:none">
-        <div class="tf-name" style="font-size:13px;margin-bottom:10px">TODAY</div>
-        <div class="today-row"><span class="today-lbl">Session</span><span class="today-val" id="ts-session">—</span></div>
-        <div class="today-row"><span class="today-lbl">Bias</span><span class="today-val" id="ts-bias">—</span></div>
-        <div class="today-row"><span class="today-lbl">Direction</span><span class="today-val" id="ts-dir">—</span></div>
-        <div class="today-row" style="margin-top:8px"><span class="today-lbl">P&amp;L today</span><span class="today-val" id="ts-pnl" style="color:#4ed68a">—</span></div>
-        <div class="today-row"><span class="today-lbl">Trades</span><span class="today-val" id="ts-trades">0</span></div>
+        <div class="tf-name" style="font-size:12px;margin-bottom:8px;color:var(--gold)">TODAY</div>
+        <div style="font-family:var(--mono);font-size:7.5px;color:var(--text3);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:5px">Direction</div>
+        <div style="display:flex;flex-direction:column;gap:3px" id="mob-dir-btns">
+          <button class="bb" onclick="mobDirClick('up',this)">⬆ Moving Up</button>
+          <button class="bb" onclick="mobDirClick('down',this)">⬇ Moving Down</button>
+          <button class="bb" onclick="mobDirClick('range',this)">↔ Ranging</button>
+        </div>
+        <div style="font-family:var(--mono);font-size:7.5px;color:var(--text3);letter-spacing:0.08em;text-transform:uppercase;margin:8px 0 5px">Pivot</div>
+        <div style="display:flex;flex-direction:column;gap:3px" id="mob-pivot-btns">
+          <button class="bb" onclick="mobPivotClick('bull',this)">↑ Above</button>
+          <button class="bb" onclick="mobPivotClick('bear',this)">↓ Below</button>
+          <button class="bb" onclick="mobPivotClick('neu',this)">@ At</button>
+        </div>
       </div>
 
     </div>
@@ -12382,66 +12411,11 @@ document.addEventListener('keydown', function(e) {
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>
     <span>Trades</span>
   </a>
-  <button class="mob-nav-item" id="mob-stats-btn" onclick="mobStatsOpen()">
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-    <span>Stats</span>
+  <button class="mob-nav-item" onclick="mobMenuOpen()">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    <span>More</span>
   </button>
 </nav>
-
-<!-- MOBILE STATS DRAWER — slides up from bottom, shows right panel content -->
-<div id="mob-stats-sheet" onclick="if(event.target===this)mobStatsClose()">
-  <div id="mob-stats-inner">
-    <div id="mob-stats-header">
-      <span style="font-family:var(--mono);font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.5)">My Stats</span>
-      <div style="display:flex;gap:8px">
-        <button onclick="mobMenuOpen()" style="font-family:var(--mono);font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.4);background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:5px;padding:4px 10px;cursor:pointer">☰ Menu</button>
-        <button onclick="mobStatsClose()" style="background:transparent;border:none;color:rgba(255,255,255,0.4);font-size:18px;cursor:pointer;padding:0 4px;line-height:1">✕</button>
-      </div>
-    </div>
-    <!-- rank + streak row -->
-    <div id="mob-stats-rank-row">
-      <div id="mob-stats-avatar"></div>
-      <div style="flex:1;min-width:0">
-        <div id="mob-stats-rank-label" style="font-family:var(--mono);font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:2px">Rank I</div>
-        <div id="mob-stats-rank-name" style="font-family:var(--display);font-size:22px;letter-spacing:0.06em;color:#888;line-height:1">DEGENERATE</div>
-      </div>
-      <div style="text-align:right;flex-shrink:0">
-        <div id="mob-stats-streak" style="font-family:var(--display);font-size:36px;color:#fff;line-height:1">0</div>
-        <div style="font-family:var(--mono);font-size:7.5px;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.4)">Day Streak</div>
-      </div>
-    </div>
-    <!-- xp bar -->
-    <div id="mob-stats-bar-wrap"><div id="mob-stats-bar-fill"></div></div>
-    <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:8px;color:rgba(255,255,255,0.4);margin-bottom:12px">
-      <span id="mob-stats-prog">0 / 3 to Gambler</span><span id="mob-stats-away">3 away</span>
-    </div>
-    <!-- stats grid -->
-    <div id="mob-stats-grid">
-      <div class="mob-stat-cell">
-        <div class="mob-stat-lbl">Today P&amp;L</div>
-        <div class="mob-stat-val" id="mob-stat-today-pnl">—</div>
-        <div class="mob-stat-sub" id="mob-stat-today-r">0R</div>
-      </div>
-      <div class="mob-stat-cell">
-        <div class="mob-stat-lbl">Win Rate</div>
-        <div class="mob-stat-val" id="mob-stat-winrate">—</div>
-        <div class="mob-stat-sub" id="mob-stat-winrate-sub">All-time</div>
-      </div>
-      <div class="mob-stat-cell">
-        <div class="mob-stat-lbl">Best Streak</div>
-        <div class="mob-stat-val" id="mob-stat-best">0</div>
-        <div class="mob-stat-sub">Days</div>
-      </div>
-      <div class="mob-stat-cell">
-        <div class="mob-stat-lbl">Trades Today</div>
-        <div class="mob-stat-val" id="mob-stat-trades">0</div>
-        <div class="mob-stat-sub" id="mob-stat-trades-sub">0W · 0L</div>
-      </div>
-    </div>
-    <!-- feedback button -->
-    <button onclick="openFeedback();mobStatsClose();" style="width:100%;background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.3);border-radius:8px;color:#a78bfa;font-family:var(--mono);font-size:9px;letter-spacing:0.1em;text-transform:uppercase;padding:10px;cursor:pointer;margin-top:4px">💬 Ideas &amp; Feedback</button>
-  </div>
-</div>
 
 <!-- MOBILE SIDEBAR BACKDROP -->
 <div id="mob-backdrop" onclick="mobMenuClose()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:300;backdrop-filter:blur(2px)"></div>
@@ -12463,75 +12437,93 @@ function mobMenuClose(){
   if(s){s.style.removeProperty('left');s.style.removeProperty('z-index');}
   if(b){b.style.display='none';}
 }
-function mobStatsOpen(){
-  // sync data from right panel into stats sheet
-  var cp=function(from,to){var e=document.getElementById(from),t=document.getElementById(to);if(e&&t)t.textContent=e.textContent;};
-  cp('rp-rank-roman','mob-stats-rank-label');
-  cp('rp-rank-name','mob-stats-rank-name');
-  cp('rp-streak-num','mob-stats-streak');
-  cp('rp-prog','mob-stats-prog');
-  cp('rp-away-lbl','mob-stats-away');
-  cp('rp-alltime','mob-stat-winrate');
-  cp('rp-alltime-sub','mob-stat-winrate-sub');
-  cp('rp-best','mob-stat-best');
-  // sync XP bar width
-  var fill=document.getElementById('rp-bar-fill');
-  var mfill=document.getElementById('mob-stats-bar-fill');
-  if(fill&&mfill)mfill.style.width=fill.style.width||'0%';
-  // sync rank name color
-  var rn=document.getElementById('rp-rank-name');
-  var mn=document.getElementById('mob-stats-rank-name');
-  if(rn&&mn)mn.style.color=getComputedStyle(rn).color;
-  // sync avatar
-  var av=document.getElementById('td-sidebar-avatar');
-  var mav=document.getElementById('mob-stats-avatar');
-  if(av&&mav)mav.innerHTML=av.innerHTML;
-  // today P&L from calcTodayPnl if available
-  if(typeof calcTodayPnl==='function'){
-    var pnl=calcTodayPnl();
-    var el=document.getElementById('mob-stat-today-pnl');
-    var rel=document.getElementById('mob-stat-today-r');
-    if(el){var v=pnl.total||0;el.textContent=(v>=0?'+$':'$')+v.toFixed(0);el.style.color=v<0?'#f06060':'#4ed68a';}
-    if(rel){var r=pnl.rTotal||0;rel.textContent=(r>=0?'+':'')+r.toFixed(1)+'R';}
-  }
-  // trade count
-  var hb=document.getElementById('history-body');
-  if(hb){
-    var rows=hb.querySelectorAll('tr[data-trade]');
-    var w=0,l=0;
-    rows.forEach(function(r){var res=r.getAttribute('data-result');if(res==='Win')w++;else if(res==='Loss')l++;});
-    var tc=document.getElementById('mob-stat-trades');
-    var ts=document.getElementById('mob-stat-trades-sub');
-    if(tc)tc.textContent=rows.length||'0';
-    if(ts)ts.textContent=w+'W · '+l+'L';
-  }
-  // today card sync too
-  updateTodayCard();
-  document.getElementById('mob-stats-sheet').classList.add('open');
-  document.getElementById('mob-stats-btn').classList.add('active');
+
+/* ── TODAY DIRECTION card — proxy clicks to main inputs ── */
+function mobDirClick(dir, btn) {
+  // click the real button in the main direction section
+  var real = document.querySelector('#market-direction .bb[onclick*="\''+dir+'\'"]');
+  if (real) real.click();
+  // update mini card button states
+  document.querySelectorAll('#mob-dir-btns .bb').forEach(function(b){ b.classList.remove('active','sel'); });
+  if (btn) btn.classList.add('active');
 }
-function mobStatsClose(){
-  document.getElementById('mob-stats-sheet').classList.remove('open');
-  document.getElementById('mob-stats-btn').classList.remove('active');
+function mobPivotClick(dir, btn) {
+  var real = document.querySelector('#pivot-btns .bb[onclick*="\''+dir+'\'"]');
+  if (real) real.click();
+  document.querySelectorAll('#mob-pivot-btns .bb').forEach(function(b){ b.classList.remove('active','sel'); });
+  if (btn) btn.classList.add('active');
 }
-function updateTodayCard(){
-  var cp=function(from,to){var e=document.getElementById(from),t=document.getElementById(to);if(e&&t)t.textContent=e.textContent;};
-  cp('rp-session','ts-session');
-  cp('rp-dir','ts-dir');
-  var vt=document.getElementById('vt-main');var tsb=document.getElementById('ts-bias');
-  if(vt&&tsb)tsb.textContent=vt.textContent||'—';
-  if(typeof calcTodayPnl==='function'){
-    var pnl=calcTodayPnl();var v=pnl.total||0;
-    var el=document.getElementById('ts-pnl');
-    if(el){el.textContent=(v>=0?'+$':'$')+v.toFixed(0);el.style.color=v<0?'#f06060':'#4ed68a';}
+
+/* ── MOBILE PROFILE STRIP — update with live data ── */
+function mobProfileSync() {
+  // avatar
+  var av = document.getElementById('td-sidebar-avatar');
+  var mav = document.getElementById('mob-prof-avatar');
+  if (av && mav) mav.innerHTML = av.innerHTML;
+  // username
+  var un = document.getElementById('td-sidebar-username');
+  var mn = document.getElementById('mob-prof-name');
+  if (un && mn) mn.textContent = un.textContent || '';
+  // rank
+  var rn = document.getElementById('rp-rank-name');
+  var mr = document.getElementById('mob-prof-rank');
+  if (rn && mr) { mr.textContent = rn.textContent || 'DEGENERATE'; mr.style.color = getComputedStyle(rn).color; }
+  // streak
+  var sn = document.getElementById('rp-streak-num');
+  var ms = document.getElementById('mob-prof-streak');
+  if (sn && ms) ms.textContent = (sn.textContent || '0') + 'd';
+  // today P&L
+  if (typeof calcTodayPnl === 'function') {
+    var pnl = calcTodayPnl();
+    var v = pnl.total || 0;
+    var el = document.getElementById('mob-prof-today');
+    if (el) { el.textContent = (v >= 0 ? '+$' : '-$') + Math.abs(v).toFixed(0); el.style.color = v < 0 ? '#f06060' : '#4ed68a'; }
   }
-  var hb=document.getElementById('history-body');
-  var ttr=document.getElementById('ts-trades');
-  if(hb&&ttr)ttr.textContent=hb.querySelectorAll('tr[data-trade]').length||'0';
+  // weekly & monthly — read from leaderboard data if available, else from daily_summaries
+  mobPnlFromDB();
 }
-// update today card when data changes
-document.addEventListener('DOMContentLoaded',function(){
-  setTimeout(updateTodayCard,1500);
+function mobPnlFromDB() {
+  try {
+    var sb = getSB();
+    var uname = localStorage.getItem('td_username') || '';
+    if (!uname) return;
+    var now = new Date();
+    // week start (last Monday)
+    var dayOfWeek = now.getDay() || 7;
+    var weekStart = new Date(now); weekStart.setDate(now.getDate() - dayOfWeek + 1); weekStart.setHours(0,0,0,0);
+    var monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    sb.from('daily_summaries')
+      .select('date,usd_pnl')
+      .eq('user_id', _userId || '')
+      .gte('date', monthStart.toISOString().split('T')[0])
+      .then(function(res) {
+        if (res.error || !res.data) return;
+        var weekPnl = 0, monthPnl = 0, daysInMonth = 0;
+        var wss = weekStart.toISOString().split('T')[0];
+        res.data.forEach(function(r) {
+          var v = parseFloat(r.usd_pnl) || 0;
+          monthPnl += v;
+          daysInMonth++;
+          if (r.date >= wss) weekPnl += v;
+        });
+        var wEl = document.getElementById('mob-prof-week');
+        if (wEl) { wEl.textContent = (weekPnl >= 0 ? '+$' : '-$') + Math.abs(weekPnl).toFixed(0); wEl.style.color = weekPnl < 0 ? '#f06060' : '#4ed68a'; }
+        var mEl = document.getElementById('mob-prof-month');
+        if (mEl) {
+          // extrapolate: avg daily * 20 trading days
+          var avgDaily = daysInMonth > 0 ? monthPnl / daysInMonth : 0;
+          var est = avgDaily * 20;
+          mEl.textContent = '~' + (est >= 0 ? '+$' : '-$') + Math.abs(est).toFixed(0);
+          mEl.style.color = est < 0 ? '#f06060' : est > 0 ? '#4ed68a' : 'rgba(255,255,255,0.45)';
+        }
+      });
+  } catch(e) {}
+}
+document.addEventListener('DOMContentLoaded', function() {
+  setTimeout(mobProfileSync, 1800);
+  // re-sync whenever right panel updates
+  var rn = document.getElementById('rp-rank-name');
+  if (rn) { var obs = new MutationObserver(mobProfileSync); obs.observe(rn, {childList:true,subtree:true,characterData:true}); }
 });
 </script>
 </body>
