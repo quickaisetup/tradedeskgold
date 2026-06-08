@@ -2654,6 +2654,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
             <div id="cb-cta-head" style="font-family:var(--display);font-size:18px;letter-spacing:0.06em;color:#c084fc;margin-bottom:6px">WHAT DOES THE ROOM SEE TODAY?</div>
             <div id="cb-cta-sub" style="font-family:var(--mono);font-size:11px;color:var(--text2);line-height:1.7">See the average top-down score from all traders. Find out if the room is aligned or split — and where you stand against the crowd.</div>
             <span id="cb-main-hint" style="font-family:var(--mono);font-size:9px;color:rgba(192,132,252,0.6);letter-spacing:0.06em;margin-top:6px;display:block">community top-down scores · updated live</span>
+            <span id="cb-instr-note" style="font-family:var(--mono);font-size:8px;color:rgba(240,188,78,0.55);letter-spacing:0.04em;margin-top:4px;display:none">⚠ Community scores reflect traders' <b>Gold</b> analysis only — not directly comparable to your current instrument's view.</span>
           </div>
           <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:8px">
             <button id="cb-main-btn" onclick="cbMainClick()"
@@ -4288,6 +4289,11 @@ function _tdAllInstruments() {
 function _tdUpdateGaugeInstrBadge() {
   var b = document.getElementById('rp-gauge-instr-btn');
   if (b) b.textContent = _tdActiveInstrument.toUpperCase() + ' ⇄';
+  // Community "Other Traders' Analysis" is built from everyone's daily Gold
+  // top-down scores (the only instrument the shared schema tracks today) —
+  // make that explicit so it isn't read as "the room's view on BTCUSD" etc.
+  var note = document.getElementById('cb-instr-note');
+  if (note) note.style.display = (_tdActiveInstrument === 'Gold') ? 'none' : 'block';
 }
 
 function rpCycleInstrument() {
@@ -10051,9 +10057,14 @@ window.loadEdgePanel = async function(forceAI) {
   // ── 1. Fetch trades + morning scores ─────────────────
   var aiEl = document.getElementById('edge-ai');
   try {
+    // Only analyze trades for the instrument currently active in Top-down
+    // analysis — so the AI "edge" insights reflect THAT instrument's track
+    // record, not a mix of Gold + whatever else you've logged.
+    var _edgeInstrument = (typeof _tdActiveInstrument !== 'undefined' && _tdActiveInstrument) || 'Gold';
     var tRes = await sb.from('trades')
-      .select('date,direction,setup,session,result,r_achieved,mindset')
-      .eq('user_id', uid);
+      .select('date,direction,setup,session,result,r_achieved,mindset,instrument')
+      .eq('user_id', uid)
+      .eq('instrument', _edgeInstrument);
     var mRes = await sb.from('morning_analysis')
       .select('date,score')
       .eq('user_id', uid);
@@ -10068,7 +10079,7 @@ window.loadEdgePanel = async function(forceAI) {
       edgeChip('edge-stat-short', 'Short', '—', 'no data', 'var(--text3)');
       edgeChip('edge-stat-score', 'Score edge', '—', 'no data', 'var(--text3)');
       edgeChip('edge-stat-setup', 'Best setup', '—', 'no data', 'var(--text3)');
-      if (aiEl) aiEl.innerHTML = '<span style="color:var(--text3);font-size:10px">Log trades to see your edge.</span>';
+      if (aiEl) aiEl.innerHTML = '<span style="color:var(--text3);font-size:10px">Log ' + _edgeInstrument + ' trades to see your edge.</span>';
       return;
     }
 
@@ -10169,8 +10180,9 @@ window.loadEdgePanel = async function(forceAI) {
 
     var prompt =
       'You are a direct trading coach. Never invent stats — only use the exact numbers given.\n\n'+
-      'TODAY BIAS SCORE: '+currentScore+' ('+currentVerdict+')\n\n'+
-      'TRADER\'S REAL HISTORICAL STATS (use ONLY these, do not invent):\n'+
+      'INSTRUMENT: '+_edgeInstrument+' — analyze ONLY this instrument\'s data below; do not reference any other markets.\n'+
+      'TODAY BIAS SCORE ('+_edgeInstrument+'): '+currentScore+' ('+currentVerdict+')\n\n'+
+      'TRADER\'S REAL HISTORICAL STATS FOR '+_edgeInstrument+' ONLY (use ONLY these, do not invent):\n'+
       '- '+longLine+'\n'+
       '- '+shortLine+'\n'+
       '- '+scoreLine+'\n'+
@@ -10252,8 +10264,8 @@ window.loadEdgePanel = async function(forceAI) {
       var lockedEl = document.getElementById('edge-ai-locked');
       if (lockedEl) lockedEl.style.display = 'none';
       if (aiEl3) { aiEl3.style.display='block'; aiEl3.style.padding='0'; aiEl3.innerHTML=resultHtml; }
-      localStorage.setItem('td_edge_ai_cache', resultHtml);
-      localStorage.setItem('td_edge_ai_ts', Date.now().toString());
+      localStorage.setItem('td_edge_ai_cache_' + _edgeInstrument, resultHtml);
+      localStorage.setItem('td_edge_ai_ts_' + _edgeInstrument, Date.now().toString());
     } catch(e) {
       var aiEl4 = document.getElementById('edge-ai');
       if (aiEl4) { aiEl4.style.display='block'; aiEl4.innerHTML = '<div style="padding:14px 20px;color:var(--red);font-family:var(--mono);font-size:10px">Error: ' + e.message + '</div>'; }
@@ -11424,7 +11436,7 @@ window.tdlSignOut = async function() {
   localStorage.removeItem('td_user_email');
   localStorage.removeItem('td_is_admin');
   // Clear AI caches on sign out
-  Object.keys(localStorage).filter(function(k){ return k.startsWith('td_brief_') || k === 'td_edge_ai_cache'; }).forEach(function(k){ localStorage.removeItem(k); });
+  Object.keys(localStorage).filter(function(k){ return k.startsWith('td_brief_') || k.startsWith('td_edge_ai_cache') || k.startsWith('td_edge_ai_ts'); }).forEach(function(k){ localStorage.removeItem(k); });
   _user = null; _userId = null;
   // Reset top-down save/gate state for a fresh session
   window._morningSaved = false;
