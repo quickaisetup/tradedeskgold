@@ -139,8 +139,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 .lb-strip-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
 .lb-strip-title{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);font-weight:700}
 .lb-strip-title::before{content:'';width:3px;height:9px;border-radius:2px;background:var(--gold);opacity:0.6;display:inline-block}
-.lb-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-.lb-card{display:flex;align-items:center;gap:10px;background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:10px 14px;transition:border-color .15s}
+.lb-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.lb-card{display:flex;align-items:center;gap:14px;background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:14px 18px;transition:border-color .15s}
 .lb-card:hover{border-color:rgba(255,255,255,0.15)}
 .lb-card.me{border-color:rgba(240,188,78,0.5);background:rgba(240,188,78,0.06)}
 .lb-card-top{display:flex;align-items:center;gap:8px;margin-bottom:8px;width:100%}
@@ -148,17 +148,17 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 .lb-rank.gold{color:#f0bc4e}
 .lb-rank.silver{color:#cfd6dd}
 .lb-rank.bronze{color:#d8975a}
-.lb-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;font-weight:700;color:#0e0f11;flex-shrink:0;letter-spacing:0.02em}
+.lb-avatar{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:13px;font-weight:700;color:#0e0f11;flex-shrink:0;letter-spacing:0.02em}
 .lb-name-row{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-bottom:3px}
-.lb-name{font-family:var(--mono);font-size:10.5px;color:var(--text);font-weight:700;letter-spacing:0.02em}
-.lb-tag{font-family:var(--mono);font-size:7px;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);background:rgba(240,188,78,0.12);border:1px solid rgba(240,188,78,0.25);border-radius:3px;padding:1px 4px;white-space:nowrap}
+.lb-name{font-family:var(--mono);font-size:12px;color:var(--text);font-weight:700;letter-spacing:0.02em}
+.lb-tag{font-family:var(--mono);font-size:7.5px;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);background:rgba(240,188,78,0.12);border:1px solid rgba(240,188,78,0.25);border-radius:3px;padding:2px 5px;white-space:nowrap}
 .lb-tag.dim{color:var(--text3);background:transparent;border-color:var(--border2)}
 .lb-tag.green{color:#4ed68a;background:rgba(78,214,138,0.12);border-color:rgba(78,214,138,0.25)}
 .lb-divider{width:100%;height:1px;background:rgba(255,255,255,0.05);margin:6px 0}
 .lb-stat-row{display:flex;justify-content:space-between;width:100%;gap:4px}
 .lb-stat{display:flex;flex-direction:column;gap:1px;flex:1}
-.lb-stat-lbl{font-family:var(--mono);font-size:7px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3)}
-.lb-stat-val{font-family:var(--mono);font-size:11px;color:#4ed68a;font-weight:700;letter-spacing:0.02em}
+.lb-stat-lbl{font-family:var(--mono);font-size:7.5px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3)}
+.lb-stat-val{font-family:var(--mono);font-size:13px;color:#4ed68a;font-weight:700;letter-spacing:0.02em}
 .lb-stat-val.neutral{color:var(--text2)}
 .lb-streak{font-family:var(--mono);font-size:8px;color:var(--text3);margin-top:5px;letter-spacing:0.04em}
 .ai-text{font-size:14px;color:var(--text);line-height:1.7}
@@ -2307,18 +2307,6 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
             <div class="lb-stat"><div class="lb-stat-lbl">Yesterday</div><div class="lb-stat-val">+$540</div></div>
             <div class="lb-stat"><div class="lb-stat-lbl">This week</div><div class="lb-stat-val">+$4,180</div></div>
             <div class="lb-stat"><div class="lb-stat-lbl">Streak</div><div class="lb-stat-val neutral">16d</div></div>
-          </div>
-        </div>
-      </div>
-      <div class="lb-card me">
-        <div class="lb-rank">#7</div>
-        <div class="lb-avatar" style="background:#4ed68a">YO</div>
-        <div style="flex:1;min-width:0">
-          <div class="lb-name-row"><span class="lb-name">@you</span><span class="lb-tag green">You</span></div>
-          <div style="display:flex;gap:10px;margin-top:4px">
-            <div class="lb-stat"><div class="lb-stat-lbl">Yesterday</div><div class="lb-stat-val">+$210</div></div>
-            <div class="lb-stat"><div class="lb-stat-lbl">This week</div><div class="lb-stat-val">+$1,350</div></div>
-            <div class="lb-stat"><div class="lb-stat-lbl">Streak</div><div class="lb-stat-val neutral">6d</div></div>
           </div>
         </div>
       </div>
@@ -11230,7 +11218,6 @@ function renderLeaderboard(rows) {
   var meIdx = rows.findIndex(function(r) { return r.user_id === _userId; });
   var html = '';
   rows.slice(0, 3).forEach(function(r, i) { html += lbCardHtml(r, i + 1, r.user_id === _userId); });
-  if (meIdx > 2) html += lbCardHtml(rows[meIdx], meIdx + 1, true);
   wrap.innerHTML = html;
   var metaEl = document.getElementById('lb-meta');
   if (metaEl) metaEl.textContent = rows.length + ' traders · yesterday & weekly P&L';
