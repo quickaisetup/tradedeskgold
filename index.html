@@ -8755,7 +8755,7 @@ function initTVChart() {
     theme: 'dark', style: '1', locale: 'en',
     backgroundColor: 'rgba(14,15,17,0)',
     gridColor: 'rgba(255,255,255,0.04)',
-    hide_top_toolbar: false, hide_legend: false,
+    hide_top_toolbar: false, hide_legend: true,
     allow_symbol_change: false, save_image: false,
     hide_side_toolbar: true,
     studies: [
@@ -8764,7 +8764,7 @@ function initTVChart() {
       { id: 'MASimple@tv-basicstudies', inputs: { length: 50 } },
       { id: 'MASimple@tv-basicstudies', inputs: { length: 200 } },
       { id: 'MACD@tv-basicstudies' },
-      'STD;Awesome_Oscillator'
+      { id: 'Awesome Oscillator@tv-basicstudies' }
     ],
     support_host: 'https://www.tradingview.com'
   });
