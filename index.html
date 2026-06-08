@@ -1012,12 +1012,17 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 .rp-tier-lbl{font-size:8px;text-transform:uppercase;color:rgba(255,255,255,0.45);letter-spacing:0.04em;transition:color .3s}
 .rp-tier-pip.active-tier .rp-tier-lbl{color:rgba(255,255,255,0.5)}
 
+/* ── SECTION EYEBROWS — group headers that break up the wall of text ── */
+.rp-eyebrow{display:flex;align-items:center;gap:6px;padding:11px 10px 6px;font-family:var(--mono);font-size:8px;letter-spacing:0.22em;text-transform:uppercase;color:rgba(240,188,78,0.5);font-weight:700}
+.rp-eyebrow::before{content:'';width:3px;height:10px;border-radius:2px;background:rgba(240,188,78,0.45);display:inline-block;flex-shrink:0}
+
 /* ── INFO ROWS ── */
-#rp-info{}
-.rp-row{display:flex;justify-content:space-between;align-items:center;padding:5px 10px;border-bottom:1px solid rgba(255,255,255,0.04)}
+#rp-info{padding-bottom:2px}
+.rp-row{display:flex;justify-content:space-between;align-items:center;padding:7px 10px;border-bottom:1px solid rgba(255,255,255,0.035);transition:background .15s}
+.rp-row:hover{background:rgba(255,255,255,0.02)}
 .rp-row:last-child{border-bottom:none}
-.rp-lbl2{font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.55)}
-.rp-val2{font-size:10px;color:rgba(255,255,255,0.9);text-align:right;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rp-lbl2{font-size:8.5px;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.4);font-weight:500}
+.rp-val2{font-size:11px;color:#fff;font-weight:600;letter-spacing:0.02em;text-align:right;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
 /* ── BIAS GAUGE — bottom ── */
 #rp-gauge-section{
@@ -3031,6 +3036,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
     ">↺ Sync Data</button>
   </div>
 
+  <div class="rp-eyebrow">Progress</div>
   <!-- STREAK + XP -->
   <div id="rp-streak-block">
     <div id="rp-streak-row">
@@ -3082,6 +3088,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
     <div class="rp-tier-pip" data-rp-rank="6"><div class="rp-tier-dot" style="border-color:rgba(0,229,255,0.08);color:#00e5ff;background:rgba(0,229,255,0.03)">VII</div><div class="rp-tier-lbl">God</div></div>
   </div>
 
+  <div class="rp-eyebrow">Today's Setup</div>
   <!-- INFO ROWS -->
   <div id="rp-info">
     <!-- Risk $ managed via account sizes -->
@@ -3108,8 +3115,9 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
     </div>
   </div>
 
+  <div class="rp-eyebrow" style="border-top:1px solid rgba(255,255,255,0.05);margin-top:4px">Live Read</div>
   <!-- BIAS SCORE GAUGE -->
-  <div id="rp-gauge-section">
+  <div id="rp-gauge-section" style="border-top:none">
     <div id="rp-gauge-mode-row">
       <div id="rp-gauge-lbl">Bias Score</div>
       <div id="rp-gauge-mode">— no mode —</div>
