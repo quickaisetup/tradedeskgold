@@ -11763,6 +11763,12 @@ function tdlPatchApp() {
           wins:           parseInt(payload.wins) || 0,
           losses:         parseInt(payload.losses) || 0,
           total_r:        parseFloat(payload.totalR) || 0,
+          // Persist the SAME $ total the dashboard shows for today (same
+          // formula: broker usd_achieved when present, signed by result;
+          // falls back to R × risk% × account size). This is what the
+          // leaderboard sums for "yesterday"/"week" — guaranteeing it can
+          // never disagree with what the trader sees in their own app.
+          usd_pnl:        (typeof calcTodayPnl === 'function' ? calcTodayPnl().total : 0),
           rules_followed: payload.rulesFollowed || '',
           did_well:       payload.didWell || '',
           to_correct:     payload.toCorrect || '',
