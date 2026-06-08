@@ -6675,6 +6675,15 @@ function computeAndSetStreak(history) {
   var pct = total > 0 ? Math.round((clean/total)*100) : 0;
 
   setStreakUI(rankScore, clean, total, pct, sorted, allNorm);
+  // Persist the canonical rank score to the cloud profile so the leaderboard
+  // (which reads from Supabase, not localStorage) always shows the SAME
+  // streak/tier the trader sees on their own sidebar — single source of truth.
+  try {
+    if (typeof getSB === 'function' && _userId) {
+      getSB().from('profiles').update({ streak_score: rankScore }).eq('id', _userId)
+        .then(function(){}, function(){});
+    }
+  } catch(e) {}
   var RANK_BORDERS = ['rgba(112,120,128,0.3)','rgba(205,127,50,0.4)','rgba(192,200,216,0.4)','rgba(240,188,78,0.45)','rgba(78,214,138,0.45)','rgba(168,216,240,0.45)','rgba(0,229,255,0.45)'];
   var rIdx = rankForScore(rankScore).rankIdx;
   var banner = document.getElementById('streak-banner');
@@ -11072,8 +11081,8 @@ var LB_TIERS = [
   { min:30, name:'Legend',      color:'#a8d8f0' },
   { min:60, name:'God Mode',    color:'#00e5ff' }
 ];
-function lbTierFor(cleanDays) {
-  var d = Number(cleanDays) || 0, t = LB_TIERS[0];
+function lbTierFor(score) {
+  var d = Number(score) || 0, t = LB_TIERS[0];
   for (var i = 0; i < LB_TIERS.length; i++) { if (d >= LB_TIERS[i].min) t = LB_TIERS[i]; }
   return t;
 }
@@ -11085,15 +11094,19 @@ function lbCardHtml(row, rank, isMe) {
     : initials;
   var rankCls = rank === 1 ? 'gold' : rank === 2 ? 'silver' : rank === 3 ? 'bronze' : '';
   var nameLabel = isMe ? 'You' : ('@' + row.username);
-  var tier = lbTierFor(row.clean_days);
+  // Use the SAME persisted streak_score the trader's own sidebar shows —
+  // not a re-derived count — so the badge here can never disagree with it.
+  var score = row.streak_score;
+  var tier = lbTierFor(score);
   var tierTag = '<span class="lb-tag" style="color:' + tier.color + ';background:' + tier.color + '1f;border-color:' + tier.color + '40">' + tier.name + '</span>';
   var meTag = isMe ? '<span class="lb-tag green">You</span>' : '';
+  var streakLbl = score + (score === 1 ? ' day streak' : ' day streak');
   return '<div class="lb-card' + (isMe ? ' me' : '') + '">'
     + '<div class="lb-rank ' + rankCls + '">#' + rank + '</div>'
     + '<div class="lb-avatar" style="background:' + (row.avatar_url ? 'transparent' : color) + ';overflow:hidden">' + avatarInner + '</div>'
     + '<div>'
     +   '<div class="lb-name-row"><span class="lb-name">' + nameLabel + '</span>' + tierTag + meTag + '</div>'
-    +   '<div class="lb-stats">Yest <b>' + lbFmtUsd(row.yesterday_pnl) + '</b> · Week <b>' + lbFmtUsd(row.week_pnl) + '</b> · ' + (row.clean_days || 0) + ' clean days</div>'
+    +   '<div class="lb-stats">Yest <b>' + lbFmtUsd(row.yesterday_pnl) + '</b> · Week <b>' + lbFmtUsd(row.week_pnl) + '</b> · ' + streakLbl + '</div>'
     + '</div>'
     + '</div>';
 }
