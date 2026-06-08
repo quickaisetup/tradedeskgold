@@ -8758,7 +8758,13 @@ function initTVChart() {
     hide_top_toolbar: false, hide_legend: false,
     allow_symbol_change: false, save_image: false,
     hide_side_toolbar: true,
-    studies: ['STD;EMA', 'STD;MACD', 'STD;Awesome_Oscillator'],
+    studies: [
+      { id: 'MAExp@tv-basicstudies', inputs: { length: 9 } },
+      { id: 'MAExp@tv-basicstudies', inputs: { length: 20 } },
+      { id: 'MASimple@tv-basicstudies', inputs: { length: 50 } },
+      { id: 'MASimple@tv-basicstudies', inputs: { length: 200 } },
+      'STD;MACD', 'STD;Awesome_Oscillator'
+    ],
     support_host: 'https://www.tradingview.com'
   });
   container.appendChild(script);
