@@ -8759,12 +8759,15 @@ function initTVChart() {
     allow_symbol_change: false, save_image: false,
     hide_side_toolbar: true,
     studies: [
+      // Known-good shorthand IDs first (these reliably loaded before) —
+      // putting them ahead of the newer object-format MA entries avoids
+      // whatever ordering quirk was dropping AO when it came last.
+      'STD;MACD',
+      'STD;Awesome_Oscillator',
       { id: 'MAExp@tv-basicstudies', inputs: { length: 9 } },
       { id: 'MAExp@tv-basicstudies', inputs: { length: 20 } },
       { id: 'MASimple@tv-basicstudies', inputs: { length: 50 } },
-      { id: 'MASimple@tv-basicstudies', inputs: { length: 200 } },
-      { id: 'MACD@tv-basicstudies' },
-      { id: 'Awesome Oscillator@tv-basicstudies' }
+      { id: 'MASimple@tv-basicstudies', inputs: { length: 200 } }
     ],
     support_host: 'https://www.tradingview.com'
   });
