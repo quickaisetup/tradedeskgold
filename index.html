@@ -11061,6 +11061,22 @@ function lbFmtUsd(n) {
   return (v < 0 ? '-' : '+') + '$' + Math.abs(v).toLocaleString();
 }
 var LB_PALETTE = ['#f0bc4e','#a8d8f0','#d8975a','#7fb3d9','#c9a3ff','#e08a8a','#4ed68a'];
+// Mirrors the app's own rank-tier ladder (getRankDefs) so the leaderboard
+// badge always matches what a trader sees on their own profile.
+var LB_TIERS = [
+  { min:0,  name:'Degen',       color:'#707880' },
+  { min:3,  name:'Gambler',     color:'#cd7f32' },
+  { min:7,  name:'Ninja',       color:'#c0c8d8' },
+  { min:14, name:'S.Saiyan',    color:'#f0bc4e' },
+  { min:21, name:'Elite',       color:'#4ed68a' },
+  { min:30, name:'Legend',      color:'#a8d8f0' },
+  { min:60, name:'God Mode',    color:'#00e5ff' }
+];
+function lbTierFor(cleanDays) {
+  var d = Number(cleanDays) || 0, t = LB_TIERS[0];
+  for (var i = 0; i < LB_TIERS.length; i++) { if (d >= LB_TIERS[i].min) t = LB_TIERS[i]; }
+  return t;
+}
 function lbCardHtml(row, rank, isMe) {
   var initials = lbInitials(row.username);
   var color = LB_PALETTE[(rank - 1) % LB_PALETTE.length];
@@ -11069,12 +11085,14 @@ function lbCardHtml(row, rank, isMe) {
     : initials;
   var rankCls = rank === 1 ? 'gold' : rank === 2 ? 'silver' : rank === 3 ? 'bronze' : '';
   var nameLabel = isMe ? 'You' : ('@' + row.username);
-  var tagHtml = isMe ? '<span class="lb-tag green">You</span>' : '';
+  var tier = lbTierFor(row.clean_days);
+  var tierTag = '<span class="lb-tag" style="color:' + tier.color + ';background:' + tier.color + '1f;border-color:' + tier.color + '40">' + tier.name + '</span>';
+  var meTag = isMe ? '<span class="lb-tag green">You</span>' : '';
   return '<div class="lb-card' + (isMe ? ' me' : '') + '">'
     + '<div class="lb-rank ' + rankCls + '">#' + rank + '</div>'
     + '<div class="lb-avatar" style="background:' + (row.avatar_url ? 'transparent' : color) + ';overflow:hidden">' + avatarInner + '</div>'
     + '<div>'
-    +   '<div class="lb-name-row"><span class="lb-name">' + nameLabel + '</span>' + tagHtml + '</div>'
+    +   '<div class="lb-name-row"><span class="lb-name">' + nameLabel + '</span>' + tierTag + meTag + '</div>'
     +   '<div class="lb-stats">Yest <b>' + lbFmtUsd(row.yesterday_pnl) + '</b> · Week <b>' + lbFmtUsd(row.week_pnl) + '</b> · ' + (row.clean_days || 0) + ' clean days</div>'
     + '</div>'
     + '</div>';
@@ -11087,6 +11105,8 @@ function renderLeaderboard(rows) {
   rows.slice(0, 3).forEach(function(r, i) { html += lbCardHtml(r, i + 1, r.user_id === _userId); });
   if (meIdx > 2) html += lbCardHtml(rows[meIdx], meIdx + 1, true);
   wrap.innerHTML = html;
+  var headEl = document.querySelector('.lb-strip-head span');
+  if (headEl) headEl.textContent = rows.length + (rows.length === 1 ? ' trader' : ' traders') + ' ranked · yesterday & weekly P&L';
 }
 async function loadLeaderboard() {
   try {
