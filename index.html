@@ -1251,6 +1251,33 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
   .lvl-card,.trade-form{margin-bottom:8px}
 }
 
+/* ── TODAY CARD (6th TF slot) ── */
+.today-row{display:flex;align-items:center;justify-content:space-between;padding:3px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
+.today-row:last-child{border-bottom:none}
+.today-lbl{font-family:var(--mono);font-size:7.5px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3)}
+.today-val{font-family:var(--mono);font-size:10px;color:var(--text);font-weight:600}
+
+/* ── MOBILE STATS SHEET ── */
+#mob-stats-sheet{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:600;backdrop-filter:blur(3px);align-items:flex-end}
+#mob-stats-sheet.open{display:flex}
+#mob-stats-inner{
+  width:100%;background:#0d0e14;
+  border-top:1px solid rgba(255,255,255,0.1);border-radius:16px 16px 0 0;
+  padding:16px 18px 30px;
+  animation:slideUp .25s ease;
+}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+#mob-stats-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,0.07)}
+#mob-stats-rank-row{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+#mob-stats-avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,rgba(168,85,247,0.35),rgba(168,85,247,0.1));border:2px solid rgba(168,85,247,0.4);display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:15px;color:#c084fc;flex-shrink:0;overflow:hidden}
+#mob-stats-bar-wrap{height:3px;background:rgba(255,255,255,0.08);border-radius:2px;margin-bottom:5px;overflow:hidden}
+#mob-stats-bar-fill{height:100%;background:var(--gold);border-radius:2px;transition:width .5s ease;width:0%}
+#mob-stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.mob-stat-cell{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:10px 12px}
+.mob-stat-lbl{font-family:var(--mono);font-size:7.5px;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:3px}
+.mob-stat-val{font-family:var(--display);font-size:20px;color:#fff;line-height:1;margin-bottom:2px}
+.mob-stat-sub{font-family:var(--mono);font-size:8px;color:rgba(255,255,255,0.35)}
+
 /* ═══════════════════════════════════════════════════════
    MOBILE OPTIMISATION — max-width 768px
    Desktop layout untouched. All rules outside this block.
@@ -1322,6 +1349,9 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
   }
   .mob-nav-fab:active{background:rgba(240,96,96,0.28);box-shadow:0 0 28px rgba(240,96,96,0.5)}
   .mob-nav-fab-dot{width:8px;height:8px;border-radius:50%;background:#f06060;animation:livePulse 1.2s ease-in-out infinite;box-shadow:0 0 6px rgba(240,96,96,0.8);margin-bottom:1px}
+
+  /* ── TODAY CARD — show in 6th TF slot on mobile ── */
+  #tfc-today{display:block!important}
 
   /* ── LIVE EXECUTION BUTTON — hidden on mobile, replaced by FAB in nav ── */
   #live-exec-btn{display:none!important}
@@ -1405,8 +1435,20 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
   .leo-lvl-input{width:60px;font-size:10px}
 
   /* ── LIVE EXECUTION OVERLAY ── */
-  #leo-charts-grid{grid-template-columns:1fr;grid-template-rows:repeat(6,200px)}
-  #leo-header{padding:6px 10px;height:auto;min-height:40px;flex-wrap:wrap;gap:6px}
+  #leo-charts-grid{grid-template-columns:1fr;grid-template-rows:repeat(6,minmax(180px,1fr));flex:1;min-height:0}
+  #leo-header{padding:6px 10px;height:auto;min-height:36px;flex-wrap:wrap;gap:4px}
+  #leo-bias-bar{display:none} /* hide bias chips in header — saves space */
+  #leo-sym-ema-bar{height:28px}
+  .leo-sym-tab{font-size:8px;padding:0 10px}
+  #leo-ema-legend{padding:0 10px;gap:7px}
+  #leo-price-right{padding:0 8px;gap:6px}
+  /* position calc bar — collapsible via toggle */
+  #leo-levels-bar{flex-wrap:wrap;gap:5px;padding:5px 10px}
+  .leo-lvl-input{width:72px;font-size:11px}
+  #leo-kl-bar{padding:4px 10px}
+  #leo-ltf-trend-bar{padding:4px 10px;flex-wrap:wrap;gap:4px}
+  /* make charts fill remaining height */
+  #live-exec-overlay{overflow-y:auto}
 
   /* ── EXPLAINERS ── */
   .td-explainer{padding:10px 12px}
@@ -2704,6 +2746,16 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
           <input type="text" id="ew-1H-note" placeholder="Wave position..." style="display:none;flex:1;background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:3px;color:var(--text);font-family:var(--mono);font-size:8px;padding:2px 5px">
         </div>
         <textarea class="tf-note" id="tfn-1H" placeholder="Entry zones..."></textarea>
+      </div>
+
+      <!-- TODAY SUMMARY — fills 6th grid slot on mobile -->
+      <div class="tf-card" id="tfc-today" style="cursor:default;display:none">
+        <div class="tf-name" style="font-size:13px;margin-bottom:10px">TODAY</div>
+        <div class="today-row"><span class="today-lbl">Session</span><span class="today-val" id="ts-session">—</span></div>
+        <div class="today-row"><span class="today-lbl">Bias</span><span class="today-val" id="ts-bias">—</span></div>
+        <div class="today-row"><span class="today-lbl">Direction</span><span class="today-val" id="ts-dir">—</span></div>
+        <div class="today-row" style="margin-top:8px"><span class="today-lbl">P&amp;L today</span><span class="today-val" id="ts-pnl" style="color:#4ed68a">—</span></div>
+        <div class="today-row"><span class="today-lbl">Trades</span><span class="today-val" id="ts-trades">0</span></div>
       </div>
 
     </div>
@@ -12330,11 +12382,66 @@ document.addEventListener('keydown', function(e) {
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>
     <span>Trades</span>
   </a>
-  <button class="mob-nav-item" onclick="mobMenuOpen()">
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-    <span>More</span>
+  <button class="mob-nav-item" id="mob-stats-btn" onclick="mobStatsOpen()">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+    <span>Stats</span>
   </button>
 </nav>
+
+<!-- MOBILE STATS DRAWER — slides up from bottom, shows right panel content -->
+<div id="mob-stats-sheet" onclick="if(event.target===this)mobStatsClose()">
+  <div id="mob-stats-inner">
+    <div id="mob-stats-header">
+      <span style="font-family:var(--mono);font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.5)">My Stats</span>
+      <div style="display:flex;gap:8px">
+        <button onclick="mobMenuOpen()" style="font-family:var(--mono);font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.4);background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:5px;padding:4px 10px;cursor:pointer">☰ Menu</button>
+        <button onclick="mobStatsClose()" style="background:transparent;border:none;color:rgba(255,255,255,0.4);font-size:18px;cursor:pointer;padding:0 4px;line-height:1">✕</button>
+      </div>
+    </div>
+    <!-- rank + streak row -->
+    <div id="mob-stats-rank-row">
+      <div id="mob-stats-avatar"></div>
+      <div style="flex:1;min-width:0">
+        <div id="mob-stats-rank-label" style="font-family:var(--mono);font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:2px">Rank I</div>
+        <div id="mob-stats-rank-name" style="font-family:var(--display);font-size:22px;letter-spacing:0.06em;color:#888;line-height:1">DEGENERATE</div>
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <div id="mob-stats-streak" style="font-family:var(--display);font-size:36px;color:#fff;line-height:1">0</div>
+        <div style="font-family:var(--mono);font-size:7.5px;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.4)">Day Streak</div>
+      </div>
+    </div>
+    <!-- xp bar -->
+    <div id="mob-stats-bar-wrap"><div id="mob-stats-bar-fill"></div></div>
+    <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:8px;color:rgba(255,255,255,0.4);margin-bottom:12px">
+      <span id="mob-stats-prog">0 / 3 to Gambler</span><span id="mob-stats-away">3 away</span>
+    </div>
+    <!-- stats grid -->
+    <div id="mob-stats-grid">
+      <div class="mob-stat-cell">
+        <div class="mob-stat-lbl">Today P&amp;L</div>
+        <div class="mob-stat-val" id="mob-stat-today-pnl">—</div>
+        <div class="mob-stat-sub" id="mob-stat-today-r">0R</div>
+      </div>
+      <div class="mob-stat-cell">
+        <div class="mob-stat-lbl">Win Rate</div>
+        <div class="mob-stat-val" id="mob-stat-winrate">—</div>
+        <div class="mob-stat-sub" id="mob-stat-winrate-sub">All-time</div>
+      </div>
+      <div class="mob-stat-cell">
+        <div class="mob-stat-lbl">Best Streak</div>
+        <div class="mob-stat-val" id="mob-stat-best">0</div>
+        <div class="mob-stat-sub">Days</div>
+      </div>
+      <div class="mob-stat-cell">
+        <div class="mob-stat-lbl">Trades Today</div>
+        <div class="mob-stat-val" id="mob-stat-trades">0</div>
+        <div class="mob-stat-sub" id="mob-stat-trades-sub">0W · 0L</div>
+      </div>
+    </div>
+    <!-- feedback button -->
+    <button onclick="openFeedback();mobStatsClose();" style="width:100%;background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.3);border-radius:8px;color:#a78bfa;font-family:var(--mono);font-size:9px;letter-spacing:0.1em;text-transform:uppercase;padding:10px;cursor:pointer;margin-top:4px">💬 Ideas &amp; Feedback</button>
+  </div>
+</div>
 
 <!-- MOBILE SIDEBAR BACKDROP -->
 <div id="mob-backdrop" onclick="mobMenuClose()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:300;backdrop-filter:blur(2px)"></div>
@@ -12347,15 +12454,85 @@ function mobNavActivate(el){
 function mobMenuOpen(){
   var s=document.querySelector('.sidebar');
   var b=document.getElementById('mob-backdrop');
-  if(s){s.style.left='0';}
+  if(s){s.style.setProperty('left','0','important');s.style.setProperty('z-index','401','important');}
   if(b){b.style.display='block';}
 }
 function mobMenuClose(){
   var s=document.querySelector('.sidebar');
   var b=document.getElementById('mob-backdrop');
-  if(s){s.style.left='';}
+  if(s){s.style.removeProperty('left');s.style.removeProperty('z-index');}
   if(b){b.style.display='none';}
 }
+function mobStatsOpen(){
+  // sync data from right panel into stats sheet
+  var cp=function(from,to){var e=document.getElementById(from),t=document.getElementById(to);if(e&&t)t.textContent=e.textContent;};
+  cp('rp-rank-roman','mob-stats-rank-label');
+  cp('rp-rank-name','mob-stats-rank-name');
+  cp('rp-streak-num','mob-stats-streak');
+  cp('rp-prog','mob-stats-prog');
+  cp('rp-away-lbl','mob-stats-away');
+  cp('rp-alltime','mob-stat-winrate');
+  cp('rp-alltime-sub','mob-stat-winrate-sub');
+  cp('rp-best','mob-stat-best');
+  // sync XP bar width
+  var fill=document.getElementById('rp-bar-fill');
+  var mfill=document.getElementById('mob-stats-bar-fill');
+  if(fill&&mfill)mfill.style.width=fill.style.width||'0%';
+  // sync rank name color
+  var rn=document.getElementById('rp-rank-name');
+  var mn=document.getElementById('mob-stats-rank-name');
+  if(rn&&mn)mn.style.color=getComputedStyle(rn).color;
+  // sync avatar
+  var av=document.getElementById('td-sidebar-avatar');
+  var mav=document.getElementById('mob-stats-avatar');
+  if(av&&mav)mav.innerHTML=av.innerHTML;
+  // today P&L from calcTodayPnl if available
+  if(typeof calcTodayPnl==='function'){
+    var pnl=calcTodayPnl();
+    var el=document.getElementById('mob-stat-today-pnl');
+    var rel=document.getElementById('mob-stat-today-r');
+    if(el){var v=pnl.total||0;el.textContent=(v>=0?'+$':'$')+v.toFixed(0);el.style.color=v<0?'#f06060':'#4ed68a';}
+    if(rel){var r=pnl.rTotal||0;rel.textContent=(r>=0?'+':'')+r.toFixed(1)+'R';}
+  }
+  // trade count
+  var hb=document.getElementById('history-body');
+  if(hb){
+    var rows=hb.querySelectorAll('tr[data-trade]');
+    var w=0,l=0;
+    rows.forEach(function(r){var res=r.getAttribute('data-result');if(res==='Win')w++;else if(res==='Loss')l++;});
+    var tc=document.getElementById('mob-stat-trades');
+    var ts=document.getElementById('mob-stat-trades-sub');
+    if(tc)tc.textContent=rows.length||'0';
+    if(ts)ts.textContent=w+'W · '+l+'L';
+  }
+  // today card sync too
+  updateTodayCard();
+  document.getElementById('mob-stats-sheet').classList.add('open');
+  document.getElementById('mob-stats-btn').classList.add('active');
+}
+function mobStatsClose(){
+  document.getElementById('mob-stats-sheet').classList.remove('open');
+  document.getElementById('mob-stats-btn').classList.remove('active');
+}
+function updateTodayCard(){
+  var cp=function(from,to){var e=document.getElementById(from),t=document.getElementById(to);if(e&&t)t.textContent=e.textContent;};
+  cp('rp-session','ts-session');
+  cp('rp-dir','ts-dir');
+  var vt=document.getElementById('vt-main');var tsb=document.getElementById('ts-bias');
+  if(vt&&tsb)tsb.textContent=vt.textContent||'—';
+  if(typeof calcTodayPnl==='function'){
+    var pnl=calcTodayPnl();var v=pnl.total||0;
+    var el=document.getElementById('ts-pnl');
+    if(el){el.textContent=(v>=0?'+$':'$')+v.toFixed(0);el.style.color=v<0?'#f06060':'#4ed68a';}
+  }
+  var hb=document.getElementById('history-body');
+  var ttr=document.getElementById('ts-trades');
+  if(hb&&ttr)ttr.textContent=hb.querySelectorAll('tr[data-trade]').length||'0';
+}
+// update today card when data changes
+document.addEventListener('DOMContentLoaded',function(){
+  setTimeout(updateTodayCard,1500);
+});
 </script>
 </body>
 </html>
