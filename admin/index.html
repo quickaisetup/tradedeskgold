@@ -82,6 +82,22 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 .adm-page{display:none}
 .adm-page.active{display:block}
 
+/* ── FEEDBACK ── */
+.fb-card{background:var(--bg2);border:1px solid rgba(139,92,246,0.25);border-radius:10px;padding:14px 16px;display:flex;gap:14px;align-items:flex-start;transition:opacity .2s}
+.fb-card.seen{opacity:0.45;border-color:var(--border)}
+.fb-avatar-sm{width:32px;height:32px;border-radius:50%;background:rgba(139,92,246,0.2);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:10px;font-weight:700;color:#a78bfa;flex-shrink:0}
+.fb-meta{font-family:var(--mono);font-size:9px;color:var(--text3);margin-bottom:6px;display:flex;gap:10px;align-items:center}
+.fb-username{color:var(--text2);font-weight:600}
+.fb-new-dot{width:6px;height:6px;border-radius:50%;background:#a78bfa;display:inline-block}
+.fb-msg{font-family:var(--mono);font-size:11px;color:var(--text);line-height:1.6;white-space:pre-wrap}
+.fb-actions{display:flex;gap:6px;margin-top:10px}
+.fb-action-btn{font-family:var(--mono);font-size:8px;letter-spacing:0.1em;text-transform:uppercase;padding:4px 10px;border-radius:5px;cursor:pointer;border:1px solid var(--border2);background:transparent;color:var(--text3);transition:all .15s}
+.fb-action-btn:hover{color:var(--text);border-color:rgba(255,255,255,0.3)}
+.fb-action-btn.done{border-color:rgba(78,214,138,0.4);color:#4ed68a}
+.fb-action-btn.done:hover{background:rgba(78,214,138,0.08)}
+.fb-action-btn.hide{border-color:rgba(240,80,80,0.35);color:#f06060}
+.fb-action-btn.hide:hover{background:rgba(240,80,80,0.08)}
+
 /* ── PAGE HEADER ── */
 .page-head{margin-bottom:24px}
 .page-head h1{font-family:var(--display);font-size:36px;letter-spacing:0.04em;color:var(--text);line-height:1}
@@ -280,6 +296,10 @@ table.adm-table tbody tr.selected{background:var(--gd)}
       <button class="adm-tab" onclick="showPage('levels',this)">Key Levels</button>
       <button class="adm-tab" onclick="showPage('summaries',this)">EOD Summaries</button>
       <button class="adm-tab" onclick="showPage('performance',this)">Performance</button>
+      <button class="adm-tab" onclick="showPage('feedback',this)" id="tab-feedback" style="position:relative">
+        Feedback
+        <span id="fb-badge" style="display:none;position:absolute;top:3px;right:3px;width:7px;height:7px;background:#a78bfa;border-radius:50%"></span>
+      </button>
     </div>
     <div class="adm-topbar-right">
       <button class="adm-refresh" id="adm-refresh-btn" onclick="admRefresh()">
@@ -427,6 +447,23 @@ table.adm-table tbody tr.selected{background:var(--gd)}
         <button class="filter-btn" onclick="setPerfFilter('month',this)">This month</button>
       </div>
       <div id="perf-content"></div>
+    </div>
+
+    <!-- FEEDBACK -->
+    <div class="adm-page" id="page-feedback">
+      <div class="page-head" style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
+        <div>
+          <h1>User Feedback</h1>
+          <p>Ideas, bug reports and feature requests submitted by traders</p>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button class="filter-btn active" onclick="setFbFilter('new',this)" id="fbf-new">New</button>
+          <button class="filter-btn" onclick="setFbFilter('seen',this)" id="fbf-seen">Seen</button>
+          <button class="filter-btn" onclick="setFbFilter('all',this)" id="fbf-all">All</button>
+        </div>
+      </div>
+      <div id="fb-list" style="display:flex;flex-direction:column;gap:10px;margin-top:4px"></div>
+      <div id="fb-empty" style="display:none;font-family:var(--mono);font-size:11px;color:var(--text3);padding:40px 0;text-align:center">No feedback here yet.</div>
     </div>
 
   </div><!-- /adm-main -->
@@ -875,6 +912,7 @@ function renderAllPages() {
   renderAnalysis();
   renderSummaries();
   renderPerformance();
+  loadFeedback();
 }
 
 // ── OVERVIEW ───────────────────────────────────────────────────────────────
@@ -1490,6 +1528,7 @@ function showPage(name, btn) {
       renderLevelsPage();
     })();
   }
+  if (name === 'feedback') loadFeedback();
 }
 
 var _tvChartInit = false;
@@ -1634,6 +1673,89 @@ function renderLevelsPage() {
     }
   } catch(e) {}
 })();
+
+// ── FEEDBACK ───────────────────────────────────────────
+var _fbData = [];
+var _fbFilter = 'new';
+
+async function loadFeedback() {
+  try {
+    var sb = getSB();
+    var res = await sb.from('feedback').select('*').order('created_at', { ascending: false });
+    if (res.error) { console.warn('[feedback]', res.error.message); return; }
+    _fbData = res.data || [];
+    renderFeedback();
+    // Show purple dot on tab if there are new items
+    var newCount = _fbData.filter(function(f){ return f.status === 'new'; }).length;
+    var badge = document.getElementById('fb-badge');
+    if (badge) badge.style.display = newCount > 0 ? 'block' : 'none';
+  } catch(e) { console.warn('[feedback] load failed:', e.message); }
+}
+
+function setFbFilter(f, btn) {
+  _fbFilter = f;
+  document.querySelectorAll('#page-feedback .filter-btn').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  renderFeedback();
+}
+
+function renderFeedback() {
+  var list = document.getElementById('fb-list');
+  var empty = document.getElementById('fb-empty');
+  if (!list) return;
+  var items = _fbData.filter(function(f) {
+    if (_fbFilter === 'new')  return f.status === 'new';
+    if (_fbFilter === 'seen') return f.status === 'seen';
+    return f.status !== 'hidden';
+  });
+  if (!items.length) { list.innerHTML = ''; empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+  list.innerHTML = items.map(function(f) {
+    var initials = (f.username||'?').slice(0,2).toUpperCase();
+    var date = new Date(f.created_at).toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
+    var time = new Date(f.created_at).toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
+    var isNew = f.status === 'new';
+    return '<div class="fb-card'+(f.status==='seen'?' seen':'')+'" id="fbc-'+f.id+'">'
+      + '<div class="fb-avatar-sm">'+initials+'</div>'
+      + '<div style="flex:1;min-width:0">'
+      +   '<div class="fb-meta">'
+      +     '<span class="fb-username">@'+(f.username||'unknown')+'</span>'
+      +     '<span>'+date+' · '+time+'</span>'
+      +     (isNew ? '<span class="fb-new-dot" title="New"></span>' : '')
+      +   '</div>'
+      +   '<div class="fb-msg">'+f.message.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</div>'
+      +   '<div class="fb-actions">'
+      +     (isNew ? '<button class="fb-action-btn done" onclick="fbMarkSeen(\''+f.id+'\',this)">✓ Mark seen</button>' : '')
+      +     '<button class="fb-action-btn hide" onclick="fbHide(\''+f.id+'\',this)">✕ Hide</button>'
+      +   '</div>'
+      + '</div>'
+      + '</div>';
+  }).join('');
+}
+
+async function fbMarkSeen(id, btn) {
+  try {
+    var sb = getSB();
+    await sb.from('feedback').update({ status: 'seen' }).eq('id', id);
+    var item = _fbData.find(function(f){ return f.id == id; });
+    if (item) item.status = 'seen';
+    renderFeedback();
+    var badge = document.getElementById('fb-badge');
+    var newCount = _fbData.filter(function(f){ return f.status === 'new'; }).length;
+    if (badge) badge.style.display = newCount > 0 ? 'block' : 'none';
+  } catch(e) { alert('Error: ' + e.message); }
+}
+
+async function fbHide(id, btn) {
+  try {
+    var sb = getSB();
+    await sb.from('feedback').update({ status: 'hidden' }).eq('id', id);
+    var item = _fbData.find(function(f){ return f.id == id; });
+    if (item) item.status = 'hidden';
+    document.getElementById('fbc-'+id).style.opacity = '0';
+    setTimeout(renderFeedback, 300);
+  } catch(e) { alert('Error: ' + e.message); }
+}
 </script>
 </body>
 </html>

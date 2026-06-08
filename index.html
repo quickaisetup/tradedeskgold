@@ -115,6 +115,25 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 .ai-card-title{font-family:var(--mono);font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--gold)}
 .ai-card-date{font-family:var(--mono);font-size:9px;color:var(--text3)}
 
+/* FEEDBACK BUTTON + MODAL */
+#fb-btn{display:flex;align-items:center;gap:7px;width:calc(100% - 20px);margin:12px 10px 10px;padding:9px 14px;background:linear-gradient(135deg,rgba(139,92,246,0.25),rgba(99,102,241,0.15));border:1px solid rgba(139,92,246,0.45);border-radius:10px;color:#a78bfa;font-family:var(--mono);font-size:9px;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;transition:all .18s}
+#fb-btn:hover{background:linear-gradient(135deg,rgba(139,92,246,0.38),rgba(99,102,241,0.25));border-color:rgba(139,92,246,0.7);color:#c4b5fd;box-shadow:0 0 14px rgba(139,92,246,0.25)}
+#fb-btn svg{flex-shrink:0;opacity:0.85}
+#fb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:3000;align-items:center;justify-content:center}
+#fb-overlay.open{display:flex}
+#fb-modal{background:#16171d;border:1px solid rgba(139,92,246,0.4);border-radius:14px;padding:22px;width:380px;max-width:92vw;box-shadow:0 8px 40px rgba(0,0,0,0.6),0 0 30px rgba(139,92,246,0.12)}
+#fb-modal-title{font-family:var(--mono);font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:#a78bfa;margin-bottom:6px;display:flex;align-items:center;gap:7px}
+#fb-modal-sub{font-family:var(--mono);font-size:10px;color:var(--text3);margin-bottom:14px;line-height:1.55}
+#fb-textarea{width:100%;min-height:110px;background:rgba(255,255,255,0.04);border:1px solid rgba(139,92,246,0.3);border-radius:8px;color:var(--text);font-family:var(--mono);font-size:11px;padding:10px 12px;resize:vertical;outline:none;box-sizing:border-box;transition:border-color .15s}
+#fb-textarea:focus{border-color:rgba(139,92,246,0.65)}
+#fb-char{font-family:var(--mono);font-size:8px;color:var(--text3);text-align:right;margin-top:4px}
+#fb-modal-footer{display:flex;gap:8px;margin-top:14px}
+#fb-submit{flex:1;padding:9px;background:linear-gradient(135deg,rgba(139,92,246,0.5),rgba(99,102,241,0.35));border:1px solid rgba(139,92,246,0.6);border-radius:8px;color:#e9d5ff;font-family:var(--mono);font-size:9px;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:all .15s}
+#fb-submit:hover{background:linear-gradient(135deg,rgba(139,92,246,0.7),rgba(99,102,241,0.5))}
+#fb-cancel{padding:9px 16px;background:transparent;border:1px solid var(--border2);border-radius:8px;color:var(--text3);font-family:var(--mono);font-size:9px;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:all .15s}
+#fb-cancel:hover{border-color:rgba(255,255,255,0.25);color:var(--text)}
+#fb-success{display:none;font-family:var(--mono);font-size:10px;color:#a78bfa;text-align:center;padding:12px 0 2px}
+
 /* TRADER LEADERBOARD STRIP */
 .lb-strip{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:10px 14px;margin-bottom:14px}
 .lb-strip-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:6px}
@@ -3235,6 +3254,30 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
     </div>
   </div>
 
+  <!-- FEEDBACK BUTTON -->
+  <button id="fb-btn" onclick="openFeedback()">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    Ideas &amp; Feedback
+  </button>
+
+</div>
+
+<!-- FEEDBACK MODAL -->
+<div id="fb-overlay" onclick="if(event.target===this)closeFeedback()">
+  <div id="fb-modal">
+    <div id="fb-modal-title">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      Ideas &amp; Feedback
+    </div>
+    <div id="fb-modal-sub">Got a bug, idea, or feature request? Drop it here — it goes straight to the admin panel.</div>
+    <textarea id="fb-textarea" placeholder="e.g. Would love a dark/light toggle, the P&L chart feels off, can we add weekly goals..." maxlength="1000" oninput="document.getElementById('fb-char').textContent=this.value.length+'/1000'"></textarea>
+    <div id="fb-char">0 / 1000</div>
+    <div id="fb-modal-footer">
+      <button id="fb-cancel" onclick="closeFeedback()">Cancel</button>
+      <button id="fb-submit" onclick="submitFeedback()">Send Feedback</button>
+    </div>
+    <div id="fb-success">✓ Sent — thanks! We'll look into it.</div>
+  </div>
 </div>
 
 <!-- LIVE EXECUTION BUTTON -->
@@ -11054,6 +11097,41 @@ window.autoRestoreToday = async function() {
     console.warn('[restore] Error:', e.message);
   }
 };
+
+// ── FEEDBACK ──────────────────────────────────────────
+function openFeedback() {
+  document.getElementById('fb-overlay').classList.add('open');
+  document.getElementById('fb-textarea').focus();
+  document.getElementById('fb-success').style.display = 'none';
+  document.getElementById('fb-modal-footer').style.display = 'flex';
+  document.getElementById('fb-textarea').value = '';
+  document.getElementById('fb-char').textContent = '0 / 1000';
+}
+function closeFeedback() {
+  document.getElementById('fb-overlay').classList.remove('open');
+}
+async function submitFeedback() {
+  var msg = (document.getElementById('fb-textarea').value || '').trim();
+  if (!msg) { document.getElementById('fb-textarea').focus(); return; }
+  var btn = document.getElementById('fb-submit');
+  btn.disabled = true; btn.textContent = 'Sending…';
+  try {
+    var sb = getSB();
+    var uname = localStorage.getItem('td_username') || '';
+    await sb.from('feedback').insert({
+      user_id:  _userId || null,
+      username: uname,
+      message:  msg,
+      status:   'new'
+    });
+    document.getElementById('fb-modal-footer').style.display = 'none';
+    document.getElementById('fb-success').style.display = 'block';
+    setTimeout(closeFeedback, 2200);
+  } catch(e) {
+    btn.disabled = false; btn.textContent = 'Send Feedback';
+    alert('Could not send feedback: ' + e.message);
+  }
+}
 
 // ── REAL TRADER LEADERBOARD ───────────────────────────
 // Pulls aggregated, privacy-safe stats for ALL opted-in users via the
