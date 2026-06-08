@@ -284,7 +284,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 .gate-item.done .g-badge{background:var(--gnd);border-color:var(--gnb);color:var(--green)}
 /* TF GRID */
 .tf-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:10px}
-.tf-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:12px;transition:all 0.2s}
+.tf-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:12px;transition:all 0.2s;cursor:pointer}.tf-card:hover{border-color:rgba(255,255,255,0.15)}
 .tf-card.bull{border-color:var(--gnb);background:var(--gnd)}
 .tf-card.bear{border-color:var(--rb);background:var(--rd)}
 .tf-card.range{border-color:var(--gb);background:var(--gd)}
@@ -2681,8 +2681,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
     <div class="tf-grid">
 
       <!-- 1M -->
-      <div class="tf-card" id="tfc-1M" style="cursor:default">
-        <div class="tf-name" style="font-size:13px">1M<span class="tf-chart-dot" data-tf-dot="M" title="Switch chart to 1M" onclick="setTVIntervalFromCard('M')"></span></div>
+      <div class="tf-card" id="tfc-1M" style="cursor:default" onclick="setTVIntervalFromCard('M',event)">
+        <div class="tf-name" style="font-size:13px">1M<span class="tf-chart-dot" data-tf-dot="M" title="Switch chart to 1M" onclick="setTVIntervalFromCard('M',event)"></span></div>
         <div style="font-family:var(--mono);font-size:8px;color:var(--text3);margin-bottom:4px;letter-spacing:0.08em;text-transform:uppercase">Bias <span style="color:var(--text3);font-size:7px;opacity:0.6">(context only)</span></div>
         <div class="bias-btns" id="bias-1M">
           <button class="bb" onclick="toggleBias('1M','bull',this)">BULL</button>
@@ -2699,8 +2699,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
       </div>
 
       <!-- 1W -->
-      <div class="tf-card" id="tfc-1W" style="cursor:default">
-        <div class="tf-name">1W<span class="tf-chart-dot" data-tf-dot="W" title="Switch chart to 1W" onclick="setTVIntervalFromCard('W')"></span></div>
+      <div class="tf-card" id="tfc-1W" style="cursor:default" onclick="setTVIntervalFromCard('W',event)">
+        <div class="tf-name">1W<span class="tf-chart-dot" data-tf-dot="W" title="Switch chart to 1W" onclick="setTVIntervalFromCard('W',event)"></span></div>
         <div style="font-family:var(--mono);font-size:8px;color:var(--text3);margin-bottom:4px;letter-spacing:0.08em;text-transform:uppercase">Bias</div>
         <div class="bias-btns" id="bias-1W">
           <button class="bb" onclick="toggleBias('1W','bull',this)">BULL</button>
@@ -2717,8 +2717,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
       </div>
 
       <!-- Daily -->
-      <div class="tf-card" id="tfc-D" style="cursor:default">
-        <div class="tf-name">Daily<span class="tf-chart-dot" data-tf-dot="D" title="Switch chart to Daily" onclick="setTVIntervalFromCard('D')"></span></div>
+      <div class="tf-card" id="tfc-D" style="cursor:default" onclick="setTVIntervalFromCard('D',event)">
+        <div class="tf-name">Daily<span class="tf-chart-dot" data-tf-dot="D" title="Switch chart to Daily" onclick="setTVIntervalFromCard('D',event)"></span></div>
         <div style="font-family:var(--mono);font-size:8px;color:var(--text3);margin-bottom:4px;letter-spacing:0.08em;text-transform:uppercase">Bias</div>
         <div class="bias-btns" id="bias-D">
           <button class="bb" onclick="toggleBias('D','bull',this)">BULL</button>
@@ -2735,8 +2735,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
       </div>
 
       <!-- 4H -->
-      <div class="tf-card" id="tfc-4H" style="cursor:default">
-        <div class="tf-name">4H<span class="tf-chart-dot" data-tf-dot="240" title="Switch chart to 4H" onclick="setTVIntervalFromCard('240')"></span></div>
+      <div class="tf-card" id="tfc-4H" style="cursor:default" onclick="setTVIntervalFromCard('240',event)">
+        <div class="tf-name">4H<span class="tf-chart-dot" data-tf-dot="240" title="Switch chart to 4H" onclick="setTVIntervalFromCard('240',event)"></span></div>
         <div style="font-family:var(--mono);font-size:8px;color:var(--text3);margin-bottom:4px;letter-spacing:0.08em;text-transform:uppercase">Bias</div>
         <div class="bias-btns" id="bias-4H" style="margin-bottom:6px">
           <button class="bb" onclick="toggleBias('4H','bull',this)">BULL</button>
@@ -2779,8 +2779,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
       </div>
 
       <!-- 1H -->
-      <div class="tf-card" id="tfc-1H" style="cursor:default">
-        <div class="tf-name">1H<span class="tf-chart-dot" data-tf-dot="60" title="Switch chart to 1H" onclick="setTVIntervalFromCard('60')"></span></div>
+      <div class="tf-card" id="tfc-1H" style="cursor:default" onclick="setTVIntervalFromCard('60',event)">
+        <div class="tf-name">1H<span class="tf-chart-dot" data-tf-dot="60" title="Switch chart to 1H" onclick="setTVIntervalFromCard('60',event)"></span></div>
         <div style="font-family:var(--mono);font-size:8px;color:var(--text3);margin-bottom:4px;letter-spacing:0.08em;text-transform:uppercase">Bias</div>
         <div class="bias-btns" id="bias-1H" style="margin-bottom:6px">
           <button class="bb" onclick="toggleBias('1H','bull',this)">BULL</button>
@@ -9159,7 +9159,8 @@ function setTVInterval(interval, btn) {
   initTVChart();
 }
 // called from TF card dots — scrolls chart into view on mobile
-function setTVIntervalFromCard(interval) {
+function setTVIntervalFromCard(interval, e) {
+  if (e && e.target) { var t = e.target; if (t.tagName==='BUTTON'||t.tagName==='TEXTAREA'||t.tagName==='INPUT'||t.tagName==='LABEL') return; }
   setTVInterval(interval);
   var chartWrap = document.getElementById('tv-chart-wrap');
   if (chartWrap && window.innerWidth <= 768) {
