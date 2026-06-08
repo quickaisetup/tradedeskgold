@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TradeDesk v32 ✓</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%230e0f11'/%3E%3Ctext x='50' y='68' font-size='58' font-family='Georgia,serif' fill='%23f0bc4e' text-anchor='middle'%3ET%3C/text%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Bebas+Neue&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script>/**
  * Minified by jsDelivr using Terser v5.48.0.
@@ -8834,8 +8835,13 @@ function ndFetchSource(src) {
       return { source: src.id, sourceName: src.name, title: r.title, link: r.link, date: r.date };
     });
   }
-  // allorigins JSON — single attempt, no fallback (fallback doubles requests and causes CORS noise)
-  return ND_CONVERTERS[1](src.url).then(parseResult).catch(function() { return []; });
+  // Try a chain of CORS proxies — allorigins.win has started getting CORS-blocked
+  // from some domains, so fall back to corsproxy.io, then allorigins/raw, and
+  // finally give up quietly (no console spam — caught at every step).
+  return ND_CONVERTERS[2](src.url).then(parseResult)
+    .catch(function() { return ND_CONVERTERS[1](src.url).then(parseResult); })
+    .catch(function() { return ND_CONVERTERS[3](src.url).then(parseResult); })
+    .catch(function() { return []; });
 }
 
 function ndFetchViaProxy(src, proxyIdx) { return Promise.resolve([]); } // legacy stub
@@ -9228,6 +9234,7 @@ function ndTimeAgo(date) {
 
 function ndRender(newKeys) {
   var feed = document.getElementById('nd-feed');
+  if (!feed) return; // panel not present in this layout — nothing to render into
   newKeys = newKeys || [];
 
   var filtered = ndItems.slice().sort(function(a,b){ return b.date - a.date; });
