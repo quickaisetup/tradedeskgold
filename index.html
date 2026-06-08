@@ -1259,7 +1259,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
   flex-direction:column;gap:10px;
 }
 #mob-prof-left{display:flex;align-items:center;gap:10px}
-#mob-prof-avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,rgba(168,85,247,0.4),rgba(168,85,247,0.12));border:2px solid rgba(168,85,247,0.5);display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:14px;color:#c084fc;flex-shrink:0;overflow:hidden}
+#mob-prof-avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,rgba(168,85,247,0.4),rgba(168,85,247,0.12));border:2px solid rgba(168,85,247,0.5);display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:14px;color:#c084fc;flex-shrink:0;overflow:hidden;position:relative}
+#mob-prof-avatar img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:50%}
 #mob-prof-stats{display:flex;align-items:center;gap:0;background:rgba(0,0,0,0.25);border-radius:8px;overflow:hidden;border:1px solid rgba(255,255,255,0.06)}
 .mob-prof-stat{flex:1;display:flex;flex-direction:column;align-items:center;padding:7px 4px}
 .mob-prof-sep{width:1px;height:32px;background:rgba(255,255,255,0.07);flex-shrink:0}
