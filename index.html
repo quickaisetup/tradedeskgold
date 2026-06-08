@@ -3408,7 +3408,39 @@ var _tdAccounts = (function() {
   try { var s = localStorage.getItem('td_accounts_v2'); if (s) return JSON.parse(s); } catch(e) {}
   return [];
 })();
-function saveAccounts() { localStorage.setItem('td_accounts_v2', JSON.stringify(_tdAccounts)); }
+function saveAccounts() {
+  localStorage.setItem('td_accounts_v2', JSON.stringify(_tdAccounts));
+  // Also push to Supabase so accounts follow you across devices/browsers
+  try {
+    var uid = localStorage.getItem('td_user_id');
+    var sb = (window._tdSB || (typeof getSB === 'function' ? getSB() : null));
+    if (uid && sb) {
+      sb.from('profiles').update({ accounts: _tdAccounts }).eq('id', uid).then(function(res){
+        if (res && res.error) console.warn('[accounts] cloud save failed:', res.error.message);
+      });
+    }
+  } catch(e) { console.warn('[accounts] cloud save error:', e.message); }
+}
+
+// Pull accounts from Supabase (profiles.accounts) — called on login so your
+// accounts follow you to any browser/device instead of being stuck in localStorage.
+async function pullAccountsFromCloud(uid) {
+  try {
+    var sb = (window._tdSB || (typeof getSB === 'function' ? getSB() : null));
+    if (!uid || !sb) return;
+    var res = await sb.from('profiles').select('accounts').eq('id', uid).single();
+    if (res && res.data && Array.isArray(res.data.accounts) && res.data.accounts.length) {
+      _tdAccounts = res.data.accounts;
+      localStorage.setItem('td_accounts_v2', JSON.stringify(_tdAccounts));
+      if (typeof renderAccountsPanel === 'function') renderAccountsPanel();
+      if (typeof refreshTradeFormAccounts === 'function') refreshTradeFormAccounts();
+      console.log('[accounts] Restored', _tdAccounts.length, 'account(s) from cloud');
+    } else if (_tdAccounts && _tdAccounts.length) {
+      // Cloud has nothing yet but we have local accounts — push them up so they're backed up
+      saveAccounts();
+    }
+  } catch(e) { console.warn('[accounts] cloud pull error:', e.message); }
+}
 function totalAccountSize() { return _tdAccounts.reduce(function(s,a){ return s+(parseFloat(a.size)||0); }, 0); }
 function addTradingAccount() {
   var used = _tdAccounts.map(function(a){ return a.id; });
@@ -10504,6 +10536,10 @@ async function tdlOnAuth(user) {
       if (prof.data.last_name)  localStorage.setItem('td_lastname',  prof.data.last_name);
     }
   } catch(e) { /* silently ignore — we already have fallbacks above */ }
+
+  // Pull trading accounts from the cloud (profiles.accounts) so they follow you
+  // across browsers/devices instead of being stuck in this browser's localStorage
+  pullAccountsFromCloud(_userId);
 
   // Override save + fetch BEFORE hiding login screen
   tdlPatchApp();
