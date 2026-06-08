@@ -1386,6 +1386,20 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
   /* ── SCROLLBAR HIDE ── */
   *{-ms-overflow-style:none;scrollbar-width:none}
   *::-webkit-scrollbar{display:none}
+
+  /* ── LEADERBOARD ── */
+  .lb-strip{padding:10px 10px 12px;margin-bottom:10px}
+  .lb-row{grid-template-columns:1fr;gap:8px}
+  .lb-card{padding:10px 12px;gap:10px}
+  .lb-avatar{width:36px;height:36px;font-size:11px}
+  .lb-name{font-size:11px}
+  .lb-stat-val{font-size:12px}
+  .lb-tag{font-size:7px;padding:1px 4px}
+
+  /* ── FEEDBACK BUTTON ── */
+  /* Right panel is hidden on mobile; reposition button to bottom-left so it
+     doesn't float awkwardly over the main content on the right side */
+  #fb-btn{right:auto;left:12px;bottom:80px;width:160px;font-size:8px;padding:8px 12px}
 }
 
 /* ── NEWS DRAWER ─────────────────────────────────────── */
