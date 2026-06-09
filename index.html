@@ -2932,10 +2932,87 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
           onmouseover="this.style.background='rgba(240,188,78,0.1)'" onmouseout="this.style.background='transparent'">↑ Save analysis</button>
       </div>
 
-      <!-- ── COMMUNITY BIAS ───────────────────────────── -->
-      <div id="community-bias-panel" style="border-top:1px solid rgba(168,85,247,0.2);background:linear-gradient(180deg,rgba(168,85,247,0.04) 0%,rgba(0,0,0,0) 100%)">
+    </div>
+  </div>
 
-        <!-- CTA row — mirrors edge-ai-locked layout exactly -->
+  <!-- AI MORNING BRIEFING -->
+  <div id="exp-ai" class="td-explainer">
+    <button class="td-explainer-dismiss" onclick="dismissExplainer('exp-ai')">✕</button>
+    <div class="td-explainer-body"><b>AI morning briefing</b> — personalised to your trading style.<ul><li>Reads your bias, journal entries &amp; rules compliance</li><li>Gets sharper the more sessions you log</li><li>Needs an Anthropic API key in Settings to activate</li></ul></div>
+  </div>
+
+  <div class="section" id="ai-briefing-section">
+    <div class="section-header"><span class="section-num">03</span><span class="section-title">AI Morning Briefing</span><div class="section-line"></div></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+
+      <!-- TODAY'S FOCUS -->
+      <div class="ai-card" style="margin-bottom:0">
+        <div class="ai-card-header">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:16px">🤖</span>
+            <span class="ai-card-title">Today's focus</span>
+            <span style="font-family:var(--mono);font-size:8px;color:var(--gold);background:rgba(240,188,78,0.1);border:1px solid rgba(240,188,78,0.2);padding:2px 6px;border-radius:3px;letter-spacing:0.06em">AI</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span class="ai-card-date" id="ai-briefing-date">Based on your profile</span>
+            <button onclick="loadBriefing(true)" style="font-family:var(--mono);font-size:9px;color:var(--text3);background:transparent;border:1px solid var(--border);border-radius:4px;padding:2px 8px;cursor:pointer">Refresh</button>
+          </div>
+        </div>
+        <div id="ai-briefing-body">
+          <div class="ai-loading"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div><span style="margin-left:6px;font-family:var(--mono);font-size:10px;color:var(--text3)">Generating focus...</span></div>
+        </div>
+      </div>
+
+      <!-- YOUR EDGE -->
+      <div class="ai-card" style="margin-bottom:0">
+        <div class="ai-card-header">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:16px">🧠</span>
+            <span class="ai-card-title">Your edge — all sessions</span>
+            <span style="font-family:var(--mono);font-size:8px;color:var(--gold);background:rgba(240,188,78,0.1);border:1px solid rgba(240,188,78,0.2);padding:2px 6px;border-radius:3px;letter-spacing:0.06em">AI</span>
+          </div>
+        </div>
+        <div id="ai-patterns-body">
+          <div class="ai-loading"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div><span style="margin-left:6px;font-family:var(--mono);font-size:10px;color:var(--text3)">Analysing history...</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- AI EDGE COACHING + COMMUNITY BIAS -->
+  <div class="section" id="ai-section">
+    <div class="section-header"><span class="section-num">04</span><span class="section-title">AI Edge Coaching</span><div class="section-line"></div></div>
+    <div class="card" style="padding:0;overflow:hidden">
+
+      <!-- Edge panel -->
+      <div id="edge-panel" style="background:linear-gradient(180deg,rgba(240,188,78,0.03) 0%,rgba(0,0,0,0) 100%)">
+        <div id="edge-ai-locked" style="padding:20px 24px;display:flex;align-items:center;gap:24px">
+          <div style="flex:1">
+            <div data-edge-head style="font-family:var(--display);font-size:16px;letter-spacing:0.06em;color:rgba(240,188,78,0.4);margin-bottom:5px">SET YOUR BIAS SCORE FIRST</div>
+            <div data-edge-sub style="font-family:var(--mono);font-size:10px;color:var(--text3);line-height:1.7">Fill in your TF cards above. Once you have a score, the AI will give you specific coaching for today based on your bias and your historical edge.</div>
+          </div>
+          <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:7px">
+            <button id="edge-ai-btn" onclick="edgeAIClick()" disabled
+              style="background:rgba(240,188,78,0.04);border:1px solid rgba(240,188,78,0.15);border-radius:8px;
+                     color:rgba(240,188,78,0.25);font-family:var(--display);font-size:15px;letter-spacing:0.1em;
+                     padding:13px 32px;cursor:not-allowed;transition:all 0.25s;white-space:nowrap;text-transform:uppercase">
+              ✦ AI Analysis
+            </button>
+            <span id="edge-ai-hint" style="font-family:var(--mono);font-size:8px;color:var(--text3);letter-spacing:0.06em">complete top-down to unlock</span>
+          </div>
+        </div>
+        <div id="edge-ai" style="display:none"></div>
+        <div style="display:none">
+          <div id="edge-stat-long"></div>
+          <div id="edge-stat-short"></div>
+          <div id="edge-stat-score"></div>
+          <div id="edge-stat-setup"></div>
+        </div>
+      </div>
+
+      <!-- Community Bias panel -->
+      <div id="community-bias-panel" style="border-top:1px solid rgba(168,85,247,0.2);background:linear-gradient(180deg,rgba(168,85,247,0.04) 0%,rgba(0,0,0,0) 100%)">
         <div id="cb-cta-row" style="padding:20px 24px;display:flex;align-items:center;gap:24px">
           <div style="flex:1;min-width:0">
             <div id="cb-cta-head" style="font-family:var(--display);font-size:18px;letter-spacing:0.06em;color:#c084fc;margin-bottom:6px">WHAT DOES THE ROOM SEE TODAY?</div>
@@ -2955,11 +3032,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
             </button>
           </div>
         </div>
-
-        <!-- Results panel (hidden until loaded) -->
         <div id="cb-body" style="display:none;padding:0 24px 24px">
-
-          <!-- Result header: timestamp left, refresh + collapse right -->
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding-top:2px">
             <div>
               <span style="font-family:var(--mono);font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:rgba(192,132,252,0.6)">Room Analysis</span>
@@ -2974,24 +3047,18 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
                 onmouseout="this.style.borderColor='rgba(255,255,255,0.12)';this.style.color='var(--text2)'">↻ Refresh</button>
               <button onclick="cbMainClick()"
                 style="background:transparent;border:1px solid rgba(255,255,255,0.1);border-radius:5px;
-                       color:var(--text3);font-family:var(--mono);font-size:9px;
-                       padding:4px 9px;cursor:pointer;transition:all .15s"
+                       color:var(--text3);font-family:var(--mono);font-size:9px;padding:4px 9px;cursor:pointer;transition:all .15s"
                 onmouseover="this.style.borderColor='rgba(255,255,255,0.25)';this.style.color='var(--text2)'"
                 onmouseout="this.style.borderColor='rgba(255,255,255,0.1)';this.style.color='var(--text3)'">✕</button>
             </div>
           </div>
-
-          <!-- Loading state -->
           <div id="cb-loading" style="font-family:var(--mono);font-size:11px;color:var(--text2);padding:8px 0 12px;display:flex;align-items:center;gap:8px">
             <div class="ai-dot" style="background:#a855f7"></div>
             <div class="ai-dot" style="background:#a855f7;animation-delay:0.2s"></div>
             <div class="ai-dot" style="background:#a855f7;animation-delay:0.4s"></div>
             <span>Loading community analysis…</span>
           </div>
-
           <div id="cb-result" style="display:none">
-
-            <!-- Score hero row -->
             <div style="display:flex;align-items:center;gap:20px;margin-bottom:20px;padding:16px 20px;background:var(--bg3);border:1px solid rgba(255,255,255,0.07);border-radius:10px">
               <div style="flex:1">
                 <span id="cb-label" style="font-family:var(--display);font-size:42px;letter-spacing:0.04em;line-height:1;display:block">—</span>
@@ -3001,17 +3068,13 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
                 </div>
                 <div id="cb-trader-count" style="font-family:var(--mono);font-size:10px;color:var(--text2);margin-top:4px"></div>
               </div>
-              <!-- Distribution pills stacked right -->
               <div id="cb-dist" style="display:flex;flex-direction:column;gap:5px;flex-shrink:0"></div>
             </div>
-
-            <!-- Center-anchored bar -->
             <div style="margin-bottom:20px">
               <div style="position:relative;height:12px;background:rgba(255,255,255,0.07);border-radius:6px;overflow:visible">
                 <div style="position:absolute;top:-5px;bottom:-5px;left:50%;width:2px;background:rgba(255,255,255,0.2);border-radius:1px;z-index:2"></div>
                 <div id="cb-bar-left"  style="position:absolute;top:0;bottom:0;right:50%;width:0%;border-radius:6px 0 0 6px;transition:width .7s ease;background:linear-gradient(90deg,rgba(240,96,96,0.5),rgba(240,96,96,0.85))"></div>
                 <div id="cb-bar-right" style="position:absolute;top:0;bottom:0;left:50%;width:0%;border-radius:0 6px 6px 0;transition:width .7s ease;background:linear-gradient(90deg,rgba(78,214,138,0.85),rgba(78,214,138,0.5))"></div>
-                <!-- Score position dot -->
                 <div id="cb-bar-dot" style="position:absolute;top:50%;width:14px;height:14px;border-radius:50%;background:#fff;border:2px solid var(--bg);transform:translate(-50%,-50%);transition:left .7s ease;z-index:3;left:50%;box-shadow:0 0 8px rgba(255,255,255,0.4);display:none"></div>
               </div>
               <div style="display:flex;justify-content:space-between;margin-top:6px">
@@ -3020,17 +3083,12 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
                 <span style="font-family:var(--mono);font-size:8px;color:var(--text3)">+10 BULLISH ▶</span>
               </div>
             </div>
-
-            <!-- Sparse data notice -->
             <div id="cb-sparse-notice" style="display:none;font-family:var(--mono);font-size:10px;color:var(--gold);background:rgba(240,188,78,0.06);border:1px solid rgba(240,188,78,0.2);border-radius:6px;padding:8px 12px;margin-bottom:14px">
               ⚠ Only <span id="cb-sparse-n"></span> submission so far — data grows as more traders complete their top-down.
             </div>
-
-            <!-- Trader list -->
             <div style="font-family:var(--mono);font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3);margin-bottom:8px">Trader Scores</div>
             <div id="cb-list" style="display:flex;flex-direction:column;gap:5px"></div>
           </div>
-
           <div id="cb-empty" style="display:none;padding:16px;background:var(--bg3);border:1px solid var(--border);border-radius:8px">
             <div style="font-family:var(--mono);font-size:11px;color:var(--text2);margin-bottom:4px">No submissions yet today.</div>
             <div style="font-family:var(--mono);font-size:10px;color:var(--text3)">Be the first — complete your top-down analysis above and save your morning session.</div>
@@ -3038,13 +3096,15 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
           <div id="cb-error" style="display:none;font-family:var(--mono);font-size:10px;color:var(--red);background:var(--rd);border:1px solid var(--rb);border-radius:6px;padding:8px 12px;margin-top:4px"></div>
         </div>
       </div>
+
     </div>
   </div>
 
+  <!-- 05 KEY LEVELS -->
   <div class="section" id="levels">
     <div class="wt-banner" id="wt-levels">
       <div class="wt-hd">
-        <div class="wt-step">03</div>
+        <div class="wt-step">05</div>
         <div class="wt-hd-main">
           <div class="wt-tag">Key Levels</div>
           <div class="wt-title">Mark your battlefield before price moves</div>
@@ -3059,7 +3119,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
       </ul>
       <div class="wt-foot"><span class="wt-foot-hint">Read &amp; dismiss</span><button class="wt-dismiss" onclick="wtDismiss('wt-levels')">Got it, let's go →</button></div>
     </div>
-    <div class="section-header"><span class="section-num">03</span><span class="section-title">Key levels</span><div class="section-line"></div><span class="section-check" id="check-levels">Done ✓</span></div>
+    <div class="section-header"><span class="section-num">05</span><span class="section-title">Key levels</span><div class="section-line"></div><span class="section-check" id="check-levels">Done ✓</span></div>
     <div id="exp-levels" class="td-explainer"><button class="td-explainer-dismiss" onclick="dismissExplainer('exp-levels')">✕</button><div class="td-explainer-body"><b>Mark the levels you'll actually trade from.</b><ul><li>Add Fibonacci levels (38.2, 76.4), S/R, round numbers</li><li>Label each level so you remember why it matters</li><li>These sync to your AI briefing and morning analysis</li></ul></div></div>
     <!-- LEVEL INPUT FORM -->
     <div id="lvl-form" style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px">
@@ -3127,93 +3187,11 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
     <textarea id="level-notes" style="display:none"></textarea>
   </div>
 
-  <!-- AI MORNING BRIEFING -->
-  <div id="exp-ai" class="td-explainer">
-    <button class="td-explainer-dismiss" onclick="dismissExplainer('exp-ai')">✕</button>
-    <div class="td-explainer-body"><b>AI morning briefing</b> — personalised to your trading style.<ul><li>Reads your bias, journal entries &amp; rules compliance</li><li>Gets sharper the more sessions you log</li><li>Needs an Anthropic API key in Settings to activate</li></ul></div>
-  </div>
-
-  <div class="section" id="ai-briefing-section">
-    <div class="section-header"><span class="section-num">✦</span><span class="section-title">AI Morning Briefing</span><div class="section-line"></div></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-
-      <!-- TODAY'S FOCUS -->
-      <div class="ai-card" style="margin-bottom:0">
-        <div class="ai-card-header">
-          <div style="display:flex;align-items:center;gap:8px">
-            <span style="font-size:16px">🤖</span>
-            <span class="ai-card-title">Today's focus</span>
-            <span style="font-family:var(--mono);font-size:8px;color:var(--gold);background:rgba(240,188,78,0.1);border:1px solid rgba(240,188,78,0.2);padding:2px 6px;border-radius:3px;letter-spacing:0.06em">AI</span>
-          </div>
-          <div style="display:flex;align-items:center;gap:8px">
-            <span class="ai-card-date" id="ai-briefing-date">Based on your profile</span>
-            <button onclick="loadBriefing(true)" style="font-family:var(--mono);font-size:9px;color:var(--text3);background:transparent;border:1px solid var(--border);border-radius:4px;padding:2px 8px;cursor:pointer">Refresh</button>
-          </div>
-        </div>
-        <div id="ai-briefing-body">
-          <div class="ai-loading"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div><span style="margin-left:6px;font-family:var(--mono);font-size:10px;color:var(--text3)">Generating focus...</span></div>
-        </div>
-      </div>
-
-      <!-- YOUR EDGE -->
-      <div class="ai-card" style="margin-bottom:0">
-        <div class="ai-card-header">
-          <div style="display:flex;align-items:center;gap:8px">
-            <span style="font-size:16px">🧠</span>
-            <span class="ai-card-title">Your edge — all sessions</span>
-            <span style="font-family:var(--mono);font-size:8px;color:var(--gold);background:rgba(240,188,78,0.1);border:1px solid rgba(240,188,78,0.2);padding:2px 6px;border-radius:3px;letter-spacing:0.06em">AI</span>
-          </div>
-        </div>
-        <div id="ai-patterns-body">
-          <div class="ai-loading"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div><span style="margin-left:6px;font-family:var(--mono);font-size:10px;color:var(--text3)">Analysing history...</span></div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- AI EDGE COACHING -->
-  <div class="section" id="ai-section">
-    <div class="section-header"><span class="section-num">04</span><span class="section-title">AI Edge Coaching</span><div class="section-line"></div></div>
-    <div class="card" style="padding:0;overflow:hidden">
-      <div id="edge-panel" style="background:linear-gradient(180deg,rgba(240,188,78,0.03) 0%,rgba(0,0,0,0) 100%)">
-
-        <!-- Locked state: no analysis yet -->
-        <div id="edge-ai-locked" style="padding:20px 24px;display:flex;align-items:center;gap:24px">
-          <div style="flex:1">
-            <div data-edge-head style="font-family:var(--display);font-size:16px;letter-spacing:0.06em;color:rgba(240,188,78,0.4);margin-bottom:5px">SET YOUR BIAS SCORE FIRST</div>
-            <div data-edge-sub style="font-family:var(--mono);font-size:10px;color:var(--text3);line-height:1.7">Fill in your TF cards above. Once you have a score, the AI will give you specific coaching for today based on your bias and your historical edge.</div>
-          </div>
-          <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:7px">
-            <button id="edge-ai-btn" onclick="edgeAIClick()" disabled
-              style="background:rgba(240,188,78,0.04);border:1px solid rgba(240,188,78,0.15);border-radius:8px;
-                     color:rgba(240,188,78,0.25);font-family:var(--display);font-size:15px;letter-spacing:0.1em;
-                     padding:13px 32px;cursor:not-allowed;transition:all 0.25s;white-space:nowrap;text-transform:uppercase">
-              ✦ AI Analysis
-            </button>
-            <span id="edge-ai-hint" style="font-family:var(--mono);font-size:8px;color:var(--text3);letter-spacing:0.06em">complete top-down to unlock</span>
-          </div>
-        </div>
-
-        <!-- AI result (hidden until generated) -->
-        <div id="edge-ai" style="display:none"></div>
-
-        <!-- Hidden data chips for AI context -->
-        <div style="display:none">
-          <div id="edge-stat-long"></div>
-          <div id="edge-stat-short"></div>
-          <div id="edge-stat-score"></div>
-          <div id="edge-stat-setup"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- 05 TRADES -->
+  <!-- 04 TRADES -->
   <div class="section" id="trades">
     <div class="wt-banner" id="wt-trades">
       <div class="wt-hd">
-        <div class="wt-step">05</div>
+        <div class="wt-step">06</div>
         <div class="wt-hd-main">
           <div class="wt-tag">Trades</div>
           <div class="wt-title">Log every trade, every time</div>
@@ -3228,7 +3206,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
       </ul>
       <div class="wt-foot"><span class="wt-foot-hint">Read &amp; dismiss</span><button class="wt-dismiss" onclick="wtDismiss('wt-trades')">Got it, let's go →</button></div>
     </div>
-    <div class="section-header"><span class="section-num">05</span><span class="section-title">Trades</span><div class="section-line"></div></div>
+    <div class="section-header"><span class="section-num">06</span><span class="section-title">Trades</span><div class="section-line"></div></div>
     <div id="exp-trades" class="td-explainer"><button class="td-explainer-dismiss" onclick="dismissExplainer('exp-trades')">✕</button><div class="td-explainer-body"><b>Log every trade before or after you take it.</b><ul><li>Fill in direction, setup, entry, SL, TP and result</li><li>Select which account it's on</li><li>Hit <b>Save trade</b> — it goes to your journal instantly</li><li>Be honest with results — this powers your edge stats</li></ul></div></div>
     <div class="counter-row">
       <span class="counter-pill" id="cp-own">Own: 0</span>
