@@ -2543,51 +2543,6 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
     </div>
   </div>
 
-  <!-- AI EXPLAINER -->
-  <div id="exp-ai" class="td-explainer">
-    <button class="td-explainer-dismiss" onclick="dismissExplainer('exp-ai')">✕</button>
-    <div class="td-explainer-body"><b>AI morning briefing</b> — personalised to your trading style.<ul><li>Reads your bias, journal entries &amp; rules compliance</li><li>Gets sharper the more sessions you log</li><li>Needs an Anthropic API key in Settings to activate</li></ul></div>
-  </div>
-
-  <div class="section" id="ai-briefing-section">
-    <div class="section-header"><span class="section-num">✦</span><span class="section-title">AI Morning Briefing</span><div class="section-line"></div></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-
-      <!-- TODAY'S FOCUS -->
-      <div class="ai-card" style="margin-bottom:0">
-        <div class="ai-card-header">
-          <div style="display:flex;align-items:center;gap:8px">
-            <span style="font-size:16px">🤖</span>
-            <span class="ai-card-title">Today's focus</span>
-            <span style="font-family:var(--mono);font-size:8px;color:var(--gold);background:rgba(240,188,78,0.1);border:1px solid rgba(240,188,78,0.2);padding:2px 6px;border-radius:3px;letter-spacing:0.06em">AI</span>
-          </div>
-          <div style="display:flex;align-items:center;gap:8px">
-            <span class="ai-card-date" id="ai-briefing-date">Based on your profile</span>
-            <button onclick="loadBriefing(true)" style="font-family:var(--mono);font-size:9px;color:var(--text3);background:transparent;border:1px solid var(--border);border-radius:4px;padding:2px 8px;cursor:pointer">Refresh</button>
-          </div>
-        </div>
-        <div id="ai-briefing-body">
-          <div class="ai-loading"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div><span style="margin-left:6px;font-family:var(--mono);font-size:10px;color:var(--text3)">Generating focus...</span></div>
-        </div>
-      </div>
-
-      <!-- YOUR EDGE -->
-      <div class="ai-card" style="margin-bottom:0">
-        <div class="ai-card-header">
-          <div style="display:flex;align-items:center;gap:8px">
-            <span style="font-size:16px">🧠</span>
-            <span class="ai-card-title">Your edge — all sessions</span>
-            <span style="font-family:var(--mono);font-size:8px;color:var(--gold);background:rgba(240,188,78,0.1);border:1px solid rgba(240,188,78,0.2);padding:2px 6px;border-radius:3px;letter-spacing:0.06em">AI</span>
-          </div>
-        </div>
-        <div id="ai-patterns-body">
-          <div class="ai-loading"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div><span style="margin-left:6px;font-family:var(--mono);font-size:10px;color:var(--text3)">Analysing history...</span></div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
   <!-- 01 MORNING GATE -->
   <div class="section" id="gate">
     <div class="wt-banner" id="wt-gate">
@@ -3172,7 +3127,52 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
     <textarea id="level-notes" style="display:none"></textarea>
   </div>
 
-  <!-- 04.5 AI EDGE COACHING -->
+  <!-- AI MORNING BRIEFING -->
+  <div id="exp-ai" class="td-explainer">
+    <button class="td-explainer-dismiss" onclick="dismissExplainer('exp-ai')">✕</button>
+    <div class="td-explainer-body"><b>AI morning briefing</b> — personalised to your trading style.<ul><li>Reads your bias, journal entries &amp; rules compliance</li><li>Gets sharper the more sessions you log</li><li>Needs an Anthropic API key in Settings to activate</li></ul></div>
+  </div>
+
+  <div class="section" id="ai-briefing-section">
+    <div class="section-header"><span class="section-num">✦</span><span class="section-title">AI Morning Briefing</span><div class="section-line"></div></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+
+      <!-- TODAY'S FOCUS -->
+      <div class="ai-card" style="margin-bottom:0">
+        <div class="ai-card-header">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:16px">🤖</span>
+            <span class="ai-card-title">Today's focus</span>
+            <span style="font-family:var(--mono);font-size:8px;color:var(--gold);background:rgba(240,188,78,0.1);border:1px solid rgba(240,188,78,0.2);padding:2px 6px;border-radius:3px;letter-spacing:0.06em">AI</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span class="ai-card-date" id="ai-briefing-date">Based on your profile</span>
+            <button onclick="loadBriefing(true)" style="font-family:var(--mono);font-size:9px;color:var(--text3);background:transparent;border:1px solid var(--border);border-radius:4px;padding:2px 8px;cursor:pointer">Refresh</button>
+          </div>
+        </div>
+        <div id="ai-briefing-body">
+          <div class="ai-loading"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div><span style="margin-left:6px;font-family:var(--mono);font-size:10px;color:var(--text3)">Generating focus...</span></div>
+        </div>
+      </div>
+
+      <!-- YOUR EDGE -->
+      <div class="ai-card" style="margin-bottom:0">
+        <div class="ai-card-header">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:16px">🧠</span>
+            <span class="ai-card-title">Your edge — all sessions</span>
+            <span style="font-family:var(--mono);font-size:8px;color:var(--gold);background:rgba(240,188,78,0.1);border:1px solid rgba(240,188,78,0.2);padding:2px 6px;border-radius:3px;letter-spacing:0.06em">AI</span>
+          </div>
+        </div>
+        <div id="ai-patterns-body">
+          <div class="ai-loading"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div><span style="margin-left:6px;font-family:var(--mono);font-size:10px;color:var(--text3)">Analysing history...</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- AI EDGE COACHING -->
   <div class="section" id="ai-section">
     <div class="section-header"><span class="section-num">04</span><span class="section-title">AI Edge Coaching</span><div class="section-line"></div></div>
     <div class="card" style="padding:0;overflow:hidden">
