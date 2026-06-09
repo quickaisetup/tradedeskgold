@@ -5528,6 +5528,7 @@ function removeTrade(id) {
   var el = document.getElementById('tf-' + id);
   if (el) el.remove();
   state.trades = state.trades.filter(function(x) { return x.id !== id; });
+  if (window._persistTradesToLocal) _persistTradesToLocal(); // keep localStorage in sync
   if (window.updateHistory) updateHistory();
   if (window.updateKill) updateKill();
 }
