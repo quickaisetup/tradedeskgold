@@ -5555,8 +5555,8 @@ function duplicateTrade(sourceId) {
   addTrade();
   var newT = state.trades[state.trades.length - 1];
   if (!newT) return;
-  // Copy all fields except id, saved state, and DB id
-  var fields = ['type','direction','setup','tfTrigger','entryType','account','accounts',
+  // Copy all fields except id, saved state, DB id, and account (user must re-select)
+  var fields = ['type','direction','setup','tfTrigger','entryType',
     'entry','sl','tp','riskPct','slPlacement','htfBias','mindset','confluence',
     'result','rAchieved','took50','movedSL','wouldHaveWorked','wouldHaveR','mistakes','notes','usdAchieved'];
   fields.forEach(function(f){ if(src[f] !== undefined) newT[f] = Array.isArray(src[f]) ? src[f].slice() : src[f]; });
