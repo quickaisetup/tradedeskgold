@@ -94,7 +94,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 .sheets-status{font-family:var(--mono);font-size:9px;color:var(--text3);display:flex;align-items:center;gap:6px;margin-top:8px}
 .sheets-dot{width:6px;height:6px;border-radius:50%;background:var(--text3)}
 .sheets-dot.connected{background:var(--green)}
-.main{margin-left:240px;margin-right:260px;flex:1;padding:80px 32px 80px;max-width:none;width:auto;box-sizing:border-box;overflow-x:hidden}
+.main{margin-left:240px;width:calc(100vw - 240px - 260px);padding:80px 32px 80px;box-sizing:border-box;overflow-x:hidden;flex-shrink:0}
 .section,.card,.trade-form,.tf-grid,.kill-grid{width:100%;min-width:0}
 /* STREAK BANNER */
 .streak-banner{display:none!important}
