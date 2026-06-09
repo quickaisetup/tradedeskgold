@@ -2974,38 +2974,6 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
           onmouseover="this.style.background='rgba(240,188,78,0.1)'" onmouseout="this.style.background='transparent'">↑ Save analysis</button>
       </div>
 
-      <!-- Daily Score Intelligence Panel -->
-      <div id="edge-panel" style="border-top:1px solid rgba(240,188,78,0.15);background:linear-gradient(180deg,rgba(240,188,78,0.03) 0%,rgba(0,0,0,0) 100%)">
-
-        <!-- Locked state: no analysis yet -->
-        <div id="edge-ai-locked" style="padding:20px 24px;display:flex;align-items:center;gap:24px">
-          <div style="flex:1">
-            <div data-edge-head style="font-family:var(--display);font-size:16px;letter-spacing:0.06em;color:rgba(240,188,78,0.4);margin-bottom:5px">SET YOUR BIAS SCORE FIRST</div>
-            <div data-edge-sub style="font-family:var(--mono);font-size:10px;color:var(--text3);line-height:1.7">Fill in your TF cards above. Once you have a score, the AI will give you specific coaching for today based on your bias and your historical edge.</div>
-          </div>
-          <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:7px">
-            <button id="edge-ai-btn" onclick="edgeAIClick()" disabled
-              style="background:rgba(240,188,78,0.04);border:1px solid rgba(240,188,78,0.15);border-radius:8px;
-                     color:rgba(240,188,78,0.25);font-family:var(--display);font-size:15px;letter-spacing:0.1em;
-                     padding:13px 32px;cursor:not-allowed;transition:all 0.25s;white-space:nowrap;text-transform:uppercase">
-              ✦ AI Analysis
-            </button>
-            <span id="edge-ai-hint" style="font-family:var(--mono);font-size:8px;color:var(--text3);letter-spacing:0.06em">complete top-down to unlock</span>
-          </div>
-        </div>
-
-        <!-- AI result (hidden until generated) -->
-        <div id="edge-ai" style="display:none"></div>
-
-        <!-- Hidden data chips for AI context -->
-        <div style="display:none">
-          <div id="edge-stat-long"></div>
-          <div id="edge-stat-short"></div>
-          <div id="edge-stat-score"></div>
-          <div id="edge-stat-setup"></div>
-        </div>
-      </div>
-
       <!-- ── COMMUNITY BIAS ───────────────────────────── -->
       <div id="community-bias-panel" style="border-top:1px solid rgba(168,85,247,0.2);background:linear-gradient(180deg,rgba(168,85,247,0.04) 0%,rgba(0,0,0,0) 100%)">
 
@@ -3201,7 +3169,43 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
     <textarea id="level-notes" style="display:none"></textarea>
   </div>
 
-  <!-- 04 TRADES -->
+  <!-- 04.5 AI EDGE COACHING -->
+  <div class="section" id="ai-section">
+    <div class="card" style="padding:0;overflow:hidden">
+      <div id="edge-panel" style="background:linear-gradient(180deg,rgba(240,188,78,0.03) 0%,rgba(0,0,0,0) 100%)">
+
+        <!-- Locked state: no analysis yet -->
+        <div id="edge-ai-locked" style="padding:20px 24px;display:flex;align-items:center;gap:24px">
+          <div style="flex:1">
+            <div data-edge-head style="font-family:var(--display);font-size:16px;letter-spacing:0.06em;color:rgba(240,188,78,0.4);margin-bottom:5px">SET YOUR BIAS SCORE FIRST</div>
+            <div data-edge-sub style="font-family:var(--mono);font-size:10px;color:var(--text3);line-height:1.7">Fill in your TF cards above. Once you have a score, the AI will give you specific coaching for today based on your bias and your historical edge.</div>
+          </div>
+          <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:7px">
+            <button id="edge-ai-btn" onclick="edgeAIClick()" disabled
+              style="background:rgba(240,188,78,0.04);border:1px solid rgba(240,188,78,0.15);border-radius:8px;
+                     color:rgba(240,188,78,0.25);font-family:var(--display);font-size:15px;letter-spacing:0.1em;
+                     padding:13px 32px;cursor:not-allowed;transition:all 0.25s;white-space:nowrap;text-transform:uppercase">
+              ✦ AI Analysis
+            </button>
+            <span id="edge-ai-hint" style="font-family:var(--mono);font-size:8px;color:var(--text3);letter-spacing:0.06em">complete top-down to unlock</span>
+          </div>
+        </div>
+
+        <!-- AI result (hidden until generated) -->
+        <div id="edge-ai" style="display:none"></div>
+
+        <!-- Hidden data chips for AI context -->
+        <div style="display:none">
+          <div id="edge-stat-long"></div>
+          <div id="edge-stat-short"></div>
+          <div id="edge-stat-score"></div>
+          <div id="edge-stat-setup"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 05 TRADES -->
   <div class="section" id="trades">
     <div class="wt-banner" id="wt-trades">
       <div class="wt-hd">
