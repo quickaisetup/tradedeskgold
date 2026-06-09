@@ -12278,34 +12278,36 @@ window.forceRestoreTrades = async function() {
   var sb = window._tdSB;
   if (!uid || !sb) { alert('Not logged in — please refresh and try again.'); return; }
   var today = new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
-  // Compute yesterday too (covers timezone edge cases)
-  var d = new Date(); d.setDate(d.getDate() - 1);
-  var yesterday = d.toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
 
-  // Fetch trades for today AND yesterday (catches date-offset bugs)
+  var btn = document.getElementById('restore-trades-btn');
+  if (btn) { btn.textContent = '⟳ Loading...'; btn.style.pointerEvents = 'none'; }
+
+  // Fetch TODAY only (strict Bangkok date)
   var res = await sb.from('trades').select('*')
     .eq('user_id', uid)
-    .in('date', [today, yesterday])
+    .eq('date', today)
     .order('created_at', {ascending: true});
+
+  if (btn) { btn.textContent = '↻ Restore trades'; btn.style.pointerEvents = 'auto'; }
 
   if (res.error) { alert('Error fetching trades: ' + res.error.message); return; }
   var trades = res.data || [];
 
-  if (!trades.length) {
-    // Last resort: fetch all trades (no date filter) and take the most recent 20
-    var all = await sb.from('trades').select('*').eq('user_id', uid)
-      .order('created_at', {ascending: false}).limit(20);
-    trades = (all.data || []).reverse();
-  }
-
-  if (!trades.length) { alert('No trades found in the database for your account.'); return; }
-
-  // Clear current UI trades first
+  // Clear ALL current UI trades first
   state.trades.slice().forEach(function(t){ removeTrade(t.id); });
 
-  // Restore
+  if (!trades.length) {
+    alert('No trades found for today (' + today + ') in the database.\n\nYour trades may have been saved under a different date.\nOpen the console and run: diagTrades()  to check all dates.');
+    return;
+  }
+
+  // Restore only today's trades
   window._restoreTradesFromDB(trades);
-  alert('✓ Restored ' + trades.length + ' trade(s) from the database.\nDates found: ' + [...new Set(trades.map(function(t){return t.date;}))].join(', '));
+  var notice = document.createElement('div');
+  notice.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:9999;background:var(--bg2);border:1px solid var(--gnb);border-radius:8px;padding:12px 18px;font-family:var(--mono);font-size:11px;color:var(--green);letter-spacing:0.06em;box-shadow:0 4px 20px rgba(0,0,0,0.5)';
+  notice.textContent = '✓ Restored ' + trades.length + ' trade(s) for ' + today;
+  document.body.appendChild(notice);
+  setTimeout(function(){ notice.remove(); }, 4000);
 };
 
 // ── AUTO-LOGIN: check for existing session ────────────
