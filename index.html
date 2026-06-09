@@ -5506,18 +5506,24 @@ function _updateAccountBalance(t, sign) {
   if (!t || !window._tdAccounts) return;
   var usd = _tradeUsdValue(t) * sign;
   if (!usd) return;
-  var acctStr = (t.account || '').toLowerCase();
+  // For multi-account trades (accounts array), update each matched account
+  var acctList = (t.accounts && t.accounts.length) ? t.accounts : [(t.account || '')];
   _tdAccounts.forEach(function(a) {
     var n = (a.name || a.id || '').toLowerCase();
-    var match = acctStr.indexOf(n) > -1 || n.indexOf(acctStr) > -1 ||
-      (acctStr.indexOf('1-step') > -1 && n.indexOf('1-step') > -1) ||
-      (acctStr.indexOf('2-step') > -1 && n.indexOf('2-step') > -1) ||
-      (acctStr.indexOf('b 1') > -1 && n.indexOf('1-step') > -1) ||
-      (acctStr.indexOf('b 2') > -1 && n.indexOf('2-step') > -1);
-    if (match && parseFloat(a.balance)) {
-      var newBal = Math.round(parseFloat(a.balance) + usd);
+    var matched = acctList.some(function(acctRaw) {
+      var acctStr = acctRaw.toLowerCase();
+      return acctStr.indexOf(n) > -1 || n.indexOf(acctStr) > -1 ||
+        (acctStr.indexOf('1-step') > -1 && n.indexOf('1-step') > -1) ||
+        (acctStr.indexOf('2-step') > -1 && n.indexOf('2-step') > -1) ||
+        (acctStr.indexOf('b 1') > -1 && n.indexOf('1-step') > -1) ||
+        (acctStr.indexOf('b 2') > -1 && n.indexOf('2-step') > -1);
+    });
+    if (matched) {
+      // Use balance if set, otherwise fall back to size (first trade on a fresh account)
+      var currentBal = parseFloat(a.balance) || parseFloat(a.size) || 100000;
+      var newBal = Math.round(currentBal + usd);
       updateAccount(a.id, 'balance', newBal);
-      console.log('[balance] Updated', a.name, ':', parseFloat(a.balance), '->', newBal, '(', usd > 0 ? '+' : '', usd, ')');
+      console.log('[balance]', a.name, currentBal, (usd>=0?'+':'')+usd, '→', newBal);
     }
   });
 }
