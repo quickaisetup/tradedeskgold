@@ -3953,9 +3953,9 @@ function acctToggleSizeEdit(id) {
 // Calculate today's P&L in USD from live trades
 function calcTodayPnl() {
   var dbTrades = window._tdTodayTrades || [];
-  // Only fall back to UI trades if DB hasn't loaded yet (null/undefined), NOT if DB confirmed 0 trades
-  var dbLoaded = window._tdTodayTrades !== undefined && window._tdTodayTrades !== null;
-  var uiSaved  = (!dbLoaded && state && state.trades) ? state.trades.filter(function(t){ return t.saved && !t._dateISO; }) : [];
+  // Always fall back to saved UI trades when DB has no results — covers the case
+  // where Supabase hasn't synced yet or trades were restored from localStorage.
+  var uiSaved = (state && state.trades) ? state.trades.filter(function(t){ return t.saved; }) : [];
   var tradeSrc = dbTrades.length ? dbTrades : uiSaved;
   if (!tradeSrc.length) return { total: 0, funded: 0, hasTrades: false };
 
@@ -4078,9 +4078,13 @@ function renderAccountsPanel() {
     var keywords = ['1-step','2-step','1step','2step','funded','challenge'];
     return keywords.some(function(k){ return a.indexOf(k) > -1 && b.indexOf(k) > -1; });
   }
-  (window._tdTodayTrades||[]).forEach(function(t) {
-    var r    = parseFloat(t.r_achieved)||0;
-    var rp   = parseFloat(t.risk_pct)||BASE_RISK_PCT;
+  // Use DB trades if available, otherwise fall back to saved UI trades
+  var _perAcctSrc = (window._tdTodayTrades && window._tdTodayTrades.length)
+    ? window._tdTodayTrades
+    : (state && state.trades ? state.trades.filter(function(t){ return t.saved; }) : []);
+  _perAcctSrc.forEach(function(t) {
+    var r    = parseFloat(t.r_achieved !== undefined ? t.r_achieved : t.rAchieved)||0;
+    var rp   = parseFloat(t.risk_pct   !== undefined ? t.risk_pct   : t.riskPct)||BASE_RISK_PCT;
     var acct = t.account||'';
     _tdAccounts.forEach(function(a) {
       var n = a.name||a.id;
@@ -4292,6 +4296,7 @@ window._restoreTradesFromLocal = function() {
     window._restoringTrades = false;
     if (window.updateHistory) updateHistory();
     if (window.updateKill) updateKill();
+    if (window.renderAccountsPanel) renderAccountsPanel();
     return true;
   } catch(e) { console.warn('[local] Local restore failed:', e.message); return false; }
 };
