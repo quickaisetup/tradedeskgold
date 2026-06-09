@@ -12293,8 +12293,12 @@ window.forceRestoreTrades = async function() {
   if (res.error) { alert('Error fetching trades: ' + res.error.message); return; }
   var trades = res.data || [];
 
-  // Clear ALL current UI trades first
-  state.trades.slice().forEach(function(t){ removeTrade(t.id); });
+  // Clear ALL current UI trades from the DOM only — do NOT delete from Supabase
+  state.trades.slice().forEach(function(t){
+    var el = document.getElementById('tf-' + t.id);
+    if (el) el.remove();
+  });
+  state.trades = [];
 
   if (!trades.length) {
     alert('No trades found for today (' + today + ') in the database.\n\nYour trades may have been saved under a different date.\nOpen the console and run: diagTrades()  to check all dates.');
