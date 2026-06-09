@@ -134,26 +134,42 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 #fb-cancel:hover{border-color:rgba(255,255,255,0.25);color:var(--text)}
 #fb-success{display:none;font-family:var(--mono);font-size:10px;color:#a78bfa;text-align:center;padding:12px 0 2px}
 
-/* TRADER LEADERBOARD STRIP */
-.lb-strip{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:12px 14px 14px;margin-bottom:14px}
-.lb-strip-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+/* TRADER LEADERBOARD */
+.lb-strip{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:0;margin-bottom:14px;overflow:hidden}
+.lb-strip-head{display:flex;align-items:center;justify-content:space-between;padding:12px 16px 0}
 .lb-strip-title{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);font-weight:700}
 .lb-strip-title::before{content:'';width:3px;height:9px;border-radius:2px;background:var(--gold);opacity:0.6;display:inline-block}
-.lb-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.lb-card{display:flex;align-items:center;gap:14px;background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:14px 18px;transition:border-color .15s}
-.lb-card:hover{border-color:rgba(255,255,255,0.15)}
-.lb-card.me{border-color:rgba(240,188,78,0.5);background:rgba(240,188,78,0.06)}
-.lb-card-top{display:flex;align-items:center;gap:8px;margin-bottom:8px;width:100%}
-.lb-rank{font-family:var(--display);font-size:11px;color:var(--text3);width:18px;text-align:center;flex-shrink:0;letter-spacing:0.04em}
+/* column header row */
+.lb-col-head{display:grid;grid-template-columns:28px 36px 1fr 90px 90px 60px;align-items:center;gap:0;padding:9px 16px 7px;border-bottom:1px solid rgba(255,255,255,0.05)}
+.lb-col-lbl{font-family:var(--mono);font-size:7px;letter-spacing:0.14em;text-transform:uppercase;color:var(--text3)}
+.lb-col-lbl.right{text-align:right}
+/* table rows */
+.lb-row{display:flex;flex-direction:column}
+.lb-card{display:grid;grid-template-columns:28px 36px 1fr 90px 90px 60px;align-items:center;gap:0;padding:10px 16px;border-bottom:1px solid rgba(255,255,255,0.04);transition:background .12s;cursor:default}
+.lb-card:last-child{border-bottom:none}
+.lb-card:hover{background:rgba(255,255,255,0.025)}
+.lb-card.me{background:rgba(240,188,78,0.045)}
+.lb-card.me:hover{background:rgba(240,188,78,0.07)}
+/* rank medal */
+.lb-rank{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--text3);text-align:center;letter-spacing:0.04em}
 .lb-rank.gold{color:#f0bc4e}
-.lb-rank.silver{color:#cfd6dd}
-.lb-rank.bronze{color:#d8975a}
-.lb-avatar{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:13px;font-weight:700;color:#0e0f11;flex-shrink:0;letter-spacing:0.02em}
-.lb-name-row{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-bottom:3px}
-.lb-name{font-family:var(--mono);font-size:12px;color:var(--text);font-weight:700;letter-spacing:0.02em}
-.lb-tag{font-family:var(--mono);font-size:7.5px;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);background:rgba(240,188,78,0.12);border:1px solid rgba(240,188,78,0.25);border-radius:3px;padding:2px 5px;white-space:nowrap}
+.lb-rank.silver{color:#9aa5b0}
+.lb-rank.bronze{color:#c8895a}
+/* avatar */
+.lb-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;font-weight:700;color:#0e0f11;flex-shrink:0;letter-spacing:0.02em;margin-right:4px}
+/* trader info cell */
+.lb-trader{display:flex;align-items:center;gap:8px;min-width:0}
+.lb-name{font-family:var(--mono);font-size:11px;color:var(--text);font-weight:700;letter-spacing:0.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lb-tag{font-family:var(--mono);font-size:7px;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);background:rgba(240,188,78,0.12);border:1px solid rgba(240,188,78,0.25);border-radius:3px;padding:2px 5px;white-space:nowrap;flex-shrink:0}
 .lb-tag.dim{color:var(--text3);background:transparent;border-color:var(--border2)}
 .lb-tag.green{color:#4ed68a;background:rgba(78,214,138,0.12);border-color:rgba(78,214,138,0.25)}
+/* stat cells */
+.lb-cell{font-family:var(--mono);font-size:12px;font-weight:700;text-align:right;letter-spacing:0.02em;padding-right:4px}
+.lb-cell.neutral{color:var(--text2);font-size:11px;font-weight:400}
+/* gold highlight bar for #1 */
+.lb-card.rank1{position:relative}
+.lb-card.rank1::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:linear-gradient(180deg,#f0bc4e,#d8975a)}
+/* deprecated helpers kept for compat */
 .lb-divider{width:100%;height:1px;background:rgba(255,255,255,0.05);margin:6px 0}
 .lb-stat-row{display:flex;justify-content:space-between;width:100%;gap:4px}
 .lb-stat{display:flex;flex-direction:column;gap:1px;flex:1}
@@ -1565,10 +1581,11 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
   [style*="grid-template-columns:48px 1fr 90px 80px"]{display:none!important}
 
   /* ── LEADERBOARD ── */
-  .lb-strip{padding:10px 10px 12px;margin-bottom:10px}
-  .lb-row{grid-template-columns:1fr!important;gap:8px}
-  .lb-card{padding:11px 12px;gap:10px}
-  .lb-avatar{width:36px;height:36px;font-size:11px}
+  .lb-strip{margin-bottom:10px}
+  .lb-col-head{grid-template-columns:24px 32px 1fr 72px 72px 44px;padding:7px 12px 6px}
+  .lb-card{grid-template-columns:24px 32px 1fr 72px 72px 44px;padding:9px 12px}
+  .lb-cell{font-size:11px}
+  .lb-avatar{width:26px;height:26px;font-size:8px}
   .lb-name{font-size:11px}
   .lb-stat-val{font-size:12px}
   .lb-tag{font-size:7px;padding:1px 4px}
@@ -2500,46 +2517,42 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
   </div>
   <!-- TRADER LEADERBOARD -->
   <div class="lb-strip">
-    <div class="lb-strip-head">
+    <div class="lb-strip-head" style="margin-bottom:10px">
       <div class="lb-strip-title">Trader Leaderboard</div>
       <span id="lb-meta" style="font-family:var(--mono);font-size:8px;color:var(--text3);letter-spacing:0.07em">yesterday &amp; weekly P&amp;L</span>
     </div>
+    <div class="lb-col-head">
+      <div class="lb-col-lbl" style="text-align:center">#</div>
+      <div></div>
+      <div class="lb-col-lbl">Trader</div>
+      <div class="lb-col-lbl right">Yesterday</div>
+      <div class="lb-col-lbl right">This Week</div>
+      <div class="lb-col-lbl right">Streak</div>
+    </div>
     <div class="lb-row" id="lb-row">
-      <div class="lb-card">
+      <div class="lb-card rank1">
         <div class="lb-rank gold">#1</div>
         <div class="lb-avatar" style="background:#f0bc4e">JM</div>
-        <div style="flex:1;min-width:0">
-          <div class="lb-name-row"><span class="lb-name">@jmarlow_fx</span><span class="lb-tag">Legend</span></div>
-          <div style="display:flex;gap:10px;margin-top:4px">
-            <div class="lb-stat"><div class="lb-stat-lbl">Yesterday</div><div class="lb-stat-val">+$1,240</div></div>
-            <div class="lb-stat"><div class="lb-stat-lbl">This week</div><div class="lb-stat-val">+$6,820</div></div>
-            <div class="lb-stat"><div class="lb-stat-lbl">Streak</div><div class="lb-stat-val neutral">21d</div></div>
-          </div>
-        </div>
+        <div class="lb-trader"><span class="lb-name">@jmarlow_fx</span><span class="lb-tag">Legend</span></div>
+        <div class="lb-cell" style="color:#4ed68a">+$1,240</div>
+        <div class="lb-cell" style="color:#4ed68a">+$6,820</div>
+        <div class="lb-cell neutral">21d</div>
       </div>
       <div class="lb-card">
         <div class="lb-rank silver">#2</div>
         <div class="lb-avatar" style="background:#a8d8f0">RV</div>
-        <div style="flex:1;min-width:0">
-          <div class="lb-name-row"><span class="lb-name">@reyna_v</span><span class="lb-tag">Elite</span></div>
-          <div style="display:flex;gap:10px;margin-top:4px">
-            <div class="lb-stat"><div class="lb-stat-lbl">Yesterday</div><div class="lb-stat-val">+$860</div></div>
-            <div class="lb-stat"><div class="lb-stat-lbl">This week</div><div class="lb-stat-val">+$4,930</div></div>
-            <div class="lb-stat"><div class="lb-stat-lbl">Streak</div><div class="lb-stat-val neutral">18d</div></div>
-          </div>
-        </div>
+        <div class="lb-trader"><span class="lb-name">@reyna_v</span><span class="lb-tag" style="color:#4ed68a;background:rgba(78,214,138,0.12);border-color:rgba(78,214,138,0.25)">Elite</span></div>
+        <div class="lb-cell" style="color:#4ed68a">+$860</div>
+        <div class="lb-cell" style="color:#4ed68a">+$4,930</div>
+        <div class="lb-cell neutral">18d</div>
       </div>
       <div class="lb-card">
         <div class="lb-rank bronze">#3</div>
         <div class="lb-avatar" style="background:#d8975a">TK</div>
-        <div style="flex:1;min-width:0">
-          <div class="lb-name-row"><span class="lb-name">@tkimura</span><span class="lb-tag">Elite</span></div>
-          <div style="display:flex;gap:10px;margin-top:4px">
-            <div class="lb-stat"><div class="lb-stat-lbl">Yesterday</div><div class="lb-stat-val">+$540</div></div>
-            <div class="lb-stat"><div class="lb-stat-lbl">This week</div><div class="lb-stat-val">+$4,180</div></div>
-            <div class="lb-stat"><div class="lb-stat-lbl">Streak</div><div class="lb-stat-val neutral">16d</div></div>
-          </div>
-        </div>
+        <div class="lb-trader"><span class="lb-name">@tkimura</span><span class="lb-tag" style="color:#4ed68a;background:rgba(78,214,138,0.12);border-color:rgba(78,214,138,0.25)">Elite</span></div>
+        <div class="lb-cell" style="color:#4ed68a">+$540</div>
+        <div class="lb-cell" style="color:#4ed68a">+$4,180</div>
+        <div class="lb-cell neutral">16d</div>
       </div>
     </div>
   </div>
@@ -11509,7 +11522,7 @@ function lbCardHtml(row, rank, isMe) {
     ? '<img src="' + row.avatar_url + '" alt="" style="width:100%;height:100%;border-radius:50%;object-fit:cover;display:block">'
     : initials;
   var rankCls = rank === 1 ? 'gold' : rank === 2 ? 'silver' : rank === 3 ? 'bronze' : '';
-  var nameLabel = displayName;
+  var rank1Cls = rank === 1 ? ' rank1' : '';
   var score = row.streak_score || 0;
   var tier = lbTierFor(score);
   var tierTag = '<span class="lb-tag" style="color:' + tier.color + ';background:' + tier.color + '1f;border-color:' + tier.color + '40">' + tier.name + '</span>';
@@ -11518,17 +11531,13 @@ function lbCardHtml(row, rank, isMe) {
   var week = lbFmtUsd(row.week_pnl);
   var yestColor = (Number(row.yesterday_pnl)||0) < 0 ? '#f06060' : '#4ed68a';
   var weekColor = (Number(row.week_pnl)||0) < 0 ? '#f06060' : '#4ed68a';
-  return '<div class="lb-card' + (isMe ? ' me' : '') + '">'
+  return '<div class="lb-card' + rank1Cls + (isMe ? ' me' : '') + '">'
     + '<div class="lb-rank ' + rankCls + '">#' + rank + '</div>'
     + '<div class="lb-avatar" style="background:' + (row.avatar_url ? 'transparent' : color) + ';overflow:hidden">' + avatarInner + '</div>'
-    + '<div style="flex:1;min-width:0">'
-    +   '<div class="lb-name-row"><span class="lb-name">' + nameLabel + '</span>' + meTag + tierTag + '</div>'
-    +   '<div style="display:flex;gap:10px;margin-top:4px">'
-    +     '<div class="lb-stat"><div class="lb-stat-lbl">Yesterday</div><div class="lb-stat-val" style="color:' + yestColor + '">' + yest + '</div></div>'
-    +     '<div class="lb-stat"><div class="lb-stat-lbl">This week</div><div class="lb-stat-val" style="color:' + weekColor + '">' + week + '</div></div>'
-    +     '<div class="lb-stat"><div class="lb-stat-lbl">Streak</div><div class="lb-stat-val neutral">' + score + 'd</div></div>'
-    +   '</div>'
-    + '</div>'
+    + '<div class="lb-trader"><span class="lb-name">' + displayName + '</span>' + meTag + tierTag + '</div>'
+    + '<div class="lb-cell" style="color:' + yestColor + '">' + yest + '</div>'
+    + '<div class="lb-cell" style="color:' + weekColor + '">' + week + '</div>'
+    + '<div class="lb-cell neutral">' + score + 'd</div>'
     + '</div>';
 }
 function renderLeaderboard(rows) {
