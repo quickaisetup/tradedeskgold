@@ -4223,6 +4223,16 @@ window._appState = state; // expose to Supabase layer (const is not on window)
 
 // Called by autoRestoreToday — runs in main script scope where `state` is accessible
 window._restoreTradesFromDB = function(trades) {
+  if (!trades || !trades.length) return;
+  // Guard: if all trades are already loaded (matched by _sbId), skip
+  var existingIds = state.trades.map(function(t){ return t._sbId; }).filter(Boolean);
+  var newIds = trades.map(function(t){ return t.id; });
+  if (newIds.every(function(id){ return existingIds.indexOf(id) > -1; })) {
+    console.log('[restore] Trades already loaded — skipping duplicate restore');
+    return;
+  }
+  // Remove any unsaved placeholder trades before restoring
+  state.trades.slice().forEach(function(t){ if (!t.saved && !t._sbId) removeTrade(t.id); });
   window._restoringTrades = true;
   trades.forEach(function(tr) {
     addTrade();
@@ -5450,42 +5460,7 @@ function removeTrade(id) {
   if (window.updateKill) updateKill();
 }
 
-function duplicateTrade(sourceId) {
-  var src = state.trades.find(function(t){ return t.id === sourceId; });
-  if (!src) return;
-  // Create a brand-new empty trade form
-  addTrade();
-  var newT = state.trades[state.trades.length - 1];
-  if (!newT) return;
-  // Copy fields — new trade is completely unsaved (no _sbId, no _dateISO)
-  ['type','direction','setup','tfTrigger','entryType','account','accounts',
-   'entry','sl','tp','riskPct','slPlacement','htfBias','mindset',
-   'confluence','mistakes','notes','usdAchieved','wouldHaveR','wouldHaveWorked'].forEach(function(f){
-    if (src[f] !== undefined) newT[f] = Array.isArray(src[f]) ? src[f].slice() : src[f];
-  });
-  // Result intentionally left blank so user fills it fresh
-  newT.result = '';
-  newT.rAchieved = '';
-  newT.took50 = '';
-  newT.movedSL = '';
-  newT.saved = false;
-  delete newT._sbId;
-  delete newT._dateISO;
-  // Populate DOM
-  var c = document.getElementById('tf-' + newT.id);
-  if (!c) return;
-  populateTradeForm(newT.id);
-  // Reset result buttons (they're blank)
-  c.querySelectorAll('.tgl').forEach(function(b){
-    var oc = b.getAttribute('onclick')||'';
-    if (oc.indexOf("'Win'")>-1||oc.indexOf("'Loss'")>-1||oc.indexOf("'Breakeven'")>-1||oc.indexOf("'Open'")>-1) b.classList.remove('sel');
-  });
-  // Reset save button to unsaved state
-  var sb = c.querySelector('[id^="save-trade-"]');
-  if (sb){ sb.textContent='Save trade to journal'; sb.className='save-btn'; sb.style.cssText=''; sb.disabled=false; }
-  c.scrollIntoView({behavior:'smooth', block:'start'});
-}
-
+// (duplicate definition removed — single authoritative duplicateTrade below)
 function duplicateTrade(sourceId) {
   var src = state.trades.find(function(t){ return t.id === sourceId; });
   if (!src) return;
@@ -12279,6 +12254,23 @@ function tdlTodayBKK() {
   // Use toLocaleDateString — always correct for Bangkok regardless of system timezone
   return new Date().toLocaleDateString('sv-SE', {timeZone: 'Asia/Bangkok'});
 }
+
+// ── TRADE DIAGNOSTIC (call window.diagTrades() in console) ──
+window.diagTrades = async function() {
+  var uid = localStorage.getItem('td_user_id');
+  var sb = window._tdSB;
+  if (!uid || !sb) { console.error('[diag] Not logged in'); return; }
+  var today = new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
+  console.log('[diag] uid:', uid, '| today (BKK):', today);
+  // Fetch ALL trades (no date filter)
+  var all = await sb.from('trades').select('id,date,direction,result,instrument').eq('user_id', uid).order('date', {ascending:false}).limit(50);
+  console.log('[diag] ALL trades in DB (last 50):', all.error || all.data);
+  // Fetch today's trades
+  var tod = await sb.from('trades').select('id,date,direction,result').eq('user_id', uid).eq('date', today);
+  console.log('[diag] Trades for today (' + today + '):', tod.error || tod.data);
+  // State
+  console.log('[diag] state.trades in UI:', state.trades.length, 'items, saved:', state.trades.filter(function(t){return t.saved;}).length);
+};
 
 // ── AUTO-LOGIN: check for existing session ────────────
 async function tdlInit() {
