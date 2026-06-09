@@ -4222,6 +4222,77 @@ const state = { trades: [], killed: false };
 window._appState = state; // expose to Supabase layer (const is not on window)
 
 // Called by autoRestoreToday — runs in main script scope where `state` is accessible
+// ── LOCAL TRADE PERSISTENCE ───────────────────────────
+// Saves all currently-saved trades to localStorage so refresh is instant.
+// Called after every save and after every DB restore.
+var _TD_LOCAL_KEY = 'td_trades_local';
+window._persistTradesToLocal = function() {
+  try {
+    var today = new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
+    var saved = state.trades.filter(function(t){ return t.saved; });
+    var snapshot = saved.map(function(t){
+      return {
+        _sbId:t._sbId||null, _dateISO:t._dateISO||today,
+        time:t.time||'', session:t.session||'', type:t.type||'',
+        direction:t.direction||'', setup:t.setup||'', tfTrigger:t.tfTrigger||'',
+        entryType:t.entryType||'', account:t.account||'',
+        entry:t.entry||'', sl:t.sl||'', tp:t.tp||'',
+        riskPct:t.riskPct||'', slPlacement:t.slPlacement||'',
+        htfBias:t.htfBias||'', mindset:t.mindset||'',
+        confluence:t.confluence||[], result:t.result||'',
+        rAchieved:t.rAchieved||'', took50:t.took50||'',
+        movedSL:t.movedSL||'', wouldHaveWorked:t.wouldHaveWorked||'',
+        wouldHaveR:t.wouldHaveR||'', mistakes:t.mistakes||[],
+        notes:t.notes||'', usdAchieved:t.usdAchieved||''
+      };
+    });
+    var store = { date: today, trades: snapshot };
+    localStorage.setItem(_TD_LOCAL_KEY, JSON.stringify(store));
+    console.log('[local] Persisted', snapshot.length, 'trades to localStorage');
+  } catch(e) { console.warn('[local] Persist failed:', e.message); }
+};
+
+// Restore trades from localStorage instantly on load (before Supabase round-trip).
+// Only restores if the stored date matches today (Bangkok).
+window._restoreTradesFromLocal = function() {
+  try {
+    var today = new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
+    var raw = localStorage.getItem(_TD_LOCAL_KEY);
+    if (!raw) return false;
+    var store = JSON.parse(raw);
+    if (!store || store.date !== today || !store.trades || !store.trades.length) return false;
+    // Skip if already restored (e.g. Supabase beat us to it)
+    if (state.trades.filter(function(t){ return t.saved; }).length > 0) return false;
+    console.log('[local] Restoring', store.trades.length, 'trades from localStorage cache');
+    window._restoringTrades = true;
+    store.trades.forEach(function(tr) {
+      addTrade();
+      var t = state.trades[state.trades.length - 1];
+      if (!t) return;
+      t._sbId = tr._sbId || null;
+      t._dateISO = tr._dateISO || today;
+      t.time = tr.time; t.session = tr.session; t.type = tr.type;
+      t.direction = tr.direction; t.setup = tr.setup; t.tfTrigger = tr.tfTrigger;
+      t.entryType = tr.entryType; t.account = tr.account;
+      t.entry = tr.entry; t.sl = tr.sl; t.tp = tr.tp;
+      t.riskPct = tr.riskPct; t.slPlacement = tr.slPlacement;
+      t.htfBias = tr.htfBias; t.mindset = tr.mindset;
+      t.confluence = Array.isArray(tr.confluence) ? tr.confluence : [];
+      t.result = tr.result; t.rAchieved = tr.rAchieved;
+      t.took50 = tr.took50; t.movedSL = tr.movedSL;
+      t.wouldHaveWorked = tr.wouldHaveWorked; t.wouldHaveR = tr.wouldHaveR;
+      t.mistakes = Array.isArray(tr.mistakes) ? tr.mistakes : [];
+      t.notes = tr.notes; t.usdAchieved = tr.usdAchieved;
+      t.saved = true;
+      collapseTradeToCard(t.id);
+    });
+    window._restoringTrades = false;
+    if (window.updateHistory) updateHistory();
+    if (window.updateKill) updateKill();
+    return true;
+  } catch(e) { console.warn('[local] Local restore failed:', e.message); return false; }
+};
+
 window._restoreTradesFromDB = function(trades) {
   if (!trades || !trades.length) return;
   // Guard: if all trades are already loaded (matched by _sbId), skip
@@ -4264,6 +4335,7 @@ window._restoreTradesFromDB = function(trades) {
   if(window.updateHistory) updateHistory();
   if(window.renderAccountsPanel) renderAccountsPanel();
   markSection('history');
+  _persistTradesToLocal(); // keep localStorage in sync after DB restore
   console.log('[restore] ✓ Restored', trades.length, 'trades');
 };
 
@@ -6050,6 +6122,7 @@ async function saveTrade(id) {
   }
 
   t.saved = true;
+  _persistTradesToLocal(); // snapshot saved trades to localStorage immediately
   updateDayProgress();
   updateHistory();
   updateKill();
@@ -12340,6 +12413,12 @@ async function tdlInit() {
   if (savedId) {
     _userId = savedId;
     tdlPatchApp();
+    // ── Instant trade restore from localStorage (no network needed) ──
+    // Runs synchronously before Supabase — trades appear the moment the page loads.
+    // Supabase restore runs 800ms later and will sync any DB-only changes.
+    setTimeout(function() {
+      if (window._restoreTradesFromLocal) window._restoreTradesFromLocal();
+    }, 50);
     setTimeout(function() { if (typeof loadLeaderboard === 'function') loadLeaderboard(); }, 400);
     // Show name immediately from localStorage on page load
     setTimeout(function() {
