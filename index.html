@@ -3196,7 +3196,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
       </ul>
       <div class="wt-foot"><span class="wt-foot-hint">Read &amp; dismiss</span><button class="wt-dismiss" onclick="wtDismiss('wt-trades')">Got it, let's go →</button></div>
     </div>
-    <div class="section-header"><span class="section-num">05</span><span class="section-title">Trades</span><div class="section-line"></div></div>
+    <div class="section-header"><span class="section-num">05</span><span class="section-title">Trades</span><div class="section-line"></div><button id="restore-trades-btn" onclick="forceRestoreTrades()" style="font-family:var(--mono);font-size:9px;letter-spacing:0.08em;padding:4px 12px;border-radius:5px;background:rgba(240,188,78,0.08);border:1px solid rgba(240,188,78,0.3);color:var(--gold);cursor:pointer;flex-shrink:0" onmouseover="this.style.background='rgba(240,188,78,0.18)'" onmouseout="this.style.background='rgba(240,188,78,0.08)'">↻ Restore trades</button></div>
     <div id="exp-trades" class="td-explainer"><button class="td-explainer-dismiss" onclick="dismissExplainer('exp-trades')">✕</button><div class="td-explainer-body"><b>Log every trade before or after you take it.</b><ul><li>Fill in direction, setup, entry, SL, TP and result</li><li>Select which account it's on</li><li>Hit <b>Save trade</b> — it goes to your journal instantly</li><li>Be honest with results — this powers your edge stats</li></ul></div></div>
     <div class="counter-row">
       <span class="counter-pill" id="cp-own">Own: 0</span>
@@ -12270,6 +12270,42 @@ window.diagTrades = async function() {
   console.log('[diag] Trades for today (' + today + '):', tod.error || tod.data);
   // State
   console.log('[diag] state.trades in UI:', state.trades.length, 'items, saved:', state.trades.filter(function(t){return t.saved;}).length);
+};
+
+// ── FORCE RESTORE TRADES ─────────────────────────────
+window.forceRestoreTrades = async function() {
+  var uid = localStorage.getItem('td_user_id');
+  var sb = window._tdSB;
+  if (!uid || !sb) { alert('Not logged in — please refresh and try again.'); return; }
+  var today = new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
+  // Compute yesterday too (covers timezone edge cases)
+  var d = new Date(); d.setDate(d.getDate() - 1);
+  var yesterday = d.toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
+
+  // Fetch trades for today AND yesterday (catches date-offset bugs)
+  var res = await sb.from('trades').select('*')
+    .eq('user_id', uid)
+    .in('date', [today, yesterday])
+    .order('created_at', {ascending: true});
+
+  if (res.error) { alert('Error fetching trades: ' + res.error.message); return; }
+  var trades = res.data || [];
+
+  if (!trades.length) {
+    // Last resort: fetch all trades (no date filter) and take the most recent 20
+    var all = await sb.from('trades').select('*').eq('user_id', uid)
+      .order('created_at', {ascending: false}).limit(20);
+    trades = (all.data || []).reverse();
+  }
+
+  if (!trades.length) { alert('No trades found in the database for your account.'); return; }
+
+  // Clear current UI trades first
+  state.trades.slice().forEach(function(t){ removeTrade(t.id); });
+
+  // Restore
+  window._restoreTradesFromDB(trades);
+  alert('✓ Restored ' + trades.length + ' trade(s) from the database.\nDates found: ' + [...new Set(trades.map(function(t){return t.date;}))].join(', '));
 };
 
 // ── AUTO-LOGIN: check for existing session ────────────
