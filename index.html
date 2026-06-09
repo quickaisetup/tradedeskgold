@@ -12332,6 +12332,61 @@ function tdlTodayBKK() {
   return new Date().toLocaleDateString('sv-SE', {timeZone: 'Asia/Bangkok'});
 }
 
+// ── TRADE EXPORT / IMPORT (console helpers) ──────────────
+// exportTrades() — prints a paste-able importTrades(...) call you can save and re-run.
+// Works from both saved (DB-backed) and unsaved (form-only) trades.
+window.exportTrades = function() {
+  var fields = ['_sbId','_dateISO','time','session','type','direction','setup','tfTrigger',
+    'entryType','account','accounts','entry','sl','tp','riskPct','slPlacement','htfBias',
+    'mindset','confluence','result','rAchieved','took50','movedSL','wouldHaveWorked',
+    'wouldHaveR','mistakes','notes','usdAchieved','saved'];
+  var snapshot = state.trades.map(function(t) {
+    var obj = {};
+    fields.forEach(function(f) { if (t[f] !== undefined) obj[f] = t[f]; });
+    return obj;
+  });
+  if (!snapshot.length) { console.warn('[export] No trades in state right now.'); return; }
+  var script = 'importTrades(' + JSON.stringify(snapshot, null, 2) + ');';
+  console.log('%c── COPY EVERYTHING BELOW THIS LINE ──', 'color:#f0bc4e;font-weight:bold;font-size:13px');
+  console.log(script);
+  console.log('%c── COPY EVERYTHING ABOVE THIS LINE ──', 'color:#f0bc4e;font-weight:bold;font-size:13px');
+  console.log('%c' + snapshot.length + ' trade(s) exported. Paste that script in the console to restore.', 'color:#4ed68a');
+  return snapshot;
+};
+
+// importTrades(snapshot) — restores trades from an exportTrades() snapshot.
+// Clears the current UI first, then rebuilds each trade form.
+window.importTrades = function(snapshot) {
+  if (!snapshot || !snapshot.length) { console.warn('[import] Nothing to import.'); return; }
+  // Clear UI (no Supabase delete)
+  state.trades.slice().forEach(function(t) {
+    var el = document.getElementById('tf-' + t.id);
+    if (el) el.remove();
+  });
+  state.trades = [];
+  // Rebuild each trade
+  snapshot.forEach(function(tr) {
+    addTrade();
+    var t = state.trades[state.trades.length - 1];
+    if (!t) return;
+    var fields = ['_sbId','_dateISO','time','session','type','direction','setup','tfTrigger',
+      'entryType','account','accounts','entry','sl','tp','riskPct','slPlacement','htfBias',
+      'mindset','confluence','result','rAchieved','took50','movedSL','wouldHaveWorked',
+      'wouldHaveR','mistakes','notes','usdAchieved'];
+    fields.forEach(function(f) { if (tr[f] !== undefined) t[f] = tr[f]; });
+    t.saved = !!tr.saved;
+    if (t.saved) {
+      collapseTradeToCard(t.id);
+    } else {
+      populateTradeForm(t.id);
+    }
+  });
+  if (window._persistTradesToLocal) _persistTradesToLocal();
+  if (window.updateHistory) updateHistory();
+  if (window.updateKill) updateKill();
+  console.log('%c✓ Imported ' + snapshot.length + ' trade(s)', 'color:#4ed68a;font-weight:bold;font-size:13px');
+};
+
 // ── TRADE DIAGNOSTIC (call window.diagTrades() in console) ──
 window.diagTrades = async function() {
   var uid = localStorage.getItem('td_user_id');
