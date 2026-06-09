@@ -4306,7 +4306,10 @@ window._restoreTradesFromDB = function(trades) {
   // Guard: if all trades are already loaded (matched by _sbId), skip
   var existingIds = state.trades.map(function(t){ return t._sbId; }).filter(Boolean);
   var newIds = trades.map(function(t){ return t.id; });
-  if (newIds.every(function(id){ return existingIds.indexOf(id) > -1; })) {
+  // Skip only if DB has exactly the same set — if DB has MORE, always restore (cross-device sync)
+  var allMatch = newIds.every(function(id){ return existingIds.indexOf(id) > -1; });
+  var sameCount = newIds.length === existingIds.length;
+  if (allMatch && sameCount) {
     console.log('[restore] Trades already loaded — skipping duplicate restore');
     return;
   }
@@ -5219,15 +5222,21 @@ function updateVerdictAuto() {
 window._lastAutosaveScore = null;
 window._morningAutosaveTimer = null;
 window.scheduleMorningAutosave = function(score) {
-  // Only Gold's analysis autosaves to Supabase — other instrument tabs are
-  // local-only (per-day snapshots), so they never overwrite Gold's saved row
-  // or trigger extra cloud/AI activity just from filling them in.
+  // Only Gold's analysis autosaves to Supabase
   if (typeof _tdActiveInstrument !== 'undefined' && _tdActiveInstrument !== 'Gold') return;
-  // Need a logged-in user and a real (non-zero) score
+  // Need a logged-in user
   if (!localStorage.getItem('td_user_id')) return;
-  if (!score || score === 0) return;
-  if (score === window._lastAutosaveScore) return;   // only on actual change
-  window._lastAutosaveScore = score;
+  // Build a quick fingerprint of current bias state to detect real changes
+  var _fp = '';
+  try {
+    ['1M','1W','D','4H','1H'].forEach(function(tf) {
+      var s = tfState[tf] || {};
+      _fp += tf + ':' + (s.bias||[]).join(',') + '|' + (s.trend||[]).join(',') + ';';
+    });
+    _fp += 'score:' + (score||0);
+  } catch(e) {}
+  if (_fp === window._lastAutosaveFp) return; // nothing changed
+  window._lastAutosaveFp = _fp;
   if (window._morningAutosaveTimer) clearTimeout(window._morningAutosaveTimer);
   window._morningAutosaveTimer = setTimeout(function() {
     if (typeof saveMorningAnalysis === 'function') saveMorningAnalysis(true);
