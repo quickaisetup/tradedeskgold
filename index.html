@@ -2944,6 +2944,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
         <span id="morning-save-status" style="font-family:var(--mono);font-size:9px;color:var(--text3);margin-left:8px"></span>
         <button id="save-morning-btn" onclick="saveMorningAnalysis()" style="margin-left:auto;display:none;background:transparent;border:1px solid rgba(240,188,78,0.3);border-radius:5px;color:var(--gold);font-family:var(--mono);font-size:8px;letter-spacing:0.08em;padding:4px 10px;cursor:pointer;text-transform:uppercase;flex-shrink:0"
           onmouseover="this.style.background='rgba(240,188,78,0.1)'" onmouseout="this.style.background='transparent'">↑ Save analysis</button>
+        <button onclick="clearMorningAnalysis()" title="Reset all bias/trend for a fresh start" style="margin-left:6px;background:transparent;border:1px solid rgba(255,255,255,0.1);border-radius:5px;color:var(--text3);font-family:var(--mono);font-size:8px;letter-spacing:0.08em;padding:4px 10px;cursor:pointer;text-transform:uppercase;flex-shrink:0"
+          onmouseover="this.style.borderColor='rgba(240,80,80,0.4)';this.style.color='#f06060'" onmouseout="this.style.borderColor='rgba(255,255,255,0.1)';this.style.color='var(--text3)'">✕ New day</button>
       </div>
 
       <!-- Edge panel (AI Analysis button + result) -->
@@ -6329,6 +6331,27 @@ async function saveAll(dateISOOverride) {
 // Tracks whether the current session's top-down analysis has been saved to the DB.
 // Used to gate the "See Traders' Analysis" / AI community panels.
 window._morningSaved = false;
+
+window.clearMorningAnalysis = function() {
+  if (!confirm('Clear all bias/trend for today and start fresh?')) return;
+  var today = new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
+  localStorage.removeItem('td_tfstate_' + today);
+  // Deactivate all bias + trend buttons without re-triggering saves
+  document.querySelectorAll('.bias-btn.active, .trend-btn.active').forEach(function(b) { b.click(); });
+  // Clear notes textareas
+  ['notes-1m','notes-1w','notes-d','notes-4h','notes-1h'].forEach(function(id) {
+    var el = document.getElementById(id); if (el) el.value = '';
+  });
+  // Reset tfState
+  ['1M','1W','D','4H','1H'].forEach(function(tf) {
+    if (window.tfState && window.tfState[tf]) { window.tfState[tf].bias = []; window.tfState[tf].trend = []; }
+  });
+  window._lastAutosaveFp = '';
+  window._morningSaved = false;
+  var st = document.getElementById('morning-save-status'); if (st) st.textContent = '';
+  if (typeof updateBiasScore === 'function') updateBiasScore();
+  console.log('[analysis] Cleared for', today);
+};
 
 async function saveMorningAnalysis(silent) {
   // Gold is the only instrument whose top-down analysis syncs to Supabase
