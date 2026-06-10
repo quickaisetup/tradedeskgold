@@ -4387,7 +4387,7 @@ window._syncUnsavedTradesToDB = async function() {
       var today = t._dateISO || new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
       var basePayload = {
         type:'trade', dateISO: today,
-        time:t.time, session:t.session, instrument:t.instrument||'Gold',
+        time:t.time, session:t.session,
         direction:t.direction||'', type2:t.type||'', setup:t.setup||'',
         tfTrigger:t.tfTrigger||'', entryType:t.entryType||'',
         entry:t.entry||'', sl:t.sl||'', tp:t.tp||'',
@@ -12344,7 +12344,6 @@ function tdlPatchApp() {
           notes:             payload.notes || '',
           account:           payload.account || '',
           usd_achieved:      parseFloat(payload.usdAchieved) || null,
-          instrument:        payload.instrument || 'Gold',
         };
         if (payload.sbId) {
           // UPDATE existing row — no duplicate
