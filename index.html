@@ -5154,28 +5154,28 @@ function updateVerdictAuto() {
   // ── PIVOT — ±2 normal, ±3 on Thursday ────────────────
   var pivotPts = isThursday ? 3 : 2;
   var pivotLbl = isThursday ? ' (Thu ★)' : '';
-  if (pivotState === 'bull') { score += pivotPts; bullSignals.push({ label: 'Above daily pivot' + pivotLbl, pts: '+' + pivotPts }); }
-  else if (pivotState === 'bear') { score -= pivotPts; bearSignals.push({ label: 'Below daily pivot' + pivotLbl, pts: '-' + pivotPts }); }
+  if (pivotState === 'bull') { score += pivotPts; bullSignals.push({ label: 'Pivot above' + pivotLbl, pts: '+' + pivotPts }); }
+  else if (pivotState === 'bear') { score -= pivotPts; bearSignals.push({ label: 'Pivot below' + pivotLbl, pts: '-' + pivotPts }); }
 
   // ── WEEKLY BIAS ±1 ────────────────────────────────────
   var wB = getBias('1W');
-  if (wB.includes('bull') && !wB.includes('bear')) { score += 1; bullSignals.push({ label: 'Weekly bias bullish', pts: '+1' }); }
-  else if (wB.includes('bear') && !wB.includes('bull')) { score -= 1; bearSignals.push({ label: 'Weekly bias bearish', pts: '-1' }); }
+  if (wB.includes('bull') && !wB.includes('bear')) { score += 1; bullSignals.push({ label: '1W bias bull', pts: '+1' }); }
+  else if (wB.includes('bear') && !wB.includes('bull')) { score -= 1; bearSignals.push({ label: '1W bias bear', pts: '-1' }); }
 
   // ── DAILY BIAS ±2 ─────────────────────────────────────
   var dB = getBias('D');
-  if (dB.includes('bull') && !dB.includes('bear')) { score += 2; bullSignals.push({ label: 'Daily bias bullish', pts: '+2' }); }
-  else if (dB.includes('bear') && !dB.includes('bull')) { score -= 2; bearSignals.push({ label: 'Daily bias bearish', pts: '-2' }); }
+  if (dB.includes('bull') && !dB.includes('bear')) { score += 2; bullSignals.push({ label: 'Daily bias bull', pts: '+2' }); }
+  else if (dB.includes('bear') && !dB.includes('bull')) { score -= 2; bearSignals.push({ label: 'Daily bias bear', pts: '-2' }); }
 
   // ── 4H BIAS ±2 ────────────────────────────────────────
   var h4B = getBias('4H');
-  if (h4B.includes('bull') && !h4B.includes('bear')) { score += 2; bullSignals.push({ label: '4H bias bullish', pts: '+2' }); }
-  else if (h4B.includes('bear') && !h4B.includes('bull')) { score -= 2; bearSignals.push({ label: '4H bias bearish', pts: '-2' }); }
+  if (h4B.includes('bull') && !h4B.includes('bear')) { score += 2; bullSignals.push({ label: '4H bias bull', pts: '+2' }); }
+  else if (h4B.includes('bear') && !h4B.includes('bull')) { score -= 2; bearSignals.push({ label: '4H bias bear', pts: '-2' }); }
 
   // ── 1H BIAS ±1.5 ─────────────────────────────────────
   var h1B = getBias('1H');
-  if (h1B.includes('bull') && !h1B.includes('bear')) { score += 1.5; bullSignals.push({ label: '1H bias bullish', pts: '+1.5' }); }
-  else if (h1B.includes('bear') && !h1B.includes('bull')) { score -= 1.5; bearSignals.push({ label: '1H bias bearish', pts: '-1.5' }); }
+  if (h1B.includes('bull') && !h1B.includes('bear')) { score += 1.5; bullSignals.push({ label: '1H bias bull', pts: '+1.5' }); }
+  else if (h1B.includes('bear') && !h1B.includes('bull')) { score -= 1.5; bearSignals.push({ label: '1H bias bear', pts: '-1.5' }); }
 
   // ── TREND SIGNALS ─────────────────────────────────────
   var trendDefs = [
@@ -5194,64 +5194,64 @@ function updateVerdictAuto() {
     if (hasUp && !hasDown && !hasRanging) {
       // Pure uptrend — full points
       score += td.up;
-      bullSignals.push({ label: label + ' trend UP', pts: '+' + td.up });
+      bullSignals.push({ label: label + ' trend ↑', pts: '+' + td.up });
     } else if (hasDown && !hasUp && !hasRanging) {
-      // Pure downtrend — full points
       score -= td.down;
-      bearSignals.push({ label: label + ' trend DOWN', pts: '-' + td.down });
+      bearSignals.push({ label: label + ' trend ↓', pts: '-' + td.down });
     } else if (hasUp && hasRanging && !hasDown) {
-      // Up + ranging — half points
       var half = Math.round(td.up * 0.5 * 10) / 10;
       score += half;
-      bullSignals.push({ label: label + ' trend UP (ranging)', pts: '+' + half });
+      bullSignals.push({ label: label + ' trend ↑~', pts: '+' + half });
     } else if (hasDown && hasRanging && !hasUp) {
-      // Down + ranging — half points
       var half = Math.round(td.down * 0.5 * 10) / 10;
       score -= half;
-      bearSignals.push({ label: label + ' trend DOWN (ranging)', pts: '-' + half });
+      bearSignals.push({ label: label + ' trend ↓~', pts: '-' + half });
     }
     // Pure RANGING or no trend = 0 points
   });
 
   // ── 4H AO ─────────────────────────────────────────────
   var ao4 = getInd('4H', 'AO');
-  if (ao4 === 'Bullish') { score += 1; bullSignals.push({ label: '4H AO bullish', pts: '+1' }); }
-  else if (ao4 === 'Bearish') { score -= 1; bearSignals.push({ label: '4H AO bearish', pts: '-1' }); }
-  else if (ao4 === 'Bull divergence') { score += 3; bullSignals.push({ label: '4H AO bull divergence', pts: '+3' }); }
-  else if (ao4 === 'Bear divergence') { score -= 3; bearSignals.push({ label: '4H AO bear divergence', pts: '-3' }); }
+  if (ao4 === 'Bullish') { score += 1; bullSignals.push({ label: '4H AO bull', pts: '+1' }); }
+  else if (ao4 === 'Bearish') { score -= 1; bearSignals.push({ label: '4H AO bear', pts: '-1' }); }
+  else if (ao4 === 'Bull divergence') { score += 3; bullSignals.push({ label: '4H AO bull div', pts: '+3' }); }
+  else if (ao4 === 'Bear divergence') { score -= 3; bearSignals.push({ label: '4H AO bear div', pts: '-3' }); }
 
   // ── 1H AO ─────────────────────────────────────────────
   var ao1 = getInd('1H', 'AO');
-  if (ao1 === 'Bullish') { score += 0.5; bullSignals.push({ label: '1H AO bullish', pts: '+0.5' }); }
-  else if (ao1 === 'Bearish') { score -= 0.5; bearSignals.push({ label: '1H AO bearish', pts: '-0.5' }); }
-  else if (ao1 === 'Bull divergence') { score += 2; bullSignals.push({ label: '1H AO bull divergence', pts: '+2' }); }
-  else if (ao1 === 'Bear divergence') { score -= 2; bearSignals.push({ label: '1H AO bear divergence', pts: '-2' }); }
+  if (ao1 === 'Bullish') { score += 0.5; bullSignals.push({ label: '1H AO bull', pts: '+0.5' }); }
+  else if (ao1 === 'Bearish') { score -= 0.5; bearSignals.push({ label: '1H AO bear', pts: '-0.5' }); }
+  else if (ao1 === 'Bull divergence') { score += 2; bullSignals.push({ label: '1H AO bull div', pts: '+2' }); }
+  else if (ao1 === 'Bear divergence') { score -= 2; bearSignals.push({ label: '1H AO bear div', pts: '-2' }); }
 
   // ── 4H MACD ───────────────────────────────────────────
   var m4 = getInd('4H', 'MACD');
-  if (m4 === 'Zero line reject bullish') { score += 1; bullSignals.push({ label: '4H MACD 0-line reject ↑', pts: '+1' }); }
-  else if (m4 === 'Zero line reject bearish') { score -= 1; bearSignals.push({ label: '4H MACD 0-line reject ↓', pts: '-1' }); }
+  if (m4 === 'Zero line reject bullish') { score += 1; bullSignals.push({ label: '4H MACD 0L rej ↑', pts: '+1' }); }
+  else if (m4 === 'Zero line reject bearish') { score -= 1; bearSignals.push({ label: '4H MACD 0L rej ↓', pts: '-1' }); }
   else if (m4 === 'Bull divergence') { score += 2; bullSignals.push({ label: '4H MACD bull div', pts: '+2' }); }
   else if (m4 === 'Bear divergence') { score -= 2; bearSignals.push({ label: '4H MACD bear div', pts: '-2' }); }
 
   // ── 1H MACD ───────────────────────────────────────────
   var m1 = getInd('1H', 'MACD');
-  if (m1 === 'Zero line reject bullish') { score += 0.5; bullSignals.push({ label: '1H MACD 0-line reject ↑', pts: '+0.5' }); }
-  else if (m1 === 'Zero line reject bearish') { score -= 0.5; bearSignals.push({ label: '1H MACD 0-line reject ↓', pts: '-0.5' }); }
+  if (m1 === 'Zero line reject bullish') { score += 0.5; bullSignals.push({ label: '1H MACD 0L rej ↑', pts: '+0.5' }); }
+  else if (m1 === 'Zero line reject bearish') { score -= 0.5; bearSignals.push({ label: '1H MACD 0L rej ↓', pts: '-0.5' }); }
   else if (m1 === 'Bull divergence') { score += 1; bullSignals.push({ label: '1H MACD bull div', pts: '+1' }); }
   else if (m1 === 'Bear divergence') { score -= 1; bearSignals.push({ label: '1H MACD bear div', pts: '-1' }); }
 
   // ── LONDON OPEN ±0.5 ──────────────────────────────────
-  if (londonBiasState === 'bull') { score += 0.5; bullSignals.push({ label: 'London open pushed up', pts: '+0.5' }); }
-  else if (londonBiasState === 'bear') { score -= 0.5; bearSignals.push({ label: 'London open pushed down', pts: '-0.5' }); }
+  if (londonBiasState === 'bull') { score += 0.5; bullSignals.push({ label: 'London open ↑', pts: '+0.5' }); }
+  else if (londonBiasState === 'bear') { score -= 0.5; bearSignals.push({ label: 'London open ↓', pts: '-0.5' }); }
 
   // ── TODAY'S DIRECTION ±2 ─────────────────────────────
   var marketDirEl = document.querySelector('#market-direction .bb.sel-bull, #market-direction .bb.sel-bear, #market-direction .bb.sel-range');
   if (marketDirEl) {
-    if (marketDirEl.textContent.indexOf('Up') > -1)        { score += 2; bullSignals.push({ label: "Today's direction: Moving Up",   pts: '+2' }); }
-    else if (marketDirEl.textContent.indexOf('Down') > -1) { score -= 2; bearSignals.push({ label: "Today's direction: Moving Down", pts: '-2' }); }
-    else if (marketDirEl.textContent.indexOf('Rang') > -1) { bearSignals.push({ label: "Today's direction: Ranging", pts: '0' }); }
+    if (marketDirEl.textContent.indexOf('Up') > -1)        { score += 2; bullSignals.push({ label: 'Direction moving up',   pts: '+2' }); }
+    else if (marketDirEl.textContent.indexOf('Down') > -1) { score -= 2; bearSignals.push({ label: 'Direction moving down', pts: '-2' }); }
+    else if (marketDirEl.textContent.indexOf('Rang') > -1) { bearSignals.push({ label: 'Direction ranging', pts: '0' }); }
   }
+
+  // ── CAP score at ±10 ──────────────────────────────────
+  score = Math.max(-10, Math.min(10, score));
 
   // ── VERDICT ───────────────────────────────────────────
   var label, color, headline;
@@ -5289,7 +5289,12 @@ function updateVerdictAuto() {
 
   var bEl = document.getElementById('bull-signals');
   var rEl = document.getElementById('bear-signals');
-  var mkRow = function(s, c) { return '<div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid rgba(255,255,255,0.05)"><span>' + s.label + '</span><span style="color:' + c + ';font-weight:600;margin-left:8px">' + s.pts + '</span></div>'; };
+  var mkRow = function(sig, c) {
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid rgba(255,255,255,0.04);gap:4px">'
+      + '<span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0">' + sig.label + '</span>'
+      + '<span style="color:' + c + ';font-weight:700;flex-shrink:0;font-size:10px">' + sig.pts + '</span>'
+      + '</div>';
+  };
   if (bEl) bEl.innerHTML = bullSignals.length ? bullSignals.map(function(s){return mkRow(s,'var(--green)');}).join('') : '<span style="color:var(--text3)">No bullish signals</span>';
   if (rEl) rEl.innerHTML = bearSignals.length ? bearSignals.map(function(s){return mkRow(s,'var(--red)');}).join('') : '<span style="color:var(--text3)">No bearish signals</span>';
 
