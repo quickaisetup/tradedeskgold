@@ -328,6 +328,259 @@ body.light-mode #edge-panel{ background:#f7f8fa;border-left:1px solid rgba(0,0,0
 body.light-mode ::-webkit-scrollbar-track{ background:#e4e6ea; }
 body.light-mode ::-webkit-scrollbar-thumb{ background:#c0c4cc; }
 body.light-mode ::-webkit-scrollbar-thumb:hover{ background:#a8adb8; }
+
+/* ═══════════════════════════════════════════════════════
+   LIGHT MODE — COMPREHENSIVE FIXES (all 26 issues)
+   ═══════════════════════════════════════════════════════ */
+
+/* ① Progress strip / topbar */
+body.light-mode #progress-strip{
+  background:rgba(255,255,255,0.97) !important;
+  border-bottom:1px solid rgba(0,0,0,0.1);
+  box-shadow:0 1px 16px rgba(0,0,0,0.09);
+}
+body.light-mode #ps-mantra{ color:var(--gold);text-shadow:none; }
+body.light-mode #ps-mantra span{ color:var(--text2) !important; }
+body.light-mode .ps-lbl{ color:rgba(0,0,0,0.28); }
+body.light-mode .ps-lbl.done{ color:rgba(20,104,48,0.8); }
+body.light-mode .ps-lbl.active{ color:var(--gold); }
+body.light-mode .ps-div{ background:rgba(0,0,0,0.1); }
+body.light-mode #ps-done-count{ color:rgba(0,0,0,0.35); }
+body.light-mode #ps-bar-outer{ background:rgba(0,0,0,0.1); }
+body.light-mode #ps-bar-fill::after{
+  box-shadow:0 0 0 2px rgba(255,255,255,0.95), 0 0 10px 2px rgba(122,90,0,0.35);
+}
+body.light-mode .ps-tick{ background:rgba(0,0,0,0.15); }
+body.light-mode .ps-tick.done{ background:rgba(20,104,48,0.5); }
+body.light-mode #ps-trade-chip{
+  background:rgba(0,0,0,0.05);
+  border-color:rgba(0,0,0,0.12);
+  color:rgba(0,0,0,0.4);
+}
+body.light-mode #ps-trade-chip.one{ background:var(--gd);border-color:var(--gb);color:var(--gold); }
+body.light-mode #ps-trade-chip.full{ background:var(--rd);border-color:var(--rb);color:var(--red); }
+
+/* ② Bottom sticky bar (sbb) */
+body.light-mode #sticky-bias-bar,body.light-mode .sbb{
+  background:rgba(255,255,255,0.97) !important;
+  border-top:1px solid rgba(0,0,0,0.08);
+  box-shadow:0 -2px 16px rgba(0,0,0,0.08);
+}
+body.light-mode .sbb-section{ border-right-color:rgba(0,0,0,0.07); }
+body.light-mode .sbb-lbl{ color:var(--text3); }
+body.light-mode #sbb-score{
+  background:rgba(0,0,0,0.05);
+  border-color:rgba(0,0,0,0.12);
+  color:var(--text2);
+}
+body.light-mode .sbb-needle-wrap{
+  background:linear-gradient(to right,#c04040 0%,#d0d3d9 50%,#2a7a40 100%);
+}
+body.light-mode .sbb-needle{ background:var(--text);box-shadow:0 0 5px rgba(0,0,0,0.4); }
+body.light-mode #sbb-rank-section{ border-left-color:rgba(0,0,0,0.07); }
+body.light-mode #sbb-rank-roman{ color:rgba(0,0,0,0.3); }
+body.light-mode #sbb-streak-lbl{ color:rgba(0,0,0,0.3); }
+body.light-mode #sbb-streak-bar-wrap{ background:rgba(0,0,0,0.08); }
+body.light-mode #sbb-pal{ color:rgba(0,0,0,0.4); }
+body.light-mode [style*="rgba(255,255,255,0.06)"][style*="height:30px"],
+body.light-mode [style*="rgba(255,255,255,0.06)"][style*="height:1px"]{
+  background:rgba(0,0,0,0.09) !important;
+}
+
+/* ③ Right panel — all white-opacity text */
+body.light-mode #rp-rank-roman{ color:rgba(0,0,0,0.3) !important; }
+body.light-mode #rp-rank-name{ color:var(--text) !important; }
+body.light-mode #rp-rank-quote{ color:rgba(0,0,0,0.4) !important; }
+body.light-mode #rp-gauge-section{ border-top-color:rgba(0,0,0,0.08) !important; }
+body.light-mode #rp-gauge-lbl{ color:rgba(0,0,0,0.3) !important; }
+body.light-mode #rp-gauge-mode{ border-color:var(--gb) !important;color:var(--gold) !important; }
+body.light-mode #rp-verdict{ color:rgba(0,0,0,0.4) !important; }
+body.light-mode .rp-sig{ background:rgba(0,0,0,0.04) !important; }
+
+/* ④ Right panel gauge: BEAR / BULL labels and needle dot */
+body.light-mode #rp-bear-lbl,body.light-mode #rp-bull-lbl{ color:var(--text3) !important; }
+/* Needle dot on light bg */
+body.light-mode #rp-needle-dot{ fill:#1a1c22 !important; }
+/* Gauge track */
+body.light-mode .gauge-track-bg{ stroke:#d8dbe0 !important; }
+
+/* ⑤ Score bar in main analysis section */
+body.light-mode #score-needle{
+  background:var(--text) !important;
+  box-shadow:0 0 4px rgba(0,0,0,0.3) !important;
+}
+body.light-mode #score-bar-track{
+  background:linear-gradient(to right,#c04040 0%,#d0d3d9 50%,#3a8a50 100%) !important;
+}
+
+/* ⑥ Live Execution floating button */
+body.light-mode #live-exec-btn{
+  background:linear-gradient(135deg,rgba(184,18,18,0.18) 0%,rgba(184,18,18,0.07) 100%) !important;
+  border-color:rgba(184,18,18,0.55) !important;
+  color:var(--red) !important;
+  box-shadow:0 0 20px rgba(184,18,18,0.18),0 4px 20px rgba(0,0,0,0.12) !important;
+}
+
+/* ⑦ Section number badges */
+body.light-mode .sec-num,body.light-mode .section-num{
+  border-color:var(--gb) !important;
+  color:var(--gold) !important;
+  background:var(--gd) !important;
+}
+
+/* ⑧ All-ranks button, misc right panel buttons */
+body.light-mode #rp-rank-hero-actions button,
+body.light-mode #rp-rank-hero-actions a{
+  background:rgba(0,0,0,0.05) !important;
+  border-color:rgba(0,0,0,0.14) !important;
+  color:var(--text2) !important;
+}
+
+/* ⑨ Score verdict section inline backgrounds */
+body.light-mode [style*="rgba(78,214,138,0.05)"],
+body.light-mode [style*="rgba(78,214,138,0.04)"]{
+  background:rgba(20,104,48,0.06) !important;
+}
+body.light-mode [style*="rgba(240,96,96,0.05)"],
+body.light-mode [style*="rgba(240,96,96,0.04)"]{
+  background:rgba(184,18,18,0.06) !important;
+}
+
+/* ⑩ Mic button */
+body.light-mode .mic-btn{
+  background:rgba(0,0,0,0.05);
+  border-color:rgba(0,0,0,0.12);
+}
+body.light-mode .mic-btn svg{ color:rgba(0,0,0,0.35); }
+body.light-mode .mic-btn:hover{ background:rgba(0,0,0,0.09); }
+
+/* ⑪ "FF LIVE" badge */
+body.light-mode [style*="ff-live"],[class*="ff-live"],
+body.light-mode #ff-live-badge{
+  background:rgba(20,104,48,0.08) !important;
+  border-color:rgba(20,104,48,0.3) !important;
+  color:var(--green) !important;
+}
+/* Target the actual FF LIVE button by its text */
+body.light-mode #econ-wrap [style*="rgba(240,188,78"]{
+  background:var(--gd) !important;
+  border-color:var(--gb) !important;
+  color:var(--gold) !important;
+}
+
+/* ⑫ Rank widget (floating bottom-right) */
+body.light-mode #rank-widget{
+  background:#fff !important;
+  border-color:rgba(0,0,0,0.12) !important;
+  box-shadow:0 4px 24px rgba(0,0,0,0.12) !important;
+}
+body.light-mode #rank-widget [style*="rgba(255,255,255"]{
+  color:var(--text2) !important;
+}
+
+/* ⑬ Trading mode buttons in analysis */
+body.light-mode #trading-mode-btns button{
+  background:#fff !important;
+  border-color:rgba(0,0,0,0.12) !important;
+  color:var(--text2) !important;
+}
+body.light-mode #trading-mode-btns button.active,
+body.light-mode #trading-mode-btns button[style*="border-color:var(--gold)"]{
+  background:var(--gd) !important;
+  border-color:var(--gb) !important;
+  color:var(--gold) !important;
+}
+
+/* ⑭ Ideas & Feedback button */
+body.light-mode #fb-btn{
+  background:rgba(100,60,180,0.1) !important;
+  border-color:rgba(100,60,180,0.25) !important;
+  color:rgba(100,60,180,0.8) !important;
+}
+
+/* ⑮ Gate item "Done" button */
+body.light-mode .gate-done-btn,[id*="gate-done"]{
+  background:#fff;border-color:var(--border2);color:var(--text2);
+}
+
+/* ⑯ Econ calendar source label (cached · X ago) */
+body.light-mode #econ-src{ color:var(--text3) !important; }
+
+/* ⑰ Inline dividers using rgba(255,255,255,0.05/0.06) in right panel */
+body.light-mode #right-panel [style*="rgba(255,255,255,0.05)"],
+body.light-mode #right-panel [style*="rgba(255,255,255,0.06)"],
+body.light-mode #right-panel [style*="rgba(255,255,255,0.07)"],
+body.light-mode #right-panel [style*="rgba(255,255,255,0.03)"]{
+  border-color:rgba(0,0,0,0.08) !important;
+  background:rgba(0,0,0,0.03) !important;
+  color:var(--text3) !important;
+}
+
+/* ⑱ Section divider lines in main content */
+body.light-mode .section-divider,body.light-mode hr{ border-color:rgba(0,0,0,0.08); }
+
+/* ⑲ DB save badge on trade cards */
+body.light-mode [style*="✓ DB"],[class*="db-badge"],
+body.light-mode [style*="LOCAL ONLY"]{
+  background:rgba(20,104,48,0.1) !important;
+  color:var(--green) !important;
+  border-color:rgba(20,104,48,0.3) !important;
+}
+
+/* ⑳ "All ranks" + rank-related buttons */
+body.light-mode [onclick*="openRankings"],body.light-mode [onclick*="Rankings"]{
+  background:rgba(0,0,0,0.05) !important;
+  border-color:rgba(0,0,0,0.14) !important;
+  color:var(--text2) !important;
+}
+
+/* ㉑ SVG gauge "0" centre label */
+body.light-mode #rp-gauge-zero-lbl{ fill:rgba(0,0,0,0.25) !important; }
+
+/* ㉒ Instrument row border + "showing analysis for" label */
+body.light-mode #rp-gauge-instr-row{ border-top-color:rgba(0,0,0,0.08) !important; }
+body.light-mode #rp-instr-lbl{ color:rgba(0,0,0,0.3) !important; }
+
+/* ㉓ Section lines */
+body.light-mode .section-line{ background:rgba(0,0,0,0.1); }
+
+/* ㉔ wt-banner step number badge */
+body.light-mode .wt-step{
+  border-color:var(--gb) !important;
+  color:var(--gold) !important;
+  background:var(--gd) !important;
+}
+body.light-mode .wt-tag{ color:var(--gold) !important; }
+
+/* ㉕ Counter pills */
+body.light-mode .counter-pill{
+  background:rgba(0,0,0,0.05);
+  border-color:rgba(0,0,0,0.12);
+  color:var(--text2);
+}
+
+/* ㉖ "Restore trades" + other inline gold buttons */
+body.light-mode [style*="rgba(240,188,78,0.08)"][style*="border"]{
+  background:var(--gd) !important;
+  border-color:var(--gb) !important;
+}
+
+/* Fix any remaining inline rgba(255,255,255,...) text in main content */
+body.light-mode .main [style*="color:rgba(255,255,255,0.3)"],
+body.light-mode .main [style*="color:rgba(255,255,255,0.2)"],
+body.light-mode .main [style*="color:rgba(255,255,255,0.4)"],
+body.light-mode .main [style*="color:rgba(255,255,255,0.5)"],
+body.light-mode .main [style*="color:rgba(255,255,255,0.18)"]{
+  color:var(--text3) !important;
+}
+body.light-mode .main [style*="color:#ffffff"],
+body.light-mode .main [style*="color:#fff"]{
+  color:var(--text) !important;
+}
+body.light-mode .main [style*="color:#d0d4dc"],
+body.light-mode .main [style*="color:#b0b8c8"]{
+  color:var(--text2) !important;
+}
 /* theme toggle button */
 /* ── THEME TOGGLE (sidebar inline) ── */
 #theme-toggle-wrap{
@@ -2907,7 +3160,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
       <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border)">
         <div style="font-family:var(--mono);font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text2);display:flex;align-items:center;gap:8px">
           <span>📅</span> Forex Factory — This Week
-          <span style="font-family:var(--mono);font-size:7px;background:rgba(240,96,96,0.12);border:1px solid rgba(240,96,96,0.3);color:var(--red);padding:1px 5px;border-radius:3px;letter-spacing:0.06em">FF LIVE</span>
+          <span id="ff-live-badge" style="font-family:var(--mono);font-size:7px;background:rgba(240,96,96,0.12);border:1px solid rgba(240,96,96,0.3);color:var(--red);padding:1px 5px;border-radius:3px;letter-spacing:0.06em">FF LIVE</span>
         </div>
         <button onclick="loadFFCalendar(true)" style="font-family:var(--mono);font-size:9px;color:var(--text3);background:transparent;border:1px solid var(--border);border-radius:4px;padding:2px 8px;cursor:pointer">↺ Refresh</button>
       </div>
@@ -3213,7 +3466,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
               <div style="font-family:var(--mono);font-size:8px;color:var(--text3);letter-spacing:0.08em">of ±10</div>
             </div>
             <div style="flex:1">
-              <div style="position:relative;height:8px;background:linear-gradient(to right,#c04040 0%,#3a3a3a 50%,#3a8a50 100%);border-radius:4px;margin-bottom:5px">
+              <div id="score-bar-track" style="position:relative;height:8px;background:linear-gradient(to right,#c04040 0%,#3a3a3a 50%,#3a8a50 100%);border-radius:4px;margin-bottom:5px">
                 <div id="score-needle" style="position:absolute;top:-5px;width:3px;height:18px;background:white;border-radius:2px;transform:translateX(-50%);left:50%;transition:left 0.6s ease;box-shadow:0 0 4px rgba(255,255,255,0.4)"></div>
               </div>
               <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:8px;color:var(--text3)">
@@ -3825,7 +4078,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
         <!-- BEAR / BULL labels -->
         <text x="10"  y="108" font-family="monospace" font-size="7" fill="rgba(240,96,96,0.5)"  text-anchor="middle" letter-spacing="0.5">BEAR</text>
         <text x="190" y="108" font-family="monospace" font-size="7" fill="rgba(78,214,138,0.5)" text-anchor="middle" letter-spacing="0.5">BULL</text>
-        <text x="100" y="108" font-family="monospace" font-size="7" fill="rgba(255,255,255,0.2)" text-anchor="middle" letter-spacing="0.5">0</text>
+        <text id="rp-gauge-zero-lbl" x="100" y="108" font-family="monospace" font-size="7" fill="rgba(255,255,255,0.2)" text-anchor="middle" letter-spacing="0.5">0</text>
       </svg>
       <div id="rp-score-overlay">
         <div id="rp-score-num">0</div>
@@ -3840,7 +4093,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 
     <!-- INSTRUMENT SWITCH -->
     <div id="rp-gauge-instr-row" style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:space-between;gap:8px">
-      <div style="font-family:var(--mono);font-size:7.5px;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.3);line-height:1.5">Showing<br>analysis for</div>
+      <div id="rp-instr-lbl" style="font-family:var(--mono);font-size:7.5px;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.3);line-height:1.5">Showing<br>analysis for</div>
       <button id="rp-gauge-instr-btn" onclick="rpCycleInstrument()" title="Switch instrument"
         style="display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;padding:6px 12px;border-radius:20px;border:1px solid rgba(240,188,78,0.35);color:var(--gold);background:rgba(240,188,78,0.08);cursor:pointer;white-space:nowrap;font-weight:700;transition:all .2s ease;"
         onmouseover="this.style.background='rgba(240,188,78,0.16)';this.style.borderColor='rgba(240,188,78,0.6)'"
