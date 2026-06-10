@@ -63,115 +63,263 @@ var supabase=function(e){function t(e,t){var r={};for(var s in e)Object.prototyp
   --mono:'JetBrains Mono',monospace;--sans:'Barlow',sans-serif;--display:'Bebas Neue',sans-serif;
 }
 /* ── LIGHT MODE ──────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════
+   LIGHT MODE  —  Two-tone professional
+   Sidebar + Left panel stay dark (untouched)
+   Main content + Right panel → clean light
+   ═══════════════════════════════════════════════════════ */
 body.light-mode{
-  --bg:#faf9f6;--bg2:#f1ece4;--bg3:#e6ddd2;--bg4:#d8d0c4;
-  --gold:#9a7200;--gd:rgba(154,114,0,0.1);--gb:rgba(154,114,0,0.38);
-  --red:#b81c1c;--rd:rgba(184,28,28,0.08);--rb:rgba(184,28,28,0.32);
-  --green:#187840;--gnd:rgba(24,120,64,0.08);--gnb:rgba(24,120,64,0.32);
-  --blue:#1a5ab8;--bld:rgba(26,90,184,0.09);--blb:rgba(26,90,184,0.32);
-  --text:#1c1810;--text2:#5a5040;--text3:#9a9080;
-  --border:rgba(0,0,0,0.08);--border2:rgba(0,0,0,0.15);
+  --bg:#eef0f4;
+  --bg2:#ffffff;
+  --bg3:#e4e6ea;
+  --bg4:#d0d3d9;
+  --gold:#7a5a00;
+  --gd:rgba(122,90,0,0.08);
+  --gb:rgba(122,90,0,0.32);
+  --red:#b81212;
+  --rd:rgba(184,18,18,0.07);
+  --rb:rgba(184,18,18,0.28);
+  --green:#146830;
+  --gnd:rgba(20,104,48,0.07);
+  --gnb:rgba(20,104,48,0.28);
+  --blue:#1545a0;
+  --bld:rgba(21,69,160,0.08);
+  --blb:rgba(21,69,160,0.28);
+  --text:#0f1117;
+  --text2:#4a5263;
+  --text3:#8a93a6;
+  --border:rgba(0,0,0,0.07);
+  --border2:rgba(0,0,0,0.13);
 }
-/* ── Layout ── */
+
+/* ── Page + main content ── */
 body.light-mode{ background:var(--bg); }
 body.light-mode .main{ background:var(--bg); }
-body.light-mode #topbar{ background:rgba(250,249,246,0.96);border-bottom:1px solid var(--border);box-shadow:0 1px 12px rgba(0,0,0,0.08); }
-body.light-mode .section{ background:var(--bg); }
-/* ── Sidebar ── */
-body.light-mode .sidebar{ background:var(--bg2);border-right:1px solid var(--border);box-shadow:4px 0 20px rgba(0,0,0,0.08); }
-body.light-mode .nav-item:hover{ background:rgba(0,0,0,0.04); }
-body.light-mode .nav-item.active{ background:var(--gd); }
-/* ── Left panel (accounts) ── */
-body.light-mode #left-panel{ background:var(--bg2);border-right:1px solid var(--border); }
-body.light-mode .acct-card{ background:var(--bg3);border-color:var(--border2); }
-/* ── Right panel ── */
-body.light-mode #right-panel{ background:var(--bg2);border-left:1px solid var(--border); }
-body.light-mode .rp-stat{ border-right-color:var(--border2); }
-body.light-mode .rp-stat-lbl{ color:var(--text3); }
-body.light-mode .rp-stat-val{ color:var(--text); }
-body.light-mode .rp-stat-sub{ color:var(--text3); }
-body.light-mode .rp-eyebrow{ color:var(--text3); }
-body.light-mode .rp-eyebrow::before{ background:var(--border2); }
-body.light-mode .rp-row{ border-bottom-color:var(--border); }
-body.light-mode .rp-row:hover{ background:rgba(0,0,0,0.03); }
-body.light-mode .rp-lbl2{ color:var(--text3); }
-body.light-mode .rp-pal-lbl{ color:var(--text2); }
-body.light-mode .rp-pal-val{ color:var(--gold); }
-body.light-mode .rp-tier-lbl{ color:var(--text3); }
-body.light-mode .rp-tier-dot{ opacity:0.85; }
-/* ── Cards and panels ── */
-body.light-mode .wt-banner{ background:var(--bg2);border-color:var(--border); }
-body.light-mode .tfc{ background:#fff;border:1px solid var(--border2);box-shadow:0 1px 6px rgba(0,0,0,0.06); }
-body.light-mode .ai-card{ background:#fff;border-color:var(--gb);box-shadow:0 1px 8px rgba(0,0,0,0.07); }
-body.light-mode .card{ background:var(--bg2);border-color:var(--border); }
-/* ── Leaderboard ── */
-body.light-mode .lb-strip{ background:var(--bg2);border-color:var(--border); }
-body.light-mode .lb-col-head{ background:var(--bg3);border-color:var(--border2);color:var(--text3); }
-body.light-mode .lb-card{ background:#fff;border-color:var(--border);box-shadow:0 1px 4px rgba(0,0,0,0.05); }
-body.light-mode .lb-card:hover{ background:var(--bg3); }
-body.light-mode .lb-card.me{ background:rgba(154,114,0,0.06);border-color:var(--gb); }
-/* ── Buttons ── */
-body.light-mode .tgl{ background:var(--bg3);border-color:var(--border2);color:var(--text2); }
-body.light-mode .tgl.sel{ background:var(--gd);border-color:var(--gb);color:var(--gold); }
-body.light-mode .bb{ background:var(--bg3);border-color:var(--border2);color:var(--text2); }
-body.light-mode .bb:hover{ background:var(--bg4); }
-body.light-mode .bb.sel-bull{ background:var(--gnd);border-color:var(--gnb);color:var(--green); }
-body.light-mode .bb.sel-bear{ background:var(--rd);border-color:var(--rb);color:var(--red); }
-body.light-mode .bb.sel-range{ background:var(--gd);border-color:var(--gb);color:var(--gold); }
-body.light-mode .ib{ background:var(--bg3);border-color:var(--border2);color:var(--text2); }
-body.light-mode .ib.sel{ background:var(--gd);border-color:var(--gb);color:var(--gold); }
-body.light-mode .ib.sel-bull{ background:var(--gnd);border-color:var(--gnb);color:var(--green); }
-body.light-mode .ib.sel-bear{ background:var(--rd);border-color:var(--rb);color:var(--red); }
-/* ── Inputs & textareas ── */
-body.light-mode input,body.light-mode textarea,body.light-mode select{
-  background:#fff;color:var(--text);border-color:var(--border2); }
-body.light-mode .tf-note{ background:#fff;border-color:var(--border2);color:var(--text); }
-/* ── Section headers ── */
-body.light-mode .sec-hd{ border-bottom-color:var(--border2); }
-body.light-mode .sec-num{ color:var(--gold); }
-/* ── Gate / checklist items ── */
-body.light-mode .gate-item{ background:#fff;border-color:var(--border2); }
-body.light-mode .gate-link{ color:var(--gold); }
-/* ── Score / verdict panel ── */
-body.light-mode #verdict-section,
-body.light-mode .verdict-wrap{ background:var(--bg2);border-color:var(--border); }
-body.light-mode #bull-signals,body.light-mode #bear-signals{
-  background:var(--bg3);border-radius:6px;padding:4px 6px; }
-/* ── Score bar ── */
-body.light-mode #score-bar-wrap{ background:var(--bg3);border-color:var(--border2); }
-/* ── Gauge SVG ── */
-body.light-mode #rp-gauge-svg .gauge-track-bg{ stroke:var(--bg4); }
-/* ── Trade cards ── */
-body.light-mode .trade-log-item{ background:#fff;border-color:var(--border2);box-shadow:0 1px 5px rgba(0,0,0,0.06); }
-body.light-mode .trade-log-item:hover{ background:var(--bg2); }
-/* ── Kill switch ── */
-body.light-mode .kill-card{ background:var(--bg2);border-color:var(--border); }
-/* ── Calendar/chart (if any) ── */
-body.light-mode .cal-cell{ background:var(--bg2);border-color:var(--border); }
-/* ── Session badges ── */
-body.light-mode .session-badge.london{ background:var(--bld);border-color:var(--blb);color:var(--blue); }
-body.light-mode .session-badge.newyork{ background:var(--gd);border-color:var(--gb);color:var(--gold); }
-/* ── News / FF calendar ── */
-body.light-mode .ff-event{ background:#fff;border-color:var(--border2); }
-body.light-mode .ff-event.red-impact{ background:rgba(184,28,28,0.05); }
-/* ── Override hardcoded dark signal row backgrounds ── */
-body.light-mode #bull-signals > div,
-body.light-mode #bear-signals > div{ border-bottom-color:rgba(0,0,0,0.06)!important; }
-/* ── Topbar breadcrumb steps ── */
+body.light-mode .section{ background:transparent; }
+
+/* ── Topbar ── */
+body.light-mode #topbar{
+  background:rgba(255,255,255,0.97);
+  border-bottom:1px solid rgba(0,0,0,0.09);
+  box-shadow:0 1px 16px rgba(0,0,0,0.09);
+}
 body.light-mode .step{ color:var(--text3); }
 body.light-mode .step.active{ color:var(--gold); }
 body.light-mode .step.done{ color:var(--green); }
+
+/* ── Sidebar — KEEP DARK (do not override) ── */
+/* sidebar, .nav-item, sidebar-bottom intentionally inherit dark mode */
+
+/* ── Left accounts panel — KEEP DARK ── */
+/* #left-panel intentionally inherits dark mode */
+
+/* ── Right panel ── */
+body.light-mode #right-panel{
+  background:#f7f8fa;
+  border-left:1px solid rgba(0,0,0,0.09);
+}
+body.light-mode .rp-stat{ border-right-color:rgba(0,0,0,0.08); }
+body.light-mode .rp-stat-lbl{ color:#8a93a6; }
+body.light-mode .rp-stat-val{ color:#0f1117; }
+body.light-mode .rp-stat-sub{ color:#8a93a6; }
+body.light-mode .rp-eyebrow{ color:#a0a8b8; letter-spacing:0.24em; }
+body.light-mode .rp-eyebrow::before{ background:rgba(0,0,0,0.12); }
+body.light-mode .rp-row{ border-bottom-color:rgba(0,0,0,0.06); }
+body.light-mode .rp-row:hover{ background:rgba(0,0,0,0.025); }
+body.light-mode .rp-lbl2{ color:#8a93a6; }
+body.light-mode .rp-pal-lbl{ color:#4a5263; }
+body.light-mode .rp-pal-val{ color:var(--gold); }
+body.light-mode .rp-tier-lbl{ color:#8a93a6; }
+/* Gauge needle in right panel */
+body.light-mode #rp-gauge-svg .gauge-track-bg{ stroke:#d0d3d9; }
+/* Score label / rank text in right panel */
+body.light-mode #rp-score-lbl{ color:#0f1117; }
+
+/* ── White-text killers for right panel ── */
+/* These override hardcoded rgba(255,255,255,x) in panel elements */
+body.light-mode #right-panel [style*="rgba(255,255,255"]{
+  /* Catch-all — individual overrides below are more specific */
+}
+/* Rank name, sub-labels */
+body.light-mode #rp-rank-name,
+body.light-mode #rp-rank-sub{ color:var(--text2)!important; }
+body.light-mode .rp-tier-pip .rp-tier-lbl{ color:var(--text3)!important; }
+
+/* ── Section wrappers ── */
+body.light-mode .wt-banner{
+  background:#fff;
+  border:1px solid rgba(0,0,0,0.09);
+  box-shadow:0 1px 6px rgba(0,0,0,0.05);
+}
+
+/* ── Timeframe cards ── */
+body.light-mode .tfc{
+  background:#fff;
+  border:1px solid rgba(0,0,0,0.1);
+  box-shadow:0 2px 10px rgba(0,0,0,0.06);
+}
+body.light-mode .tfc-hd{ color:var(--text2); }
+
+/* ── AI briefing cards ── */
+body.light-mode .ai-card{
+  background:#fff;
+  border-color:var(--gb);
+  box-shadow:0 2px 12px rgba(0,0,0,0.07);
+}
+
+/* ── Leaderboard ── */
+body.light-mode .lb-strip{
+  background:#fff;
+  border:1px solid rgba(0,0,0,0.09);
+  box-shadow:0 2px 12px rgba(0,0,0,0.06);
+}
+body.light-mode .lb-col-head{
+  background:#eef0f4;
+  border-bottom:1px solid rgba(0,0,0,0.1);
+  color:#8a93a6;
+}
+body.light-mode .lb-card{
+  background:#fff;
+  border-bottom:1px solid rgba(0,0,0,0.06);
+  box-shadow:none;
+}
+body.light-mode .lb-card:hover{ background:#f4f6fa; }
+body.light-mode .lb-card.me{ background:rgba(122,90,0,0.05);border-bottom-color:rgba(122,90,0,0.2); }
+body.light-mode .lb-name{ color:var(--text); }
+
+/* ── Generic card ── */
+body.light-mode .card{ background:#fff;border-color:rgba(0,0,0,0.09); }
+
+/* ── Gate / checklist ── */
+body.light-mode .gate-item{
+  background:#fff;
+  border:1px solid rgba(0,0,0,0.09);
+  box-shadow:0 1px 6px rgba(0,0,0,0.05);
+}
+body.light-mode .gate-link{ color:var(--gold); }
+
+/* ── Forex Factory calendar container ── */
+body.light-mode #econ-wrap,body.light-mode #econ-body-wrap{
+  background:#fff;
+  border:1px solid rgba(0,0,0,0.09) !important;
+  border-radius:10px;
+  box-shadow:0 2px 10px rgba(0,0,0,0.05);
+}
+/* Day tab buttons that have no events — fix invisible text */
+body.light-mode #econ-tabs button[style*="rgba(255,255,255,0.2"]{
+  color:var(--text3)!important;
+  background:var(--bg3)!important;
+  border-color:var(--border2)!important;
+}
+body.light-mode #econ-tabs button[style*="rgba(255,255,255,0.06"]{
+  border-color:var(--border)!important;
+  background:var(--bg3)!important;
+}
+
+/* ── Bias/Direction/Pivot buttons ── */
+body.light-mode .bb{
+  background:#e4e6ea;
+  border-color:rgba(0,0,0,0.14);
+  color:#4a5263;
+}
+body.light-mode .bb:hover{ background:#d0d3d9; }
+body.light-mode .bb.sel-bull{ background:rgba(20,104,48,0.1);border-color:rgba(20,104,48,0.4);color:var(--green); }
+body.light-mode .bb.sel-bear{ background:rgba(184,18,18,0.09);border-color:rgba(184,18,18,0.35);color:var(--red); }
+body.light-mode .bb.sel-range{ background:rgba(122,90,0,0.09);border-color:rgba(122,90,0,0.35);color:var(--gold); }
+
+/* ── Toggle chips (tgl) ── */
+body.light-mode .tgl{ background:#e4e6ea;border-color:rgba(0,0,0,0.14);color:#4a5263; }
+body.light-mode .tgl.sel{ background:var(--gd);border-color:var(--gb);color:var(--gold); }
+
+/* ── Indicator buttons ── */
+body.light-mode .ib{ background:#e4e6ea;border-color:rgba(0,0,0,0.14);color:#4a5263; }
+body.light-mode .ib.sel{ background:var(--gd);border-color:var(--gb);color:var(--gold); }
+body.light-mode .ib.sel-bull,.ib.bull{ background:var(--gnd);border-color:var(--gnb);color:var(--green); }
+body.light-mode .ib.sel-bear,.ib.bear{ background:var(--rd);border-color:var(--rb);color:var(--red); }
+
+/* ── Inputs / textareas ── */
+body.light-mode input,body.light-mode textarea,body.light-mode select{
+  background:#fff;
+  color:var(--text);
+  border-color:rgba(0,0,0,0.14);
+}
+body.light-mode input::placeholder,body.light-mode textarea::placeholder{
+  color:#b0b8c8;
+}
+body.light-mode .tf-note{
+  background:#f4f6fa;
+  border-color:rgba(0,0,0,0.1);
+  color:var(--text);
+}
+
+/* ── Score / verdict panel ── */
+body.light-mode #verdict-section,
+body.light-mode .verdict-wrap{
+  background:#fff;
+  border:1px solid rgba(0,0,0,0.09);
+  box-shadow:0 2px 10px rgba(0,0,0,0.05);
+}
+body.light-mode #bull-signals{
+  background:rgba(20,104,48,0.05);
+  border:1px solid rgba(20,104,48,0.15);
+  border-radius:7px;
+  padding:6px 8px;
+}
+body.light-mode #bear-signals{
+  background:rgba(184,18,18,0.05);
+  border:1px solid rgba(184,18,18,0.15);
+  border-radius:7px;
+  padding:6px 8px;
+}
+body.light-mode #bull-signals > div,
+body.light-mode #bear-signals > div{ border-bottom-color:rgba(0,0,0,0.06)!important; }
+
+/* ── Score bar strip ── */
+body.light-mode #score-bar-strip{
+  background:#fff;
+  border-top:1px solid rgba(0,0,0,0.08);
+  border-bottom:1px solid rgba(0,0,0,0.08);
+}
+
+/* ── Trading mode buttons ── */
+body.light-mode .tgl-mode,body.light-mode .mode-btn{
+  background:#e4e6ea;border-color:rgba(0,0,0,0.13);color:#4a5263;
+}
+
+/* ── Trade log items ── */
+body.light-mode .trade-log-item{
+  background:#fff;
+  border:1px solid rgba(0,0,0,0.09);
+  box-shadow:0 1px 6px rgba(0,0,0,0.05);
+}
+body.light-mode .trade-log-item:hover{ background:#f4f6fa; }
+
+/* ── Kill switch ── */
+body.light-mode .kill-card{ background:#fff;border-color:rgba(0,0,0,0.09); }
+
+/* ── Session badges ── */
+body.light-mode .session-badge.london{ background:var(--bld);border-color:var(--blb);color:var(--blue); }
+body.light-mode .session-badge.newyork{ background:var(--gd);border-color:var(--gb);color:var(--gold); }
+body.light-mode .session-badge.closed{ background:var(--rd);border-color:var(--rb);color:var(--red); }
+
 /* ── Progress bar ── */
-body.light-mode .progress-bar-wrap{ border-bottom-color:rgba(154,114,0,0.15); }
-body.light-mode .progress-track{ background:var(--bg4); }
-/* ── HUD bar (bottom sticky) ── */
-body.light-mode #bottom-hud{ background:rgba(250,249,246,0.97);border-top:1px solid var(--border);box-shadow:0 -2px 16px rgba(0,0,0,0.08); }
+body.light-mode .progress-bar-wrap{ border-bottom-color:rgba(122,90,0,0.12); }
+body.light-mode .progress-track{ background:#d0d3d9; }
+
+/* ── Bottom HUD bar ── */
+body.light-mode #bottom-hud{
+  background:rgba(255,255,255,0.97);
+  border-top:1px solid rgba(0,0,0,0.08);
+  box-shadow:0 -2px 18px rgba(0,0,0,0.08);
+}
+
 /* ── Edge panel ── */
-body.light-mode #edge-panel{ background:var(--bg2);border-left:1px solid var(--border); }
+body.light-mode #edge-panel{ background:#f7f8fa;border-left:1px solid rgba(0,0,0,0.09); }
+
 /* ── Scrollbar ── */
-body.light-mode ::-webkit-scrollbar-track{ background:var(--bg3); }
-body.light-mode ::-webkit-scrollbar-thumb{ background:var(--bg4); }
-body.light-mode ::-webkit-scrollbar-thumb:hover{ background:#c0b8ac; }
+body.light-mode ::-webkit-scrollbar-track{ background:#e4e6ea; }
+body.light-mode ::-webkit-scrollbar-thumb{ background:#c0c4cc; }
+body.light-mode ::-webkit-scrollbar-thumb:hover{ background:#a8adb8; }
 /* theme toggle button */
 /* ── THEME TOGGLE (sidebar inline) ── */
 #theme-toggle-wrap{
@@ -9788,6 +9936,7 @@ function _renderCalendar(srcLabel) {
     _ffActiveDay = byDay[todayStr] ? todayStr : ((week.find(function(w){return byDay[w.key];})||week[0]).key);
   }
 
+  var _lmFF = document.body.classList.contains('light-mode');
   var tabStyle='font-family:var(--mono);font-size:9px;padding:3px 9px;border-radius:4px;border:1px solid;cursor:pointer;white-space:nowrap;';
   var th='';
   week.forEach(function(info){
@@ -9801,7 +9950,8 @@ function _renderCalendar(srcLabel) {
     var style=tabStyle+(active
       ?'border-color:var(--gb);background:var(--gd);color:var(--gold)'
       :hasHigh?'border-color:var(--rb);background:var(--rd);color:var(--red)'
-      :hasEvents?'border-color:var(--border2);background:var(--bg4);color:var(--text3)'
+      :hasEvents?'border-color:var(--border2);background:var(--bg3);color:var(--text3)'
+      :_lmFF?'border-color:rgba(0,0,0,0.1);background:rgba(0,0,0,0.04);color:rgba(0,0,0,0.3)'
       :'border-color:rgba(255,255,255,0.06);background:rgba(255,255,255,0.02);color:rgba(255,255,255,0.2)');
     th+='<button style="'+style+'" onclick="switchFFDay(\''+info.key+'\')">'+(isToday?'▸ ':'')+dayName+' '+ds+(hasHigh?' ⚡':'')+' </button> ';
   });
@@ -9819,11 +9969,26 @@ function _renderDay(items,today){
   if(!items.length){bodyEl.innerHTML='<div style="font-family:var(--mono);font-size:10px;color:var(--text3);padding:10px 0">✓ No gold-relevant events — clean tape</div>';return;}
   var now=new Date();
   items.sort(function(a,b){return a.date-b.date;});
+  var _lmEv = document.body.classList.contains('light-mode');
+  var _evTimeC   = _lmEv ? '#4a5263' : '#d0d4dc';
+  var _evTitleC  = _lmEv ? '#0f1117' : '#ffffff';
+  var _evMetaC   = _lmEv ? '#8a93a6' : 'rgba(255,255,255,0.5)';
+  var _evCountryC= _lmEv ? '#4a5263' : 'rgba(255,255,255,0.55)';
+  var _evCountryBg=_lmEv ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.07)';
+  var _evCountryBd=_lmEv ? 'rgba(0,0,0,0.14)' : 'rgba(255,255,255,0.15)';
+  var _evLowBg   = _lmEv ? 'rgba(0,0,0,0.02)' : 'rgba(255,255,255,0.03)';
+  var _evLowBd   = _lmEv ? 'rgba(0,0,0,0.09)' : 'rgba(255,255,255,0.1)';
+  var _evHighBg  = _lmEv ? 'rgba(184,18,18,0.07)' : 'rgba(240,96,96,0.1)';
+  var _evHighBd  = _lmEv ? 'rgba(184,18,18,0.35)'  : 'rgba(240,96,96,0.55)';
+  var _evMedBg   = _lmEv ? 'rgba(122,90,0,0.06)'   : 'rgba(240,188,78,0.07)';
+  var _evMedBd   = _lmEv ? 'rgba(122,90,0,0.3)'    : 'rgba(240,188,78,0.4)';
+
   var html='';
   items.forEach(function(x, idx){
     var ev=x.ev,imp=(ev.impact||'low').toLowerCase(),past=x.date<now;
-    var bg=imp==='high'?'background:rgba(240,96,96,0.07);border-color:var(--rb)':imp==='medium'?'background:rgba(240,188,78,0.04);border-color:rgba(240,188,78,0.25)':'';
     var dot=imp==='high'?'var(--red)':imp==='medium'?'var(--gold)':'var(--text3)';
+    var rowBg = imp==='high'?_evHighBg:imp==='medium'?_evMedBg:_evLowBg;
+    var rowBd = imp==='high'?_evHighBd:imp==='medium'?_evMedBd:_evLowBd;
     var meta=[];if(ev.forecast)meta.push('Est: '+ev.forecast);if(ev.previous)meta.push('Prev: '+ev.previous);
     var alertBtnHtml = renderNewsAlertButton({
       id: newsAlertKey(ev, x.date.getTime(), idx),
@@ -9831,14 +9996,14 @@ function _renderDay(items,today){
       time: _ffTime(x.date),
       ts: x.date.getTime()
     });
-    html+='<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:8px;margin-bottom:6px;border:1px solid '+(imp==='high'?'rgba(240,96,96,0.55)':imp==='medium'?'rgba(240,188,78,0.4)':'rgba(255,255,255,0.1)')+';'+(imp==='high'?'background:rgba(240,96,96,0.1)':imp==='medium'?'background:rgba(240,188,78,0.07)':'background:rgba(255,255,255,0.03)')+(past?';opacity:0.5':'')+'">'
+    html+='<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:8px;margin-bottom:6px;border:1px solid '+rowBd+';background:'+rowBg+(past?';opacity:0.5':'')+'">'
       +'<div style="width:9px;height:9px;border-radius:50%;background:'+dot+';flex-shrink:0"></div>'
-      +'<span style="font-family:var(--mono);font-size:11px;color:#d0d4dc;min-width:62px;flex-shrink:0;font-weight:600;letter-spacing:0.02em">'+_ffTime(x.date)+'</span>'
+      +'<span style="font-family:var(--mono);font-size:11px;color:'+_evTimeC+';min-width:62px;flex-shrink:0;font-weight:600;letter-spacing:0.02em">'+_ffTime(x.date)+'</span>'
       +'<div style="flex:1;min-width:0">'
-        +'<div style="font-size:13px;color:#ffffff;font-weight:500;letter-spacing:0.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+ev.title+'</div>'
-        +(meta.length?'<div style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.5);margin-top:2px">'+meta.join(' · ')+'</div>':'')
+        +'<div style="font-size:13px;color:'+_evTitleC+';font-weight:500;letter-spacing:0.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+ev.title+'</div>'
+        +(meta.length?'<div style="font-family:var(--mono);font-size:9px;color:'+_evMetaC+';margin-top:2px">'+meta.join(' · ')+'</div>':'')
       +'</div>'
-      +'<span style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.55);background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:3px;padding:2px 7px;flex-shrink:0;font-weight:600">'+(ev.country||'')+'</span>'
+      +'<span style="font-family:var(--mono);font-size:9px;color:'+_evCountryC+';background:'+_evCountryBg+';border:1px solid '+_evCountryBd+';border-radius:3px;padding:2px 7px;flex-shrink:0;font-weight:600">'+(ev.country||'')+'</span>'
       +alertBtnHtml
       +'</div>';
   });
@@ -12746,6 +12911,8 @@ function _tdApplyThemeUI(isLight) {
   if (icon) icon.textContent = isLight ? '☀️' : '🌙';
   if (lbl)  lbl.textContent  = isLight ? 'Light mode' : 'Dark mode';
   if (window.renderAccountsPanel) renderAccountsPanel();
+  // Re-render calendar so news event colors adapt immediately
+  if (typeof _renderCalendar === 'function') try { _renderCalendar(''); } catch(e) {}
 }
 window.tdToggleTheme = function() {
   var isLight = document.body.classList.toggle('light-mode');
