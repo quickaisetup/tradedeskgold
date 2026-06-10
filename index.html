@@ -98,11 +98,19 @@ body.light-mode .main{ background:var(--bg); }
 body.light-mode .section{ background:transparent; }
 
 /* ── Topbar ── */
-body.light-mode #topbar{
+body.light-mode #topbar,body.light-mode #progress-strip{
   background:rgba(255,255,255,0.97);
   border-bottom:1px solid rgba(0,0,0,0.09);
   box-shadow:0 1px 16px rgba(0,0,0,0.09);
 }
+body.light-mode #theme-toggle-topbar{
+  background:rgba(0,0,0,0.05)!important;
+  border-color:rgba(0,0,0,0.14)!important;
+}
+body.light-mode #theme-toggle-topbar:hover{
+  background:rgba(0,0,0,0.09)!important;
+}
+body.light-mode #theme-toggle-lbl{ color:rgba(0,0,0,0.45)!important; }
 body.light-mode .step{ color:var(--text3); }
 body.light-mode .step.active{ color:var(--gold); }
 body.light-mode .step.done{ color:var(--green); }
@@ -2199,12 +2207,9 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
       <div style="font-family:var(--mono);font-size:7px;color:rgba(255,255,255,0.2);letter-spacing:0.1em;text-transform:uppercase">Weekly PAL</div>
     </div>
     <div style="width:1px;height:30px;background:rgba(255,255,255,0.06);margin:0 4px;flex-shrink:0"></div>
-    <!-- Theme toggle in topbar -->
-    <button id="theme-toggle-topbar" onclick="tdToggleTheme()" title="Toggle light / dark mode"
-      style="display:flex;flex-direction:column;align-items:center;gap:2px;background:transparent;border:none;cursor:pointer;padding:2px 4px;flex-shrink:0">
-      <span id="theme-toggle-icon" style="font-size:15px;line-height:1">🌙</span>
-      <span id="theme-toggle-lbl" style="font-family:var(--mono);font-size:6px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.3)">DARK</span>
-    </button>
+    <div style="display:flex;flex-direction:column;gap:3px">
+      <div id="sbb-pal-extra"></div>
+    </div>
   </div>
 </div>
 
@@ -2256,6 +2261,13 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
       <div id="ps-pct">0%</div>
       <div id="ps-done-count">0 of 8 steps</div>
     </div>
+    <!-- Theme toggle — always visible in header -->
+    <button id="theme-toggle-topbar" onclick="tdToggleTheme()" title="Toggle light / dark mode"
+      style="display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:20px;padding:4px 10px;cursor:pointer;transition:all .18s;flex-shrink:0"
+      onmouseover="this.style.background='rgba(255,255,255,0.12)'" onmouseout="this.style.background='rgba(255,255,255,0.06)'">
+      <span id="theme-toggle-icon" style="font-size:12px;line-height:1">🌙</span>
+      <span id="theme-toggle-lbl" style="font-family:var(--mono);font-size:7px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.5)">DARK</span>
+    </button>
     <div id="admin-console-btn-wrap" style="display:none">
       <a href="/Users/sandor/Downloads/TradeDesk_Admin_10_2.html" target="_blank"
         style="display:flex;align-items:center;gap:4px;font-family:var(--mono);font-size:7px;letter-spacing:0.12em;text-transform:uppercase;color:rgba(240,188,78,0.7);background:rgba(240,188,78,0.06);border:1px solid rgba(240,188,78,0.2);border-radius:20px;padding:3px 10px;text-decoration:none;white-space:nowrap;transition:all 0.2s"
