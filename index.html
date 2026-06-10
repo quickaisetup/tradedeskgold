@@ -173,16 +173,37 @@ body.light-mode ::-webkit-scrollbar-track{ background:var(--bg3); }
 body.light-mode ::-webkit-scrollbar-thumb{ background:var(--bg4); }
 body.light-mode ::-webkit-scrollbar-thumb:hover{ background:#c0b8ac; }
 /* theme toggle button */
-#theme-toggle{
-  position:fixed;bottom:18px;left:18px;z-index:9999;
-  width:36px;height:36px;border-radius:50%;
-  background:var(--bg3);border:1px solid var(--border2);
-  color:var(--text2);cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-  font-size:15px;transition:all .2s ease;
-  box-shadow:0 2px 8px rgba(0,0,0,0.25);
+/* ── THEME TOGGLE (sidebar inline) ── */
+#theme-toggle-wrap{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-top:10px;padding:7px 10px;
+  background:var(--bg3);border:1px solid var(--border);border-radius:7px;
+  cursor:pointer;transition:background .18s,border-color .18s;
+  user-select:none;
 }
-#theme-toggle:hover{ background:var(--bg4);color:var(--text);transform:scale(1.08); }
+#theme-toggle-wrap:hover{ background:var(--bg4);border-color:var(--border2); }
+#theme-toggle-lbl{
+  font-family:var(--mono);font-size:9px;letter-spacing:0.1em;text-transform:uppercase;
+  color:var(--text3);transition:color .18s;
+}
+#theme-toggle-wrap:hover #theme-toggle-lbl{ color:var(--text2); }
+#theme-toggle-pill{
+  position:relative;width:34px;height:18px;
+  background:var(--bg4);border:1px solid var(--border2);
+  border-radius:9px;flex-shrink:0;transition:background .25s,border-color .25s;
+}
+#theme-toggle-pill::after{
+  content:'';position:absolute;top:2px;left:2px;
+  width:12px;height:12px;border-radius:50%;
+  background:var(--text3);transition:left .22s ease,background .22s;
+}
+body.light-mode #theme-toggle-pill{
+  background:rgba(154,114,0,0.2);border-color:rgba(154,114,0,0.4);
+}
+body.light-mode #theme-toggle-pill::after{
+  left:18px;background:var(--gold);
+}
+#theme-toggle-icon{ font-size:12px;flex-shrink:0; }
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;line-height:1.6;min-height:100vh}
@@ -2220,7 +2241,13 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
     <button class="sb-btn" onclick="openModal('api-modal')">⚙ API Key</button>
     <button class="sb-btn" onclick="exportCSV()">↓ Export CSV</button>
     <button class="sb-btn" onclick="openFeedback();mobMenuClose();" style="border-color:rgba(139,92,246,0.4);color:#a78bfa">💬 Ideas &amp; Feedback</button>
-    <button class="sb-btn" onclick="tdlSignOut()" style="margin-top:8px;border-color:rgba(240,96,96,0.3);color:rgba(240,96,96,0.7)">⏻ Sign out</button>
+    <!-- Theme toggle -->
+    <div id="theme-toggle-wrap" onclick="tdToggleTheme()" title="Toggle light / dark mode">
+      <span id="theme-toggle-icon">🌙</span>
+      <span id="theme-toggle-lbl">Dark mode</span>
+      <div id="theme-toggle-pill"></div>
+    </div>
+    <button class="sb-btn" onclick="tdlSignOut()" style="margin-top:2px;border-color:rgba(240,96,96,0.3);color:rgba(240,96,96,0.7)">⏻ Sign out</button>
   </div>
 </div>
 
@@ -3666,7 +3693,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
   Ideas &amp; Feedback
 </button>
 
-<button id="theme-toggle" onclick="tdToggleTheme()" title="Toggle light / dark mode">🌙</button>
+<!-- theme toggle moved to sidebar -->
 
 <!-- FEEDBACK MODAL -->
 <div id="fb-overlay" onclick="if(event.target===this)closeFeedback()">
@@ -12713,18 +12740,25 @@ function tdlTodayBKK() {
 }
 
 // ── THEME TOGGLE ─────────────────────────────────────────
+function _tdApplyThemeUI(isLight) {
+  var icon = document.getElementById('theme-toggle-icon');
+  var lbl  = document.getElementById('theme-toggle-lbl');
+  if (icon) icon.textContent = isLight ? '☀️' : '🌙';
+  if (lbl)  lbl.textContent  = isLight ? 'Light mode' : 'Dark mode';
+  if (window.renderAccountsPanel) renderAccountsPanel();
+}
 window.tdToggleTheme = function() {
   var isLight = document.body.classList.toggle('light-mode');
   localStorage.setItem('td_theme', isLight ? 'light' : 'dark');
-  var btn = document.getElementById('theme-toggle');
-  if (btn) btn.textContent = isLight ? '☀️' : '🌙';
+  _tdApplyThemeUI(isLight);
 };
 (function() {
   var saved = localStorage.getItem('td_theme');
   if (saved === 'light') {
     document.body.classList.add('light-mode');
-    var btn = document.getElementById('theme-toggle');
-    if (btn) btn.textContent = '☀️';
+    // Defer UI update until DOM is ready
+    document.addEventListener('DOMContentLoaded', function() { _tdApplyThemeUI(true); });
+    setTimeout(function() { _tdApplyThemeUI(true); }, 100);
   }
 })();
 
