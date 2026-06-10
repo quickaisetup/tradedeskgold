@@ -2198,6 +2198,13 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
       <div id="sbb-pal"><span id="sbb-pal-val">—</span> /wk</div>
       <div style="font-family:var(--mono);font-size:7px;color:rgba(255,255,255,0.2);letter-spacing:0.1em;text-transform:uppercase">Weekly PAL</div>
     </div>
+    <div style="width:1px;height:30px;background:rgba(255,255,255,0.06);margin:0 4px;flex-shrink:0"></div>
+    <!-- Theme toggle in topbar -->
+    <button id="theme-toggle-topbar" onclick="tdToggleTheme()" title="Toggle light / dark mode"
+      style="display:flex;flex-direction:column;align-items:center;gap:2px;background:transparent;border:none;cursor:pointer;padding:2px 4px;flex-shrink:0">
+      <span id="theme-toggle-icon" style="font-size:15px;line-height:1">🌙</span>
+      <span id="theme-toggle-lbl" style="font-family:var(--mono);font-size:6px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.3)">DARK</span>
+    </button>
   </div>
 </div>
 
@@ -2389,10 +2396,10 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
     <button class="sb-btn" onclick="openModal('api-modal')">⚙ API Key</button>
     <button class="sb-btn" onclick="exportCSV()">↓ Export CSV</button>
     <button class="sb-btn" onclick="openFeedback();mobMenuClose();" style="border-color:rgba(139,92,246,0.4);color:#a78bfa">💬 Ideas &amp; Feedback</button>
-    <!-- Theme toggle -->
+    <!-- Theme toggle (primary is in topbar) -->
     <div id="theme-toggle-wrap" onclick="tdToggleTheme()" title="Toggle light / dark mode">
-      <span id="theme-toggle-icon">🌙</span>
-      <span id="theme-toggle-lbl">Dark mode</span>
+      <span class="tt-icon">🌙</span>
+      <span class="tt-lbl">Dark mode</span>
       <div id="theme-toggle-pill"></div>
     </div>
     <button class="sb-btn" onclick="tdlSignOut()" style="margin-top:2px;border-color:rgba(240,96,96,0.3);color:rgba(240,96,96,0.7)">⏻ Sign out</button>
@@ -12906,10 +12913,17 @@ function tdlTodayBKK() {
 
 // ── THEME TOGGLE ─────────────────────────────────────────
 function _tdApplyThemeUI(isLight) {
+  // Topbar button
   var icon = document.getElementById('theme-toggle-icon');
   var lbl  = document.getElementById('theme-toggle-lbl');
   if (icon) icon.textContent = isLight ? '☀️' : '🌙';
-  if (lbl)  lbl.textContent  = isLight ? 'Light mode' : 'Dark mode';
+  if (lbl) {
+    lbl.textContent = isLight ? 'LIGHT' : 'DARK';
+    lbl.style.color = isLight ? 'rgba(0,0,0,0.45)' : 'rgba(255,255,255,0.3)';
+  }
+  // Sidebar pill label (uses class, not id)
+  document.querySelectorAll('.tt-icon').forEach(function(el){ el.textContent = isLight ? '☀️' : '🌙'; });
+  document.querySelectorAll('.tt-lbl').forEach(function(el){ el.textContent = isLight ? 'Light mode' : 'Dark mode'; });
   if (window.renderAccountsPanel) renderAccountsPanel();
   // Re-render calendar so news event colors adapt immediately
   if (typeof _renderCalendar === 'function') try { _renderCalendar(''); } catch(e) {}
