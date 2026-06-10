@@ -4252,7 +4252,8 @@ window._persistTradesToLocal = function() {
   try {
     var today = new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
     // Only persist trades whose date matches today — never mix in previous-day trades
-    var saved = state.trades.filter(function(t){ return t.saved && (!t._dateISO || t._dateISO === today); });
+    // (trades logged with a future time get _dateISO = yesterday, so exclude those too)
+    var saved = state.trades.filter(function(t){ return t.saved && t._dateISO === today; });
     var snapshot = saved.map(function(t){
       return {
         _sbId:t._sbId||null, _dateISO:t._dateISO||today,
@@ -6122,6 +6123,18 @@ async function saveTrade(id) {
 
   const btn = document.getElementById('save-trade-' + id);
   if (btn) { btn.textContent = 'Saving...'; btn.classList.add('saving'); }
+
+  // Determine correct calendar date for this trade.
+  // If the trade's logged time (e.g. 22:05) is later than the current Bangkok time
+  // (e.g. 18:15), that time hasn't happened yet today — so it belongs to yesterday.
+  // This handles overnight sessions logged the next morning.
+  if (!t._sbId) { // only auto-date brand-new trades, not edits
+    var _bkkNow = new Date().toLocaleString('en-GB', {timeZone:'Asia/Bangkok',hour:'2-digit',minute:'2-digit',hour12:false});
+    var _tradeTime = (t.time || '00:00').substring(0,5);
+    var _todayISO2 = new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
+    var _yesterdayISO = new Date(Date.now()-86400000).toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
+    t._dateISO = (_tradeTime > _bkkNow) ? _yesterdayISO : _todayISO2;
+  }
 
   var basePayload = {
     type: 'trade', date: new Date().toLocaleDateString('en-GB'),
