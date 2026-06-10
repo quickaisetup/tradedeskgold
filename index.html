@@ -5233,7 +5233,7 @@ function _restoreTFStateLocal() {
     // Support both old format (plain tfState) and new format (object with tf, marketDir, etc.)
     var tf = data.tf || data;
     var hasData = Object.keys(tf).some(function(k){ return (tf[k] && ((tf[k].bias||[]).length || (tf[k].trend||[]).length)); });
-    if (!hasData && !data.marketDir && !data.londonBias && !data.tradingMode) return false;
+    if (!hasData && !data.marketDir && !data.londonBias && !data.tradingMode && !data.pivot) return false;
 
     window._inRestore = true; // prevent toggleBias/toggleTrend from deselecting during restore
     // TF bias + trend buttons
@@ -5278,7 +5278,9 @@ function _restoreTFStateLocal() {
     // Pivot (if not already restored from DB)
     if (data.pivot && !document.querySelector('#pivot-btns .bb.sel-bull, #pivot-btns .bb.sel-bear, #pivot-btns .bb.sel-range')) {
       document.querySelectorAll('#pivot-btns .bb').forEach(function(btn) {
-        var m = (btn.getAttribute('onclick')||'').match(/togglePivot\('[^']+',\s*'([^']+)'/);
+        // onclick is setPivot('bull',this) — match the first quoted arg
+        var oc = btn.getAttribute('onclick') || '';
+        var m = oc.match(/setPivot\('([^']+)'/);
         if (m && m[1] === data.pivot) btn.click();
       });
     }
