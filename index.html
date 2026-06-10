@@ -4317,6 +4317,8 @@ window._restoreTradesFromLocal = function() {
     if (window.updateHistory) updateHistory();
     if (window.updateKill) updateKill();
     if (window.renderAccountsPanel) renderAccountsPanel();
+    // Background-sync any restored trades that never made it to Supabase
+    setTimeout(function() { if (window._syncUnsavedTradesToDB) window._syncUnsavedTradesToDB(); }, 3000);
     return true;
   } catch(e) { console.warn('[local] Local restore failed:', e.message); return false; }
 };
@@ -4368,6 +4370,47 @@ window._restoreTradesFromDB = function(trades) {
   markSection('history');
   _persistTradesToLocal(); // keep localStorage in sync after DB restore
   console.log('[restore] ✓ Restored', trades.length, 'trades');
+};
+
+// ── BACKGROUND SUPABASE SYNC ─────────────────────────
+// After a localStorage restore, any trade with no _sbId was never saved to
+// Supabase (e.g. saved before the patch loaded, or saved offline).
+// This function pushes them to Supabase silently so they survive future clears.
+window._syncUnsavedTradesToDB = async function() {
+  var unsynced = state.trades.filter(function(t){ return t.saved && !t._sbId; });
+  if (!unsynced.length) return;
+  console.log('[sync] Found', unsynced.length, 'trade(s) not in Supabase — syncing...');
+  for (var i = 0; i < unsynced.length; i++) {
+    var t = unsynced[i];
+    try {
+      var accts = t.accounts && t.accounts.length ? t.accounts : (t.account ? [t.account] : ['unknown']);
+      var today = t._dateISO || new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
+      var basePayload = {
+        type:'trade', dateISO: today,
+        time:t.time, session:t.session, instrument:t.instrument||'Gold',
+        direction:t.direction||'', type2:t.type||'', setup:t.setup||'',
+        tfTrigger:t.tfTrigger||'', entryType:t.entryType||'',
+        entry:t.entry||'', sl:t.sl||'', tp:t.tp||'',
+        riskPct:t.riskPct||'', slPlacement:t.slPlacement||'',
+        htfBias:t.htfBias||'', mindset:t.mindset||'',
+        confluence:(t.confluence||[]).join(','),
+        result:t.result||'', rAchieved:t.rAchieved||'',
+        took50:t.took50||'', movedSL:t.movedSL||'',
+        wouldHaveWorked:t.wouldHaveWorked||'', wouldHaveR:t.wouldHaveR||'',
+        mistakes:(t.mistakes||[]).join(','), notes:t.notes||'',
+        usdAchieved:t.usdAchieved||'',
+        sbId: null, _stateRef: t
+      };
+      var saves = accts.map(function(acct){
+        return window.postToSheets(Object.assign({}, basePayload, {account:acct}));
+      });
+      await Promise.all(saves);
+      console.log('[sync] ✓ Trade', t.time, 'synced to Supabase (id=' + t._sbId + ')');
+    } catch(e) {
+      console.warn('[sync] Failed to sync trade', t.time, ':', e.message);
+    }
+  }
+  _persistTradesToLocal(); // update localStorage with new _sbIds
 };
 
 // ── DISMISSIBLE EXPLAINERS ────────────────────────────
@@ -6158,15 +6201,23 @@ async function saveTrade(id) {
 
   // ── If trade has a Supabase ID → UPDATE, else INSERT ─
   var _wasNew = !t._sbId;
-  if (t._sbId) {
-    // Single update (account field already stored in the row)
-    await postToSheets(Object.assign({}, basePayload, { account: accts.join('+') }));
-  } else {
-    // New trade — one insert per account
-    var saves = accts.map(function(acct) {
-      return postToSheets(Object.assign({}, basePayload, { account: acct }));
-    });
-    await Promise.all(saves);
+  try {
+    if (t._sbId) {
+      await postToSheets(Object.assign({}, basePayload, { account: accts.join('+') }));
+    } else {
+      var saves = accts.map(function(acct) {
+        return postToSheets(Object.assign({}, basePayload, { account: acct }));
+      });
+      await Promise.all(saves);
+    }
+    // Verify it actually got a Supabase ID (postToSheets sets _stateRef._sbId on insert)
+    if (!t._sbId) {
+      console.warn('[save] ⚠ Trade saved to UI but Supabase ID missing — will retry on next load');
+    }
+  } catch(e) {
+    console.error('[save] ✗ Supabase save failed:', e.message);
+    var btn2 = document.getElementById('save-trade-' + id);
+    if (btn2) { btn2.textContent = '⚠ Saved locally — DB error'; btn2.style.color = '#f0bc4e'; }
   }
 
   // Apply this trade's USD result to the matching account's running balance —
