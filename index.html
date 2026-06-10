@@ -64,23 +64,114 @@ var supabase=function(e){function t(e,t){var r={};for(var s in e)Object.prototyp
 }
 /* ── LIGHT MODE ──────────────────────────────────────── */
 body.light-mode{
-  --bg:#f0eff0;--bg2:#e6e4e8;--bg3:#dcdadf;--bg4:#d0ced4;
-  --gold:#c49a1a;--gd:rgba(196,154,26,0.12);--gb:rgba(196,154,26,0.5);
-  --red:#d63030;--rd:rgba(214,48,48,0.1);--rb:rgba(214,48,48,0.4);
-  --green:#1a9e54;--gnd:rgba(26,158,84,0.1);--gnb:rgba(26,158,84,0.4);
-  --blue:#2a6fd6;--bld:rgba(42,111,214,0.12);--blb:rgba(42,111,214,0.4);
-  --text:#1a1820;--text2:#4a4656;--text3:#8a8694;
-  --border:rgba(0,0,0,0.1);--border2:rgba(0,0,0,0.2);
+  --bg:#faf9f6;--bg2:#f1ece4;--bg3:#e6ddd2;--bg4:#d8d0c4;
+  --gold:#9a7200;--gd:rgba(154,114,0,0.1);--gb:rgba(154,114,0,0.38);
+  --red:#b81c1c;--rd:rgba(184,28,28,0.08);--rb:rgba(184,28,28,0.32);
+  --green:#187840;--gnd:rgba(24,120,64,0.08);--gnb:rgba(24,120,64,0.32);
+  --blue:#1a5ab8;--bld:rgba(26,90,184,0.09);--blb:rgba(26,90,184,0.32);
+  --text:#1c1810;--text2:#5a5040;--text3:#9a9080;
+  --border:rgba(0,0,0,0.08);--border2:rgba(0,0,0,0.15);
 }
+/* ── Layout ── */
+body.light-mode{ background:var(--bg); }
 body.light-mode .main{ background:var(--bg); }
-body.light-mode #topbar{ background:rgba(240,239,240,0.95);border-bottom:1px solid var(--border); }
-body.light-mode #right-panel{ background:var(--bg2);border-left:1px solid var(--border); }
+body.light-mode #topbar{ background:rgba(250,249,246,0.96);border-bottom:1px solid var(--border);box-shadow:0 1px 12px rgba(0,0,0,0.08); }
 body.light-mode .section{ background:var(--bg); }
-body.light-mode .wt-banner,body.light-mode .tfc{ background:var(--bg2); }
+/* ── Sidebar ── */
+body.light-mode .sidebar{ background:var(--bg2);border-right:1px solid var(--border);box-shadow:4px 0 20px rgba(0,0,0,0.08); }
+body.light-mode .nav-item:hover{ background:rgba(0,0,0,0.04); }
+body.light-mode .nav-item.active{ background:var(--gd); }
+/* ── Left panel (accounts) ── */
+body.light-mode #left-panel{ background:var(--bg2);border-right:1px solid var(--border); }
+body.light-mode .acct-card{ background:var(--bg3);border-color:var(--border2); }
+/* ── Right panel ── */
+body.light-mode #right-panel{ background:var(--bg2);border-left:1px solid var(--border); }
+body.light-mode .rp-stat{ border-right-color:var(--border2); }
+body.light-mode .rp-stat-lbl{ color:var(--text3); }
+body.light-mode .rp-stat-val{ color:var(--text); }
+body.light-mode .rp-stat-sub{ color:var(--text3); }
+body.light-mode .rp-eyebrow{ color:var(--text3); }
+body.light-mode .rp-eyebrow::before{ background:var(--border2); }
+body.light-mode .rp-row{ border-bottom-color:var(--border); }
+body.light-mode .rp-row:hover{ background:rgba(0,0,0,0.03); }
+body.light-mode .rp-lbl2{ color:var(--text3); }
+body.light-mode .rp-pal-lbl{ color:var(--text2); }
+body.light-mode .rp-pal-val{ color:var(--gold); }
+body.light-mode .rp-tier-lbl{ color:var(--text3); }
+body.light-mode .rp-tier-dot{ opacity:0.85; }
+/* ── Cards and panels ── */
+body.light-mode .wt-banner{ background:var(--bg2);border-color:var(--border); }
+body.light-mode .tfc{ background:#fff;border:1px solid var(--border2);box-shadow:0 1px 6px rgba(0,0,0,0.06); }
+body.light-mode .ai-card{ background:#fff;border-color:var(--gb);box-shadow:0 1px 8px rgba(0,0,0,0.07); }
+body.light-mode .card{ background:var(--bg2);border-color:var(--border); }
+/* ── Leaderboard ── */
+body.light-mode .lb-strip{ background:var(--bg2);border-color:var(--border); }
+body.light-mode .lb-col-head{ background:var(--bg3);border-color:var(--border2);color:var(--text3); }
+body.light-mode .lb-card{ background:#fff;border-color:var(--border);box-shadow:0 1px 4px rgba(0,0,0,0.05); }
+body.light-mode .lb-card:hover{ background:var(--bg3); }
+body.light-mode .lb-card.me{ background:rgba(154,114,0,0.06);border-color:var(--gb); }
+/* ── Buttons ── */
 body.light-mode .tgl{ background:var(--bg3);border-color:var(--border2);color:var(--text2); }
 body.light-mode .tgl.sel{ background:var(--gd);border-color:var(--gb);color:var(--gold); }
-body.light-mode input,body.light-mode textarea,body.light-mode select{ background:var(--bg3);color:var(--text);border-color:var(--border2); }
-body.light-mode .lb-strip,body.light-mode .lb-card{ background:var(--bg2); }
+body.light-mode .bb{ background:var(--bg3);border-color:var(--border2);color:var(--text2); }
+body.light-mode .bb:hover{ background:var(--bg4); }
+body.light-mode .bb.sel-bull{ background:var(--gnd);border-color:var(--gnb);color:var(--green); }
+body.light-mode .bb.sel-bear{ background:var(--rd);border-color:var(--rb);color:var(--red); }
+body.light-mode .bb.sel-range{ background:var(--gd);border-color:var(--gb);color:var(--gold); }
+body.light-mode .ib{ background:var(--bg3);border-color:var(--border2);color:var(--text2); }
+body.light-mode .ib.sel{ background:var(--gd);border-color:var(--gb);color:var(--gold); }
+body.light-mode .ib.sel-bull{ background:var(--gnd);border-color:var(--gnb);color:var(--green); }
+body.light-mode .ib.sel-bear{ background:var(--rd);border-color:var(--rb);color:var(--red); }
+/* ── Inputs & textareas ── */
+body.light-mode input,body.light-mode textarea,body.light-mode select{
+  background:#fff;color:var(--text);border-color:var(--border2); }
+body.light-mode .tf-note{ background:#fff;border-color:var(--border2);color:var(--text); }
+/* ── Section headers ── */
+body.light-mode .sec-hd{ border-bottom-color:var(--border2); }
+body.light-mode .sec-num{ color:var(--gold); }
+/* ── Gate / checklist items ── */
+body.light-mode .gate-item{ background:#fff;border-color:var(--border2); }
+body.light-mode .gate-link{ color:var(--gold); }
+/* ── Score / verdict panel ── */
+body.light-mode #verdict-section,
+body.light-mode .verdict-wrap{ background:var(--bg2);border-color:var(--border); }
+body.light-mode #bull-signals,body.light-mode #bear-signals{
+  background:var(--bg3);border-radius:6px;padding:4px 6px; }
+/* ── Score bar ── */
+body.light-mode #score-bar-wrap{ background:var(--bg3);border-color:var(--border2); }
+/* ── Gauge SVG ── */
+body.light-mode #rp-gauge-svg .gauge-track-bg{ stroke:var(--bg4); }
+/* ── Trade cards ── */
+body.light-mode .trade-log-item{ background:#fff;border-color:var(--border2);box-shadow:0 1px 5px rgba(0,0,0,0.06); }
+body.light-mode .trade-log-item:hover{ background:var(--bg2); }
+/* ── Kill switch ── */
+body.light-mode .kill-card{ background:var(--bg2);border-color:var(--border); }
+/* ── Calendar/chart (if any) ── */
+body.light-mode .cal-cell{ background:var(--bg2);border-color:var(--border); }
+/* ── Session badges ── */
+body.light-mode .session-badge.london{ background:var(--bld);border-color:var(--blb);color:var(--blue); }
+body.light-mode .session-badge.newyork{ background:var(--gd);border-color:var(--gb);color:var(--gold); }
+/* ── News / FF calendar ── */
+body.light-mode .ff-event{ background:#fff;border-color:var(--border2); }
+body.light-mode .ff-event.red-impact{ background:rgba(184,28,28,0.05); }
+/* ── Override hardcoded dark signal row backgrounds ── */
+body.light-mode #bull-signals > div,
+body.light-mode #bear-signals > div{ border-bottom-color:rgba(0,0,0,0.06)!important; }
+/* ── Topbar breadcrumb steps ── */
+body.light-mode .step{ color:var(--text3); }
+body.light-mode .step.active{ color:var(--gold); }
+body.light-mode .step.done{ color:var(--green); }
+/* ── Progress bar ── */
+body.light-mode .progress-bar-wrap{ border-bottom-color:rgba(154,114,0,0.15); }
+body.light-mode .progress-track{ background:var(--bg4); }
+/* ── HUD bar (bottom sticky) ── */
+body.light-mode #bottom-hud{ background:rgba(250,249,246,0.97);border-top:1px solid var(--border);box-shadow:0 -2px 16px rgba(0,0,0,0.08); }
+/* ── Edge panel ── */
+body.light-mode #edge-panel{ background:var(--bg2);border-left:1px solid var(--border); }
+/* ── Scrollbar ── */
+body.light-mode ::-webkit-scrollbar-track{ background:var(--bg3); }
+body.light-mode ::-webkit-scrollbar-thumb{ background:var(--bg4); }
+body.light-mode ::-webkit-scrollbar-thumb:hover{ background:#c0b8ac; }
 /* theme toggle button */
 #theme-toggle{
   position:fixed;bottom:18px;left:18px;z-index:9999;
@@ -4063,6 +4154,20 @@ function renderAccountsPanel() {
   var list = document.getElementById('nd-acct-list');
   if (!list) return;
 
+  // ── Light/dark color palette for inline JS-rendered cards ──
+  var _lm = document.body.classList.contains('light-mode');
+  var _CB = _lm ? '#ffffff'                   : '#13151a';   // card background
+  var _CB2= _lm ? '#f1ece4'                   : '#13151a';   // secondary card bg
+  var _CBd= _lm ? 'rgba(0,0,0,0.08)'          : 'rgba(255,255,255,0.08)'; // card border
+  var _CBd2=_lm ? 'rgba(0,0,0,0.07)'          : 'rgba(255,255,255,0.07)'; // card border 2
+  var _CL = _lm ? '#9a9080'                   : '#505870';   // label color
+  var _CL2= _lm ? '#7a7060'                   : '#707880';   // sublabel color
+  var _CDim=_lm ? '#c0b8ac'                   : '#353840';   // very dim text
+  var _CDim2=_lm?'#a8a098'                    : '#404550';   // dim secondary
+  var _CZ = _lm ? '#c8c0b4'                   : '#303540';   // zero/no-trade color
+  var _Cdiv=_lm ? 'rgba(0,0,0,0.07)'          : 'rgba(255,255,255,0.05)'; // divider
+  var _Cbod=_lm ? '#1c1810'                   : '#ffffff';   // body text
+
   var total    = totalAccountSize();
   var totalBal = _tdAccounts.reduce(function(s,a){return s+(parseFloat(a.balance)||0);},0);
   var tPct     = total ? +((totalBal-total)/total*100).toFixed(1) : null;
@@ -4082,25 +4187,25 @@ function renderAccountsPanel() {
   var tC = todayPnl.total >= 0 ? '#4ed68a' : '#f06060';
   var fC = todayPnl.funded >= 0 ? '#4ed68a' : '#f06060';
   html +=
-    '<div style="background:#13151a;border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:11px 13px;margin-bottom:7px">' +
-      '<div style="'+MN+'font-size:7px;letter-spacing:0.18em;text-transform:uppercase;color:#505870;margin-bottom:10px">Today\'s P&amp;L</div>' +
+    '<div style="background:'+_CB+';border:1px solid '+_CBd+';border-radius:10px;padding:11px 13px;margin-bottom:7px">' +
+      '<div style="'+MN+'font-size:7px;letter-spacing:0.18em;text-transform:uppercase;color:'+_CL+';margin-bottom:10px">Today\'s P&amp;L</div>' +
       // Total
       '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:'+(hasFunded?'8px':'0')+'">' +
-        '<span style="'+MN+'font-size:9px;color:#707880">All accounts</span>' +
-        '<span style="'+MN+'font-size:22px;font-weight:700;letter-spacing:-0.02em;color:'+(todayPnl.hasTrades?tC:'#303540')+'">' +
+        '<span style="'+MN+'font-size:9px;color:'+_CL2+'">All accounts</span>' +
+        '<span style="'+MN+'font-size:22px;font-weight:700;letter-spacing:-0.02em;color:'+(todayPnl.hasTrades?tC:_CZ)+'">' +
           (todayPnl.hasTrades ? (todayPnl.total>=0?'+$':'-$')+Math.abs(todayPnl.total).toLocaleString() : '$0') +
         '</span>' +
       '</div>' +
       // Funded (only if any funded account exists)
       (hasFunded ?
-        '<div style="display:flex;align-items:center;justify-content:space-between;padding-top:8px;border-top:1px solid rgba(255,255,255,0.05)">' +
+        '<div style="display:flex;align-items:center;justify-content:space-between;padding-top:8px;border-top:1px solid '+_Cdiv+'">' +
           '<div>' +
-            '<span style="'+MN+'font-size:9px;color:#707880">Funded only</span>' +
-            '<span style="'+MN+'font-size:8px;color:#3a4d3a;margin-left:6px">'+
+            '<span style="'+MN+'font-size:9px;color:'+_CL2+'">Funded only</span>' +
+            '<span style="'+MN+'font-size:8px;color:'+_CDim+';margin-left:6px">'+
               _tdAccounts.filter(function(a){return a.phase==='Funded';}).map(function(a){return a.name||a.id;}).join(', ')+
             '</span>' +
           '</div>' +
-          '<span style="'+MN+'font-size:16px;font-weight:700;letter-spacing:-0.01em;color:'+(todayPnl.hasTrades&&todayPnl.funded!==0?fC:'#303540')+'">' +
+          '<span style="'+MN+'font-size:16px;font-weight:700;letter-spacing:-0.01em;color:'+(todayPnl.hasTrades&&todayPnl.funded!==0?fC:_CZ)+'">' +
             (todayPnl.hasTrades ? (todayPnl.funded>=0?'+$':'-$')+Math.abs(todayPnl.funded).toLocaleString() : '$0') +
           '</span>' +
         '</div>'
@@ -4116,27 +4221,27 @@ function renderAccountsPanel() {
   var _mR = pal.monthlyR ? Math.round((pal.monthlyR)*100)/100 : null;
   var _wP = _wU ? (_wU>=0?'+$':'-$')+Math.abs(_wU).toLocaleString() : (_wR?(_wR>=0?'+':'')+_wR+'R':'—');
   var _mP = _mU ? (_mU>=0?'+$':'-$')+Math.abs(_mU).toLocaleString() : (_mR?(_mR>=0?'+':'')+_mR+'R':'—');
-  var _wC = _wU ? (_wU>=0?'#4ed68a':'#f06060') : (pal.weeklyColor||'#707880');
-  var _mC = _mU ? (_mU>=0?'#4ed68a':'#f06060') : (pal.monthlyColor||'#707880');
+  var _wC = _wU ? (_wU>=0?'#4ed68a':'#f06060') : (pal.weeklyColor||_CL2);
+  var _mC = _mU ? (_mU>=0?'#4ed68a':'#f06060') : (pal.monthlyColor||_CL2);
   html +=
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:8px">' +
-      '<div style="background:#13151a;border:1px solid rgba(255,255,255,0.07);border-radius:9px;padding:11px 12px">' +
-        '<div style="'+MN+'font-size:7px;letter-spacing:0.14em;text-transform:uppercase;color:#505870;margin-bottom:5px">This week</div>' +
+      '<div style="background:'+_CB+';border:1px solid '+_CBd2+';border-radius:9px;padding:11px 12px">' +
+        '<div style="'+MN+'font-size:7px;letter-spacing:0.14em;text-transform:uppercase;color:'+_CL+';margin-bottom:5px">This week</div>' +
         '<div style="'+MN+'font-size:17px;font-weight:700;letter-spacing:-0.01em;color:'+_wC+'">'+_wP+'</div>' +
-        (_wU&&_wR?'<div style="'+MN+'font-size:8px;color:#404550;margin-top:2px">'+(_wR>=0?'+':'')+_wR+'R</div>':'') +
-        (pal.wDays?'<div style="'+MN+'font-size:7px;color:#353840;margin-top:3px">'+pal.wDays+' session'+(pal.wDays!==1?'s':'')+'</div>':'') +
+        (_wU&&_wR?'<div style="'+MN+'font-size:8px;color:'+_CDim2+';margin-top:2px">'+(_wR>=0?'+':'')+_wR+'R</div>':'') +
+        (pal.wDays?'<div style="'+MN+'font-size:7px;color:'+_CDim+';margin-top:3px">'+pal.wDays+' session'+(pal.wDays!==1?'s':'')+'</div>':'') +
       '</div>' +
-      '<div style="background:#13151a;border:1px solid rgba(255,255,255,0.07);border-radius:9px;padding:11px 12px">' +
-        '<div style="'+MN+'font-size:7px;letter-spacing:0.14em;text-transform:uppercase;color:#505870;margin-bottom:5px">Month est.</div>' +
+      '<div style="background:'+_CB+';border:1px solid '+_CBd2+';border-radius:9px;padding:11px 12px">' +
+        '<div style="'+MN+'font-size:7px;letter-spacing:0.14em;text-transform:uppercase;color:'+_CL+';margin-bottom:5px">Month est.</div>' +
         '<div style="'+MN+'font-size:17px;font-weight:700;letter-spacing:-0.01em;color:'+_mC+'">'+_mP+'</div>' +
-        (_mU&&_mR?'<div style="'+MN+'font-size:8px;color:#404550;margin-top:2px">'+(_mR>=0?'+':'')+_mR+'R est.</div>':'') +
+        (_mU&&_mR?'<div style="'+MN+'font-size:8px;color:'+_CDim2+';margin-top:2px">'+(_mR>=0?'+':'')+_mR+'R est.</div>':'') +
       '</div>' +
     '</div>';
 
   // ── 3. ACCOUNT CARDS ─────────────────────────────────────
   if (!_tdAccounts.length) {
-    html += '<div style="padding:24px 20px;text-align:center;background:#13151a;border:1px solid rgba(255,255,255,0.07);border-radius:10px;margin-bottom:8px">' +
-      '<div style="'+MN+'font-size:10px;color:#505870;line-height:1.9">No accounts yet. Click <span style="color:var(--gold);cursor:pointer" onclick="addTradingAccount()">+ Add account</span></div></div>';
+    html += '<div style="padding:24px 20px;text-align:center;background:'+_CB+';border:1px solid '+_CBd2+';border-radius:10px;margin-bottom:8px">' +
+      '<div style="'+MN+'font-size:10px;color:'+_CL+';line-height:1.9">No accounts yet. Click <span style="color:var(--gold);cursor:pointer" onclick="addTradingAccount()">+ Add account</span></div></div>';
   }
 
   // Per-account daily P&L (computed before cards render)
@@ -4194,7 +4299,7 @@ function renderAccountsPanel() {
     var withdrawPct     = size > 0 ? Math.min(100, (withdrawable / (size * targetPct)) * 100) : 0;
 
     return (
-      '<div style="display:flex;border-radius:9px;overflow:hidden;background:#13151a;border:1px solid rgba(255,255,255,0.07);margin-bottom:7px">' +
+      '<div style="display:flex;border-radius:9px;overflow:hidden;background:'+_CB+';border:1px solid '+_CBd2+';margin-bottom:7px">' +
         '<div style="width:3px;background:'+barClr+';flex-shrink:0"></div>' +
         '<div style="flex:1;padding:8px 11px;min-width:0">' +
           // Row 1: name + remove
@@ -4202,11 +4307,11 @@ function renderAccountsPanel() {
             '<input value="'+escAttr(acc.name||acc.id)+'" onchange="updateAccount(\''+acc.id+'\',\'name\',this.value)" '+
               'style="flex:1;min-width:0;background:transparent;border:none;color:var(--text);font-family:var(--display);font-size:11px;letter-spacing:0.06em;outline:none;padding:0;transition:color 0.15s;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" '+'title="'+escAttr(acc.name||acc.id)+'" '+
               'onfocus="this.style.color=\'var(--gold)\'" onblur="this.style.color=\'var(--text)\'">' +
-            '<button onclick="removeAccount(\''+acc.id+'\')" style="background:transparent;border:none;color:#3a3d45;cursor:pointer;font-size:10px;padding:1px 4px;transition:color 0.15s;flex-shrink:0" onmouseover="this.style.color=\'#f06060\'" onmouseout="this.style.color=\'#3a3d45\'">✕</button>' +
+            '<button onclick="removeAccount(\''+acc.id+'\')" style="background:transparent;border:none;color:'+_CDim+';cursor:pointer;font-size:10px;padding:1px 4px;transition:color 0.15s;flex-shrink:0" onmouseover="this.style.color=\'#f06060\'" onmouseout="this.style.color=\''+_CDim+'\'">✕</button>' +
           '</div>' +
           // Balance edit row (hidden until EDIT clicked) — shows current balance, not challenge size
           '<div id="acct-bal-wrap-'+acc.id+'" style="display:none;margin-bottom:8px">' +
-            '<div style="'+MN+'font-size:7px;letter-spacing:0.1em;text-transform:uppercase;color:#404550;margin-bottom:3px">Update balance</div>' +
+            '<div style="'+MN+'font-size:7px;letter-spacing:0.1em;text-transform:uppercase;color:'+_CDim2+';margin-bottom:3px">Update balance</div>' +
             '<input id="acct-bal-inp-'+acc.id+'" type="number" step="1" value="'+(parseFloat(acc.balance)||size)+'" placeholder="'+(parseFloat(acc.balance)||size)+'" '+
               'style="width:100%;background:rgba(240,188,78,0.07);border:1px solid rgba(240,188,78,0.3);border-radius:4px;color:var(--gold);'+MN+'font-size:13px;padding:5px 8px;outline:none;box-sizing:border-box;-moz-appearance:textfield;font-weight:700" '+
               'onchange="if(parseFloat(this.value)){updateAccount(\''+acc.id+'\',\'balance\',parseFloat(this.value));renderAccountsPanel();}" '+
@@ -4219,13 +4324,13 @@ function renderAccountsPanel() {
               '<input id="acct-size-inp-'+acc.id+'" type="number" min="0" step="10000" style="display:none;width:1px" ' +
                 'onkeydown="if(event.key===\'Enter\')acctToggleSizeEdit(\''+acc.id+'\')">' +
               '<button id="acct-size-btn-'+acc.id+'" onclick="acctToggleSizeEdit(\''+acc.id+'\')" '+
-                'style="'+MN+'font-size:7px;text-transform:uppercase;letter-spacing:0.06em;color:#404550;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:3px;padding:1px 5px;cursor:pointer;transition:all 0.15s" '+
+                'style="'+MN+'font-size:7px;text-transform:uppercase;letter-spacing:0.06em;color:'+_CDim2+';background:'+_Cdiv+';border:1px solid '+_CBd2+';border-radius:3px;padding:1px 5px;cursor:pointer;transition:all 0.15s" '+
                 'onmouseover="this.style.color=\'var(--gold)\';this.style.borderColor=\'rgba(240,188,78,0.3)\'" '+
-                'onmouseout="this.style.color=\'#404550\';this.style.borderColor=\'rgba(255,255,255,0.07)\'">edit</button>' +
+                'onmouseout="this.style.color=\''+_CDim2+'\';this.style.borderColor=\''+_CBd2+'\'">edit</button>' +
             '</div>' +
             // Today P&L
             '<div style="text-align:right">' +
-              '<div style="'+MN+'font-size:7px;letter-spacing:0.1em;text-transform:uppercase;color:#404550;margin-bottom:2px">Today</div>' +
+              '<div style="'+MN+'font-size:7px;letter-spacing:0.1em;text-transform:uppercase;color:'+_CDim2+';margin-bottom:2px">Today</div>' +
               '<div style="'+MN+'font-size:14px;font-weight:700;color:'+dayClr+'">'+(dayUsd>=0?'+$':'-$')+Math.abs(dayUsd).toLocaleString()+'</div>' +
             '</div>' +
           '</div>' +
@@ -4233,41 +4338,41 @@ function renderAccountsPanel() {
           (bal ? (
             isFunded ? (
               '<div style="margin-top:7px">' +
-                '<div style="'+MN+'font-size:7px;letter-spacing:0.1em;text-transform:uppercase;color:#404550;margin-bottom:4px">Withdrawable</div>' +
-                '<div style="position:relative;height:4px;background:rgba(255,255,255,0.07);border-radius:2px;overflow:hidden;margin-bottom:4px">' +
+                '<div style="'+MN+'font-size:7px;letter-spacing:0.1em;text-transform:uppercase;color:'+_CDim2+';margin-bottom:4px">Withdrawable</div>' +
+                '<div style="position:relative;height:4px;background:'+_Cdiv+';border-radius:2px;overflow:hidden;margin-bottom:4px">' +
                   '<div style="position:absolute;top:0;left:0;height:100%;width:'+withdrawPct.toFixed(1)+'%;background:#4ed68a;border-radius:2px;transition:width 0.5s ease"></div>' +
                 '</div>' +
                 '<div style="display:flex;justify-content:space-between;align-items:center">' +
-                  '<span style="'+MN+'font-size:7px;color:#404550">$0</span>' +
+                  '<span style="'+MN+'font-size:7px;color:'+_CDim2+'">$0</span>' +
                   '<span style="'+MN+'font-size:9px;font-weight:700;color:#4ed68a">$'+withdrawable.toLocaleString()+'</span>' +
-                  '<span style="'+MN+'font-size:7px;color:#404550">'+fmtK(targetUsd)+' max</span>' +
+                  '<span style="'+MN+'font-size:7px;color:'+_CDim2+'">'+fmtK(targetUsd)+' max</span>' +
                 '</div>' +
               '</div>'
             ) : (
               '<div style="margin-top:7px">' +
-                '<div style="position:relative;height:4px;background:rgba(255,255,255,0.07);border-radius:2px;overflow:hidden;margin-bottom:4px">' +
+                '<div style="position:relative;height:4px;background:'+_Cdiv+';border-radius:2px;overflow:hidden;margin-bottom:4px">' +
                   '<div style="position:absolute;top:0;left:0;height:100%;width:'+progPct.toFixed(1)+'%;background:'+progClr+';border-radius:2px;transition:width 0.5s ease"></div>' +
                 '</div>' +
                 '<div style="display:flex;justify-content:space-between;align-items:center">' +
-                  '<span style="'+MN+'font-size:7px;color:#404550">'+fmtK(size)+'</span>' +
+                  '<span style="'+MN+'font-size:7px;color:'+_CDim2+'">'+fmtK(size)+'</span>' +
                   '<span style="'+MN+'font-size:9px;font-weight:700;color:'+progClr+'">' +
                     '$'+effectiveBal.toLocaleString()+' &nbsp;·&nbsp; '+progPct.toFixed(0)+'%' +
                   '</span>' +
-                  '<span style="'+MN+'font-size:7px;color:#404550">'+fmtK(size+targetUsd)+'</span>' +
+                  '<span style="'+MN+'font-size:7px;color:'+_CDim2+'">'+fmtK(size+targetUsd)+'</span>' +
                 '</div>' +
               '</div>'
             )
           ) : '') +
           // Phase toggle (bottom of card)
-          '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:7px;padding-top:6px;border-top:1px solid rgba(255,255,255,0.05)">' +
-            '<span style="'+MN+'font-size:7px;letter-spacing:0.1em;text-transform:uppercase;color:#404550">Phase</span>' +
-            '<div style="display:flex;border-radius:4px;overflow:hidden;border:1px solid rgba(255,255,255,0.09)">' +
+          '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:7px;padding-top:6px;border-top:1px solid '+_Cdiv+'">' +
+            '<span style="'+MN+'font-size:7px;letter-spacing:0.1em;text-transform:uppercase;color:'+_CDim2+'">Phase</span>' +
+            '<div style="display:flex;border-radius:4px;overflow:hidden;border:1px solid '+_CBd2+'">' +
               '<button onclick="updateAccount(\''+acc.id+'\',\'phase\',\'Evaluation\')" '+
                 'style="'+MN+'font-size:7px;letter-spacing:0.06em;text-transform:uppercase;padding:3px 9px;border:none;cursor:pointer;transition:all 0.15s;'+
-                (!isFunded?'background:rgba(240,188,78,0.15);color:var(--gold)':'background:transparent;color:#505870')+'">Eval</button>' +
+                (!isFunded?'background:rgba(240,188,78,0.15);color:var(--gold)':'background:transparent;color:'+_CL)+'">Eval</button>' +
               '<button onclick="updateAccount(\''+acc.id+'\',\'phase\',\'Funded\')" '+
-                'style="'+MN+'font-size:7px;letter-spacing:0.06em;text-transform:uppercase;padding:3px 9px;border:none;cursor:pointer;transition:all 0.15s;border-left:1px solid rgba(255,255,255,0.09);'+
-                (isFunded?'background:rgba(78,214,138,0.15);color:#4ed68a':'background:transparent;color:#505870')+'">Funded</button>' +
+                'style="'+MN+'font-size:7px;letter-spacing:0.06em;text-transform:uppercase;padding:3px 9px;border:none;cursor:pointer;transition:all 0.15s;border-left:1px solid '+_CBd2+';'+
+                (isFunded?'background:rgba(78,214,138,0.15);color:#4ed68a':'background:transparent;color:'+_CL)+'">Funded</button>' +
             '</div>' +
           '</div>' +
         '</div>' +
