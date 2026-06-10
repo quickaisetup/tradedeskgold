@@ -4251,7 +4251,8 @@ var _TD_LOCAL_KEY = 'td_trades_local';
 window._persistTradesToLocal = function() {
   try {
     var today = new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
-    var saved = state.trades.filter(function(t){ return t.saved; });
+    // Only persist trades whose date matches today — never mix in previous-day trades
+    var saved = state.trades.filter(function(t){ return t.saved && (!t._dateISO || t._dateISO === today); });
     var snapshot = saved.map(function(t){
       return {
         _sbId:t._sbId||null, _dateISO:t._dateISO||today,
@@ -4283,6 +4284,9 @@ window._restoreTradesFromLocal = function() {
     if (!raw) return false;
     var store = JSON.parse(raw);
     if (!store || store.date !== today || !store.trades || !store.trades.length) return false;
+    // Extra guard: strip any cross-day trades that got mixed in
+    store.trades = store.trades.filter(function(tr){ return !tr._dateISO || tr._dateISO === today; });
+    if (!store.trades.length) return false;
     // Skip if already restored (e.g. Supabase beat us to it)
     if (state.trades.filter(function(t){ return t.saved; }).length > 0) return false;
     console.log('[local] Restoring', store.trades.length, 'trades from localStorage cache');
