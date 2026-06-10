@@ -6230,6 +6230,37 @@ async function saveTrade(id) {
 
   t.saved = true;
   _persistTradesToLocal(); // snapshot saved trades to localStorage immediately
+
+  // ── Visual DB confirmation on the collapsed card ──────
+  // Check after a short delay whether _sbId was assigned (means Supabase confirmed).
+  // If not, show a warning badge so the user knows to check.
+  var _savedId = id;
+  setTimeout(function() {
+    var _t = state.trades.find(function(x){ return x.id === _savedId; });
+    var card = document.getElementById('tf-' + _savedId);
+    if (!card) return;
+    var badge = card.querySelector('.db-sync-badge');
+    if (!badge) {
+      badge = document.createElement('span');
+      badge.className = 'db-sync-badge';
+      badge.style.cssText = 'font-family:var(--mono);font-size:8px;padding:2px 6px;border-radius:3px;margin-left:6px;letter-spacing:0.06em';
+      var header = card.querySelector('.tc-header, .card-header, [class*="card"]');
+      if (header) header.appendChild(badge);
+    }
+    if (_t && _t._sbId) {
+      badge.textContent = '✓ DB';
+      badge.style.color = '#4ed68a';
+      badge.style.background = 'rgba(78,214,138,0.12)';
+    } else {
+      badge.textContent = '⚠ LOCAL ONLY';
+      badge.style.color = '#f0bc4e';
+      badge.style.background = 'rgba(240,188,78,0.12)';
+      console.warn('[save] Trade', _savedId, 'saved locally but not confirmed in Supabase — will retry');
+      // Queue for retry on next patch flush
+      if (window._syncUnsavedTradesToDB) setTimeout(window._syncUnsavedTradesToDB, 5000);
+    }
+  }, 2500);
+
   updateDayProgress();
   updateHistory();
   updateKill();
@@ -6777,10 +6808,63 @@ function checkReflection() {
   } catch(e) {}
 }
 
+// ── TRADE SAVE QUEUE ──────────────────────────────────
+// Guarantees every trade reaches Supabase even if the patch hasn't loaded yet
+// or the network is down. Queue is persisted in localStorage so a crash
+// can't lose it — retried on every page load.
+var _TD_QUEUE_KEY = 'td_save_queue';
+function _queueTradeSave(payload) {
+  try {
+    var q = JSON.parse(localStorage.getItem(_TD_QUEUE_KEY) || '[]');
+    // Avoid duplicates by matching on time+account
+    var dup = q.some(function(p){ return p.time === payload.time && p.account === payload.account && p.dateISO === payload.dateISO; });
+    if (!dup) { q.push(payload); localStorage.setItem(_TD_QUEUE_KEY, JSON.stringify(q)); }
+  } catch(e) {}
+}
+function _dequeueTradeSave(payload) {
+  try {
+    var q = JSON.parse(localStorage.getItem(_TD_QUEUE_KEY) || '[]');
+    q = q.filter(function(p){ return !(p.time === payload.time && p.account === payload.account && p.dateISO === payload.dateISO); });
+    localStorage.setItem(_TD_QUEUE_KEY, JSON.stringify(q));
+  } catch(e) {}
+}
+window._flushSaveQueue = async function() {
+  if (!window.postToSheets) return;
+  try {
+    var q = JSON.parse(localStorage.getItem(_TD_QUEUE_KEY) || '[]');
+    if (!q.length) return;
+    console.log('[queue] Flushing', q.length, 'queued trade save(s)...');
+    for (var i = 0; i < q.length; i++) {
+      try {
+        var ok = await window.postToSheets(q[i]);
+        if (ok !== false) {
+          _dequeueTradeSave(q[i]);
+          console.log('[queue] ✓ Flushed queued trade', q[i].time);
+        }
+      } catch(e) { console.warn('[queue] Flush failed for', q[i].time, e.message); }
+    }
+  } catch(e) {}
+};
+
 // ── POST TO SHEETS ────────────────────────────────────
 async function postToSheets(payload) {
   const url = localStorage.getItem(SHEETS_KEY);
-  if (!url) { console.log('[postToSheets] No Sheets URL — skipping'); return false; }
+  if (!url) {
+    // No Sheets URL — route directly to Supabase if patch is loaded,
+    // otherwise queue it so nothing is lost.
+    if (payload.type === 'trade') {
+      if (window._tdSB && window._userId) {
+        // Supabase patch is active — let the patched version handle it.
+        // (The patch overwrites this function; if we're here the patch isn't loaded yet)
+        _queueTradeSave(payload);
+        console.log('[postToSheets] Supabase patch not ready — trade queued for retry');
+      } else {
+        _queueTradeSave(payload);
+        console.log('[postToSheets] No DB connection yet — trade queued');
+      }
+    }
+    return false;
+  }
   try {
     // Use Promise.race for timeout — avoids AbortSignal clone errors
     var postFetch = fetch(url, { method: 'POST', body: JSON.stringify(payload), mode: 'no-cors' });
@@ -12390,6 +12474,12 @@ function tdlPatchApp() {
   };
 
   console.log('[supabase] App patched — renderStreak now uses Supabase directly');
+
+  // Flush any trades that were queued before the patch loaded
+  setTimeout(function() {
+    if (window._flushSaveQueue) window._flushSaveQueue();
+    if (window._syncUnsavedTradesToDB) window._syncUnsavedTradesToDB();
+  }, 1500);
 }
 
 // Helper: fetch streak data from Supabase — kept for backwards compat, delegates to shared helper
