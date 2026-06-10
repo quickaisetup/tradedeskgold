@@ -3463,7 +3463,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
           <div style="display:flex;align-items:center;gap:16px">
             <div style="flex-shrink:0;text-align:center">
               <div id="score-num" style="font-family:var(--display);font-size:48px;line-height:1;color:var(--text3);transition:color 0.3s">0</div>
-              <div style="font-family:var(--mono);font-size:8px;color:var(--text3);letter-spacing:0.08em">of ±10</div>
+              <div style="font-family:var(--mono);font-size:8px;color:var(--text3);letter-spacing:0.08em">of ±15</div>
             </div>
             <div style="flex:1">
               <div id="score-bar-track" style="position:relative;height:8px;background:linear-gradient(to right,#c04040 0%,#3a3a3a 50%,#3a8a50 100%);border-radius:4px;margin-bottom:5px">
@@ -5836,18 +5836,18 @@ function updateVerdictAuto() {
     else if (marketDirEl.textContent.indexOf('Rang') > -1) { bearSignals.push({ label: 'Direction ranging', pts: '0' }); }
   }
 
-  // ── CAP score at ±10 ──────────────────────────────────
-  score = Math.max(-10, Math.min(10, score));
+  // ── CAP score at ±15 ──────────────────────────────────
+  score = Math.max(-15, Math.min(15, score));
 
   // ── VERDICT ───────────────────────────────────────────
   var label, color, headline;
   var s = score;
-  if (s >= 7)       { label = 'STRONG BUY';  color = 'var(--green)'; headline = 'Strong bullish confluence — high conviction long'; }
-  else if (s >= 4)  { label = 'BULLISH';      color = 'var(--green)'; headline = 'Clear bullish bias — look for long setups'; }
-  else if (s >= 2)  { label = 'LEAN BULLISH'; color = '#a8d8a0';      headline = 'Mild bullish lean — wait for confirmation'; }
-  else if (s > -2)  { label = 'NEUTRAL';      color = 'var(--gold)';  headline = 'Mixed signals — wait for clarity'; }
-  else if (s >= -3) { label = 'LEAN BEARISH'; color = '#d8a0a0';      headline = 'Mild bearish lean — wait for confirmation'; }
-  else if (s >= -6) { label = 'BEARISH';      color = 'var(--red)';   headline = 'Clear bearish bias — look for short setups'; }
+  if (s >= 10)      { label = 'STRONG BUY';  color = 'var(--green)'; headline = 'Strong bullish confluence — high conviction long'; }
+  else if (s >= 6)  { label = 'BULLISH';      color = 'var(--green)'; headline = 'Clear bullish bias — look for long setups'; }
+  else if (s >= 3)  { label = 'LEAN BULLISH'; color = '#a8d8a0';      headline = 'Mild bullish lean — wait for confirmation'; }
+  else if (s > -3)  { label = 'NEUTRAL';      color = 'var(--gold)';  headline = 'Mixed signals — wait for clarity'; }
+  else if (s >= -5) { label = 'LEAN BEARISH'; color = '#d8a0a0';      headline = 'Mild bearish lean — wait for confirmation'; }
+  else if (s >= -9) { label = 'BEARISH';      color = 'var(--red)';   headline = 'Clear bearish bias — look for short setups'; }
   else              { label = 'STRONG SELL';  color = 'var(--red)';   headline = 'Strong bearish confluence — high conviction short'; }
 
   // ── SPECIAL CONDITIONS ────────────────────────────────
@@ -5869,7 +5869,7 @@ function updateVerdictAuto() {
   var hl = document.getElementById('score-headline'); if (hl) { hl.textContent = headline; hl.style.color = color; hl.style.opacity = '0.8'; }
   var sn = document.getElementById('score-num'); if (sn) { sn.textContent = scoreStr; sn.style.color = color; }
   var nd = document.getElementById('score-needle');
-  if (nd) nd.style.left = Math.min(Math.max(((s + 10) / 20) * 100, 2), 98) + '%';
+  if (nd) nd.style.left = Math.min(Math.max(((s + 15) / 30) * 100, 2), 98) + '%';
   var vn = document.getElementById('vs-num'); if (vn) { vn.textContent = scoreStr; vn.style.color = color; }
   var vb = document.getElementById('vs-breakdown'); if (vb) vb.textContent = bullSignals.length + ' bull / ' + bearSignals.length + ' bear signals';
 
@@ -8543,7 +8543,7 @@ function updateRightPanel() {
   }
 
   // ── Arc fill ──
-  var arcLen = Math.round(((scoreVal + 10) / 20) * RP_HALF_ARC);
+  var arcLen = Math.round(((scoreVal + 15) / 30) * RP_HALF_ARC);
   arcLen = Math.max(4, Math.min(RP_HALF_ARC, arcLen));
   var arc = document.getElementById('rp-arc');
   if (arc) { arc.setAttribute('stroke-dasharray', arcLen + ' ' + (RP_HALF_ARC * 2)); arc.setAttribute('stroke', arcColor); }
@@ -8572,7 +8572,7 @@ function updateRightPanel() {
   // ── SVG Needle rotation: -90deg (full bear) → 0deg (neutral) → +90deg (full bull) ──
   var needleLine = document.getElementById('rp-needle-line');
   if (needleLine) {
-    var needleDeg = Math.round(((scoreVal + 10) / 20) * 180) - 90;
+    var needleDeg = Math.round(((scoreVal + 15) / 30) * 180) - 90;
     needleDeg = Math.max(-90, Math.min(90, needleDeg));
     needleLine.style.transform = 'rotate(' + needleDeg + 'deg)';
   }
@@ -11183,7 +11183,7 @@ window.cbLoad = async function() {
     // Score position dot — sits at the exact score position on the bar
     if (barDot) {
       barDot.style.display = 'block';
-      var dotPct = ((avgRounded + 10) / 20) * 100;
+      var dotPct = ((avgRounded + 15) / 30) * 100;
       barDot.style.left = dotPct + '%';
       barDot.style.background = labelColor;
       barDot.style.boxShadow = '0 0 8px ' + labelColor;
