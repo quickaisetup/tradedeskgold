@@ -1499,37 +1499,34 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 #live-exec-overlay{display:none;position:fixed;inset:0;z-index:9998;background:#060708;flex-direction:column;overflow:hidden}
 #live-exec-overlay.show{display:flex}
 /* ── PRE-TRADE GATE ── */
-#ptg-gate{display:none;position:absolute;inset:0;z-index:50;background:rgba(6,7,8,0.97);flex-direction:column;align-items:center;justify-content:center;padding:28px 24px;overflow-y:auto}
+#ptg-gate{display:none;position:absolute;inset:0;z-index:50;background:rgba(4,5,7,0.98);flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;overflow-y:auto}
 #ptg-gate.show{display:flex}
-#ptg-inner{max-width:500px;width:100%}
-#ptg-header{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:22px}
-#ptg-title{font-family:var(--display);font-size:18px;letter-spacing:0.08em;color:var(--text)}
-#ptg-counter{font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.1em}
-#ptg-list{display:flex;flex-direction:column;gap:6px;margin-bottom:20px}
-.ptg-item{display:flex;align-items:flex-start;gap:13px;padding:12px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.07);background:rgba(255,255,255,0.02);cursor:pointer;transition:all 0.18s;user-select:none}
-.ptg-item:hover{border-color:rgba(255,255,255,0.14);background:rgba(255,255,255,0.04)}
-.ptg-item.checked{border-color:rgba(78,214,138,0.3);background:rgba(78,214,138,0.05)}
+#ptg-inner{max-width:560px;width:100%}
+#ptg-header{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:28px}
+#ptg-title{font-family:var(--display);font-size:26px;letter-spacing:0.1em;color:var(--text)}
+#ptg-counter{font-family:var(--mono);font-size:11px;color:var(--text3);letter-spacing:0.12em}
+#ptg-list{display:flex;flex-direction:column;gap:8px;margin-bottom:24px}
+.ptg-item{display:flex;align-items:center;gap:16px;padding:16px 18px;border-radius:10px;border:1px solid rgba(255,255,255,0.09);background:rgba(255,255,255,0.03);cursor:pointer;transition:all 0.18s;user-select:none}
+.ptg-item:hover{border-color:rgba(255,255,255,0.18);background:rgba(255,255,255,0.06)}
+.ptg-item.checked{border-color:rgba(78,214,138,0.38);background:rgba(78,214,138,0.07)}
 .ptg-item.shake{animation:ptgShake 0.35s ease}
 @keyframes ptgShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
-.ptg-cb{width:20px;height:20px;border-radius:5px;border:1.5px solid rgba(255,255,255,0.18);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all 0.18s;font-size:12px}
-.ptg-item.checked .ptg-cb{background:rgba(78,214,138,0.2);border-color:rgba(78,214,138,0.5);color:var(--green)}
-.ptg-label{display:flex;flex-direction:column;gap:3px}
-.ptg-main{font-size:13px;font-weight:500;color:var(--text);line-height:1.4;transition:color 0.18s}
-.ptg-item.checked .ptg-main{color:rgba(78,214,138,0.7)}
-.ptg-sub{font-size:11px;color:var(--text3);line-height:1.45}
+.ptg-cb{width:24px;height:24px;border-radius:6px;border:1.5px solid rgba(255,255,255,0.2);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.18s;font-size:14px}
+.ptg-item.checked .ptg-cb{background:rgba(78,214,138,0.22);border-color:rgba(78,214,138,0.6);color:var(--green)}
+.ptg-main{font-size:15px;font-weight:500;color:var(--text);line-height:1.4;transition:color 0.18s}
+.ptg-item.checked .ptg-main{color:rgba(78,214,138,0.75)}
 #ptg-footer{display:flex;gap:10px;align-items:center;margin-top:4px}
-#ptg-bar-wrap{flex:1;position:relative;height:44px;border-radius:8px;overflow:hidden;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.03);cursor:default;transition:border-color 0.3s,box-shadow 0.3s}
-#ptg-bar-wrap.ready{border-color:rgba(78,214,138,0.45);box-shadow:0 0 16px rgba(78,214,138,0.18);cursor:pointer}
-#ptg-bar-fill{position:absolute;inset:0 auto 0 0;width:0%;background:linear-gradient(90deg,rgba(78,214,138,0.18),rgba(78,214,138,0.3));transition:width 0.3s cubic-bezier(0.4,0,0.2,1);border-right:1px solid rgba(78,214,138,0.25)}
-#ptg-bar-wrap.ready #ptg-bar-fill{background:linear-gradient(90deg,rgba(78,214,138,0.22),rgba(78,214,138,0.38))}
-#ptg-bar-label{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.3);pointer-events:none;transition:color 0.3s;gap:8px}
+#ptg-bar-wrap{flex:1;position:relative;height:50px;border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.03);cursor:default;transition:border-color 0.3s,box-shadow 0.3s}
+#ptg-bar-wrap.ready{border-color:rgba(78,214,138,0.5);box-shadow:0 0 24px rgba(78,214,138,0.22);cursor:pointer}
+#ptg-bar-fill{position:absolute;inset:0 auto 0 0;width:0%;background:linear-gradient(90deg,rgba(78,214,138,0.15),rgba(78,214,138,0.28));transition:width 0.35s cubic-bezier(0.4,0,0.2,1);border-right:1px solid rgba(78,214,138,0.3)}
+#ptg-bar-wrap.ready #ptg-bar-fill{background:linear-gradient(90deg,rgba(78,214,138,0.25),rgba(78,214,138,0.42))}
+#ptg-bar-label{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:12px;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.3);pointer-events:none;transition:color 0.3s;gap:10px}
 #ptg-bar-wrap.ready #ptg-bar-label{color:var(--green)}
-.ptg-bar-count{font-size:13px;font-weight:700}
-.ptg-bar-dots{display:flex;gap:4px;align-items:center}
-.ptg-bd{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.12);transition:background 0.25s,transform 0.25s}
-.ptg-bd.lit{background:var(--green);transform:scale(1.2)}
-.ptg-override-btn{padding:0 14px;height:44px;border-radius:8px;font-family:var(--mono);font-size:9px;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.07);color:rgba(255,255,255,0.2);transition:all 0.15s;white-space:nowrap}.ptg-override-btn:hover{border-color:rgba(255,255,255,0.15);color:rgba(255,255,255,0.4)}
-#ptg-skip-btn{font-family:var(--mono);font-size:9px;letter-spacing:0.08em;color:rgba(255,255,255,0.18);background:none;border:none;cursor:pointer;padding:0 2px;white-space:nowrap;transition:color 0.15s;text-decoration:underline;text-underline-offset:3px}#ptg-skip-btn:hover{color:rgba(255,255,255,0.45)}
+.ptg-bar-count{font-size:14px;font-weight:700}
+.ptg-bar-dots{display:flex;gap:5px;align-items:center}
+.ptg-bd{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,0.12);transition:background 0.25s,transform 0.25s}
+.ptg-bd.lit{background:var(--green);transform:scale(1.25)}
+#ptg-skip-btn{padding:0 18px;height:50px;border-radius:10px;font-family:var(--mono);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;background:rgba(240,96,96,0.1);border:1px solid rgba(240,96,96,0.3);color:var(--red);transition:all 0.15s;white-space:nowrap}#ptg-skip-btn:hover{background:rgba(240,96,96,0.2);border-color:rgba(240,96,96,0.5)}
 #ptg-run-check{font-family:var(--mono);font-size:8px;letter-spacing:0.1em;text-transform:uppercase;padding:3px 10px;border-radius:4px;border:1px solid rgba(240,188,78,0.25);background:rgba(240,188,78,0.07);color:rgba(240,188,78,0.55);cursor:pointer;transition:all 0.15s;white-space:nowrap}#ptg-run-check:hover{border-color:var(--gb);color:var(--gold);background:var(--gd)}
 #ptg-override-badge{display:none;font-family:var(--mono);font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(240,96,96,0.55);padding:2px 8px;border-radius:3px;border:1px solid rgba(240,96,96,0.2);background:rgba(240,96,96,0.06)}
 #leo-header{display:flex;align-items:center;justify-content:space-between;padding:6px 14px;background:#08090b;border-bottom:1px solid rgba(255,255,255,0.1);flex-shrink:0;height:42px}
@@ -4245,7 +4242,6 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
             <span class="ptg-bar-count" id="ptg-bar-count">0 / 5</span>
           </div>
         </div>
-        <button class="ptg-override-btn" onclick="ptgOverride()">Override</button>
         <button id="ptg-skip-btn" onclick="ptgSkip()">Skip</button>
       </div>
     </div>
