@@ -4305,7 +4305,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
           <div style="display:flex;align-items:center;justify-content:space-between">
             <div style="display:flex;align-items:center;gap:14px;flex:1;min-width:0">
               <div id="ptg-title" style="flex-shrink:0">Pre-Trade Check</div>
-              <div id="ptg-current-text" style="font-family:var(--mono);font-size:11px;color:var(--text3);letter-spacing:0.04em;transition:all 0.2s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1"></div>
+              <div id="ptg-current-text" style="font-family:var(--mono);font-size:11px;color:var(--text3);letter-spacing:0.04em;transition:all 0.2s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1;font-style:italic"></div>
             </div>
             <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;margin-left:12px">
               <div id="ptg-counter">0 / 7</div>
@@ -9793,7 +9793,7 @@ function ptgToggle(i) {
     cb.textContent = '✓';
     // Show text in title area
     var cur = document.getElementById('ptg-current-text');
-    if (cur) { cur.textContent = _ptgQs[i].main; cur.style.color = _ptgQs[i].gold ? '#f5c842' : 'rgba(78,214,138,0.8)'; }
+    if (cur) { cur.textContent = '(Say it out loud!)'; cur.style.color = _ptgQs[i].gold ? 'rgba(240,188,78,0.5)' : 'rgba(78,214,138,0.5)'; }
   } else {
     item.classList.remove('checked');
     cb.textContent = '';
