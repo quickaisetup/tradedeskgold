@@ -9464,20 +9464,12 @@ function _leoEscClose(e) { if (e.key === 'Escape') closeLiveExec(); }
 
 // ── PRE-TRADE GATE ────────────────────────────────────
 var _ptgQs = [
-  { main: "HTF is clear. I'm trading with it, not against it.",
-    sub:  "Unclear bias is exactly where it went wrong last time." },
-  { main: "This isn't revenge. I'd take this trade even without the last loss.",
-    sub:  "If the answer is no, that's the trade you're actually making." },
-  { main: "I've already accepted this loss. If it stops me out, I'm okay.",
-    sub:  "Wanting it back is how one loss becomes three." },
-  { main: "I know my exact stop. I will not add to a loser.",
-    sub:  "No stop means no plan. You've been here before." },
-  { main: "No quiet voice. I genuinely like this setup.",
-    sub:  "Last time you felt it and overrode it — and it cost you." },
-  { main: "I'll take the clean exit — breakeven or green — no asking for more.",
-    sub:  "Wanting more is the one that actually cost you the money." },
-  { main: "Losing while following my rules is okay. Breaking them is not.",
-    sub:  "You can't fake this one. Make sure it's true before you tick it." }
+  { main: "The higher timeframe is clear and I'm trading with it." },
+  { main: "This is a setup I planned, not one I'm forcing." },
+  { main: "I've accepted this loss and I'm fine if it stops me out." },
+  { main: "I know my exact stop, size, and max loss, and I won't add to a loser." },
+  { main: "If my gut says I'm in a bad trade, I get out at breakeven to protect my capital." },
+  { main: "If I'm in a bad trade, I protect my capital and secure profit above breakeven instead of asking for more." }
 ];
 var _ptgChecked = [];
 
@@ -9493,8 +9485,7 @@ function _ptgLog(entry) {
   } catch(e) {}
 }
 function ptgShouldShow() {
-  if (localStorage.getItem('ptg_stopout_pending') === '1') return true;
-  return !localStorage.getItem(_ptgTodayKey());
+  return true; // always show on every open
 }
 function ptgMarkStopOut() {
   localStorage.setItem('ptg_stopout_pending', '1');
@@ -9550,7 +9541,6 @@ function _ptgUpdateState() {
 function ptgUnlock() {
   var ts = new Date().toISOString();
   _ptgLog({ type: 'pass', ts: ts, answers: _ptgChecked });
-  localStorage.setItem(_ptgTodayKey(), '1');
   localStorage.removeItem('ptg_stopout_pending');
   document.getElementById('ptg-gate').classList.remove('show');
 }
