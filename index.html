@@ -1617,7 +1617,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 #leo-levels-clear:hover{color:rgba(255,255,255,0.8);border-color:rgba(255,255,255,0.3)}
 
 /* KEY LEVELS BAR */
-#leo-kl-bar{display:flex;align-items:center;gap:7px;flex-wrap:wrap;padding:5px 12px;background:rgba(0,0,0,0.35);border-bottom:1px solid rgba(255,255,255,0.07);font-family:var(--mono);font-size:9px;min-height:28px;flex-shrink:0}
+#leo-kl-bar{display:flex;align-items:center;gap:6px;flex-wrap:nowrap;overflow:hidden;flex:1;justify-content:center;font-family:var(--mono);font-size:9px;padding:0 12px}
 .kl-pill{display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:3px;font-size:9px;letter-spacing:0.06em}
 .kl-pill.long{background:rgba(78,214,138,0.12);border:1px solid rgba(78,214,138,0.4);color:#4ed68a}
 .kl-pill.short{background:rgba(240,96,96,0.12);border:1px solid rgba(240,96,96,0.4);color:#f06060}
@@ -4310,7 +4310,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
   </div>
 
   <div id="leo-header">
-    <div style="display:flex;align-items:center;gap:10px">
+    <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
       <button onclick="closeLiveExec()" style="background:transparent;border:none;color:rgba(255,255,255,0.4);font-size:18px;cursor:pointer;padding:0;line-height:1" title="Close (Esc)">✕</button>
       <div style="font-family:var(--display);font-size:14px;letter-spacing:0.1em;color:var(--text)">LIVE EXECUTION</div>
       <div id="leo-bias" style="font-family:var(--mono);font-size:11px;letter-spacing:0.08em;color:#aaa">—</div>
@@ -4318,7 +4318,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
       <div id="leo-mode" style="font-family:var(--mono);font-size:9px;color:var(--text3)">— no mode —</div>
       <div id="leo-dir" style="font-family:var(--mono);font-size:9px;color:var(--text3)">—</div>
     </div>
-    <div style="display:flex;align-items:center;gap:8px">
+    <div id="leo-kl-bar"></div>
+    <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
       <div id="leo-live-price" style="font-family:var(--mono);font-size:13px;color:var(--gold);letter-spacing:0.05em">—</div>
       <span id="ptg-override-badge">⚠ gate overridden</span>
       <button id="ptg-run-check" onclick="ptgOpen()">✓ Run check</button>
