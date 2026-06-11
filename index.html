@@ -4660,9 +4660,17 @@ function renderAccountsPanel() {
     '</div>';
 
   // ── 2. WEEKLY / MONTHLY (USD primary, R secondary) ──────────
-  // When today is the only session this week, use today's accurate USD (from actual trades)
   var _todayUsd = todayPnl.hasTrades ? todayPnl.total : null;
-  var _wU = (_todayUsd !== null && pal.wDays <= 1) ? _todayUsd : pal.weeklyUsd;
+  // Best source: DB daily_summaries week total (exact USD) + today's live trades.
+  // _myDbWeekPnl is set when the leaderboard RPC loads — it sums usd_pnl from
+  // daily_summaries Mon-yesterday. Adding today's live P&L gives the full week.
+  // Falls back to R-estimate from PAL cache if DB data not yet loaded.
+  var _wU;
+  if (window._myDbWeekPnl != null) {
+    _wU = window._myDbWeekPnl + (_todayUsd || 0);
+  } else {
+    _wU = (_todayUsd !== null && pal.wDays <= 1) ? _todayUsd : pal.weeklyUsd;
+  }
   var _mU = pal.monthlyUsd;
   var _wR = pal.weeklyR  ? Math.round((pal.weeklyR )*100)/100 : null;
   var _mR = pal.monthlyR ? Math.round((pal.monthlyR)*100)/100 : null;
@@ -12516,7 +12524,14 @@ async function loadLeaderboard() {
     if (res.error) { console.warn('[leaderboard] RPC not available yet — showing placeholder.', res.error.message); return; }
     if (res.data && res.data.length) {
       window._lbLastRows = res.data;
-      console.log('[leaderboard] RPC returned', res.data.length, 'rows. My row:', JSON.stringify(res.data.find(function(r){return r.user_id===_userId;})));
+      // Cache the DB week total so accounts panel can use it directly
+      var _myLbRow = res.data.find(function(r){return r.user_id===_userId;});
+      if (_myLbRow) {
+        window._myDbWeekPnl = Number(_myLbRow.week_pnl) || 0;
+        // Re-render accounts panel so THIS WEEK syncs immediately
+        if (window.renderAccountsPanel) renderAccountsPanel();
+      }
+      console.log('[leaderboard] RPC returned', res.data.length, 'rows. My row:', JSON.stringify(_myLbRow));
       renderLeaderboard(res.data);
       // Re-render after a short delay to catch PAL cache that loads asynchronously
       setTimeout(function(){ if (window._lbLastRows) renderLeaderboard(window._lbLastRows); }, 3000);
@@ -13566,6 +13581,8 @@ document.addEventListener('keydown', function(e) {
 // Expose leaderboard renderer globally so block-2 code (updatePALFromRows, etc.) can call it
 window.renderLeaderboard = renderLeaderboard;
 window.loadLeaderboard   = loadLeaderboard;
+// Expose getSB so weekDiag() and other block-2 helpers can query Supabase
+window.getSB = getSB;
 
 })();
 </script>
