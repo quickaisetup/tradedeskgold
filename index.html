@@ -4298,15 +4298,17 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
   <div id="ptg-gate">
     <div id="ptg-inner">
       <div id="ptg-header">
-        <div style="display:flex;flex-direction:column;gap:6px;flex:1">
-          <div style="display:flex;align-items:baseline;justify-content:space-between">
-            <div id="ptg-title">Pre-Trade Check</div>
-            <div style="display:flex;align-items:center;gap:10px">
+        <div style="display:flex;flex-direction:column;gap:8px;flex:1">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div style="display:flex;align-items:center;gap:14px;flex:1;min-width:0">
+              <div id="ptg-title" style="flex-shrink:0">Pre-Trade Check</div>
+              <div id="ptg-current-text" style="font-family:var(--mono);font-size:11px;color:var(--text3);letter-spacing:0.04em;transition:all 0.2s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1"></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;margin-left:12px">
               <div id="ptg-counter">0 / 7</div>
               <button onclick="ptgEditOpen()" style="background:none;border:none;color:var(--text3);font-size:11px;cursor:pointer;font-family:var(--mono);letter-spacing:0.08em;padding:2px 6px;border:1px solid rgba(255,255,255,0.1);border-radius:4px">EDIT</button>
             </div>
           </div>
-          <div id="ptg-current-text" style="font-family:var(--mono);font-size:12px;color:var(--text3);min-height:16px;letter-spacing:0.04em;transition:color 0.2s"></div>
         </div>
       </div>
       <div id="ptg-list"></div>
@@ -9789,19 +9791,11 @@ function ptgToggle(i) {
     // Show text in title area
     var cur = document.getElementById('ptg-current-text');
     if (cur) { cur.textContent = _ptgQs[i].main; cur.style.color = _ptgQs[i].gold ? '#f5c842' : 'rgba(78,214,138,0.8)'; }
-    // Read aloud
-    if (window.speechSynthesis) {
-      window.speechSynthesis.cancel();
-      var utt = new SpeechSynthesisUtterance(_ptgQs[i].main);
-      utt.rate = 0.92; utt.pitch = 1; utt.volume = 1;
-      window.speechSynthesis.speak(utt);
-    }
   } else {
     item.classList.remove('checked');
     cb.textContent = '';
-    if (window.speechSynthesis) window.speechSynthesis.cancel();
     var cur = document.getElementById('ptg-current-text');
-    if (cur) { cur.textContent = ''; }
+    if (cur) { cur.textContent = ''; cur.style.color = 'var(--text3)'; }
   }
   _ptgUpdateState();
 }
