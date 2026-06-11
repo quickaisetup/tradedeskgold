@@ -1499,26 +1499,28 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 #live-exec-overlay{display:none;position:fixed;inset:0;z-index:9998;background:#060708;flex-direction:column;overflow:hidden}
 #live-exec-overlay.show{display:flex}
 /* ── PRE-TRADE GATE ── */
-#ptg-gate{display:none;position:absolute;inset:0;z-index:50;background:rgba(6,7,8,0.97);flex-direction:column;align-items:center;justify-content:center;padding:32px 24px}
+#ptg-gate{display:none;position:absolute;inset:0;z-index:50;background:rgba(6,7,8,0.97);flex-direction:column;align-items:center;justify-content:center;padding:28px 24px;overflow-y:auto}
 #ptg-gate.show{display:flex}
-#ptg-inner{max-width:520px;width:100%}
-.ptg-progress{display:flex;gap:6px;margin-bottom:36px;justify-content:center}
-.ptg-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.1);transition:all 0.3s;flex-shrink:0}
-.ptg-dot.done{background:var(--green)}
-.ptg-dot.active{background:var(--gold);box-shadow:0 0 8px rgba(240,188,78,0.5)}
-.ptg-dot.fail{background:var(--red)}
-#ptg-q-num{font-family:var(--mono);font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:var(--text3);margin-bottom:20px}
-#ptg-q-text{font-size:17px;font-weight:400;color:var(--text);line-height:1.6;margin-bottom:36px}
-.ptg-btn-row{display:flex;gap:12px}
-.ptg-btn{flex:1;padding:14px;border-radius:8px;font-family:var(--mono);font-size:11px;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;transition:all 0.15s}
-.ptg-yes{background:rgba(78,214,138,0.1);border:1px solid rgba(78,214,138,0.35);color:var(--green)}.ptg-yes:hover{background:rgba(78,214,138,0.22)}
-.ptg-no{background:rgba(240,96,96,0.08);border:1px solid rgba(240,96,96,0.22);color:var(--red)}.ptg-no:hover{background:rgba(240,96,96,0.18)}
-#ptg-no-msg{font-size:15px;color:var(--text);line-height:1.65;margin-bottom:28px;padding:18px 20px;background:rgba(240,96,96,0.07);border:1px solid rgba(240,96,96,0.2);border-radius:8px}
-.ptg-action-row{display:flex;gap:12px}
-.ptg-close-btn{flex:1;padding:13px;border-radius:8px;font-family:var(--mono);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.15);color:var(--text2);transition:background 0.15s}.ptg-close-btn:hover{background:rgba(255,255,255,0.09)}
-.ptg-override-btn{flex:1;padding:13px;border-radius:8px;font-family:var(--mono);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;background:transparent;border:1px solid rgba(240,96,96,0.18);color:rgba(240,96,96,0.4);transition:all 0.15s}.ptg-override-btn:hover{border-color:rgba(240,96,96,0.45);color:rgba(240,96,96,0.65)}
-#ptg-pass-msg{font-size:15px;color:var(--text);line-height:1.65;margin-bottom:28px;padding:20px;background:rgba(78,214,138,0.05);border:1px solid rgba(78,214,138,0.2);border-radius:8px}
-.ptg-unlock-btn{width:100%;padding:14px;border-radius:8px;font-family:var(--mono);font-size:11px;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;background:rgba(78,214,138,0.1);border:1px solid rgba(78,214,138,0.4);color:var(--green);transition:all 0.15s}.ptg-unlock-btn:hover{background:rgba(78,214,138,0.2)}
+#ptg-inner{max-width:500px;width:100%}
+#ptg-header{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:22px}
+#ptg-title{font-family:var(--display);font-size:18px;letter-spacing:0.08em;color:var(--text)}
+#ptg-counter{font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.1em}
+#ptg-list{display:flex;flex-direction:column;gap:6px;margin-bottom:20px}
+.ptg-item{display:flex;align-items:flex-start;gap:13px;padding:12px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.07);background:rgba(255,255,255,0.02);cursor:pointer;transition:all 0.18s;user-select:none}
+.ptg-item:hover{border-color:rgba(255,255,255,0.14);background:rgba(255,255,255,0.04)}
+.ptg-item.checked{border-color:rgba(78,214,138,0.3);background:rgba(78,214,138,0.05)}
+.ptg-item.shake{animation:ptgShake 0.35s ease}
+@keyframes ptgShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.ptg-cb{width:20px;height:20px;border-radius:5px;border:1.5px solid rgba(255,255,255,0.18);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all 0.18s;font-size:12px}
+.ptg-item.checked .ptg-cb{background:rgba(78,214,138,0.2);border-color:rgba(78,214,138,0.5);color:var(--green)}
+.ptg-label{display:flex;flex-direction:column;gap:3px}
+.ptg-main{font-size:13px;font-weight:500;color:var(--text);line-height:1.4;transition:color 0.18s}
+.ptg-item.checked .ptg-main{color:rgba(78,214,138,0.7)}
+.ptg-sub{font-size:11px;color:var(--text3);line-height:1.45}
+#ptg-footer{display:flex;gap:10px;align-items:center}
+.ptg-unlock-btn{flex:1;padding:12px;border-radius:8px;font-family:var(--mono);font-size:11px;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;transition:all 0.18s;border:1px solid rgba(78,214,138,0.2);background:rgba(78,214,138,0.06);color:rgba(78,214,138,0.4)}
+.ptg-unlock-btn.ready{border-color:rgba(78,214,138,0.45);background:rgba(78,214,138,0.12);color:var(--green)}.ptg-unlock-btn.ready:hover{background:rgba(78,214,138,0.22)}
+.ptg-override-btn{padding:12px 16px;border-radius:8px;font-family:var(--mono);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;background:transparent;border:1px solid rgba(240,96,96,0.15);color:rgba(240,96,96,0.35);transition:all 0.15s;white-space:nowrap}.ptg-override-btn:hover{border-color:rgba(240,96,96,0.4);color:rgba(240,96,96,0.6)}
 #ptg-run-check{font-family:var(--mono);font-size:8px;letter-spacing:0.1em;text-transform:uppercase;padding:3px 10px;border-radius:4px;border:1px solid rgba(240,188,78,0.25);background:rgba(240,188,78,0.07);color:rgba(240,188,78,0.55);cursor:pointer;transition:all 0.15s;white-space:nowrap}#ptg-run-check:hover{border-color:var(--gb);color:var(--gold);background:var(--gd)}
 #ptg-override-badge{display:none;font-family:var(--mono);font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(240,96,96,0.55);padding:2px 8px;border-radius:3px;border:1px solid rgba(240,96,96,0.2);background:rgba(240,96,96,0.06)}
 #leo-header{display:flex;align-items:center;justify-content:space-between;padding:6px 14px;background:#08090b;border-bottom:1px solid rgba(255,255,255,0.1);flex-shrink:0;height:42px}
@@ -4221,25 +4223,14 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
   <!-- PRE-TRADE GATE -->
   <div id="ptg-gate">
     <div id="ptg-inner">
-      <div class="ptg-progress" id="ptg-dots"></div>
-      <div id="ptg-q-view">
-        <div id="ptg-q-num">Question 1 of 7</div>
-        <div id="ptg-q-text"></div>
-        <div class="ptg-btn-row">
-          <button class="ptg-btn ptg-yes" onclick="ptgAnswer(true)">Yes</button>
-          <button class="ptg-btn ptg-no" onclick="ptgAnswer(false)">No</button>
-        </div>
+      <div id="ptg-header">
+        <div id="ptg-title">Pre-Trade Check</div>
+        <div id="ptg-counter">0 / 7</div>
       </div>
-      <div id="ptg-no-view" style="display:none">
-        <div id="ptg-no-msg"></div>
-        <div class="ptg-action-row">
-          <button class="ptg-close-btn" onclick="ptgClosePanel()">Close panel</button>
-          <button class="ptg-override-btn" onclick="ptgOverride()">Override and trade anyway</button>
-        </div>
-      </div>
-      <div id="ptg-pass-view" style="display:none">
-        <div id="ptg-pass-msg">Okay. You've checked yourself. Trade your plan — and remember, after any stop-out you cool off for 30 minutes and wait for a fresh setup before touching this again.</div>
-        <button class="ptg-unlock-btn" onclick="ptgUnlock()">I'm ready — open the panel</button>
+      <div id="ptg-list"></div>
+      <div id="ptg-footer">
+        <button class="ptg-unlock-btn" id="ptg-unlock-btn" onclick="ptgUnlock()" disabled>Tick all to unlock</button>
+        <button class="ptg-override-btn" onclick="ptgOverride()">Override</button>
       </div>
     </div>
   </div>
@@ -9473,23 +9464,22 @@ function _leoEscClose(e) { if (e.key === 'Escape') closeLiveExec(); }
 
 // ── PRE-TRADE GATE ────────────────────────────────────
 var _ptgQs = [
-  { q: "Is the higher timeframe actually clear right now — and are you trading with it, not against it?",
-    no: "Then there's no trade here. Unclear bias is exactly where it started last time. Walk away." },
-  { q: "Be honest: would you take this exact trade if you had no open positions and hadn't just lost? Or are you only here because of the last one?",
-    no: "That's revenge trading. You know what it does. The setup you're really waiting for isn't this one." },
-  { q: "Have you already accepted this loss as gone? If it stops you out, are you okay — or are you going to want it back?",
-    no: "Then you're still in that trade emotionally. That money is gone. This one has to start clean." },
-  { q: "Do you know the exact price you're wrong at? And are you promising me right now: no adding to a loser. Yes?",
-    no: "No stop, no plan, no trade. You've been here. You know how it ends." },
-  { q: "How do you actually feel? Is there a quiet voice saying 'I don't like this'? Don't ignore it this time.",
-    no: "You felt it. Last time you felt it too and overrode it — and it cost you. Close the panel." },
-  { q: "If the market gives you a clean way out — breakeven or green — will you take it and not ask for more?",
-    no: "That's the one that actually cost you the money. Wanting more. Don't do it again." },
-  { q: "If this loses, what stings more: losing while you followed your rules, or breaking them again? It has to be the rules.",
-    no: "That's the answer you can't fake. Go back. Follow the rules this time." }
+  { main: "HTF is clear. I'm trading with it, not against it.",
+    sub:  "Unclear bias is exactly where it went wrong last time." },
+  { main: "This isn't revenge. I'd take this trade even without the last loss.",
+    sub:  "If the answer is no, that's the trade you're actually making." },
+  { main: "I've already accepted this loss. If it stops me out, I'm okay.",
+    sub:  "Wanting it back is how one loss becomes three." },
+  { main: "I know my exact stop. I will not add to a loser.",
+    sub:  "No stop means no plan. You've been here before." },
+  { main: "No quiet voice. I genuinely like this setup.",
+    sub:  "Last time you felt it and overrode it — and it cost you." },
+  { main: "I'll take the clean exit — breakeven or green — no asking for more.",
+    sub:  "Wanting more is the one that actually cost you the money." },
+  { main: "Losing while following my rules is okay. Breaking them is not.",
+    sub:  "You can't fake this one. Make sure it's true before you tick it." }
 ];
-var _ptgCur = 0;
-var _ptgRun = [];  // answers for current run
+var _ptgChecked = [];
 
 function _ptgTodayKey() {
   return 'ptg_passed_' + new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
@@ -9510,56 +9500,59 @@ function ptgMarkStopOut() {
   localStorage.setItem('ptg_stopout_pending', '1');
 }
 function ptgOpen() {
-  _ptgCur = 0;
-  _ptgRun = [];
+  _ptgChecked = new Array(_ptgQs.length).fill(false);
   var badge = document.getElementById('ptg-override-badge');
   if (badge) badge.style.display = 'none';
-  document.getElementById('ptg-q-view').style.display = '';
-  document.getElementById('ptg-no-view').style.display = 'none';
-  document.getElementById('ptg-pass-view').style.display = 'none';
-  _ptgRenderDots();
-  _ptgShowQ(0);
+  // Build checklist
+  var list = document.getElementById('ptg-list');
+  list.innerHTML = _ptgQs.map(function(q, i) {
+    return '<div class="ptg-item" id="ptg-item-'+i+'" onclick="ptgToggle('+i+')">' +
+      '<div class="ptg-cb" id="ptg-cb-'+i+'"></div>' +
+      '<div class="ptg-label">' +
+        '<div class="ptg-main">'+q.main+'</div>' +
+        '<div class="ptg-sub">'+q.sub+'</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+  _ptgUpdateState();
   document.getElementById('ptg-gate').classList.add('show');
 }
-function _ptgRenderDots() {
-  var el = document.getElementById('ptg-dots');
-  if (!el) return;
-  el.innerHTML = _ptgQs.map(function(_, i) {
-    var c = i < _ptgCur ? 'done' : i === _ptgCur ? 'active' : '';
-    return '<div class="ptg-dot ' + c + '"></div>';
-  }).join('');
-}
-function _ptgShowQ(idx) {
-  _ptgCur = idx;
-  document.getElementById('ptg-q-num').textContent = 'Question ' + (idx + 1) + ' of ' + _ptgQs.length;
-  document.getElementById('ptg-q-text').textContent = _ptgQs[idx].q;
-  document.getElementById('ptg-q-view').style.display = '';
-  document.getElementById('ptg-no-view').style.display = 'none';
-  _ptgRenderDots();
-}
-function ptgAnswer(yes) {
-  var ts = new Date().toISOString();
-  _ptgRun.push({ q: _ptgCur + 1, yes: yes, ts: ts });
-  if (yes) {
-    if (_ptgCur + 1 >= _ptgQs.length) {
-      // All 7 passed
-      _ptgLog({ type: 'pass', ts: ts, answers: _ptgRun });
-      localStorage.setItem(_ptgTodayKey(), '1');
-      localStorage.removeItem('ptg_stopout_pending');
-      document.getElementById('ptg-q-view').style.display = 'none';
-      document.getElementById('ptg-pass-view').style.display = '';
-      document.querySelectorAll('#ptg-dots .ptg-dot').forEach(function(d){ d.className = 'ptg-dot done'; });
-    } else {
-      _ptgShowQ(_ptgCur + 1);
-    }
+function ptgToggle(i) {
+  _ptgChecked[i] = !_ptgChecked[i];
+  var item = document.getElementById('ptg-item-'+i);
+  var cb   = document.getElementById('ptg-cb-'+i);
+  if (_ptgChecked[i]) {
+    item.classList.add('checked');
+    cb.textContent = '✓';
   } else {
-    _ptgLog({ type: 'no', q: _ptgCur + 1, ts: ts, question: _ptgQs[_ptgCur].q, response: _ptgQs[_ptgCur].no });
-    document.getElementById('ptg-no-msg').textContent = _ptgQs[_ptgCur].no;
-    document.getElementById('ptg-q-view').style.display = 'none';
-    document.getElementById('ptg-no-view').style.display = '';
-    var dots = document.querySelectorAll('#ptg-dots .ptg-dot');
-    if (dots[_ptgCur]) dots[_ptgCur].className = 'ptg-dot fail';
+    item.classList.remove('checked');
+    cb.textContent = '';
   }
+  _ptgUpdateState();
+}
+function _ptgUpdateState() {
+  var done = _ptgChecked.filter(Boolean).length;
+  var total = _ptgQs.length;
+  var counter = document.getElementById('ptg-counter');
+  if (counter) counter.textContent = done + ' / ' + total;
+  var btn = document.getElementById('ptg-unlock-btn');
+  if (!btn) return;
+  if (done === total) {
+    btn.textContent = 'I\'m ready — unlock panel';
+    btn.classList.add('ready');
+    btn.disabled = false;
+  } else {
+    btn.textContent = done + ' / ' + total + ' — keep going';
+    btn.classList.remove('ready');
+    btn.disabled = true;
+  }
+}
+function ptgUnlock() {
+  var ts = new Date().toISOString();
+  _ptgLog({ type: 'pass', ts: ts, answers: _ptgChecked });
+  localStorage.setItem(_ptgTodayKey(), '1');
+  localStorage.removeItem('ptg_stopout_pending');
+  document.getElementById('ptg-gate').classList.remove('show');
 }
 function ptgClosePanel() {
   document.getElementById('ptg-gate').classList.remove('show');
@@ -9567,20 +9560,18 @@ function ptgClosePanel() {
 }
 function ptgOverride() {
   var ts = new Date().toISOString();
-  _ptgLog({ type: 'override', q: _ptgCur + 1, ts: ts, question: _ptgQs[_ptgCur].q });
+  var unchecked = _ptgChecked.map(function(v,i){ return v ? null : _ptgQs[i].main; }).filter(Boolean);
+  _ptgLog({ type: 'override', ts: ts, unchecked: unchecked });
   document.getElementById('ptg-gate').classList.remove('show');
   var badge = document.getElementById('ptg-override-badge');
   if (badge) badge.style.display = '';
 }
-function ptgUnlock() {
-  document.getElementById('ptg-gate').classList.remove('show');
-}
-window.ptgMarkStopOut  = ptgMarkStopOut;
-window.ptgOpen         = ptgOpen;
-window.ptgAnswer       = ptgAnswer;
-window.ptgClosePanel   = ptgClosePanel;
-window.ptgOverride     = ptgOverride;
-window.ptgUnlock       = ptgUnlock;
+window.ptgMarkStopOut = ptgMarkStopOut;
+window.ptgOpen        = ptgOpen;
+window.ptgToggle      = ptgToggle;
+window.ptgClosePanel  = ptgClosePanel;
+window.ptgOverride    = ptgOverride;
+window.ptgUnlock      = ptgUnlock;
 
 // ── DIRECTION ─────────────────────────────────────────
 function leoSetDirection(dir) {
