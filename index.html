@@ -69,27 +69,34 @@ var supabase=function(e){function t(e,t){var r={};for(var s in e)Object.prototyp
    Main content + Right panel → clean light
    ═══════════════════════════════════════════════════════ */
 body.light-mode{
-  --bg:#eef0f4;
+  /* ── Backgrounds ── */
+  --bg:#f2f4f7;
   --bg2:#ffffff;
-  --bg3:#e4e6ea;
-  --bg4:#d0d3d9;
-  --gold:#7a5a00;
-  --gd:rgba(122,90,0,0.08);
-  --gb:rgba(122,90,0,0.32);
-  --red:#b81212;
-  --rd:rgba(184,18,18,0.07);
-  --rb:rgba(184,18,18,0.28);
-  --green:#146830;
-  --gnd:rgba(20,104,48,0.07);
-  --gnb:rgba(20,104,48,0.28);
-  --blue:#1545a0;
-  --bld:rgba(21,69,160,0.08);
-  --blb:rgba(21,69,160,0.28);
-  --text:#0f1117;
-  --text2:#4a5263;
-  --text3:#8a93a6;
+  --bg3:#e6e9ef;
+  --bg4:#d8dce5;
+  /* ── Gold / amber — vivid, readable on white ── */
+  --gold:#c98a00;
+  --gd:rgba(201,138,0,0.09);
+  --gb:rgba(201,138,0,0.32);
+  /* ── Red — strong, not maroon ── */
+  --red:#dc2626;
+  --rd:rgba(220,38,38,0.08);
+  --rb:rgba(220,38,38,0.28);
+  /* ── Green — vivid, not forest ── */
+  --green:#16a34a;
+  --gnd:rgba(22,163,74,0.09);
+  --gnb:rgba(22,163,74,0.3);
+  /* ── Blue ── */
+  --blue:#2563eb;
+  --bld:rgba(37,99,235,0.09);
+  --blb:rgba(37,99,235,0.28);
+  /* ── Text ── */
+  --text:#0d1117;
+  --text2:#374151;
+  --text3:#7a8499;
+  /* ── Borders ── */
   --border:rgba(0,0,0,0.07);
-  --border2:rgba(0,0,0,0.13);
+  --border2:rgba(0,0,0,0.14);
 }
 
 /* ── Page + main content ── */
@@ -115,11 +122,56 @@ body.light-mode .step{ color:var(--text3); }
 body.light-mode .step.active{ color:var(--gold); }
 body.light-mode .step.done{ color:var(--green); }
 
-/* ── Sidebar — KEEP DARK (do not override) ── */
-/* sidebar, .nav-item, sidebar-bottom intentionally inherit dark mode */
+/* ── Sidebar — goes light ── */
+body.light-mode .sidebar{
+  background:#ffffff;
+  border-right:1px solid rgba(0,0,0,0.09);
+  box-shadow:4px 0 20px rgba(0,0,0,0.08);
+}
+body.light-mode .sidebar-logo{ color:var(--text);border-bottom-color:rgba(0,0,0,0.09); }
+body.light-mode .sidebar-date{ color:var(--text3);border-bottom-color:rgba(0,0,0,0.06); }
+body.light-mode .nav-item{ color:var(--text3); }
+body.light-mode .nav-item:hover{ color:var(--text);background:rgba(0,0,0,0.04); }
+body.light-mode .nav-item.active{ color:var(--gold);background:var(--gd);border-left-color:var(--gold); }
+body.light-mode .nav-dot{ background:var(--text3); }
+body.light-mode .nav-item.active .nav-dot{ background:var(--gold); }
+body.light-mode .sidebar-bottom{ border-top-color:rgba(0,0,0,0.08); }
+body.light-mode .sheets-status span{ color:var(--text3); }
+body.light-mode .sb-btn{ border-color:rgba(0,0,0,0.15)!important;color:var(--text2)!important;background:rgba(0,0,0,0.03)!important; }
+body.light-mode .sb-btn:hover{ background:rgba(0,0,0,0.07)!important; }
 
-/* ── Left accounts panel — KEEP DARK ── */
-/* #left-panel intentionally inherits dark mode */
+/* ── Left accounts panel (news-drawer) — goes light ── */
+body.light-mode #news-drawer{
+  background:#f8f9fb;
+  border-right:1px solid rgba(0,0,0,0.09);
+}
+body.light-mode #nd-header{
+  background:#ffffff;
+  border-bottom:1px solid rgba(0,0,0,0.08);
+}
+body.light-mode #nd-title{ color:var(--gold); }
+body.light-mode #nd-acct-total{ color:var(--text3); }
+body.light-mode #nd-rules{ border-top-color:rgba(0,0,0,0.08); }
+body.light-mode #nd-rules-title{ color:var(--text3); }
+body.light-mode #nd-rules-list{ color:var(--text2); }
+body.light-mode #nd-rules-edit-btn{
+  background:rgba(0,0,0,0.04);
+  border-color:rgba(0,0,0,0.12);
+  color:var(--text2);
+}
+body.light-mode #nd-rules-edit-btn:hover{ background:rgba(0,0,0,0.08); }
+body.light-mode #news-drawer-tab{
+  background:#ffffff;
+  border:1px solid rgba(0,0,0,0.1);
+  color:var(--text3);
+}
+/* ── Add account button ── */
+body.light-mode #nd-add-acct-btn,
+body.light-mode [onclick*="addTradingAccount"]{
+  background:rgba(0,0,0,0.04)!important;
+  border-color:rgba(0,0,0,0.14)!important;
+  color:var(--text2)!important;
+}
 
 /* ── Right panel ── */
 body.light-mode #right-panel{
@@ -156,15 +208,15 @@ body.light-mode .rp-tier-pip .rp-tier-lbl{ color:var(--text3)!important; }
 /* ── Section wrappers ── */
 body.light-mode .wt-banner{
   background:#fff;
-  border:1px solid rgba(0,0,0,0.09);
-  box-shadow:0 1px 6px rgba(0,0,0,0.05);
+  border:1px solid rgba(0,0,0,0.08);
+  box-shadow:0 2px 10px rgba(0,0,0,0.06),0 1px 3px rgba(0,0,0,0.04);
 }
 
 /* ── Timeframe cards ── */
 body.light-mode .tfc{
   background:#fff;
-  border:1px solid rgba(0,0,0,0.1);
-  box-shadow:0 2px 10px rgba(0,0,0,0.06);
+  border:1px solid rgba(0,0,0,0.09);
+  box-shadow:0 2px 12px rgba(0,0,0,0.07),0 1px 4px rgba(0,0,0,0.04);
 }
 body.light-mode .tfc-hd{ color:var(--text2); }
 
@@ -178,30 +230,30 @@ body.light-mode .ai-card{
 /* ── Leaderboard ── */
 body.light-mode .lb-strip{
   background:#fff;
-  border:1px solid rgba(0,0,0,0.09);
-  box-shadow:0 2px 12px rgba(0,0,0,0.06);
+  border:1px solid rgba(0,0,0,0.08);
+  box-shadow:0 2px 12px rgba(0,0,0,0.07);
 }
 body.light-mode .lb-col-head{
-  background:#eef0f4;
-  border-bottom:1px solid rgba(0,0,0,0.1);
-  color:#8a93a6;
+  background:#f2f4f7;
+  border-bottom:1px solid rgba(0,0,0,0.09);
+  color:#7a8499;
 }
 body.light-mode .lb-card{
   background:#fff;
   border-bottom:1px solid rgba(0,0,0,0.06);
   box-shadow:none;
 }
-body.light-mode .lb-card:hover{ background:#f4f6fa; }
-body.light-mode .lb-card.me{ background:rgba(122,90,0,0.05);border-bottom-color:rgba(122,90,0,0.2); }
+body.light-mode .lb-card:hover{ background:#f7f8fb; }
+body.light-mode .lb-card.me{ background:rgba(201,138,0,0.06);border-bottom-color:rgba(201,138,0,0.2); }
 body.light-mode .lb-name{ color:var(--text); }
 
 /* ── Generic card ── */
-body.light-mode .card{ background:#fff;border-color:rgba(0,0,0,0.09); }
+body.light-mode .card{ background:#fff;border-color:rgba(0,0,0,0.08);box-shadow:0 1px 6px rgba(0,0,0,0.05); }
 
 /* ── Gate / checklist ── */
 body.light-mode .gate-item{
   background:#fff;
-  border:1px solid rgba(0,0,0,0.09);
+  border:1px solid rgba(0,0,0,0.08);
   box-shadow:0 1px 6px rgba(0,0,0,0.05);
 }
 body.light-mode .gate-link{ color:var(--gold); }
@@ -231,9 +283,9 @@ body.light-mode .bb{
   color:#4a5263;
 }
 body.light-mode .bb:hover{ background:#d0d3d9; }
-body.light-mode .bb.sel-bull{ background:rgba(20,104,48,0.1);border-color:rgba(20,104,48,0.4);color:var(--green); }
-body.light-mode .bb.sel-bear{ background:rgba(184,18,18,0.09);border-color:rgba(184,18,18,0.35);color:var(--red); }
-body.light-mode .bb.sel-range{ background:rgba(122,90,0,0.09);border-color:rgba(122,90,0,0.35);color:var(--gold); }
+body.light-mode .bb.sel-bull{ background:rgba(22,163,74,0.1);border-color:rgba(22,163,74,0.38);color:var(--green); }
+body.light-mode .bb.sel-bear{ background:rgba(220,38,38,0.09);border-color:rgba(220,38,38,0.35);color:var(--red); }
+body.light-mode .bb.sel-range{ background:rgba(201,138,0,0.09);border-color:rgba(201,138,0,0.35);color:var(--gold); }
 
 /* ── Toggle chips (tgl) ── */
 body.light-mode .tgl{ background:#e4e6ea;border-color:rgba(0,0,0,0.14);color:#4a5263; }
@@ -242,8 +294,8 @@ body.light-mode .tgl.sel{ background:var(--gd);border-color:var(--gb);color:var(
 /* ── Indicator buttons ── */
 body.light-mode .ib{ background:#e4e6ea;border-color:rgba(0,0,0,0.14);color:#4a5263; }
 body.light-mode .ib.sel{ background:var(--gd);border-color:var(--gb);color:var(--gold); }
-body.light-mode .ib.sel-bull,.ib.bull{ background:var(--gnd);border-color:var(--gnb);color:var(--green); }
-body.light-mode .ib.sel-bear,.ib.bear{ background:var(--rd);border-color:var(--rb);color:var(--red); }
+body.light-mode .ib.sel-bull{ background:var(--gnd);border-color:var(--gnb);color:var(--green); }
+body.light-mode .ib.sel-bear{ background:var(--rd);border-color:var(--rb);color:var(--red); }
 
 /* ── Inputs / textareas ── */
 body.light-mode input,body.light-mode textarea,body.light-mode select{
@@ -268,14 +320,14 @@ body.light-mode .verdict-wrap{
   box-shadow:0 2px 10px rgba(0,0,0,0.05);
 }
 body.light-mode #bull-signals{
-  background:rgba(20,104,48,0.05);
-  border:1px solid rgba(20,104,48,0.15);
+  background:rgba(22,163,74,0.07);
+  border:1px solid rgba(22,163,74,0.2);
   border-radius:7px;
   padding:6px 8px;
 }
 body.light-mode #bear-signals{
-  background:rgba(184,18,18,0.05);
-  border:1px solid rgba(184,18,18,0.15);
+  background:rgba(220,38,38,0.07);
+  border:1px solid rgba(220,38,38,0.18);
   border-radius:7px;
   padding:6px 8px;
 }
@@ -342,7 +394,7 @@ body.light-mode #progress-strip{
 body.light-mode #ps-mantra{ color:var(--gold);text-shadow:none; }
 body.light-mode #ps-mantra span{ color:var(--text2) !important; }
 body.light-mode .ps-lbl{ color:rgba(0,0,0,0.28); }
-body.light-mode .ps-lbl.done{ color:rgba(20,104,48,0.8); }
+body.light-mode .ps-lbl.done{ color:rgba(22,163,74,0.85); }
 body.light-mode .ps-lbl.active{ color:var(--gold); }
 body.light-mode .ps-div{ background:rgba(0,0,0,0.1); }
 body.light-mode #ps-done-count{ color:rgba(0,0,0,0.35); }
@@ -351,7 +403,7 @@ body.light-mode #ps-bar-fill::after{
   box-shadow:0 0 0 2px rgba(255,255,255,0.95), 0 0 10px 2px rgba(122,90,0,0.35);
 }
 body.light-mode .ps-tick{ background:rgba(0,0,0,0.15); }
-body.light-mode .ps-tick.done{ background:rgba(20,104,48,0.5); }
+body.light-mode .ps-tick.done{ background:rgba(22,163,74,0.55); }
 body.light-mode #ps-trade-chip{
   background:rgba(0,0,0,0.05);
   border-color:rgba(0,0,0,0.12);
@@ -374,7 +426,7 @@ body.light-mode #sbb-score{
   color:var(--text2);
 }
 body.light-mode .sbb-needle-wrap{
-  background:linear-gradient(to right,#c04040 0%,#d0d3d9 50%,#2a7a40 100%);
+  background:linear-gradient(to right,#dc2626 0%,#d8dce5 50%,#16a34a 100%);
 }
 body.light-mode .sbb-needle{ background:var(--text);box-shadow:0 0 5px rgba(0,0,0,0.4); }
 body.light-mode #sbb-rank-section{ border-left-color:rgba(0,0,0,0.07); }
@@ -410,7 +462,7 @@ body.light-mode #score-needle{
   box-shadow:0 0 4px rgba(0,0,0,0.3) !important;
 }
 body.light-mode #score-bar-track{
-  background:linear-gradient(to right,#c04040 0%,#d0d3d9 50%,#3a8a50 100%) !important;
+  background:linear-gradient(to right,#dc2626 0%,#d8dce5 50%,#16a34a 100%) !important;
 }
 
 /* ⑥ Live Execution floating button */
@@ -439,11 +491,11 @@ body.light-mode #rp-rank-hero-actions a{
 /* ⑨ Score verdict section inline backgrounds */
 body.light-mode [style*="rgba(78,214,138,0.05)"],
 body.light-mode [style*="rgba(78,214,138,0.04)"]{
-  background:rgba(20,104,48,0.06) !important;
+  background:rgba(22,163,74,0.07) !important;
 }
 body.light-mode [style*="rgba(240,96,96,0.05)"],
 body.light-mode [style*="rgba(240,96,96,0.04)"]{
-  background:rgba(184,18,18,0.06) !important;
+  background:rgba(220,38,38,0.07) !important;
 }
 
 /* ⑩ Mic button */
@@ -457,8 +509,8 @@ body.light-mode .mic-btn:hover{ background:rgba(0,0,0,0.09); }
 /* ⑪ "FF LIVE" badge */
 body.light-mode [style*="ff-live"],[class*="ff-live"],
 body.light-mode #ff-live-badge{
-  background:rgba(20,104,48,0.08) !important;
-  border-color:rgba(20,104,48,0.3) !important;
+  background:rgba(22,163,74,0.09) !important;
+  border-color:rgba(22,163,74,0.3) !important;
   color:var(--green) !important;
 }
 /* Target the actual FF LIVE button by its text */
@@ -522,9 +574,9 @@ body.light-mode .section-divider,body.light-mode hr{ border-color:rgba(0,0,0,0.0
 /* ⑲ DB save badge on trade cards */
 body.light-mode [style*="✓ DB"],[class*="db-badge"],
 body.light-mode [style*="LOCAL ONLY"]{
-  background:rgba(20,104,48,0.1) !important;
+  background:rgba(22,163,74,0.1) !important;
   color:var(--green) !important;
-  border-color:rgba(20,104,48,0.3) !important;
+  border-color:rgba(22,163,74,0.32) !important;
 }
 
 /* ⑳ "All ranks" + rank-related buttons */
@@ -4604,16 +4656,16 @@ function renderAccountsPanel() {
   // ── Light/dark color palette for inline JS-rendered cards ──
   var _lm = document.body.classList.contains('light-mode');
   var _CB = _lm ? '#ffffff'                   : '#13151a';   // card background
-  var _CB2= _lm ? '#f1ece4'                   : '#13151a';   // secondary card bg
-  var _CBd= _lm ? 'rgba(0,0,0,0.08)'          : 'rgba(255,255,255,0.08)'; // card border
+  var _CB2= _lm ? '#f4f6f9'                   : '#13151a';   // secondary card bg
+  var _CBd= _lm ? 'rgba(0,0,0,0.09)'          : 'rgba(255,255,255,0.08)'; // card border
   var _CBd2=_lm ? 'rgba(0,0,0,0.07)'          : 'rgba(255,255,255,0.07)'; // card border 2
-  var _CL = _lm ? '#9a9080'                   : '#505870';   // label color
-  var _CL2= _lm ? '#7a7060'                   : '#707880';   // sublabel color
-  var _CDim=_lm ? '#c0b8ac'                   : '#353840';   // very dim text
-  var _CDim2=_lm?'#a8a098'                    : '#404550';   // dim secondary
-  var _CZ = _lm ? '#c8c0b4'                   : '#303540';   // zero/no-trade color
+  var _CL = _lm ? '#7a8499'                   : '#505870';   // label color
+  var _CL2= _lm ? '#94a3b8'                   : '#707880';   // sublabel color
+  var _CDim=_lm ? '#94a3b8'                   : '#353840';   // very dim text
+  var _CDim2=_lm?'#b0bac8'                    : '#404550';   // dim secondary
+  var _CZ = _lm ? '#b0bac8'                   : '#303540';   // zero/no-trade color
   var _Cdiv=_lm ? 'rgba(0,0,0,0.07)'          : 'rgba(255,255,255,0.05)'; // divider
-  var _Cbod=_lm ? '#1c1810'                   : '#ffffff';   // body text
+  var _Cbod=_lm ? '#0d1117'                   : '#ffffff';   // body text
 
   var total    = totalAccountSize();
   var totalBal = _tdAccounts.reduce(function(s,a){return s+(parseFloat(a.balance)||0);},0);
@@ -10047,9 +10099,10 @@ function initTVChart() {
     symbol: _tdChartSymbolFor(typeof _tdActiveInstrument !== 'undefined' ? _tdActiveInstrument : 'Gold'),
     interval: _tvInterval,
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'Etc/UTC',
-    theme: 'dark', style: '1', locale: 'en',
-    backgroundColor: 'rgba(14,15,17,0)',
-    gridColor: 'rgba(255,255,255,0.04)',
+    theme: document.body.classList.contains('light-mode') ? 'light' : 'dark',
+    style: '1', locale: 'en',
+    backgroundColor: document.body.classList.contains('light-mode') ? 'rgba(242,244,247,0)' : 'rgba(14,15,17,0)',
+    gridColor: document.body.classList.contains('light-mode') ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.04)',
     hide_top_toolbar: false, hide_legend: true,
     allow_symbol_change: false, save_image: false,
     hide_side_toolbar: true,
@@ -13363,6 +13416,8 @@ function _tdApplyThemeUI(isLight) {
   if (window.renderAccountsPanel) renderAccountsPanel();
   // Re-render calendar so news event colors adapt immediately
   if (typeof _renderCalendar === 'function') try { _renderCalendar(''); } catch(e) {}
+  // Re-init TradingView chart so it switches dark/light theme
+  if (typeof initTVChart === 'function') try { initTVChart(); } catch(e) {}
 }
 window.tdToggleTheme = function() {
   var isLight = document.body.classList.toggle('light-mode');
