@@ -6329,9 +6329,10 @@ function removeLevel(id) { var el=document.getElementById('lvl-'+id); if(el)el.r
 function setLvlField(id, f, v) { var l = levels.find(function(l) { return l.id === id; }); if (l) { l[f] = v; window.levels = levels; leoRenderKLBar(); if (f === 'price') leoDrawKeyLevels(); scheduleLevelsSave(); } }
 var _levelsSaveTimer = null;
 function scheduleLevelsSave() {
+  // Immediate localStorage backup so refresh never loses data
+  try { localStorage.setItem('td_levels_cache', JSON.stringify(window.levels || [])); } catch(e) {}
   clearTimeout(_levelsSaveTimer);
   _levelsSaveTimer = setTimeout(function() {
-    // Use direct save path (correct Bangkok date, bypasses full morning payload)
     if (typeof window.tdSaveLevels === 'function') {
       window.tdSaveLevels();
     } else if (typeof saveMorningAnalysis === 'function') {
@@ -6339,6 +6340,22 @@ function scheduleLevelsSave() {
     }
   }, 1500);
 }
+// Load levels from localStorage cache immediately on startup (before Supabase responds)
+(function() {
+  try {
+    var cached = JSON.parse(localStorage.getItem('td_levels_cache') || '[]');
+    if (cached.length && !levels.length) {
+      cached.forEach(function(lv) {
+        levelCount++;
+        lv.id = levelCount;
+        levels.push(lv);
+        window.levels = levels;
+        if (typeof lvlRenderCard === 'function') lvlRenderCard(lv);
+      });
+      if (typeof leoRenderKLBar === 'function') leoRenderKLBar();
+    }
+  } catch(e) {}
+})();
 function toggleLvlConf(id, btn, v) {
   var l = levels.find(function(l) { return l.id === id; });
   if (!l) return;
@@ -9759,16 +9776,52 @@ function leoRenderKLBar() {
   if (!bar) return;
   var valid = (levels || []).filter(function(l){ return l.price && !isNaN(parseFloat(l.price)); });
   if (!valid.length) {
-    bar.innerHTML = '<span style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.2)">No key levels — add in Section 03</span>';
+    bar.innerHTML = '<span style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.18);letter-spacing:0.08em">no key levels</span>';
     return;
   }
-  bar.innerHTML = '<span style="font-family:var(--mono);font-size:8px;color:rgba(255,255,255,0.28);letter-spacing:0.1em;text-transform:uppercase;flex-shrink:0">KEY LEVELS</span>' +
-    valid.map(function(l) {
-      var isLong = l.type === 'long' || l.direction === 'long';
-      var label  = l.label || (isLong ? 'Long' : 'Short');
-      return '<span class="kl-pill ' + (isLong ? 'long' : 'short') + '">'
-        + (isLong ? '▲' : '▼') + ' ' + label + ' <strong>' + parseFloat(l.price).toFixed(2) + '</strong></span>';
-    }).join('');
+  bar.innerHTML = valid.map(function(l) {
+    var isLong = l.type === 'long' || l.direction === 'long';
+    var gc = isLong ? '#4ed68a' : '#f06060';
+    var gb = isLong ? 'rgba(78,214,138,0.1)' : 'rgba(240,96,96,0.1)';
+    var gb2= isLong ? 'rgba(78,214,138,0.22)': 'rgba(240,96,96,0.22)';
+    var gbd= isLong ? 'rgba(78,214,138,0.35)': 'rgba(240,96,96,0.35)';
+    var arr= isLong ? '▲' : '▼';
+    var entry = parseFloat(l.price).toFixed(2);
+    var sl    = l.sl   ? parseFloat(l.sl).toFixed(2)  : null;
+    var tp    = l.tp   ? parseFloat(l.tp).toFixed(2)  : null;
+    var tpDist = (l.price && l.tp) ? Math.abs(parseFloat(l.tp)-parseFloat(l.price)) : 0;
+    var slDist = (l.price && l.sl) ? Math.abs(parseFloat(l.sl)-parseFloat(l.price)) : 0;
+    var rr     = (tpDist && slDist) ? (tpDist/slDist).toFixed(1)+'R' : '';
+    var confs  = (l.confluence && l.confluence.length) ? l.confluence.slice(0,2) : [];
+    return '<div class="kl-pill-rich" style="display:inline-flex;align-items:center;gap:0;border-radius:6px;border:1px solid '+gbd+';background:'+gb+';overflow:hidden;flex-shrink:0">' +
+      // Direction + entry
+      '<div style="display:flex;align-items:center;gap:5px;padding:5px 10px;background:'+gb2+';border-right:1px solid '+gbd+'">' +
+        '<span style="font-family:var(--display);font-size:10px;color:'+gc+';letter-spacing:0.08em">'+arr+'</span>' +
+        '<span style="font-family:var(--mono);font-size:11px;font-weight:700;color:'+gc+';letter-spacing:0.02em">'+entry+'</span>' +
+      '</div>' +
+      // SL
+      (sl ? '<div style="display:flex;flex-direction:column;align-items:center;padding:4px 8px;border-right:1px solid rgba(255,255,255,0.07)">' +
+        '<span style="font-family:var(--mono);font-size:7px;color:rgba(240,96,96,0.55);letter-spacing:0.1em">SL</span>' +
+        '<span style="font-family:var(--mono);font-size:10px;color:#f06060;font-weight:600">'+sl+'</span>' +
+      '</div>' : '') +
+      // TP
+      (tp ? '<div style="display:flex;flex-direction:column;align-items:center;padding:4px 8px;border-right:1px solid rgba(255,255,255,0.07)">' +
+        '<span style="font-family:var(--mono);font-size:7px;color:rgba(106,163,245,0.55);letter-spacing:0.1em">TP</span>' +
+        '<span style="font-family:var(--mono);font-size:10px;color:#6aa3f5;font-weight:600">'+tp+'</span>' +
+      '</div>' : '') +
+      // R:R
+      (rr ? '<div style="display:flex;flex-direction:column;align-items:center;padding:4px 8px;border-right:1px solid rgba(255,255,255,0.07)">' +
+        '<span style="font-family:var(--mono);font-size:7px;color:rgba(255,255,255,0.3);letter-spacing:0.1em">R:R</span>' +
+        '<span style="font-family:var(--mono);font-size:10px;color:'+gc+';font-weight:600">'+rr+'</span>' +
+      '</div>' : '') +
+      // Confluences
+      (confs.length ? '<div style="display:flex;align-items:center;gap:4px;padding:4px 8px">' +
+        confs.map(function(c){ return '<span style="font-family:var(--mono);font-size:7px;padding:1px 5px;border-radius:3px;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.5)">'+c+'</span>'; }).join('') +
+      '</div>' : '') +
+      // Delete
+      '<div onclick="removeLevel('+l.id+');leoRenderKLBar()" style="display:flex;align-items:center;padding:0 8px;height:100%;cursor:pointer;color:rgba(255,255,255,0.2);font-size:10px;border-left:1px solid rgba(255,255,255,0.07);transition:color 0.15s" onmouseover="this.style.color=\'#f06060\'" onmouseout="this.style.color=\'rgba(255,255,255,0.2)\'">✕</div>' +
+    '</div>';
+  }).join('');
 }
 
 // ── ALARM SOUNDS ─────────────────────────────────────
