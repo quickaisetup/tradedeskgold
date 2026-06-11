@@ -6340,7 +6340,16 @@ function lvlRenderCard(lvl) {
 
 function addLevel(dir) { lvlSetDir(dir); } // legacy compat
 
-function removeLevel(id) { var el=document.getElementById('lvl-'+id); if(el)el.remove(); levels=levels.filter(function(l){return l.id!==id;}); window.levels=levels; leoRenderKLBar(); leoDrawKeyLevels(); scheduleLevelsSave(); }
+function removeLevel(id) {
+  var el=document.getElementById('lvl-'+id); if(el)el.remove();
+  levels=levels.filter(function(l){return l.id!==id;});
+  window.levels=levels;
+  leoRenderKLBar(); leoDrawKeyLevels();
+  // Save immediately — don't debounce, user expects delete to persist
+  try { localStorage.setItem('td_levels_cache', JSON.stringify(window.levels)); } catch(e){}
+  if (typeof window.tdSaveLevels === 'function') window.tdSaveLevels();
+  else scheduleLevelsSave();
+}
 function setLvlField(id, f, v) { var l = levels.find(function(l) { return l.id === id; }); if (l) { l[f] = v; window.levels = levels; leoRenderKLBar(); if (f === 'price') leoDrawKeyLevels(); scheduleLevelsSave(); } }
 var _levelsSaveTimer = null;
 function scheduleLevelsSave() {
