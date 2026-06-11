@@ -69,39 +69,44 @@ var supabase=function(e){function t(e,t){var r={};for(var s in e)Object.prototyp
    Main content + Right panel → clean light
    ═══════════════════════════════════════════════════════ */
 body.light-mode{
-  /* ── Backgrounds — cool blue-slate, no warm tint ── */
-  --bg:#eef1f6;
+  /* ── Backgrounds ── */
+  --bg:#e6eaf3;
   --bg2:#ffffff;
-  --bg3:#f5f7fa;
-  --bg4:#e2e6ed;
-  /* ── Accent — deeper amber, doesn't bleed warm ── */
-  --gold:#b06d10;
-  --gd:rgba(176,109,16,0.07);
-  --gb:rgba(176,109,16,0.25);
-  /* ── Red ── */
-  --red:#d92b2b;
-  --rd:rgba(217,43,43,0.07);
-  --rb:rgba(217,43,43,0.24);
-  /* ── Green ── */
-  --green:#1e8a3e;
-  --gnd:rgba(30,138,62,0.07);
-  --gnb:rgba(30,138,62,0.26);
+  --bg3:#f0f3f9;
+  --bg4:#d8dde9;
+  /* ── Accent gold ── */
+  --gold:#a05c00;
+  --gd:rgba(160,92,0,0.12);
+  --gb:rgba(160,92,0,0.38);
+  /* ── Red — full courage ── */
+  --red:#b81414;
+  --rd:rgba(184,20,20,0.12);
+  --rb:rgba(184,20,20,0.42);
+  /* ── Green — full courage ── */
+  --green:#0a7a2e;
+  --gnd:rgba(10,122,46,0.12);
+  --gnb:rgba(10,122,46,0.42);
   /* ── Blue ── */
-  --blue:#1a65c9;
-  --bld:rgba(26,101,201,0.08);
-  --blb:rgba(26,101,201,0.26);
-  /* ── Text — navy-black, crisp hierarchy ── */
-  --text:#0e1521;
-  --text2:#2e3d55;
-  --text3:#6a7a94;
-  /* ── Borders — cool, not muddy ── */
-  --border:rgba(14,21,33,0.08);
-  --border2:rgba(14,21,33,0.16);
+  --blue:#1255b0;
+  --bld:rgba(18,85,176,0.11);
+  --blb:rgba(18,85,176,0.36);
+  /* ── Text — deep navy ── */
+  --text:#060e1a;
+  --text2:#1e2f46;
+  --text3:#5a6b84;
+  /* ── Borders ── */
+  --border:rgba(6,14,26,0.1);
+  --border2:rgba(6,14,26,0.2);
 }
 
 /* ── Page + main content ── */
-body.light-mode{ background:var(--bg); }
-body.light-mode .main{ background:var(--bg); }
+body.light-mode{
+  background:var(--bg);
+  background-image:
+    radial-gradient(ellipse at 80% -5%, rgba(18,85,176,0.1) 0%, transparent 52%),
+    radial-gradient(ellipse at 10% 95%, rgba(10,122,46,0.07) 0%, transparent 45%);
+}
+body.light-mode .main{ background:transparent; }
 body.light-mode .section{ background:transparent; }
 
 /* ── Topbar ── */
@@ -124,9 +129,9 @@ body.light-mode .step.done{ color:var(--green); }
 
 /* ── Sidebar — goes light ── */
 body.light-mode .sidebar{
-  background:#ffffff;
-  border-right:1px solid rgba(0,0,0,0.09);
-  box-shadow:4px 0 20px rgba(0,0,0,0.08);
+  background:linear-gradient(180deg,#f8fafe 0%,#f2f5fc 100%);
+  border-right:1px solid rgba(6,14,26,0.12);
+  box-shadow:4px 0 28px rgba(6,14,26,0.1);
 }
 body.light-mode .sidebar-logo{ color:var(--text);border-bottom-color:rgba(0,0,0,0.09); }
 body.light-mode .sidebar-date{ color:var(--text3);border-bottom-color:rgba(0,0,0,0.06); }
@@ -242,11 +247,11 @@ body.light-mode .lb-card{
   box-shadow:none;
 }
 body.light-mode .lb-card:hover{ background:#f7f8fb; }
-body.light-mode .lb-card.me{ background:rgba(201,138,0,0.06);border-bottom-color:rgba(201,138,0,0.2); }
+body.light-mode .lb-card.me{ background:rgba(160,92,0,0.09);border-bottom-color:rgba(160,92,0,0.32); }
 body.light-mode .lb-name{ color:var(--text); }
 
 /* ── Generic card ── */
-body.light-mode .card{ background:#fff;border-color:rgba(0,0,0,0.08);box-shadow:0 1px 6px rgba(0,0,0,0.05); }
+body.light-mode .card{ background:#fff;border-color:rgba(6,14,26,0.1);box-shadow:0 2px 18px rgba(6,14,26,0.09),0 1px 4px rgba(6,14,26,0.05); }
 
 /* ── Gate / checklist ── */
 body.light-mode .gate-item{
@@ -281,19 +286,19 @@ body.light-mode .bb{
   color:#4a5263;
 }
 body.light-mode .bb:hover{ background:#d0d3d9; }
-body.light-mode .bb.sel-bull{ background:rgba(22,163,74,0.1);border-color:rgba(22,163,74,0.38);color:var(--green); }
-body.light-mode .bb.sel-bear{ background:rgba(220,38,38,0.09);border-color:rgba(220,38,38,0.35);color:var(--red); }
-body.light-mode .bb.sel-range{ background:rgba(201,138,0,0.09);border-color:rgba(201,138,0,0.35);color:var(--gold); }
+body.light-mode .bb.sel-bull{ background:rgba(10,122,46,0.16);border-color:rgba(10,122,46,0.55);color:var(--green);font-weight:600; }
+body.light-mode .bb.sel-bear{ background:rgba(184,20,20,0.14);border-color:rgba(184,20,20,0.52);color:var(--red);font-weight:600; }
+body.light-mode .bb.sel-range{ background:rgba(160,92,0,0.14);border-color:rgba(160,92,0,0.52);color:var(--gold);font-weight:600; }
 
 /* ── Toggle chips (tgl) ── */
-body.light-mode .tgl{ background:#e4e6ea;border-color:rgba(0,0,0,0.14);color:#4a5263; }
-body.light-mode .tgl.sel{ background:var(--gd);border-color:var(--gb);color:var(--gold); }
+body.light-mode .tgl{ background:#dde2ec;border-color:rgba(6,14,26,0.14);color:var(--text3); }
+body.light-mode .tgl.sel{ background:var(--gd);border-color:var(--gb);color:var(--gold);font-weight:600; }
 
 /* ── Indicator buttons ── */
-body.light-mode .ib{ background:#e4e6ea;border-color:rgba(0,0,0,0.14);color:#4a5263; }
-body.light-mode .ib.sel{ background:var(--gd);border-color:var(--gb);color:var(--gold); }
-body.light-mode .ib.sel-bull{ background:var(--gnd);border-color:var(--gnb);color:var(--green); }
-body.light-mode .ib.sel-bear{ background:var(--rd);border-color:var(--rb);color:var(--red); }
+body.light-mode .ib{ background:#dde2ec;border-color:rgba(6,14,26,0.14);color:var(--text3); }
+body.light-mode .ib.sel{ background:var(--gd);border-color:var(--gb);color:var(--gold);font-weight:600; }
+body.light-mode .ib.sel-bull{ background:var(--gnd);border-color:var(--gnb);color:var(--green);font-weight:600; }
+body.light-mode .ib.sel-bear{ background:var(--rd);border-color:var(--rb);color:var(--red);font-weight:600; }
 
 /* ── Inputs / textareas ── */
 body.light-mode input,body.light-mode textarea,body.light-mode select{
@@ -401,7 +406,7 @@ body.light-mode #ps-bar-fill::after{
   box-shadow:0 0 0 2px rgba(255,255,255,0.95), 0 0 10px 2px rgba(122,90,0,0.35);
 }
 body.light-mode .ps-tick{ background:rgba(0,0,0,0.15); }
-body.light-mode .ps-tick.done{ background:rgba(22,163,74,0.55); }
+body.light-mode .ps-tick.done{ background:var(--green); }
 body.light-mode #ps-trade-chip{
   background:rgba(0,0,0,0.05);
   border-color:rgba(0,0,0,0.12);
@@ -424,7 +429,7 @@ body.light-mode #sbb-score{
   color:var(--text2);
 }
 body.light-mode .sbb-needle-wrap{
-  background:linear-gradient(to right,#dc2626 0%,#d8dce5 50%,#16a34a 100%);
+  background:linear-gradient(to right,#b81414 0%,#c8cdd8 50%,#0a7a2e 100%);
 }
 body.light-mode .sbb-needle{ background:var(--text);box-shadow:0 0 5px rgba(0,0,0,0.4); }
 body.light-mode #sbb-rank-section{ border-left-color:rgba(0,0,0,0.07); }
