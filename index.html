@@ -1535,9 +1535,13 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 .ptg-bar-dots{display:flex;gap:5px;align-items:center}
 .ptg-bd{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,0.12);transition:background 0.25s,transform 0.25s}
 .ptg-bd.lit{background:var(--green);transform:scale(1.25)}
-.ptg-mantra-row{display:flex;align-items:center;justify-content:center;gap:10px;padding:14px 18px;border-radius:10px;border:1px solid rgba(240,188,78,0.25);background:rgba(240,188,78,0.05)}
-.ptg-mantra-bracket{font-family:var(--mono);font-size:18px;color:rgba(240,188,78,0.5);line-height:1}
-.ptg-mantra-text{font-family:var(--display);font-size:12px;letter-spacing:0.26em;text-transform:uppercase;color:rgba(240,188,78,0.85)}
+.ptg-item-gold{border-color:rgba(240,188,78,0.22)!important;background:rgba(240,188,78,0.04)!important}
+.ptg-item-gold .ptg-main{color:#f5c842!important;font-weight:600}
+.ptg-item-gold .ptg-cb{border-color:rgba(240,188,78,0.45)!important}
+.ptg-item-gold:hover{border-color:rgba(240,188,78,0.45)!important;background:rgba(240,188,78,0.09)!important}
+.ptg-item-gold.checked{border-color:rgba(240,188,78,0.65)!important;background:rgba(240,188,78,0.14)!important}
+.ptg-item-gold.checked .ptg-cb{background:rgba(240,188,78,0.28)!important;border-color:rgba(240,188,78,0.8)!important;color:#f5c842!important}
+.ptg-item-gold.checked .ptg-main{color:#f5c842!important}
 #ptg-skip-btn{padding:0 18px;height:50px;border-radius:10px;font-family:var(--mono);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;background:rgba(240,96,96,0.1);border:1px solid rgba(240,96,96,0.3);color:var(--red);transition:all 0.15s;white-space:nowrap}#ptg-skip-btn:hover{background:rgba(240,96,96,0.2);border-color:rgba(240,96,96,0.5)}
 #ptg-mantra{margin-top:28px;text-align:center;font-family:var(--display);font-size:11px;letter-spacing:0.28em;text-transform:uppercase;color:var(--gold);opacity:0.7;user-select:none}
 #ptg-run-check{font-family:var(--mono);font-size:8px;letter-spacing:0.1em;text-transform:uppercase;padding:3px 10px;border-radius:4px;border:1px solid rgba(240,188,78,0.25);background:rgba(240,188,78,0.07);color:rgba(240,188,78,0.55);cursor:pointer;transition:all 0.15s;white-space:nowrap}#ptg-run-check:hover{border-color:var(--gb);color:var(--gold);background:var(--gd)}
@@ -9493,7 +9497,8 @@ var _ptgQs = [
   { main: "This is a setup I planned, not one I'm forcing." },
   { main: "I've accepted this loss and I'm fine if it stops me out." },
   { main: "I know my exact stop, size, and max loss, and I won't add to a loser." },
-  { main: "If my gut says I'm in a bad trade, I get out at breakeven to protect my capital." }
+  { main: "If my gut says I'm in a bad trade, I get out at breakeven to protect my capital." },
+  { main: "I will obey the rules, only today.", gold: true }
 ];
 var _ptgChecked = [];
 
@@ -9521,14 +9526,14 @@ function ptgOpen() {
   // Build checklist
   var list = document.getElementById('ptg-list');
   list.innerHTML = _ptgQs.map(function(q, i) {
-    return '<div class="ptg-item" id="ptg-item-'+i+'" onclick="ptgToggle('+i+')">' +
+    var gold = q.gold ? ' ptg-item-gold' : '';
+    return '<div class="ptg-item'+gold+'" id="ptg-item-'+i+'" onclick="ptgToggle('+i+')">' +
       '<div class="ptg-cb" id="ptg-cb-'+i+'"></div>' +
       '<div class="ptg-label">' +
         '<div class="ptg-main">'+q.main+'</div>' +
       '</div>' +
     '</div>';
-  }).join('') +
-  '<div class="ptg-mantra-row"><span class="ptg-mantra-bracket">[</span><span class="ptg-mantra-text">OBEY THE RULES &middot; ONLY TODAY</span><span class="ptg-mantra-bracket">]</span></div>';
+  }).join('');
   _ptgUpdateState();
   document.getElementById('ptg-gate').classList.add('show');
 }
