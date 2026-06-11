@@ -69,34 +69,34 @@ var supabase=function(e){function t(e,t){var r={};for(var s in e)Object.prototyp
    Main content + Right panel → clean light
    ═══════════════════════════════════════════════════════ */
 body.light-mode{
-  /* ── Backgrounds ── */
-  --bg:#f2f4f7;
+  /* ── Backgrounds — cool blue-slate, no warm tint ── */
+  --bg:#eef1f6;
   --bg2:#ffffff;
-  --bg3:#e6e9ef;
-  --bg4:#d8dce5;
-  /* ── Gold / amber — vivid, readable on white ── */
-  --gold:#c98a00;
-  --gd:rgba(201,138,0,0.09);
-  --gb:rgba(201,138,0,0.32);
-  /* ── Red — strong, not maroon ── */
-  --red:#dc2626;
-  --rd:rgba(220,38,38,0.08);
-  --rb:rgba(220,38,38,0.28);
-  /* ── Green — vivid, not forest ── */
-  --green:#16a34a;
-  --gnd:rgba(22,163,74,0.09);
-  --gnb:rgba(22,163,74,0.3);
+  --bg3:#f5f7fa;
+  --bg4:#e2e6ed;
+  /* ── Accent — deeper amber, doesn't bleed warm ── */
+  --gold:#b06d10;
+  --gd:rgba(176,109,16,0.07);
+  --gb:rgba(176,109,16,0.25);
+  /* ── Red ── */
+  --red:#d92b2b;
+  --rd:rgba(217,43,43,0.07);
+  --rb:rgba(217,43,43,0.24);
+  /* ── Green ── */
+  --green:#1e8a3e;
+  --gnd:rgba(30,138,62,0.07);
+  --gnb:rgba(30,138,62,0.26);
   /* ── Blue ── */
-  --blue:#2563eb;
-  --bld:rgba(37,99,235,0.09);
-  --blb:rgba(37,99,235,0.28);
-  /* ── Text ── */
-  --text:#0d1117;
-  --text2:#374151;
-  --text3:#7a8499;
-  /* ── Borders ── */
-  --border:rgba(0,0,0,0.07);
-  --border2:rgba(0,0,0,0.14);
+  --blue:#1a65c9;
+  --bld:rgba(26,101,201,0.08);
+  --blb:rgba(26,101,201,0.26);
+  /* ── Text — navy-black, crisp hierarchy ── */
+  --text:#0e1521;
+  --text2:#2e3d55;
+  --text3:#6a7a94;
+  /* ── Borders — cool, not muddy ── */
+  --border:rgba(14,21,33,0.08);
+  --border2:rgba(14,21,33,0.16);
 }
 
 /* ── Page + main content ── */
@@ -175,25 +175,23 @@ body.light-mode [onclick*="addTradingAccount"]{
 
 /* ── Right panel ── */
 body.light-mode #right-panel{
-  background:#f7f8fa;
-  border-left:1px solid rgba(0,0,0,0.09);
+  background:#f5f7fa;
+  border-left:1px solid rgba(14,21,33,0.09);
 }
-body.light-mode .rp-stat{ border-right-color:rgba(0,0,0,0.08); }
-body.light-mode .rp-stat-lbl{ color:#8a93a6; }
-body.light-mode .rp-stat-val{ color:#0f1117; }
-body.light-mode .rp-stat-sub{ color:#8a93a6; }
-body.light-mode .rp-eyebrow{ color:#a0a8b8; letter-spacing:0.24em; }
-body.light-mode .rp-eyebrow::before{ background:rgba(0,0,0,0.12); }
-body.light-mode .rp-row{ border-bottom-color:rgba(0,0,0,0.06); }
-body.light-mode .rp-row:hover{ background:rgba(0,0,0,0.025); }
-body.light-mode .rp-lbl2{ color:#8a93a6; }
-body.light-mode .rp-pal-lbl{ color:#4a5263; }
+body.light-mode .rp-stat{ border-right-color:rgba(14,21,33,0.08); }
+body.light-mode .rp-stat-lbl{ color:var(--text3); }
+body.light-mode .rp-stat-val{ color:var(--text); }
+body.light-mode .rp-stat-sub{ color:var(--text3); }
+body.light-mode .rp-eyebrow{ color:var(--text3); letter-spacing:0.24em; }
+body.light-mode .rp-eyebrow::before{ background:rgba(14,21,33,0.1); }
+body.light-mode .rp-row{ border-bottom-color:rgba(14,21,33,0.06); }
+body.light-mode .rp-row:hover{ background:rgba(14,21,33,0.025); }
+body.light-mode .rp-lbl2{ color:var(--text3); }
+body.light-mode .rp-pal-lbl{ color:var(--text2); }
 body.light-mode .rp-pal-val{ color:var(--gold); }
-body.light-mode .rp-tier-lbl{ color:#8a93a6; }
-/* Gauge needle in right panel */
-body.light-mode #rp-gauge-svg .gauge-track-bg{ stroke:#d0d3d9; }
-/* Score label / rank text in right panel */
-body.light-mode #rp-score-lbl{ color:#0f1117; }
+body.light-mode .rp-tier-lbl{ color:var(--text3); }
+body.light-mode #rp-gauge-svg .gauge-track-bg{ stroke:#ccd2dc; }
+body.light-mode #rp-score-lbl{ color:var(--text); }
 
 /* ── White-text killers for right panel ── */
 /* These override hardcoded rgba(255,255,255,x) in panel elements */
