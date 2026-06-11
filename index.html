@@ -5872,6 +5872,8 @@ function updateVerdictAuto() {
   if (nd) nd.style.left = Math.min(Math.max(((s + 15) / 30) * 100, 2), 98) + '%';
   var vn = document.getElementById('vs-num'); if (vn) { vn.textContent = scoreStr; vn.style.color = color; }
   var vb = document.getElementById('vs-breakdown'); if (vb) vb.textContent = bullSignals.length + ' bull / ' + bearSignals.length + ' bear signals';
+  // Track signal count so gate checks can unlock even when score = 0 (perfectly balanced analysis)
+  window._tdLastSignalCount = bullSignals.length + bearSignals.length;
 
   var bEl = document.getElementById('bull-signals');
   var rEl = document.getElementById('bear-signals');
@@ -11071,13 +11073,13 @@ window.cbUpdateGate = function() {
   // Require BOTH a non-zero bias score AND a saved morning analysis
   var scoreEl = document.getElementById('score-num');
   var score = scoreEl ? (parseFloat(scoreEl.textContent.replace('+','')) || 0) : 0;
-  var unlocked = window._morningSaved && score !== 0;
+  var unlocked = window._morningSaved && (score !== 0 || window._tdLastSignalCount > 0);
   if (unlocked) {
     if (hint)  { hint.textContent = 'community top-down scores · updated live'; hint.style.color = 'rgba(192,132,252,0.6)'; }
     if (btn)   { btn.style.opacity='1'; btn.style.cursor='pointer'; btn.disabled=false; }
     if (panel) { panel.style.opacity='1'; panel.style.pointerEvents=''; }
   } else {
-    var reason = score === 0
+    var reason = (score === 0 && !(window._tdLastSignalCount > 0))
       ? '🔒 set your top-down bias score first to unlock'
       : '🔒 save your analysis to unlock (score is set — just save it)';
     if (hint)  { hint.textContent = reason; hint.style.color = 'rgba(192,132,252,0.4)'; }
@@ -11352,7 +11354,7 @@ window.updateEdgeButtonState = function(analysisScore) {
   var locked = document.getElementById('edge-ai-locked');
   var headEl = locked ? locked.querySelector('[data-edge-head]') : null;
   var subEl  = locked ? locked.querySelector('[data-edge-sub]')  : null;
-  var hasScore = analysisScore !== null && analysisScore !== undefined && analysisScore !== 0;
+  var hasScore = (analysisScore !== null && analysisScore !== undefined && analysisScore !== 0) || (window._tdLastSignalCount > 0);
   _edgeAnalysisDone = hasScore;
   if (!btn) return;
 
