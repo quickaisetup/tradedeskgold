@@ -2709,6 +2709,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
       <div class="sheets-dot" id="sheets-dot"></div>
       <span id="sheets-status-text">Supabase connected</span>
     </div>
+    <a href="/admin/" target="_blank" id="sb-admin-btn" class="sb-btn" style="display:none;border-color:rgba(240,188,78,0.4);color:var(--gold);text-decoration:none;text-align:center">⚙ Admin Panel</a>
     <button onclick="testAlert()" class="sb-btn" style="border-color:rgba(240,96,96,0.4);color:var(--red)">⚠ Test alert</button>
     <button class="sb-btn" onclick="openModal('api-modal')">⚙ API Key</button>
     <button class="sb-btn" onclick="exportCSV()">↓ Export CSV</button>
@@ -5106,6 +5107,8 @@ document.addEventListener('DOMContentLoaded', function() {
   if (localStorage.getItem('td_is_admin') === '1') {
     var adminBtn = document.getElementById('admin-console-btn-wrap');
     if (adminBtn) adminBtn.style.display = 'block';
+    var sbAdminBtn = document.getElementById('sb-admin-btn');
+    if (sbAdminBtn) sbAdminBtn.style.display = 'block';
   }
 });
 let tradeCount = 0;
@@ -12625,6 +12628,8 @@ async function tdlOnAuth(user) {
         if (adminBtn) adminBtn.style.display = prof.data.is_admin ? 'block' : 'none';
         var alertWrap = document.getElementById('leo-admin-alert-wrap');
         if (alertWrap) alertWrap.style.display = prof.data.is_admin ? 'flex' : 'none';
+        var sbAdminBtn = document.getElementById('sb-admin-btn');
+        if (sbAdminBtn) sbAdminBtn.style.display = prof.data.is_admin ? 'block' : 'none';
       }
       if (prof.data.first_name) localStorage.setItem('td_firstname', prof.data.first_name);
       if (prof.data.last_name)  localStorage.setItem('td_lastname',  prof.data.last_name);
