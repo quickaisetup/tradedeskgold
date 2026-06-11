@@ -9544,7 +9544,8 @@ function openLiveExec() {
   }
 
   leoRenderKLBar();
-  setTimeout(leoRenderKLBar, 800); // re-render after async data may have loaded
+  leoFetchAllLevels();
+  setTimeout(leoRenderKLBar, 800);
   leoCalc();
   document.addEventListener('keydown', _leoEscClose);
 
@@ -9789,63 +9790,49 @@ function leoClearLines() {
 function leoRenderKLBar() {
   var bar = document.getElementById('leo-kl-bar');
   if (!bar) return;
-  var valid = (levels || []).filter(function(l){ return l.price && !isNaN(parseFloat(l.price)); });
-  if (!valid.length) {
+
+  // Build combined list: my levels + other traders' levels from _klAllLevels
+  var myUser = localStorage.getItem('td_username') || 'me';
+  var allEntries = [];
+
+  // My levels
+  (levels || []).filter(function(l){ return l.price && !isNaN(parseFloat(l.price)); })
+    .forEach(function(l){ allEntries.push({ l: l, user: myUser, mine: true }); });
+
+  // Other traders' levels (fetched async by leoFetchAllLevels)
+  (_klAllLevels || []).forEach(function(e){ allEntries.push(e); });
+
+  if (!allEntries.length) {
     bar.innerHTML = '<span style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.18);letter-spacing:0.08em">no key levels</span>';
     return;
   }
-  bar.innerHTML = valid.map(function(l) {
+  bar.innerHTML = allEntries.map(function(e) {
+    var l = e.l, user = e.user, mine = e.mine;
     var isLong = l.type === 'long' || l.direction === 'long';
-    var gc = isLong ? '#4ed68a' : '#f06060';
-    var gb = isLong ? 'rgba(78,214,138,0.1)' : 'rgba(240,96,96,0.1)';
-    var gb2= isLong ? 'rgba(78,214,138,0.22)': 'rgba(240,96,96,0.22)';
-    var gbd= isLong ? 'rgba(78,214,138,0.35)': 'rgba(240,96,96,0.35)';
-    var arr= isLong ? '▲' : '▼';
-    var entry = parseFloat(l.price).toFixed(2);
-    var sl    = l.sl   ? parseFloat(l.sl).toFixed(2)  : null;
-    var tp    = l.tp   ? parseFloat(l.tp).toFixed(2)  : null;
-    var tpDist = (l.price && l.tp) ? Math.abs(parseFloat(l.tp)-parseFloat(l.price)) : 0;
-    var slDist = (l.price && l.sl) ? Math.abs(parseFloat(l.sl)-parseFloat(l.price)) : 0;
-    var rr     = (tpDist && slDist) ? (tpDist/slDist).toFixed(1)+'R' : '';
-    var confs  = (l.confluence && l.confluence.length) ? l.confluence.slice(0,2) : [];
-    var lid = l.id;
-    return '<div class="kl-pill-rich" onmouseenter="klhShow('+lid+',this)" onmouseleave="klhHide()" style="display:inline-flex;align-items:center;gap:0;border-radius:6px;border:1px solid '+gbd+';background:'+gb+';overflow:hidden;flex-shrink:0;position:relative">' +
-      // Direction + entry
-      '<div style="display:flex;align-items:center;gap:5px;padding:5px 10px;background:'+gb2+';border-right:1px solid '+gbd+'">' +
-        '<span style="font-family:var(--display);font-size:10px;color:'+gc+';letter-spacing:0.08em">'+arr+'</span>' +
-        '<span style="font-family:var(--mono);font-size:11px;font-weight:700;color:'+gc+';letter-spacing:0.02em">'+entry+'</span>' +
-      '</div>' +
-      // SL
-      (sl ? '<div style="display:flex;flex-direction:column;align-items:center;padding:4px 8px;border-right:1px solid rgba(255,255,255,0.07)">' +
-        '<span style="font-family:var(--mono);font-size:7px;color:rgba(240,96,96,0.55);letter-spacing:0.1em">SL</span>' +
-        '<span style="font-family:var(--mono);font-size:10px;color:#f06060;font-weight:600">'+sl+'</span>' +
-      '</div>' : '') +
-      // TP
-      (tp ? '<div style="display:flex;flex-direction:column;align-items:center;padding:4px 8px;border-right:1px solid rgba(255,255,255,0.07)">' +
-        '<span style="font-family:var(--mono);font-size:7px;color:rgba(106,163,245,0.55);letter-spacing:0.1em">TP</span>' +
-        '<span style="font-family:var(--mono);font-size:10px;color:#6aa3f5;font-weight:600">'+tp+'</span>' +
-      '</div>' : '') +
-      // R:R
-      (rr ? '<div style="display:flex;flex-direction:column;align-items:center;padding:4px 8px;border-right:1px solid rgba(255,255,255,0.07)">' +
-        '<span style="font-family:var(--mono);font-size:7px;color:rgba(255,255,255,0.3);letter-spacing:0.1em">R:R</span>' +
-        '<span style="font-family:var(--mono);font-size:10px;color:'+gc+';font-weight:600">'+rr+'</span>' +
-      '</div>' : '') +
-      // Confluences
-      (confs.length ? '<div style="display:flex;align-items:center;gap:4px;padding:4px 8px">' +
-        confs.map(function(c){ return '<span style="font-family:var(--mono);font-size:7px;padding:1px 5px;border-radius:3px;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.5)">'+c+'</span>'; }).join('') +
-      '</div>' : '') +
-      // Delete
-      '<div onclick="removeLevel('+l.id+');leoRenderKLBar()" style="display:flex;align-items:center;padding:0 8px;height:100%;cursor:pointer;color:rgba(255,255,255,0.2);font-size:10px;border-left:1px solid rgba(255,255,255,0.07);transition:color 0.15s" onmouseover="this.style.color=\'#f06060\'" onmouseout="this.style.color=\'rgba(255,255,255,0.2)\'">✕</div>' +
+    var gc  = isLong ? '#4ed68a' : '#f06060';
+    var gbd = isLong ? 'rgba(78,214,138,0.3)' : 'rgba(240,96,96,0.3)';
+    var gb  = isLong ? 'rgba(78,214,138,0.08)' : 'rgba(240,96,96,0.08)';
+    var arr = isLong ? '▲' : '▼';
+    var price = parseFloat(l.price).toFixed(2);
+    var dataIdx = allEntries.indexOf(e);
+    return '<div class="kl-pill-rich" onmouseenter="klhShow('+dataIdx+',this)" onmouseleave="klhHide()" style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:6px;border:1px solid '+gbd+';background:'+gb+';flex-shrink:0;cursor:default">' +
+      '<span style="font-family:var(--mono);font-size:8px;color:rgba(255,255,255,0.35);letter-spacing:0.04em">@'+user+'</span>' +
+      '<span style="font-family:var(--display);font-size:9px;color:'+gc+'">'+arr+'</span>' +
+      '<span style="font-family:var(--mono);font-size:11px;font-weight:700;color:'+gc+';letter-spacing:0.02em">'+price+'</span>' +
+      (mine ? '<span onclick="removeLevel('+l.id+');leoRenderKLBar()" style="font-size:9px;color:rgba(255,255,255,0.18);cursor:pointer;margin-left:2px;transition:color 0.15s" onmouseover="this.style.color=\'#f06060\'" onmouseout="this.style.color=\'rgba(255,255,255,0.18)\'">✕</span>' : '') +
     '</div>';
   }).join('');
+  window._klAllEntries = allEntries;
 }
 
 // ── KEY LEVEL HOVER CARD ──────────────────────────────
 var _klhHideTimer = null;
-function klhShow(id, el) {
+var _klAllLevels = [];
+function klhShow(idx, el) {
   clearTimeout(_klhHideTimer);
-  var l = (levels || []).find(function(x){ return x.id === id; });
-  if (!l) return;
+  var entry = (window._klAllEntries || [])[idx];
+  if (!entry) return;
+  var l = entry.l, user = entry.user;
   var card = document.getElementById('kl-hover-card');
   if (!card) return;
 
@@ -9854,49 +9841,44 @@ function klhShow(id, el) {
   var gc2 = isLong ? 'rgba(78,214,138,0.15)' : 'rgba(240,96,96,0.15)';
   var gbd = isLong ? 'rgba(78,214,138,0.3)'  : 'rgba(240,96,96,0.3)';
   var arr = isLong ? '▲' : '▼';
+  var isLong = l.type === 'long' || l.direction === 'long';
+  var gc  = isLong ? '#4ed68a' : '#f06060';
+  var gc2 = isLong ? 'rgba(78,214,138,0.12)' : 'rgba(240,96,96,0.12)';
+  var gbd = isLong ? 'rgba(78,214,138,0.28)'  : 'rgba(240,96,96,0.28)';
+  var arr = isLong ? '▲' : '▼';
   var confLbls = ['','Low','Med','High'];
 
-  var entry = l.price ? parseFloat(l.price).toFixed(2) : '—';
-  var sl    = l.sl    ? parseFloat(l.sl).toFixed(2)    : '—';
-  var tp    = l.tp    ? parseFloat(l.tp).toFixed(2)    : '—';
-  var tpD   = (l.price && l.tp) ? Math.abs(parseFloat(l.tp)-parseFloat(l.price)) : 0;
-  var slD   = (l.price && l.sl) ? Math.abs(parseFloat(l.sl)-parseFloat(l.price)) : 0;
-  var rr    = (tpD && slD) ? (tpD/slD).toFixed(2)+'R' : '—';
-  var rrNum = parseFloat(rr) || 0;
-  var rrClr = rrNum >= 2 ? '#4ed68a' : rrNum >= 1.5 ? '#f0bc4e' : rrNum >= 1 ? '#aaa' : '#f06060';
-
-  var ptsEntry = l.price ? parseFloat(l.price) : 0;
-  var ptsSL    = l.sl    ? Math.abs(ptsEntry - parseFloat(l.sl)).toFixed(1)   : '—';
-  var ptsTP    = l.tp    ? Math.abs(parseFloat(l.tp) - ptsEntry).toFixed(1)   : '—';
-
-  var confs = (l.confluence && l.confluence.length) ? l.confluence : [];
-  var confLvl = l.confidence ? confLbls[l.confidence] : '';
+  var entryV = l.price ? parseFloat(l.price).toFixed(2) : '—';
+  var sl     = l.sl    ? parseFloat(l.sl).toFixed(2)    : '—';
+  var tp     = l.tp    ? parseFloat(l.tp).toFixed(2)    : '—';
+  var tpD    = (l.price && l.tp) ? Math.abs(parseFloat(l.tp)-parseFloat(l.price)) : 0;
+  var slD    = (l.price && l.sl) ? Math.abs(parseFloat(l.sl)-parseFloat(l.price)) : 0;
+  var rr     = (tpD && slD) ? (tpD/slD).toFixed(2)+'R' : '—';
+  var rrNum  = parseFloat(rr) || 0;
+  var rrClr  = rrNum >= 2 ? '#4ed68a' : rrNum >= 1.5 ? '#f0bc4e' : rrNum >= 1 ? '#aaa' : '#f06060';
+  var ptsSL  = slD ? slD.toFixed(1) : '—';
+  var ptsTP  = tpD ? tpD.toFixed(1) : '—';
+  var confs  = (l.confluence && l.confluence.length) ? l.confluence : [];
+  var confLvl= l.confidence ? confLbls[l.confidence] : '';
 
   card.innerHTML =
-    '<div class="klh-dir" style="color:'+gc+';border-bottom:1px solid '+gbd+';padding-bottom:12px;margin-bottom:14px">' +
-      '<span style="font-size:16px">'+arr+'</span>' +
-      '<span style="letter-spacing:0.12em">'+(isLong?'LONG SETUP':'SHORT SETUP')+'</span>' +
-      (confLvl ? '<span style="font-family:var(--mono);font-size:8px;padding:2px 8px;border-radius:4px;border:1px solid '+gbd+';background:'+gc2+';color:'+gc+';margin-left:auto">'+confLvl+' CONF</span>' : '') +
+    // Header: username + direction
+    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,0.08)">' +
+      '<div style="display:flex;align-items:center;gap:8px">' +
+        '<span style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.38)">@'+user+'</span>' +
+        '<span style="font-family:var(--display);font-size:13px;letter-spacing:0.1em;color:'+gc+'">'+arr+' '+(isLong?'LONG':'SHORT')+'</span>' +
+      '</div>' +
+      (confLvl ? '<span style="font-family:var(--mono);font-size:8px;padding:2px 8px;border-radius:4px;border:1px solid '+gbd+';background:'+gc2+';color:'+gc+'">'+confLvl+' CONF</span>' : '') +
     '</div>' +
+    // Price grid
     '<div class="klh-grid">' +
-      '<div class="klh-cell">' +
-        '<span class="klh-lbl">Entry</span>' +
-        '<span class="klh-val" style="color:'+gc+'">'+entry+'</span>' +
-      '</div>' +
-      '<div class="klh-cell">' +
-        '<span class="klh-lbl">Stop Loss</span>' +
-        '<span class="klh-val" style="color:#f06060">'+sl+'</span>' +
-        (slD ? '<span style="font-family:var(--mono);font-size:8px;color:rgba(240,96,96,0.5)">'+ptsSL+' pts</span>' : '') +
-      '</div>' +
-      '<div class="klh-cell">' +
-        '<span class="klh-lbl">Take Profit</span>' +
-        '<span class="klh-val" style="color:#6aa3f5">'+tp+'</span>' +
-        (tpD ? '<span style="font-family:var(--mono);font-size:8px;color:rgba(106,163,245,0.5)">'+ptsTP+' pts</span>' : '') +
-      '</div>' +
+      '<div class="klh-cell"><span class="klh-lbl">Entry</span><span class="klh-val" style="color:'+gc+'">'+entryV+'</span></div>' +
+      '<div class="klh-cell"><span class="klh-lbl">Stop Loss</span><span class="klh-val" style="color:#f06060">'+sl+'</span>'+(slD?'<span style="font-family:var(--mono);font-size:8px;color:rgba(240,96,96,0.45)">'+ptsSL+' pts</span>':'')+'</div>' +
+      '<div class="klh-cell"><span class="klh-lbl">Take Profit</span><span class="klh-val" style="color:#6aa3f5">'+tp+'</span>'+(tpD?'<span style="font-family:var(--mono);font-size:8px;color:rgba(106,163,245,0.45)">'+ptsTP+' pts</span>':'')+'</div>' +
     '</div>' +
-    '<div style="display:flex;align-items:center;gap:8px;margin-bottom:'+(confs.length||l.notes?'12px':'0')+'">' +
-      '<span class="klh-lbl">Risk/Reward</span>' +
-      '<span class="klh-rr" style="color:'+rrClr+';background:'+rrClr+'22;border:1px solid '+rrClr+'44">'+rr+'</span>' +
+    '<div style="display:flex;align-items:center;gap:8px;margin-top:10px;margin-bottom:'+(confs.length||l.notes?'12px':'0')+'">' +
+      '<span class="klh-lbl">R:R</span>' +
+      '<span class="klh-rr" style="color:'+rrClr+';background:'+rrClr+'18;border:1px solid '+rrClr+'44">'+rr+'</span>' +
     '</div>' +
     (confs.length ? '<div class="klh-divider"></div><div style="margin-bottom:6px"><div class="klh-lbl" style="margin-bottom:6px">Confluences</div><div class="klh-tags">'+confs.map(function(c){ return '<span class="klh-tag">'+c+'</span>'; }).join('')+'</div></div>' : '') +
     (l.notes ? '<div class="klh-divider"></div><div class="klh-notes">'+l.notes+'</div>' : '');
@@ -9915,6 +9897,39 @@ function klhHide() {
 }
 window.klhShow = klhShow;
 window.klhHide = klhHide;
+
+// ── FETCH ALL TRADERS' KEY LEVELS ────────────────────
+async function leoFetchAllLevels() {
+  _klAllLevels = [];
+  var sb = window._tdSB || (window.getSB && getSB());
+  if (!sb) return;
+  var myId = localStorage.getItem('td_user_id');
+  var today = new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
+  try {
+    var res = await sb.from('morning_analysis')
+      .select('user_id,levels_json')
+      .eq('date', today)
+      .neq('user_id', myId || '');
+    if (res.error || !res.data) return;
+    // Get usernames from leaderboard cache
+    var lbRows = window._lbLastRows || [];
+    res.data.forEach(function(row) {
+      if (!row.levels_json) return;
+      var lbRow = lbRows.find(function(r){ return r.user_id === row.user_id; });
+      var uname = lbRow ? (lbRow.username || lbRow.user_id.slice(0,8)) : row.user_id.slice(0,8);
+      try {
+        var lvls = JSON.parse(row.levels_json || '[]');
+        lvls.forEach(function(l) {
+          if (l.price && !isNaN(parseFloat(l.price))) {
+            _klAllLevels.push({ l: l, user: uname, mine: false });
+          }
+        });
+      } catch(e) {}
+    });
+    leoRenderKLBar();
+  } catch(e) { console.warn('[kl] fetch all levels:', e.message); }
+}
+window.leoFetchAllLevels = leoFetchAllLevels;
 
 // ── ALARM SOUNDS ─────────────────────────────────────
 var _alertSoundInterval = null;
