@@ -12803,9 +12803,15 @@ window.autoRestoreToday = async function() {
         if (gates.maintenance && gates.calendar && window.checkGate) checkGate();
       } catch(e){}
 
-      // Key levels
+      // Key levels — clear first to prevent localStorage-cache duplicates
       try {
         var savedLevels = JSON.parse(morning.levels_json || '[]');
+        // Wipe whatever the localStorage cache pre-loaded
+        levels.length = 0;
+        window.levels = levels;
+        levelCount = 0;
+        var lvlListEl = document.getElementById('level-list');
+        if (lvlListEl) lvlListEl.innerHTML = '';
         if (savedLevels.length) {
           savedLevels.forEach(function(lv) {
             levelCount++;
@@ -12814,9 +12820,13 @@ window.autoRestoreToday = async function() {
             window.levels = levels;
             if (window.lvlRenderCard) lvlRenderCard(lv);
           });
-          if (window.leoRenderKLBar) leoRenderKLBar();
-          if (window.leoDrawKeyLevels) leoDrawKeyLevels();
+          // Update localStorage cache to match authoritative Supabase data
+          try { localStorage.setItem('td_levels_cache', JSON.stringify(levels)); } catch(e) {}
+        } else {
+          localStorage.removeItem('td_levels_cache');
         }
+        if (window.leoRenderKLBar) leoRenderKLBar();
+        if (window.leoDrawKeyLevels) leoDrawKeyLevels();
       } catch(e) { console.warn('[restore] levels error:', e.message); }
 
       // Level notes textarea
