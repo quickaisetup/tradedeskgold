@@ -9512,6 +9512,7 @@ function openLiveExec() {
   }
 
   leoRenderKLBar();
+  setTimeout(leoRenderKLBar, 800); // re-render after async data may have loaded
   leoCalc();
   document.addEventListener('keydown', _leoEscClose);
 
