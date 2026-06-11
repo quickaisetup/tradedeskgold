@@ -9845,52 +9845,55 @@ function klhShow(idx, el) {
   var card = document.getElementById('kl-hover-card');
   if (!card) return;
 
-  var isLong = l.type === 'long' || l.direction === 'long';
-  var gc  = isLong ? '#4ed68a' : '#f06060';
-  var gc2 = isLong ? 'rgba(78,214,138,0.15)' : 'rgba(240,96,96,0.15)';
-  var gbd = isLong ? 'rgba(78,214,138,0.3)'  : 'rgba(240,96,96,0.3)';
-  var arr = isLong ? '▲' : '▼';
-  var isLong = l.type === 'long' || l.direction === 'long';
-  var gc  = isLong ? '#4ed68a' : '#f06060';
-  var gc2 = isLong ? 'rgba(78,214,138,0.12)' : 'rgba(240,96,96,0.12)';
-  var gbd = isLong ? 'rgba(78,214,138,0.28)'  : 'rgba(240,96,96,0.28)';
-  var arr = isLong ? '▲' : '▼';
-  var confLbls = ['','Low','Med','High'];
+  var isLong  = l.type === 'long' || l.direction === 'long';
+  var gc      = isLong ? '#4ed68a' : '#f06060';
+  var gc2     = isLong ? 'rgba(78,214,138,0.12)'  : 'rgba(240,96,96,0.12)';
+  var gborder = isLong ? 'rgba(78,214,138,0.28)'  : 'rgba(240,96,96,0.28)';
+  var barGrad = isLong
+    ? 'linear-gradient(to bottom,#4ed68a,rgba(255,255,255,0.15) 50%,#f06060)'
+    : 'linear-gradient(to bottom,#f06060,rgba(255,255,255,0.15) 50%,#4ed68a)';
+  var arr     = isLong ? '▲' : '▼';
+  var confLbls= ['','Low','Med','High'];
 
   var entryV = l.price ? parseFloat(l.price).toFixed(2) : '—';
-  var sl     = l.sl    ? parseFloat(l.sl).toFixed(2)    : '—';
-  var tp     = l.tp    ? parseFloat(l.tp).toFixed(2)    : '—';
+  var slV    = l.sl    ? parseFloat(l.sl).toFixed(2)    : '—';
+  var tpV    = l.tp    ? parseFloat(l.tp).toFixed(2)    : '—';
   var tpD    = (l.price && l.tp) ? Math.abs(parseFloat(l.tp)-parseFloat(l.price)) : 0;
   var slD    = (l.price && l.sl) ? Math.abs(parseFloat(l.sl)-parseFloat(l.price)) : 0;
-  var rr     = (tpD && slD) ? (tpD/slD).toFixed(2)+'R' : '—';
+  var rr     = (tpD && slD) ? (tpD/slD).toFixed(1)+'R' : '';
   var rrNum  = parseFloat(rr) || 0;
   var rrClr  = rrNum >= 2 ? '#4ed68a' : rrNum >= 1.5 ? '#f0bc4e' : rrNum >= 1 ? '#aaa' : '#f06060';
-  var ptsSL  = slD ? slD.toFixed(1) : '—';
-  var ptsTP  = tpD ? tpD.toFixed(1) : '—';
   var confs  = (l.confluence && l.confluence.length) ? l.confluence : [];
   var confLvl= l.confidence ? confLbls[l.confidence] : '';
 
+  function prow(lbl, val, clr, border) {
+    return '<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;' + (border ? 'border-bottom:1px solid rgba(255,255,255,0.06)' : '') + '">' +
+      '<span style="font-family:var(--mono);font-size:8px;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.3);width:60px">' + lbl + '</span>' +
+      '<span style="font-family:var(--mono);font-size:18px;font-weight:700;color:' + clr + '">' + val + '</span>' +
+    '</div>';
+  }
+
+  var topRow    = isLong ? { lbl:'TP',    val:tpV,    c:'#4ed68a' } : { lbl:'SL',    val:slV,    c:'#f06060' };
+  var midRow    = { lbl:'ENTRY', val:entryV, c:'rgba(255,255,255,0.88)' };
+  var bottomRow = isLong ? { lbl:'SL',    val:slV,    c:'#f06060' } : { lbl:'TP',    val:tpV,    c:'#4ed68a' };
+
   card.innerHTML =
-    // Header: username + direction
-    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,0.08)">' +
-      '<div style="display:flex;align-items:center;gap:8px">' +
-        '<span style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.38)">@'+user+'</span>' +
-        '<span style="font-family:var(--display);font-size:13px;letter-spacing:0.1em;color:'+gc+'">'+arr+' '+(isLong?'LONG':'SHORT')+'</span>' +
-      '</div>' +
-      (confLvl ? '<span style="font-family:var(--mono);font-size:8px;padding:2px 8px;border-radius:4px;border:1px solid '+gbd+';background:'+gc2+';color:'+gc+'">'+confLvl+' CONF</span>' : '') +
+    // Header
+    '<div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">' +
+      '<span style="font-family:var(--display);font-size:13px;letter-spacing:0.1em;color:'+gc+'">'+arr+' '+(isLong?'LONG':'SHORT')+'</span>' +
+      (confLvl ? '<span style="font-family:var(--mono);font-size:8px;padding:2px 9px;border-radius:4px;border:1px solid '+gborder+';background:'+gc2+';color:'+gc+'">'+confLvl+'</span>' : '') +
+      (rr ? '<span style="font-family:var(--mono);font-size:9px;font-weight:700;padding:2px 9px;border-radius:4px;border:1px solid '+rrClr+'44;background:'+rrClr+'14;color:'+rrClr+'">'+rr+'</span>' : '') +
+      '<span style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.28);margin-left:auto">@'+user+'</span>' +
     '</div>' +
-    // Price grid
-    '<div class="klh-grid">' +
-      '<div class="klh-cell"><span class="klh-lbl">Entry</span><span class="klh-val" style="color:'+gc+'">'+entryV+'</span></div>' +
-      '<div class="klh-cell"><span class="klh-lbl">Stop Loss</span><span class="klh-val" style="color:#f06060">'+sl+'</span>'+(slD?'<span style="font-family:var(--mono);font-size:8px;color:rgba(240,96,96,0.45)">'+ptsSL+' pts</span>':'')+'</div>' +
-      '<div class="klh-cell"><span class="klh-lbl">Take Profit</span><span class="klh-val" style="color:#6aa3f5">'+tp+'</span>'+(tpD?'<span style="font-family:var(--mono);font-size:8px;color:rgba(106,163,245,0.45)">'+ptsTP+' pts</span>':'')+'</div>' +
+    // Vertical price ladder
+    '<div style="display:flex;gap:12px">' +
+      '<div style="width:3px;border-radius:2px;background:'+barGrad+';flex-shrink:0"></div>' +
+      '<div style="flex:1">' + prow(topRow.lbl,topRow.val,topRow.c,true) + prow(midRow.lbl,midRow.val,midRow.c,true) + prow(bottomRow.lbl,bottomRow.val,bottomRow.c,false) + '</div>' +
     '</div>' +
-    '<div style="display:flex;align-items:center;gap:8px;margin-top:10px;margin-bottom:'+(confs.length||l.notes?'12px':'0')+'">' +
-      '<span class="klh-lbl">R:R</span>' +
-      '<span class="klh-rr" style="color:'+rrClr+';background:'+rrClr+'18;border:1px solid '+rrClr+'44">'+rr+'</span>' +
-    '</div>' +
-    (confs.length ? '<div class="klh-divider"></div><div style="margin-bottom:6px"><div class="klh-lbl" style="margin-bottom:6px">Confluences</div><div class="klh-tags">'+confs.map(function(c){ return '<span class="klh-tag">'+c+'</span>'; }).join('')+'</div></div>' : '') +
-    (l.notes ? '<div class="klh-divider"></div><div class="klh-notes">'+l.notes+'</div>' : '');
+    // Confluences
+    (confs.length ? '<div style="margin-top:14px;display:flex;flex-wrap:wrap;gap:4px">' + confs.map(function(c){ return '<span style="font-family:var(--mono);font-size:8px;padding:2px 9px;border-radius:4px;border:1px solid '+gborder+';color:'+gc+';background:'+gc2+'">'+c+'</span>'; }).join('') + '</div>' : '') +
+    // Notes
+    (l.notes ? '<div style="margin-top:10px;font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.35);font-style:italic">'+l.notes+'</div>' : '');
 
   // Position: below the hovered pill
   var rect = el.getBoundingClientRect();
