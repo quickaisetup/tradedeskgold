@@ -1192,7 +1192,7 @@ function renderAnalysis() {
     else bCount.none++;
   });
   var bTotal = traders.length;
-  var summaryBar = bTotal ? '<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;padding:10px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;flex-wrap:wrap">' +
+  var summaryBar = bTotal ? '<div style="grid-column:1/-1;display:flex;align-items:center;gap:10px;margin-bottom:4px;padding:10px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;flex-wrap:wrap">' +
     '<span style="font-family:var(--mono);font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3);margin-right:4px">Group Bias</span>' +
     (bCount.bull  ? '<span style="font-family:var(--mono);font-size:11px;font-weight:600;color:var(--green)">▲ '+bCount.bull+' Bullish</span>' : '') +
     (bCount.bear  ? '<span style="font-family:var(--mono);font-size:11px;font-weight:600;color:var(--red)">▼ '+bCount.bear+' Bearish</span>' : '') +
