@@ -13583,6 +13583,10 @@ window.renderLeaderboard = renderLeaderboard;
 window.loadLeaderboard   = loadLeaderboard;
 // Expose getSB so weekDiag() and other block-2 helpers can query Supabase
 window.getSB = getSB;
+// Expose feedback modal functions (defined inside IIFE, needed by inline onclick)
+window.openFeedback   = openFeedback;
+window.closeFeedback  = closeFeedback;
+window.submitFeedback = submitFeedback;
 
 })();
 </script>
