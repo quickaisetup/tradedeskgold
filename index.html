@@ -9695,9 +9695,17 @@ function ptgToggle(i) {
   if (_ptgChecked[i]) {
     item.classList.add('checked');
     cb.textContent = '✓';
+    // Read the item aloud
+    if (window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+      var utt = new SpeechSynthesisUtterance(_ptgQs[i].main);
+      utt.rate = 0.92; utt.pitch = 1; utt.volume = 1;
+      window.speechSynthesis.speak(utt);
+    }
   } else {
     item.classList.remove('checked');
     cb.textContent = '';
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
   }
   _ptgUpdateState();
 }
