@@ -867,14 +867,34 @@ function buildTraderStats(trader) {
   var avgR     = total ? totalR/total : 0;
   var avgUsd   = total ? totalUsd/total : 0;
   var wR       = weeklyR(sessions);
-  var wUsd     = sessions.filter(function(s){ return s.date>=isoMonday(); }).reduce(function(s,x){ return s+(x.totalUsd||0); },0);
-  // Today P&L — sum raw trades for today (most accurate, no rounding via sessions)
-  var todayUsd = Math.round(myTrades.filter(function(t){ return t.date===isoToday(); }).reduce(function(s,t){ return s+tradeUsd(t); },0));
-  // Month P&L — sum raw trades from month start
+  // ── Use daily_summaries.usd_pnl as primary USD source (same as main app leaderboard) ──
+  // For today: use raw trades (no summary yet). For past days: prefer summary usd_pnl.
+  var today = isoToday();
+  var monday = isoMonday();
   var monthStart = isoMonthStart();
-  var monthUsd = Math.round(myTrades.filter(function(t){ return t.date>=monthStart; }).reduce(function(s,t){ return s+tradeUsd(t); },0));
-  // Monthly estimate — extrapolate from daily avg × ~20 trading days
-  var daysElapsed = Math.max(1, Math.round((new Date() - new Date(monthStart)) / 86400000));
+
+  // Build a date→usd map preferring daily_summaries.usd_pnl
+  var dateUsd = {};
+  mySums.forEach(function(s) {
+    if (s.usd_pnl != null && s.usd_pnl !== '') {
+      dateUsd[s.date] = parseFloat(s.usd_pnl) || 0;
+    } else if (byDate[s.date]) {
+      dateUsd[s.date] = byDate[s.date].totalUsd || 0;
+    }
+  });
+  // Today: always from live trades (summary may not exist yet)
+  var todayUsd = Math.round(myTrades.filter(function(t){ return t.date===today; }).reduce(function(s,t){ return s+tradeUsd(t); },0));
+  dateUsd[today] = todayUsd;
+
+  // Weekly: Mon → today using authoritative dateUsd map
+  var wUsd = Object.keys(dateUsd).filter(function(d){ return d>=monday && d<=today; }).reduce(function(s,d){ return s+(dateUsd[d]||0); },0);
+  wUsd = Math.round(wUsd);
+
+  // Month: monthStart → today
+  var monthUsd = Math.round(Object.keys(dateUsd).filter(function(d){ return d>=monthStart && d<=today; }).reduce(function(s,d){ return s+(dateUsd[d]||0); },0));
+
+  // Monthly estimate — extrapolate from daily avg × 20 trading days
+  var daysElapsed = Math.max(1, Object.keys(dateUsd).filter(function(d){ return d>=monthStart && d<=today; }).length);
   var monthEst = daysElapsed > 0 ? Math.round((monthUsd / daysElapsed) * 20) : 0;
   var lastActive = sessions.length ? sessions[0].date : null;
   var todaySummary = mySums.find(function(s){ return s.date===isoToday(); });
