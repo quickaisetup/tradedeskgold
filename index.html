@@ -11885,6 +11885,69 @@ window.palDiag = async function() {
   console.groupEnd();
 };
 console.log('%c[TradeDesk] type palDiag() to debug weekly/monthly PAL', 'color:#4ed68a;font-weight:bold');
+console.log('%c[TradeDesk] type weekDiag() to query Supabase weekly P&L directly', 'color:#f0bc4e;font-weight:bold');
+
+window.weekDiag = async function() {
+  console.log('%c=== WEEK DIAGNOSTIC ===', 'color:#f0bc4e;font-size:14px;font-weight:bold');
+  var sb = window.getSB ? getSB() : null;
+  if (!sb) { console.error('No Supabase client (getSB not available)'); return; }
+  var uid = localStorage.getItem('td_user_id');
+  if (!uid) { console.error('No user_id in localStorage'); return; }
+
+  // Bangkok now
+  var bkkNow = (typeof _tzNow === 'function') ? _tzNow() : new Date();
+  var todayKey = bkkNow.toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
+  var dow = bkkNow.getDay() || 7;
+  var wkDate = new Date(bkkNow); wkDate.setDate(bkkNow.getDate() - dow + 1);
+  var wkKey = wkDate.toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
+  console.log('Today (Bangkok):', todayKey, '| Week start (Mon):', wkKey);
+
+  // 1. daily_summaries this week
+  console.log('%c1. daily_summaries this week:', 'color:#4ed68a;font-weight:bold');
+  var ds = await sb.from('daily_summaries').select('date,usd_pnl,total_r').eq('user_id', uid).gte('date', wkKey).order('date');
+  if (ds.error) { console.error('daily_summaries error:', ds.error.message); }
+  else {
+    console.table(ds.data);
+    var weekSum = (ds.data||[]).reduce(function(s,r){ return s + (parseFloat(r.usd_pnl)||0); }, 0);
+    console.log('→ Sum of usd_pnl this week (DB):', weekSum.toFixed(2));
+  }
+
+  // 2. Today's trades from trades table
+  console.log('%c2. trades table — today:', 'color:#4ed68a;font-weight:bold');
+  var tr = await sb.from('trades').select('date,result,r_achieved,usd_achieved,account').eq('user_id', uid).eq('date', todayKey).order('created_at');
+  if (tr.error) { console.error('trades error:', tr.error.message); }
+  else {
+    console.table(tr.data);
+    var todaySum = (tr.data||[]).reduce(function(s,t){
+      var usd = parseFloat(t.usd_achieved)||0;
+      var sign = t.result === 'Loss' ? -1 : 1;
+      return s + (usd ? sign * Math.abs(usd) : 0);
+    }, 0);
+    console.log('→ Sum of usd_achieved today (trades table):', todaySum.toFixed(2));
+  }
+
+  // 3. calcTodayPnl (local)
+  if (typeof calcTodayPnl === 'function') {
+    var tp = calcTodayPnl();
+    console.log('%c3. calcTodayPnl() (local calculation):', 'color:#4ed68a;font-weight:bold', tp);
+  }
+
+  // 4. _tdPalCache
+  console.log('%c4. _tdPalCache (accounts panel source):', 'color:#4ed68a;font-weight:bold', window._tdPalCache);
+
+  // 5. Leaderboard RPC
+  console.log('%c5. get_leaderboard RPC — my row:', 'color:#4ed68a;font-weight:bold');
+  var lb = await sb.rpc('get_leaderboard');
+  if (lb.error) { console.error('leaderboard RPC error:', lb.error.message); }
+  else {
+    var myRow = (lb.data||[]).find(function(r){ return r.user_id === uid; });
+    console.log(myRow ? myRow : 'My row not found in leaderboard');
+    console.log('→ DB yesterday_pnl:', myRow ? myRow.yesterday_pnl : 'n/a');
+    console.log('→ DB week_pnl:', myRow ? myRow.week_pnl : 'n/a');
+  }
+
+  console.log('%c=== END ===', 'color:#f0bc4e;font-weight:bold');
+};
 
 document.addEventListener('DOMContentLoaded', function(){
   ndInit();
