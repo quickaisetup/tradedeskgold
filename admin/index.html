@@ -1501,6 +1501,15 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
   transition:all 0.2s;backdrop-filter:blur(8px);display:flex;align-items:center;gap:10px;
 }
 #live-exec-btn:hover{background:linear-gradient(135deg,rgba(240,96,96,0.38) 0%,rgba(240,96,96,0.18) 100%);box-shadow:0 0 40px rgba(240,96,96,0.5),0 8px 32px rgba(0,0,0,0.7);border-color:rgba(240,96,96,1)}
+#leo-back-btn{
+  position:fixed;bottom:32px;left:50%;transform:translateX(-50%);
+  z-index:9999;font-family:var(--display);font-size:17px;letter-spacing:0.12em;text-transform:uppercase;
+  color:#fff;background:linear-gradient(135deg,rgba(240,96,96,0.22) 0%,rgba(240,96,96,0.08) 100%);
+  border:1.5px solid rgba(240,96,96,0.65);border-radius:50px;padding:11px 34px;cursor:pointer;
+  box-shadow:0 0 24px rgba(240,96,96,0.28),0 8px 32px rgba(0,0,0,0.6);
+  transition:all 0.2s;backdrop-filter:blur(8px);display:flex;align-items:center;gap:10px;
+}
+#leo-back-btn:hover{background:linear-gradient(135deg,rgba(240,96,96,0.38) 0%,rgba(240,96,96,0.18) 100%);box-shadow:0 0 40px rgba(240,96,96,0.5),0 8px 32px rgba(0,0,0,0.7);border-color:rgba(240,96,96,1)}
 #live-exec-btn .btn-dot{width:9px;height:9px;border-radius:50%;background:#f06060;animation:livePulse 1.2s ease-in-out infinite;box-shadow:0 0 8px rgba(240,96,96,0.8)}
 @keyframes livePulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.5);opacity:0.6}}
 
@@ -4437,6 +4446,11 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
       <div class="leo-tv-cell-cd cd-green" id="leo-cd-1m"><div class="cd-tf">1m</div><div class="cd-time">—</div></div>
     </div>
   </div>
+  <!-- Back to main app button -->
+  <button onclick="closeLiveExec()" id="leo-back-btn">
+    <div class="btn-dot"></div>
+    Live Execution
+  </button>
 </div>
 
 
