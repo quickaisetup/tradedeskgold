@@ -7554,7 +7554,8 @@ async function loadYesterdaySession() {
       }
     }
 
-    if (btn) { btn.textContent = '✓ Loaded — fill in EOD then save as yesterday'; btn.style.background='rgba(78,214,138,0.12)'; btn.style.borderColor='var(--gnb)'; btn.style.color='var(--green)'; btn.style.pointerEvents='auto'; }
+    var tradeMsg = trades.length ? trades.length + ' trade' + (trades.length===1?'':'s') + ' found' : 'no trades in DB for ' + yISO;
+    if (btn) { btn.textContent = '✓ Loaded — ' + tradeMsg; btn.style.background='rgba(78,214,138,0.12)'; btn.style.borderColor='var(--gnb)'; btn.style.color = trades.length ? 'var(--green)' : 'var(--gold)'; btn.style.pointerEvents='auto'; }
     // Scroll to EOD section
     var eodEl = document.getElementById('reflection-well');
     if (eodEl) eodEl.scrollIntoView({behavior:'smooth',block:'center'});
