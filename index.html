@@ -2800,6 +2800,9 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
     <button onclick="testAlert()" class="sb-btn" style="border-color:rgba(240,96,96,0.4);color:var(--red)">⚠ Test alert</button>
     <button class="sb-btn" onclick="openModal('api-modal')">⚙ API Key</button>
     <button class="sb-btn" onclick="exportCSV()">↓ Export CSV</button>
+    <button class="sb-btn" onclick="exportJSON()" style="border-color:rgba(78,214,138,0.4);color:var(--green)">↓ Export JSON</button>
+    <button class="sb-btn" onclick="document.getElementById('import-json-input').click()" style="border-color:rgba(18,85,176,0.4);color:var(--blue)">↑ Import JSON</button>
+    <input type="file" id="import-json-input" accept=".json" style="display:none" onchange="importJSON(this)">
     <button class="sb-btn" onclick="openFeedback();mobMenuClose();" style="border-color:rgba(139,92,246,0.4);color:#a78bfa">💬 Ideas &amp; Feedback</button>
     <!-- Theme toggle (primary is in topbar) -->
     <div id="theme-toggle-wrap" onclick="tdToggleTheme()" title="Toggle light / dark mode">
@@ -7566,6 +7569,8 @@ async function loadYesterdaySession() {
 }
 
 async function saveAllYesterday() {
+  var tradeCount = state.trades.filter(function(t){ return t.saved; }).length;
+  if (!confirm('Save ' + tradeCount + ' trade(s) as yesterday and reset today\'s session?\n\nThis will clear the current UI. Your trades are already saved in Supabase and will remain there.')) return;
   var todayBKK = new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
   var d = new Date(todayBKK + 'T12:00:00');
   d.setDate(d.getDate() - 1);
@@ -8516,6 +8521,55 @@ async function exportCSV() {
   var rows = [['Date','Day','Total R','Wins','Losses','Rules Followed','Did Well','To Correct','Tomorrow Goal']];
   history.forEach(function(e) { rows.push([e.date, e.dayOfWeek, e.totalR, e.wins, e.losses, e.rulesFollowed, e.didWell, e.toCorrect, e.tomorrowGoal]); });
   _downloadCSV('tradedesk_' + stamp + '.csv', rows);
+}
+
+async function exportJSON() {
+  var uid = localStorage.getItem('td_user_id');
+  if (!uid) { alert('Not logged in.'); return; }
+  var sb = window._tdSB;
+  if (!sb) { alert('Not connected to database.'); return; }
+  try {
+    var stamp = new Date().toISOString().split('T')[0];
+    var { data: trades, error } = await sb.from('trades').select('*').eq('user_id', uid).order('date', {ascending: true});
+    if (error) throw error;
+    if (!trades || !trades.length) { alert('No trades to export.'); return; }
+    var blob = new Blob([JSON.stringify(trades, null, 2)], {type: 'application/json'});
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'tradedesk_trades_' + stamp + '.json';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  } catch(e) {
+    alert('Export failed: ' + e.message);
+  }
+}
+
+async function importJSON(input) {
+  var file = input.files[0];
+  input.value = '';
+  if (!file) return;
+  var uid = localStorage.getItem('td_user_id');
+  var sb = window._tdSB;
+  if (!uid || !sb) { alert('Not logged in.'); return; }
+  var text = await file.text();
+  var trades;
+  try { trades = JSON.parse(text); } catch(e) { alert('Invalid JSON file.'); return; }
+  if (!Array.isArray(trades) || !trades.length) { alert('No trades found in file.'); return; }
+  // Strip supabase metadata, force current user_id
+  var toInsert = trades.map(function(t) {
+    var row = Object.assign({}, t);
+    delete row.created_at;
+    row.user_id = uid;
+    return row;
+  });
+  if (!confirm('Import ' + toInsert.length + ' trades? Existing trades with the same ID will be updated, new ones will be added.')) return;
+  try {
+    var { error } = await sb.from('trades').upsert(toInsert, { onConflict: 'id' });
+    if (error) throw error;
+    alert('✓ Imported ' + toInsert.length + ' trade(s) successfully. Refresh the page to see them.');
+  } catch(e) {
+    alert('Import failed: ' + e.message);
+  }
 }
 
 // ── TRADER PROFILE ────────────────────────────────────
