@@ -1517,10 +1517,19 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 .ptg-main{font-size:13px;font-weight:500;color:var(--text);line-height:1.4;transition:color 0.18s}
 .ptg-item.checked .ptg-main{color:rgba(78,214,138,0.7)}
 .ptg-sub{font-size:11px;color:var(--text3);line-height:1.45}
-#ptg-footer{display:flex;gap:10px;align-items:center}
-.ptg-unlock-btn{flex:1;padding:12px;border-radius:8px;font-family:var(--mono);font-size:11px;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;transition:all 0.18s;border:1px solid rgba(78,214,138,0.2);background:rgba(78,214,138,0.06);color:rgba(78,214,138,0.4)}
-.ptg-unlock-btn.ready{border-color:rgba(78,214,138,0.45);background:rgba(78,214,138,0.12);color:var(--green)}.ptg-unlock-btn.ready:hover{background:rgba(78,214,138,0.22)}
-.ptg-override-btn{padding:12px 16px;border-radius:8px;font-family:var(--mono);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;background:transparent;border:1px solid rgba(240,96,96,0.15);color:rgba(240,96,96,0.35);transition:all 0.15s;white-space:nowrap}.ptg-override-btn:hover{border-color:rgba(240,96,96,0.4);color:rgba(240,96,96,0.6)}
+#ptg-footer{display:flex;gap:10px;align-items:center;margin-top:4px}
+#ptg-bar-wrap{flex:1;position:relative;height:44px;border-radius:8px;overflow:hidden;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.03);cursor:default;transition:border-color 0.3s,box-shadow 0.3s}
+#ptg-bar-wrap.ready{border-color:rgba(78,214,138,0.45);box-shadow:0 0 16px rgba(78,214,138,0.18);cursor:pointer}
+#ptg-bar-fill{position:absolute;inset:0 auto 0 0;width:0%;background:linear-gradient(90deg,rgba(78,214,138,0.18),rgba(78,214,138,0.3));transition:width 0.3s cubic-bezier(0.4,0,0.2,1);border-right:1px solid rgba(78,214,138,0.25)}
+#ptg-bar-wrap.ready #ptg-bar-fill{background:linear-gradient(90deg,rgba(78,214,138,0.22),rgba(78,214,138,0.38))}
+#ptg-bar-label{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.3);pointer-events:none;transition:color 0.3s;gap:8px}
+#ptg-bar-wrap.ready #ptg-bar-label{color:var(--green)}
+.ptg-bar-count{font-size:13px;font-weight:700}
+.ptg-bar-dots{display:flex;gap:4px;align-items:center}
+.ptg-bd{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.12);transition:background 0.25s,transform 0.25s}
+.ptg-bd.lit{background:var(--green);transform:scale(1.2)}
+.ptg-override-btn{padding:0 14px;height:44px;border-radius:8px;font-family:var(--mono);font-size:9px;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.07);color:rgba(255,255,255,0.2);transition:all 0.15s;white-space:nowrap}.ptg-override-btn:hover{border-color:rgba(255,255,255,0.15);color:rgba(255,255,255,0.4)}
+#ptg-skip-btn{font-family:var(--mono);font-size:9px;letter-spacing:0.08em;color:rgba(255,255,255,0.18);background:none;border:none;cursor:pointer;padding:0 2px;white-space:nowrap;transition:color 0.15s;text-decoration:underline;text-underline-offset:3px}#ptg-skip-btn:hover{color:rgba(255,255,255,0.45)}
 #ptg-run-check{font-family:var(--mono);font-size:8px;letter-spacing:0.1em;text-transform:uppercase;padding:3px 10px;border-radius:4px;border:1px solid rgba(240,188,78,0.25);background:rgba(240,188,78,0.07);color:rgba(240,188,78,0.55);cursor:pointer;transition:all 0.15s;white-space:nowrap}#ptg-run-check:hover{border-color:var(--gb);color:var(--gold);background:var(--gd)}
 #ptg-override-badge{display:none;font-family:var(--mono);font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(240,96,96,0.55);padding:2px 8px;border-radius:3px;border:1px solid rgba(240,96,96,0.2);background:rgba(240,96,96,0.06)}
 #leo-header{display:flex;align-items:center;justify-content:space-between;padding:6px 14px;background:#08090b;border-bottom:1px solid rgba(255,255,255,0.1);flex-shrink:0;height:42px}
@@ -4229,8 +4238,15 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
       </div>
       <div id="ptg-list"></div>
       <div id="ptg-footer">
-        <button class="ptg-unlock-btn" id="ptg-unlock-btn" onclick="ptgUnlock()" disabled>Tick all to unlock</button>
+        <div id="ptg-bar-wrap" onclick="ptgUnlock()">
+          <div id="ptg-bar-fill"></div>
+          <div id="ptg-bar-label">
+            <div class="ptg-bar-dots" id="ptg-bar-dots"></div>
+            <span class="ptg-bar-count" id="ptg-bar-count">0 / 6</span>
+          </div>
+        </div>
         <button class="ptg-override-btn" onclick="ptgOverride()">Override</button>
+        <button id="ptg-skip-btn" onclick="ptgSkip()">Skip</button>
       </div>
     </div>
   </div>
@@ -9523,19 +9539,34 @@ function ptgToggle(i) {
 function _ptgUpdateState() {
   var done = _ptgChecked.filter(Boolean).length;
   var total = _ptgQs.length;
+  var pct = Math.round(done / total * 100);
+
   var counter = document.getElementById('ptg-counter');
   if (counter) counter.textContent = done + ' / ' + total;
-  var btn = document.getElementById('ptg-unlock-btn');
-  if (!btn) return;
-  if (done === total) {
-    btn.textContent = 'I\'m ready — unlock panel';
-    btn.classList.add('ready');
-    btn.disabled = false;
-  } else {
-    btn.textContent = done + ' / ' + total + ' — keep going';
-    btn.classList.remove('ready');
-    btn.disabled = true;
+
+  var fill = document.getElementById('ptg-bar-fill');
+  if (fill) fill.style.width = pct + '%';
+
+  var count = document.getElementById('ptg-bar-count');
+  if (count) count.textContent = done === total ? 'Unlock panel →' : done + ' / ' + total;
+
+  var dots = document.getElementById('ptg-bar-dots');
+  if (dots) dots.innerHTML = _ptgQs.map(function(_, i) {
+    return '<div class="ptg-bd' + (_ptgChecked[i] ? ' lit' : '') + '"></div>';
+  }).join('');
+
+  var wrap = document.getElementById('ptg-bar-wrap');
+  if (wrap) {
+    if (done === total) {
+      wrap.classList.add('ready');
+    } else {
+      wrap.classList.remove('ready');
+    }
   }
+}
+function ptgSkip() {
+  _ptgLog({ type: 'skip', ts: new Date().toISOString() });
+  document.getElementById('ptg-gate').classList.remove('show');
 }
 function ptgUnlock() {
   var ts = new Date().toISOString();
@@ -9561,6 +9592,7 @@ window.ptgToggle      = ptgToggle;
 window.ptgClosePanel  = ptgClosePanel;
 window.ptgOverride    = ptgOverride;
 window.ptgUnlock      = ptgUnlock;
+window.ptgSkip        = ptgSkip;
 
 // ── DIRECTION ─────────────────────────────────────────
 function leoSetDirection(dir) {
