@@ -321,9 +321,10 @@ table.adm-table tbody tr.selected{background:var(--gd)}
             <th>Rank</th>
             <th>Streak</th>
             <th>Win Rate</th>
-            <th>Avg R</th>
             <th>Total Trades</th>
-            <th>Weekly R</th>
+            <th>Today P&amp;L</th>
+            <th>This Week</th>
+            <th>Month Est.</th>
             <th>Rules Today</th>
             <th>Last Active</th>
           </tr></thead>
@@ -867,6 +868,14 @@ function buildTraderStats(trader) {
   var avgUsd   = total ? totalUsd/total : 0;
   var wR       = weeklyR(sessions);
   var wUsd     = sessions.filter(function(s){ return s.date>=isoMonday(); }).reduce(function(s,x){ return s+(x.totalUsd||0); },0);
+  // Today P&L — sum raw trades for today (most accurate, no rounding via sessions)
+  var todayUsd = Math.round(myTrades.filter(function(t){ return t.date===isoToday(); }).reduce(function(s,t){ return s+tradeUsd(t); },0));
+  // Month P&L — sum raw trades from month start
+  var monthStart = isoMonthStart();
+  var monthUsd = Math.round(myTrades.filter(function(t){ return t.date>=monthStart; }).reduce(function(s,t){ return s+tradeUsd(t); },0));
+  // Monthly estimate — extrapolate from daily avg × ~20 trading days
+  var daysElapsed = Math.max(1, Math.round((new Date() - new Date(monthStart)) / 86400000));
+  var monthEst = daysElapsed > 0 ? Math.round((monthUsd / daysElapsed) * 20) : 0;
   var lastActive = sessions.length ? sessions[0].date : null;
   var todaySummary = mySums.find(function(s){ return s.date===isoToday(); });
   var todayMorning = latestMorning(myMornings, uid, isoToday());
@@ -901,6 +910,7 @@ function buildTraderStats(trader) {
   return { streak, rank, wins, losses, total, wr, totalR: Math.round(totalR*100)/100,
            totalUsd: Math.round(totalUsd), avgR: Math.round(avgR*100)/100, avgUsd: Math.round(avgUsd),
            weeklyR: Math.round(wR*100)/100, weeklyUsd: Math.round(wUsd),
+           todayUsd, monthUsd, monthEst,
            lastActive, sessions, todaySummary, todayMorning, myMornings,
            bestSetup, bestAvgR: Math.round(bestAvgR*100)/100,
            longWR, shortWR, longs: longs.length, shorts: shorts.length,
@@ -956,9 +966,10 @@ function renderOverview() {
       '<td><span class="rank-badge '+rankClass(s.rank)+'">'+s.rank+'</span></td>' +
       '<td><span style="font-family:var(--mono);font-size:12px;color:'+(s.streak>0?'var(--gold)':'var(--text3)')+'">'+s.streak+'d</span></td>' +
       '<td>'+wrBar+'</td>' +
-      '<td><span style="font-family:var(--mono);font-size:11px;color:'+rColor(s.avgR)+'">'+( s.total?fmtUsdAdmin(s.avgUsd||0):'—' )+'</span></td>' +
       '<td><span style="font-family:var(--mono);font-size:11px;">'+s.total+'</span></td>' +
-      '<td><span style="font-family:var(--mono);font-size:11px;color:'+rColor(s.weeklyR)+'">'+fmtUsdAdmin(s.weeklyUsd||0)+'</span></td>' +
+      '<td><span style="font-family:var(--mono);font-size:12px;font-weight:600;color:'+rColor(s.todayUsd||0)+'">'+( s.todayUsd ? fmtUsdAdmin(s.todayUsd) : '<span style="color:var(--text3)">—</span>' )+'</span></td>' +
+      '<td><span style="font-family:var(--mono);font-size:12px;font-weight:600;color:'+rColor(s.weeklyUsd||0)+'">'+fmtUsdAdmin(s.weeklyUsd||0)+'</span></td>' +
+      '<td><span style="font-family:var(--mono);font-size:11px;color:'+rColor(s.monthEst||0)+'">'+( s.monthUsd ? fmtUsdAdmin(s.monthEst||0) : '<span style="color:var(--text3)">—</span>' )+'</span></td>' +
       '<td><div style="display:flex;align-items:center;gap:6px">'+rfDot+'<span style="font-size:11px;color:var(--text2)">'+rulesVal+'</span></div></td>' +
       '<td><span style="font-family:var(--mono);font-size:10px;color:var(--text3)">'+(s.lastActive||'Never')+'</span></td>' +
       '</tr>';
@@ -996,9 +1007,11 @@ function openDetail(uid) {
   document.getElementById('detail-stats-col').innerHTML =
     statR('Total trades', s.total) +
     statR('Win rate', s.total ? s.wr+'%' : '—') +
+    statR('Today P&L', s.todayUsd ? fmtUsdAdmin(s.todayUsd) : '—') +
+    statR('This Week', fmtUsdAdmin(s.weeklyUsd||0)) +
+    statR('Month Est.', s.monthUsd ? fmtUsdAdmin(s.monthEst||0) : '—') +
     statR('Total USD', s.total ? fmtUsdAdmin(s.totalUsd) : '—') +
     statR('Avg USD / trade', s.total ? fmtUsdAdmin(s.avgUsd) : '—') +
-    statR('Weekly USD', fmtUsdAdmin(s.weeklyUsd)) +
     statR('Current streak', s.streak+'d');
 
   document.getElementById('detail-behaviour-col').innerHTML =
