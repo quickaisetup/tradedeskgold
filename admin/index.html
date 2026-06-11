@@ -890,12 +890,15 @@ function buildTraderStats(trader) {
   var wUsd = Object.keys(dateUsd).filter(function(d){ return d>=monday && d<=today; }).reduce(function(s,d){ return s+(dateUsd[d]||0); },0);
   wUsd = Math.round(wUsd);
 
-  // Month: monthStart → today
-  var monthUsd = Math.round(Object.keys(dateUsd).filter(function(d){ return d>=monthStart && d<=today; }).reduce(function(s,d){ return s+(dateUsd[d]||0); },0));
+  // Month: sum of all sessions this calendar month (using authoritative USD)
+  var monthDates = Object.keys(dateUsd).filter(function(d){ return d>=monthStart && d<=today; });
+  var monthUsd = Math.round(monthDates.reduce(function(s,d){ return s+(dateUsd[d]||0); },0));
 
-  // Monthly estimate — extrapolate from daily avg × 20 trading days
-  var daysElapsed = Math.max(1, Object.keys(dateUsd).filter(function(d){ return d>=monthStart && d<=today; }).length);
-  var monthEst = daysElapsed > 0 ? Math.round((monthUsd / daysElapsed) * 20) : 0;
+  // Monthly estimate — same formula as main app:
+  // (this month total USD / trading sessions this month) × 21.65 trading days/month
+  var TRADING_DAYS_PER_MONTH = 21.65;
+  var monthSessions = monthDates.length; // count of days that had activity
+  var monthEst = monthSessions > 0 ? Math.round((monthUsd / monthSessions) * TRADING_DAYS_PER_MONTH) : 0;
   var lastActive = sessions.length ? sessions[0].date : null;
   var todaySummary = mySums.find(function(s){ return s.date===isoToday(); });
   var todayMorning = latestMorning(myMornings, uid, isoToday());
