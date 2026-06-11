@@ -1621,6 +1621,20 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 .kl-pill{display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:3px;font-size:9px;letter-spacing:0.06em}
 .kl-pill.long{background:rgba(78,214,138,0.12);border:1px solid rgba(78,214,138,0.4);color:#4ed68a}
 .kl-pill.short{background:rgba(240,96,96,0.12);border:1px solid rgba(240,96,96,0.4);color:#f06060}
+#kl-hover-card{display:none;position:fixed;z-index:99999;min-width:260px;max-width:340px;background:#0d0f14;border:1px solid rgba(255,255,255,0.12);border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,0.7),0 4px 20px rgba(0,0,0,0.5);padding:18px 20px;pointer-events:none}
+#kl-hover-card.show{display:block}
+.klh-dir{font-family:var(--display);font-size:13px;letter-spacing:0.12em;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.klh-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px}
+.klh-cell{display:flex;flex-direction:column;gap:3px}
+.klh-lbl{font-family:var(--mono);font-size:7px;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.3)}
+.klh-val{font-family:var(--mono);font-size:15px;font-weight:700;letter-spacing:0.01em}
+.klh-rr{font-family:var(--mono);font-size:11px;font-weight:700;padding:3px 10px;border-radius:5px;display:inline-block}
+.klh-divider{height:1px;background:rgba(255,255,255,0.07);margin:10px 0}
+.klh-tags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
+.klh-tag{font-family:var(--mono);font-size:8px;padding:2px 8px;border-radius:4px;border:1px solid rgba(255,255,255,0.14);color:rgba(255,255,255,0.5)}
+.klh-notes{font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.4);font-style:italic;line-height:1.5}
+.klh-conf-row{display:flex;align-items:center;gap:6px;margin-top:6px}
+.klh-conf-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
 
 /* SYMBOL + EMA + PRICE BAR */
 #leo-ltf-trend-bar{display:flex;align-items:center;gap:6px;padding:5px 14px;background:#0a0b0e;border-bottom:1px solid rgba(255,255,255,0.07);flex-shrink:0}
@@ -4319,6 +4333,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
       <div id="leo-dir" style="font-family:var(--mono);font-size:9px;color:var(--text3)">—</div>
     </div>
     <div id="leo-kl-bar"></div>
+    <div id="kl-hover-card"></div>
     <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
       <div id="leo-live-price" style="font-family:var(--mono);font-size:13px;color:var(--gold);letter-spacing:0.05em">—</div>
       <span id="ptg-override-badge">⚠ gate overridden</span>
@@ -9793,7 +9808,8 @@ function leoRenderKLBar() {
     var slDist = (l.price && l.sl) ? Math.abs(parseFloat(l.sl)-parseFloat(l.price)) : 0;
     var rr     = (tpDist && slDist) ? (tpDist/slDist).toFixed(1)+'R' : '';
     var confs  = (l.confluence && l.confluence.length) ? l.confluence.slice(0,2) : [];
-    return '<div class="kl-pill-rich" style="display:inline-flex;align-items:center;gap:0;border-radius:6px;border:1px solid '+gbd+';background:'+gb+';overflow:hidden;flex-shrink:0">' +
+    var lid = l.id;
+    return '<div class="kl-pill-rich" onmouseenter="klhShow('+lid+',this)" onmouseleave="klhHide()" style="display:inline-flex;align-items:center;gap:0;border-radius:6px;border:1px solid '+gbd+';background:'+gb+';overflow:hidden;flex-shrink:0;position:relative">' +
       // Direction + entry
       '<div style="display:flex;align-items:center;gap:5px;padding:5px 10px;background:'+gb2+';border-right:1px solid '+gbd+'">' +
         '<span style="font-family:var(--display);font-size:10px;color:'+gc+';letter-spacing:0.08em">'+arr+'</span>' +
@@ -9823,6 +9839,82 @@ function leoRenderKLBar() {
     '</div>';
   }).join('');
 }
+
+// ── KEY LEVEL HOVER CARD ──────────────────────────────
+var _klhHideTimer = null;
+function klhShow(id, el) {
+  clearTimeout(_klhHideTimer);
+  var l = (levels || []).find(function(x){ return x.id === id; });
+  if (!l) return;
+  var card = document.getElementById('kl-hover-card');
+  if (!card) return;
+
+  var isLong = l.type === 'long' || l.direction === 'long';
+  var gc  = isLong ? '#4ed68a' : '#f06060';
+  var gc2 = isLong ? 'rgba(78,214,138,0.15)' : 'rgba(240,96,96,0.15)';
+  var gbd = isLong ? 'rgba(78,214,138,0.3)'  : 'rgba(240,96,96,0.3)';
+  var arr = isLong ? '▲' : '▼';
+  var confLbls = ['','Low','Med','High'];
+
+  var entry = l.price ? parseFloat(l.price).toFixed(2) : '—';
+  var sl    = l.sl    ? parseFloat(l.sl).toFixed(2)    : '—';
+  var tp    = l.tp    ? parseFloat(l.tp).toFixed(2)    : '—';
+  var tpD   = (l.price && l.tp) ? Math.abs(parseFloat(l.tp)-parseFloat(l.price)) : 0;
+  var slD   = (l.price && l.sl) ? Math.abs(parseFloat(l.sl)-parseFloat(l.price)) : 0;
+  var rr    = (tpD && slD) ? (tpD/slD).toFixed(2)+'R' : '—';
+  var rrNum = parseFloat(rr) || 0;
+  var rrClr = rrNum >= 2 ? '#4ed68a' : rrNum >= 1.5 ? '#f0bc4e' : rrNum >= 1 ? '#aaa' : '#f06060';
+
+  var ptsEntry = l.price ? parseFloat(l.price) : 0;
+  var ptsSL    = l.sl    ? Math.abs(ptsEntry - parseFloat(l.sl)).toFixed(1)   : '—';
+  var ptsTP    = l.tp    ? Math.abs(parseFloat(l.tp) - ptsEntry).toFixed(1)   : '—';
+
+  var confs = (l.confluence && l.confluence.length) ? l.confluence : [];
+  var confLvl = l.confidence ? confLbls[l.confidence] : '';
+
+  card.innerHTML =
+    '<div class="klh-dir" style="color:'+gc+';border-bottom:1px solid '+gbd+';padding-bottom:12px;margin-bottom:14px">' +
+      '<span style="font-size:16px">'+arr+'</span>' +
+      '<span style="letter-spacing:0.12em">'+(isLong?'LONG SETUP':'SHORT SETUP')+'</span>' +
+      (confLvl ? '<span style="font-family:var(--mono);font-size:8px;padding:2px 8px;border-radius:4px;border:1px solid '+gbd+';background:'+gc2+';color:'+gc+';margin-left:auto">'+confLvl+' CONF</span>' : '') +
+    '</div>' +
+    '<div class="klh-grid">' +
+      '<div class="klh-cell">' +
+        '<span class="klh-lbl">Entry</span>' +
+        '<span class="klh-val" style="color:'+gc+'">'+entry+'</span>' +
+      '</div>' +
+      '<div class="klh-cell">' +
+        '<span class="klh-lbl">Stop Loss</span>' +
+        '<span class="klh-val" style="color:#f06060">'+sl+'</span>' +
+        (slD ? '<span style="font-family:var(--mono);font-size:8px;color:rgba(240,96,96,0.5)">'+ptsSL+' pts</span>' : '') +
+      '</div>' +
+      '<div class="klh-cell">' +
+        '<span class="klh-lbl">Take Profit</span>' +
+        '<span class="klh-val" style="color:#6aa3f5">'+tp+'</span>' +
+        (tpD ? '<span style="font-family:var(--mono);font-size:8px;color:rgba(106,163,245,0.5)">'+ptsTP+' pts</span>' : '') +
+      '</div>' +
+    '</div>' +
+    '<div style="display:flex;align-items:center;gap:8px;margin-bottom:'+(confs.length||l.notes?'12px':'0')+'">' +
+      '<span class="klh-lbl">Risk/Reward</span>' +
+      '<span class="klh-rr" style="color:'+rrClr+';background:'+rrClr+'22;border:1px solid '+rrClr+'44">'+rr+'</span>' +
+    '</div>' +
+    (confs.length ? '<div class="klh-divider"></div><div style="margin-bottom:6px"><div class="klh-lbl" style="margin-bottom:6px">Confluences</div><div class="klh-tags">'+confs.map(function(c){ return '<span class="klh-tag">'+c+'</span>'; }).join('')+'</div></div>' : '') +
+    (l.notes ? '<div class="klh-divider"></div><div class="klh-notes">'+l.notes+'</div>' : '');
+
+  // Position: below the hovered pill
+  var rect = el.getBoundingClientRect();
+  card.style.left = Math.min(rect.left, window.innerWidth - 360) + 'px';
+  card.style.top  = (rect.bottom + 8) + 'px';
+  card.classList.add('show');
+}
+function klhHide() {
+  _klhHideTimer = setTimeout(function(){
+    var card = document.getElementById('kl-hover-card');
+    if (card) card.classList.remove('show');
+  }, 120);
+}
+window.klhShow = klhShow;
+window.klhHide = klhHide;
 
 // ── ALARM SOUNDS ─────────────────────────────────────
 var _alertSoundInterval = null;
