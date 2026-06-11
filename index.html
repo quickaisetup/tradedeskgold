@@ -1543,6 +1543,31 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 .ptg-item-gold.checked .ptg-cb{background:rgba(240,188,78,0.28)!important;border-color:rgba(240,188,78,0.8)!important;color:#f5c842!important}
 .ptg-item-gold.checked .ptg-main{color:#f5c842!important}
 #ptg-skip-btn{padding:0 18px;height:50px;border-radius:10px;font-family:var(--mono);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;background:rgba(240,96,96,0.1);border:1px solid rgba(240,96,96,0.3);color:var(--red);transition:all 0.15s;white-space:nowrap}#ptg-skip-btn:hover{background:rgba(240,96,96,0.2);border-color:rgba(240,96,96,0.5)}
+/* ── Rules Gate ── */
+#rg-gate{display:none;position:absolute;inset:0;z-index:50;background:rgba(4,5,7,0.98);flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;overflow-y:auto}
+#rg-gate.show{display:flex}
+#rg-inner{max-width:560px;width:100%}
+#rg-header{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:28px}
+#rg-title{font-family:var(--display);font-size:26px;letter-spacing:0.1em;color:var(--text)}
+#rg-counter{font-family:var(--mono);font-size:11px;color:var(--text3);letter-spacing:0.12em}
+#rg-list{display:flex;flex-direction:column;gap:8px;margin-bottom:24px}
+.rg-item{display:flex;align-items:center;gap:16px;padding:16px 18px;border-radius:10px;border:1px solid rgba(255,255,255,0.09);background:rgba(255,255,255,0.03);cursor:pointer;transition:all 0.18s;user-select:none}
+.rg-item:hover{border-color:rgba(255,255,255,0.18);background:rgba(255,255,255,0.06)}
+.rg-item.checked{border-color:rgba(78,214,138,0.38);background:rgba(78,214,138,0.07)}
+.rg-cb{width:24px;height:24px;border-radius:6px;border:1.5px solid rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:14px;color:transparent;transition:all 0.18s;flex-shrink:0}
+.rg-item.checked .rg-cb{background:rgba(78,214,138,0.22);border-color:rgba(78,214,138,0.6);color:var(--green)}
+.rg-text{font-size:15px;font-weight:500;color:var(--text);line-height:1.4;transition:color 0.18s}
+.rg-item.checked .rg-text{color:rgba(78,214,138,0.75)}
+#rg-footer{display:flex;gap:10px;align-items:center}
+#rg-bar-wrap{flex:1;position:relative;height:50px;border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.03);cursor:default;transition:border-color 0.3s,box-shadow 0.3s}
+#rg-bar-wrap.ready{border-color:rgba(78,214,138,0.5);box-shadow:0 0 24px rgba(78,214,138,0.22);cursor:pointer}
+#rg-bar-fill{position:absolute;inset:0 auto 0 0;width:0%;background:linear-gradient(90deg,rgba(78,214,138,0.15),rgba(78,214,138,0.28));transition:width 0.35s cubic-bezier(0.4,0,0.2,1);border-right:1px solid rgba(78,214,138,0.3)}
+#rg-bar-wrap.ready #rg-bar-fill{background:linear-gradient(90deg,rgba(78,214,138,0.25),rgba(78,214,138,0.42))}
+#rg-bar-label{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:12px;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.3);pointer-events:none;transition:color 0.3s}
+#rg-bar-wrap.ready #rg-bar-label{color:var(--green)}
+#rg-bar-count{font-size:14px;font-weight:700}
+#rg-skip-btn{padding:0 18px;height:50px;border-radius:10px;font-family:var(--mono);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;background:rgba(240,96,96,0.1);border:1px solid rgba(240,96,96,0.3);color:var(--red);transition:all 0.15s;white-space:nowrap}
+#rg-skip-btn:hover{background:rgba(240,96,96,0.2);border-color:rgba(240,96,96,0.5)}
 #ptg-mantra{margin-top:28px;text-align:center;font-family:var(--display);font-size:11px;letter-spacing:0.28em;text-transform:uppercase;color:var(--gold);opacity:0.7;user-select:none}
 #ptg-run-check{font-family:var(--mono);font-size:8px;letter-spacing:0.1em;text-transform:uppercase;padding:3px 10px;border-radius:4px;border:1px solid rgba(240,188,78,0.25);background:rgba(240,188,78,0.07);color:rgba(240,188,78,0.55);cursor:pointer;transition:all 0.15s;white-space:nowrap}#ptg-run-check:hover{border-color:var(--gb);color:var(--gold);background:var(--gd)}
 #ptg-override-badge{display:none;font-family:var(--mono);font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(240,96,96,0.55);padding:2px 8px;border-radius:3px;border:1px solid rgba(240,96,96,0.2);background:rgba(240,96,96,0.06)}
@@ -4260,6 +4285,26 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
           </div>
         </div>
         <button id="ptg-skip-btn" onclick="ptgSkip()">Skip</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rules Gate (shown after PTG checklist) -->
+  <div id="rg-gate">
+    <div id="rg-inner">
+      <div id="rg-header">
+        <div id="rg-title">My Trading Rules</div>
+        <div id="rg-counter">0 / 0</div>
+      </div>
+      <div id="rg-list"></div>
+      <div id="rg-footer">
+        <div id="rg-bar-wrap" onclick="rgUnlock()">
+          <div id="rg-bar-fill"></div>
+          <div id="rg-bar-label">
+            <span id="rg-bar-count">0 / 0</span>
+          </div>
+        </div>
+        <button id="rg-skip-btn" onclick="rgSkip()">Skip</button>
       </div>
     </div>
   </div>
@@ -9587,7 +9632,53 @@ function ptgUnlock() {
   _ptgLog({ type: 'pass', ts: ts, answers: _ptgChecked });
   localStorage.removeItem('ptg_stopout_pending');
   document.getElementById('ptg-gate').classList.remove('show');
+  rgOpen();
 }
+
+// ── Rules Gate ──────────────────────────────────────────
+var _rgChecked = [];
+function rgOpen() {
+  var rules = (window._currentRules && window._currentRules.length) ? window._currentRules : [];
+  if (!rules.length) return; // no rules saved — skip straight through
+  _rgChecked = new Array(rules.length).fill(false);
+  var list = document.getElementById('rg-list');
+  list.innerHTML = rules.map(function(r, i) {
+    return '<div class="rg-item" id="rg-item-'+i+'" onclick="rgToggle('+i+')">' +
+      '<div class="rg-cb" id="rg-cb-'+i+'">✓</div>' +
+      '<div class="rg-text">'+r+'</div>' +
+    '</div>';
+  }).join('');
+  _rgUpdateState();
+  document.getElementById('rg-gate').classList.add('show');
+}
+function rgToggle(i) {
+  _rgChecked[i] = !_rgChecked[i];
+  var item = document.getElementById('rg-item-'+i);
+  if (item) item.classList.toggle('checked', _rgChecked[i]);
+  _rgUpdateState();
+}
+function _rgUpdateState() {
+  var done = _rgChecked.filter(Boolean).length;
+  var total = _rgChecked.length;
+  var pct = total ? Math.round(done / total * 100) : 100;
+  document.getElementById('rg-bar-fill').style.width = pct + '%';
+  document.getElementById('rg-counter').textContent = done + ' / ' + total;
+  var count = document.getElementById('rg-bar-count');
+  count.textContent = done === total ? 'Enter panel →' : done + ' / ' + total;
+  var wrap = document.getElementById('rg-bar-wrap');
+  if (done === total) wrap.classList.add('ready');
+  else wrap.classList.remove('ready');
+}
+function rgUnlock() {
+  if (!document.getElementById('rg-bar-wrap').classList.contains('ready')) return;
+  document.getElementById('rg-gate').classList.remove('show');
+}
+function rgSkip() {
+  document.getElementById('rg-gate').classList.remove('show');
+}
+window.rgToggle = rgToggle;
+window.rgUnlock = rgUnlock;
+window.rgSkip   = rgSkip;
 function ptgClosePanel() {
   document.getElementById('ptg-gate').classList.remove('show');
   closeLiveExec();
