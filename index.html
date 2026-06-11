@@ -9856,7 +9856,7 @@ function updatePALFromRows(rows, rankName) {
   };
   renderAccountsPanel();
   // Re-patch leaderboard with fresh weekly total whenever PAL updates
-  if (window._lbLastRows && window._lbLastRows.length) renderLeaderboard(window._lbLastRows);
+  if (window._lbLastRows && window._lbLastRows.length && window.renderLeaderboard) window.renderLeaderboard(window._lbLastRows);
 }
 
 
@@ -12416,20 +12416,23 @@ function renderLeaderboard(rows) {
     var dbWeek   = Number(r.week_pnl)      || 0;
 
     // TODAY'S live P&L → replaces "today" slot
+    // TODAY'S live P&L (always from calcTodayPnl — DB "today" is yesterday's saved session)
     var liveToday = dbToday;
     if (typeof calcTodayPnl === 'function') {
       var tp = calcTodayPnl();
       if (tp.hasTrades) { liveToday = tp.total; live.yesterday_pnl = tp.total; }
     }
 
-    // THIS WEEK → use accounts-panel cache which already includes today
-    var pal = window._tdPalCache || {};
+    // THIS WEEK = DB week (Mon–yesterday, already accurate) + today's live trades
+    // The DB week_pnl does NOT include today because today hasn't been saved yet.
     var liveWeek = dbWeek;
-    if (pal.weeklyUsd != null) { liveWeek = pal.weeklyUsd; live.week_pnl = pal.weeklyUsd; }
+    if (typeof calcTodayPnl === 'function') {
+      var tp2 = calcTodayPnl();
+      if (tp2.hasTrades) { liveWeek = dbWeek + tp2.total; live.week_pnl = liveWeek; }
+    }
 
     console.log('[leaderboard] MY ROW patch — DB today:', dbToday, '→ live:', liveToday,
       '| DB week:', dbWeek, '→ live:', liveWeek,
-      '| _tdPalCache:', JSON.stringify(pal),
       '| calcTodayPnl:', typeof calcTodayPnl === 'function' ? JSON.stringify(calcTodayPnl()) : 'n/a');
     return live;
   });
@@ -13496,6 +13499,10 @@ document.addEventListener('keydown', function(e) {
   if (forgotVisible) tdlDoForgot();
   if (signupVisible) tdlDoSignup();
 });
+
+// Expose leaderboard renderer globally so block-2 code (updatePALFromRows, etc.) can call it
+window.renderLeaderboard = renderLeaderboard;
+window.loadLeaderboard   = loadLeaderboard;
 
 })();
 </script>
