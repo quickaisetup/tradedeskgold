@@ -104,6 +104,11 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 .traders-table-count{font-family:var(--mono);font-size:9px;color:var(--text3)}
 table.adm-table{width:100%;border-collapse:collapse}
 table.adm-table th{font-family:var(--mono);font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3);padding:10px 16px;text-align:left;border-bottom:1px solid var(--border);background:var(--bg3);white-space:nowrap}
+table.adm-table th.sortable{cursor:pointer;user-select:none}
+table.adm-table th.sortable:hover{color:var(--text);background:var(--bg4)}
+table.adm-table th.sort-asc::after{content:' ↑';color:var(--gold)}
+table.adm-table th.sort-desc::after{content:' ↓';color:var(--gold)}
+table.adm-table th.sort-asc,table.adm-table th.sort-desc{color:var(--gold)}
 table.adm-table td{padding:12px 16px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:middle}
 table.adm-table tr:last-child td{border-bottom:none}
 table.adm-table tbody tr{transition:background 0.12s;cursor:pointer}
@@ -317,16 +322,16 @@ table.adm-table tbody tr.selected{background:var(--gd)}
         </div>
         <table class="adm-table" id="traders-table">
           <thead><tr>
-            <th>Trader</th>
-            <th>Rank</th>
-            <th>Streak</th>
-            <th>Win Rate</th>
-            <th>Total Trades</th>
-            <th>Today P&amp;L</th>
-            <th>This Week</th>
-            <th>Month Est.</th>
+            <th class="sortable" onclick="sortOverview('name',this)">Trader</th>
+            <th class="sortable" onclick="sortOverview('rank',this)">Rank</th>
+            <th class="sortable" onclick="sortOverview('streak',this)">Streak</th>
+            <th class="sortable" onclick="sortOverview('wr',this)">Win Rate</th>
+            <th class="sortable" onclick="sortOverview('total',this)">Total Trades</th>
+            <th class="sortable" onclick="sortOverview('todayUsd',this)">Today P&amp;L</th>
+            <th class="sortable sort-desc" onclick="sortOverview('weeklyUsd',this)">This Week</th>
+            <th class="sortable" onclick="sortOverview('monthEst',this)">Month Est.</th>
             <th>Rules Today</th>
-            <th>Last Active</th>
+            <th class="sortable" onclick="sortOverview('lastActive',this)">Last Active</th>
           </tr></thead>
           <tbody id="traders-body"></tbody>
         </table>
@@ -999,6 +1004,71 @@ function renderOverview() {
   }).join('');
 
   document.getElementById('traders-body').innerHTML = rows || '<tr><td colspan="9" style="text-align:center;color:var(--text3);padding:24px;font-family:var(--mono);font-size:10px">No traders yet</td></tr>';
+
+  // Store for re-sorting without re-computing stats
+  _overviewData = traders.map(function(t,i){ return {trader:t, stats:statsArr[i]}; });
+  _overviewSort = {key:'weeklyUsd', dir:-1};
+}
+
+var _overviewData = [];
+var _overviewSort = {key:'weeklyUsd', dir:-1};
+
+function sortOverview(key, thEl) {
+  // Toggle direction if same key, else default desc
+  if (_overviewSort.key === key) {
+    _overviewSort.dir *= -1;
+  } else {
+    _overviewSort.key = key;
+    _overviewSort.dir = -1;
+  }
+  // Update header classes
+  document.querySelectorAll('#traders-table th').forEach(function(th){
+    th.classList.remove('sort-asc','sort-desc');
+  });
+  thEl.classList.add(_overviewSort.dir === 1 ? 'sort-asc' : 'sort-desc');
+
+  var dir = _overviewSort.dir;
+  var sorted = _overviewData.slice().sort(function(a, b) {
+    var av, bv;
+    switch(key) {
+      case 'name':       av = traderDisplayName(a.trader).toLowerCase(); bv = traderDisplayName(b.trader).toLowerCase(); break;
+      case 'rank':       av = a.stats.streak; bv = b.stats.streak; break;
+      case 'streak':     av = a.stats.streak; bv = b.stats.streak; break;
+      case 'wr':         av = a.stats.wr; bv = b.stats.wr; break;
+      case 'total':      av = a.stats.total; bv = b.stats.total; break;
+      case 'todayUsd':   av = a.stats.todayUsd||0; bv = b.stats.todayUsd||0; break;
+      case 'weeklyUsd':  av = a.stats.weeklyUsd||0; bv = b.stats.weeklyUsd||0; break;
+      case 'monthEst':   av = a.stats.monthEst||0; bv = b.stats.monthEst||0; break;
+      case 'lastActive': av = a.stats.lastActive||''; bv = b.stats.lastActive||''; break;
+      default: av = 0; bv = 0;
+    }
+    if (av < bv) return dir;
+    if (av > bv) return -dir;
+    return 0;
+  });
+
+  var rows = sorted.map(function(item) {
+    var t = item.trader, s = item.stats;
+    var name = traderDisplayName(t);
+    var rulesVal = s.todaySummary ? (s.todaySummary.rules_followed||'—') : '—';
+    var wrBar = s.total >= 5 ?
+      '<div class="wr-bar"><div class="wr-track"><div class="wr-fill" style="width:'+s.wr+'%;background:'+(s.wr>=60?'var(--green)':s.wr>=45?'var(--gold)':'var(--red)')+'"></div></div><span style="font-family:var(--mono);font-size:10px;color:'+(s.wr>=60?'var(--green)':s.wr>=45?'var(--gold)':'var(--red)')+'">'+s.wr+'%</span></div>' :
+      '<span style="color:var(--text3);font-family:var(--mono);font-size:10px">'+(s.total>0?s.wr+'%':'—')+'</span>';
+    var rfDot = rulesIcon(s.todaySummary ? s.todaySummary.rules_followed : '');
+    return '<tr onclick="openDetail(\''+t.id+'\')">' +
+      '<td><div style="display:flex;align-items:center;gap:10px">'+avatarHtml(t,28)+'<div><div class="trader-name">'+name+'</div><div class="trader-user">@'+(t.username||'—')+'</div></div></div></td>' +
+      '<td><span class="rank-badge '+rankClass(s.rank)+'">'+s.rank+'</span></td>' +
+      '<td><span style="font-family:var(--mono);font-size:12px;color:'+(s.streak>0?'var(--gold)':'var(--text3)')+'">'+s.streak+'d</span></td>' +
+      '<td>'+wrBar+'</td>' +
+      '<td><span style="font-family:var(--mono);font-size:11px;">'+s.total+'</span></td>' +
+      '<td><span style="font-family:var(--mono);font-size:12px;font-weight:600;color:'+rColor(s.todayUsd||0)+'">'+( s.todayUsd ? fmtUsdAdmin(s.todayUsd) : '<span style="color:var(--text3)">—</span>' )+'</span></td>' +
+      '<td><span style="font-family:var(--mono);font-size:12px;font-weight:600;color:'+rColor(s.weeklyUsd||0)+'">'+fmtUsdAdmin(s.weeklyUsd||0)+'</span></td>' +
+      '<td><span style="font-family:var(--mono);font-size:11px;color:'+rColor(s.monthEst||0)+'">'+( s.monthUsd ? fmtUsdAdmin(s.monthEst||0) : '<span style="color:var(--text3)">—</span>' )+'</span></td>' +
+      '<td><div style="display:flex;align-items:center;gap:6px">'+rfDot+'<span style="font-size:11px;color:var(--text2)">'+rulesVal+'</span></div></td>' +
+      '<td><span style="font-family:var(--mono);font-size:10px;color:var(--text3)">'+(s.lastActive||'Never')+'</span></td>' +
+      '</tr>';
+  }).join('');
+  document.getElementById('traders-body').innerHTML = rows;
 }
 
 function statBox(lbl, val, sub, mod) {
