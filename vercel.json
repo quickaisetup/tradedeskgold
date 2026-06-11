@@ -1,9 +1,11 @@
 {
   "buildCommand": "",
   "outputDirectory": ".",
+  "cleanUrls": true,
+  "trailingSlash": false,
   "rewrites": [
     { "source": "/admin", "destination": "/admin/index.html" },
-    { "source": "/admin/", "destination": "/admin/index.html" },
-    { "source": "/", "destination": "/index.html" }
+    { "source": "/admin/(.*)", "destination": "/admin/index.html" },
+    { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
