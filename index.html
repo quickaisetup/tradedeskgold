@@ -5213,12 +5213,29 @@ function _saveTFStateLocal() {
     // London bias — find selected button
     var lbEl = document.querySelector('[onclick^="setLondonBias"].sel, [onclick^="setLondonBias"].sel-bull, [onclick^="setLondonBias"].sel-bear, [onclick^="setLondonBias"].sel-range');
     var lbOnclick = lbEl ? (lbEl.getAttribute('onclick')||'') : '';
+    // Save AO/MACD indicator button selections and Elliott wave checkboxes for 4H + 1H
+    var inds = {};
+    ['4H','1H'].forEach(function(tf) {
+      var card = document.getElementById('tfc-' + tf);
+      if (!card) return;
+      inds[tf] = {};
+      card.querySelectorAll('.ind-row').forEach(function(row) {
+        var lbl = row.querySelector('.ind-lbl');
+        var sel = row.querySelector('.ib.sel');
+        if (lbl) inds[tf][lbl.textContent.trim()] = sel ? (sel.getAttribute('title') || '') : '';
+      });
+      var ewCb = document.getElementById('ew-' + tf);
+      inds[tf]['_ew'] = ewCb ? ewCb.checked : false;
+      var ewNote = document.getElementById('ew-' + tf + '-note');
+      inds[tf]['_ewNote'] = ewNote ? ewNote.value : '';
+    });
     localStorage.setItem('td_tfstate_' + today, JSON.stringify({
       tf: tfState,
       marketDir: mdOnclick,
       londonBias: lbOnclick,
       tradingMode: tradingMode || '',
-      pivot: pivotState || ''
+      pivot: pivotState || '',
+      inds: inds
     }));
   } catch(e) {}
 }
@@ -5282,6 +5299,33 @@ function _restoreTFStateLocal() {
         var oc = btn.getAttribute('onclick') || '';
         var m = oc.match(/setPivot\('([^']+)'/);
         if (m && m[1] === data.pivot) btn.click();
+      });
+    }
+
+    // AO/MACD indicator buttons + Elliott wave checkboxes
+    if (data.inds) {
+      ['4H','1H'].forEach(function(tf) {
+        var saved = data.inds[tf];
+        if (!saved) return;
+        var card = document.getElementById('tfc-' + tf);
+        if (!card) return;
+        card.querySelectorAll('.ind-row').forEach(function(row) {
+          var lbl = row.querySelector('.ind-lbl');
+          if (!lbl) return;
+          var val = saved[lbl.textContent.trim()];
+          if (!val) return;
+          row.querySelectorAll('.ib').forEach(function(btn) {
+            if ((btn.getAttribute('title') || '') === val) btn.click();
+          });
+        });
+        // Elliott wave checkbox
+        var ewCb = document.getElementById('ew-' + tf);
+        if (ewCb && saved['_ew'] && !ewCb.checked) {
+          ewCb.checked = true;
+          if (typeof toggleEW === 'function') toggleEW(tf, ewCb);
+        }
+        var ewNote = document.getElementById('ew-' + tf + '-note');
+        if (ewNote && saved['_ewNote']) ewNote.value = saved['_ewNote'];
       });
     }
 
@@ -5634,6 +5678,7 @@ function setFinalBias(val) {
 function toggleEW(tf, cb) {
   const note = document.getElementById('ew-' + tf + '-note');
   if (note) note.style.display = cb.checked ? 'block' : 'none';
+  _saveTFStateLocal();
 }
 
 function setInd(btn, dir) {
@@ -5653,6 +5698,7 @@ function setInd(btn, dir) {
     if (c[dir]) { btn.style.color = c[dir]; btn.style.borderColor = c[dir]; }
   }
   updateVerdictAuto();
+  _saveTFStateLocal();
 }
 function colorTFCard(tf) {
   var card = document.getElementById('tfc-' + tf);
