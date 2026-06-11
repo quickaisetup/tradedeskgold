@@ -780,16 +780,28 @@ function avatarHtml(t, size) {
 }
 function computeStreak(sessions) {
   // sessions sorted ascending. Streak = consecutive days with rules_followed != 'No'
+  // Days without an EOD summary (rulesFollowed='') are skipped, not streak-breaking.
   var sorted = sessions.slice().sort(function(a,b){ return a.date.localeCompare(b.date); });
   var streak = 0;
   for (var i = sorted.length-1; i >= 0; i--) {
     var rf = (sorted[i].rulesFollowed||'').toLowerCase();
     if (rf === 'yes' || rf === 'mostly') streak++;
-    else if (rf === 'no') { break; }
-    // empty = stop streak without breaking
-    else break;
+    else if (rf === 'no') break;
+    // empty = skip (no EOD summary that day), don't break streak
   }
   return streak;
+}
+function computeWinStreak(trades) {
+  var sorted = (trades||[]).slice().sort(function(a,b){ return (b.date||'').localeCompare(a.date||'')||(String(b.id||'')).localeCompare(String(a.id||'')); });
+  if (!sorted.length) return 0;
+  var first = sorted[0].result;
+  if (first !== 'Win' && first !== 'Loss') return 0;
+  var count = 0;
+  for (var i = 0; i < sorted.length; i++) {
+    if (sorted[i].result === first) count++;
+    else break;
+  }
+  return first === 'Win' ? count : -count;
 }
 function computeRank(streak) {
   if (streak >= 60) return 'GOD MODE';
@@ -823,6 +835,17 @@ function rulesIcon(rf) {
   if (rf==='mostly') return '<span class="rules-dot rules-mostly"></span>';
   if (rf==='no')     return '<span class="rules-dot rules-no"></span>';
   return '<span class="rules-dot rules-none"></span>';
+}
+function streakCell(s) {
+  // Rules streak (based on EOD summaries) takes priority
+  if (s.streak > 0) {
+    return '<span style="font-family:var(--mono);font-size:12px;color:var(--gold)">+'+s.streak+'d</span>';
+  }
+  // Fallback: win/loss trade streak
+  var ws = s.winStreak || 0;
+  if (ws >= 2)  return '<span style="font-family:var(--mono);font-size:12px;color:var(--green)">+'+ws+'W</span>';
+  if (ws <= -2) return '<span style="font-family:var(--mono);font-size:12px;color:var(--red)">'+Math.abs(ws)+'L</span>';
+  return '<span style="font-family:var(--mono);font-size:12px;color:var(--text3)">0</span>';
 }
 
 // Build per-trader computed stats
@@ -935,7 +958,8 @@ function buildTraderStats(trader) {
   var rulesTotal  = rulesYes + rulesMostly + rulesNo;
   var rulesPct    = rulesTotal ? Math.round((rulesYes+rulesMostly)/rulesTotal*100) : null;
 
-  return { streak, rank, wins, losses, total, wr, totalR: Math.round(totalR*100)/100,
+  var winStreak = computeWinStreak(myTrades);
+  return { streak, rank, winStreak, wins, losses, total, wr, totalR: Math.round(totalR*100)/100,
            totalUsd: Math.round(totalUsd), avgR: Math.round(avgR*100)/100, avgUsd: Math.round(avgUsd),
            weeklyR: Math.round(wR*100)/100, weeklyUsd: Math.round(wUsd),
            todayUsd, monthUsd, monthEst,
@@ -992,7 +1016,7 @@ function renderOverview() {
         avatarHtml(t, 28) +
         '<div><div class="trader-name">'+name+'</div><div class="trader-user">@'+(t.username||'—')+'</div></div></div></td>' +
       '<td><span class="rank-badge '+rankClass(s.rank)+'">'+s.rank+'</span></td>' +
-      '<td><span style="font-family:var(--mono);font-size:12px;color:'+(s.streak>0?'var(--gold)':'var(--text3)')+'">'+s.streak+'d</span></td>' +
+      '<td>'+streakCell(s)+'</td>' +
       '<td>'+wrBar+'</td>' +
       '<td><span style="font-family:var(--mono);font-size:11px;">'+s.total+'</span></td>' +
       '<td><span style="font-family:var(--mono);font-size:12px;font-weight:600;color:'+rColor(s.todayUsd||0)+'">'+( s.todayUsd ? fmtUsdAdmin(s.todayUsd) : '<span style="color:var(--text3)">—</span>' )+'</span></td>' +
@@ -1058,7 +1082,7 @@ function sortOverview(key, thEl) {
     return '<tr onclick="openDetail(\''+t.id+'\')">' +
       '<td><div style="display:flex;align-items:center;gap:10px">'+avatarHtml(t,28)+'<div><div class="trader-name">'+name+'</div><div class="trader-user">@'+(t.username||'—')+'</div></div></div></td>' +
       '<td><span class="rank-badge '+rankClass(s.rank)+'">'+s.rank+'</span></td>' +
-      '<td><span style="font-family:var(--mono);font-size:12px;color:'+(s.streak>0?'var(--gold)':'var(--text3)')+'">'+s.streak+'d</span></td>' +
+      '<td>'+streakCell(s)+'</td>' +
       '<td>'+wrBar+'</td>' +
       '<td><span style="font-family:var(--mono);font-size:11px;">'+s.total+'</span></td>' +
       '<td><span style="font-family:var(--mono);font-size:12px;font-weight:600;color:'+rColor(s.todayUsd||0)+'">'+( s.todayUsd ? fmtUsdAdmin(s.todayUsd) : '<span style="color:var(--text3)">—</span>' )+'</span></td>' +
@@ -1155,6 +1179,31 @@ function renderAnalysis() {
   var dateStr = _analysisDate === 'yesterday' ? isoYesterday() : isoToday();
   var grid = document.getElementById('analysis-grid');
   var traders = _allData.traders;
+
+  // Bias summary bar
+  var bCount = {bull:0, bear:0, neutral:0, none:0};
+  traders.forEach(function(t) {
+    var m = latestMorning(_allData.mornings, t.id, dateStr);
+    if (!m) { bCount.none++; return; }
+    var v = (m.verdict||'').toLowerCase();
+    if (v.includes('bull')||v.includes('buy')) bCount.bull++;
+    else if (v.includes('bear')||v.includes('sell')) bCount.bear++;
+    else if (v) bCount.neutral++;
+    else bCount.none++;
+  });
+  var bTotal = traders.length;
+  var summaryBar = bTotal ? '<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;padding:10px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;flex-wrap:wrap">' +
+    '<span style="font-family:var(--mono);font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3);margin-right:4px">Group Bias</span>' +
+    (bCount.bull  ? '<span style="font-family:var(--mono);font-size:11px;font-weight:600;color:var(--green)">▲ '+bCount.bull+' Bullish</span>' : '') +
+    (bCount.bear  ? '<span style="font-family:var(--mono);font-size:11px;font-weight:600;color:var(--red)">▼ '+bCount.bear+' Bearish</span>' : '') +
+    (bCount.neutral?'<span style="font-family:var(--mono);font-size:11px;color:var(--gold)">◆ '+bCount.neutral+' Neutral</span>' : '') +
+    (bCount.none  ? '<span style="font-family:var(--mono);font-size:11px;color:var(--text3)">— '+bCount.none+' No Analysis</span>' : '') +
+    '<div style="flex:1;height:4px;background:var(--bg4);border-radius:2px;overflow:hidden;min-width:80px;margin-left:8px">' +
+      (bCount.bull  ? '<div style="height:100%;float:left;background:var(--green);width:'+Math.round(bCount.bull/bTotal*100)+'%"></div>' : '') +
+      (bCount.neutral?'<div style="height:100%;float:left;background:var(--gold);width:'+Math.round(bCount.neutral/bTotal*100)+'%"></div>' : '') +
+      (bCount.bear  ? '<div style="height:100%;float:left;background:var(--red);width:'+Math.round(bCount.bear/bTotal*100)+'%"></div>' : '') +
+    '</div>' +
+  '</div>' : '';
 
   var cards = traders.map(function(t) {
     var morning = latestMorning(_allData.mornings, t.id, dateStr);
@@ -1274,7 +1323,7 @@ function renderAnalysis() {
     '</div>';
   }).join('');
 
-  grid.innerHTML = cards || '<div class="empty-state"><div class="big">📊</div>No data for this date</div>';
+  grid.innerHTML = summaryBar + (cards || '<div class="empty-state"><div class="big">📊</div>No data for this date</div>');
 }
 
 // ── SUMMARIES PAGE ─────────────────────────────────────────────────────────
@@ -1750,28 +1799,97 @@ async function confirmDeleteUser() {
   }
 }
 
-var _tvChartInit = false;
-function initTVChart() {
-  if (_tvChartInit) return;
-  _tvChartInit = true;
-  var s = document.createElement('script');
-  s.src = 'https://s3.tradingview.com/tv.js';
-  s.onload = function() {
-    new TradingView.widget({
-      container_id: 'tv-chart-container',
-      symbol: 'OANDA:XAUUSD',
-      interval: 'D',
-      timezone: 'Asia/Bangkok',
-      theme: 'dark',
-      style: '1',
-      locale: 'en',
-      toolbar_bg: '#0e0f11',
-      hide_side_toolbar: false,
-      allow_symbol_change: true,
-      autosize: true,
+var _lwChart = null;
+var _lwCandleSeries = null;
+var _lwPriceLines = [];
+var _lwInited = false;
+
+async function initTVChart() {
+  if (_lwInited) return;
+  _lwInited = true;
+  var container = document.getElementById('tv-chart-container');
+  container.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:480px;font-family:var(--mono);font-size:10px;color:var(--text3)">Loading chart…</div>';
+  try {
+    await new Promise(function(res, rej) {
+      var s = document.createElement('script');
+      s.src = 'https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js';
+      s.onload = res; s.onerror = rej;
+      document.head.appendChild(s);
     });
-  };
-  document.head.appendChild(s);
+    container.innerHTML = '';
+    var chart = LightweightCharts.createChart(container, {
+      width: container.clientWidth, height: 480,
+      layout: { background: { color: 'rgba(14,15,17,0)' }, textColor: '#b0aaa0' },
+      grid: { vertLines: { color: 'rgba(255,255,255,0.04)' }, horzLines: { color: 'rgba(255,255,255,0.04)' } },
+      rightPriceScale: { borderColor: 'rgba(255,255,255,0.08)' },
+      timeScale: { borderColor: 'rgba(255,255,255,0.08)', timeVisible: true }
+    });
+    var candleSeries = chart.addCandlestickSeries({
+      upColor: '#4ed68a', downColor: '#f06060',
+      borderUpColor: '#4ed68a', borderDownColor: '#f06060',
+      wickUpColor: '#4ed68a', wickDownColor: '#f06060'
+    });
+    _lwChart = chart; _lwCandleSeries = candleSeries;
+    new ResizeObserver(function() { chart.applyOptions({ width: container.clientWidth }); }).observe(container);
+    // Fetch XAUUSD daily data (GC=F via Yahoo Finance)
+    try {
+      var r = await fetch('https://query1.finance.yahoo.com/v8/finance/chart/GC=F?interval=1d&range=90d');
+      var j = await r.json();
+      var res = j.chart.result[0];
+      var q = res.indicators.quote[0];
+      var data = res.timestamp.map(function(t,i){
+        if (!q.open[i]||!q.close[i]) return null;
+        return {time:t, open:q.open[i], high:q.high[i], low:q.low[i], close:q.close[i]};
+      }).filter(Boolean);
+      candleSeries.setData(data);
+      chart.timeScale().fitContent();
+    } catch(e) {
+      console.warn('[admin] chart data fetch failed:', e.message);
+      // Chart still usable — level lines will still show on price axis
+    }
+    drawLevelLines();
+  } catch(e) {
+    container.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:120px;font-family:var(--mono);font-size:10px;color:var(--text3)">Chart unavailable</div>';
+  }
+}
+
+function drawLevelLines() {
+  if (!_lwCandleSeries) return;
+  _lwPriceLines.forEach(function(pl){ try { _lwCandleSeries.removePriceLine(pl); } catch(e){} });
+  _lwPriceLines = [];
+  if (!_allData) return;
+  var dateStr = _lvlDateFilter === 'yesterday' ? isoYesterday() : isoToday();
+  _allData.traders.forEach(function(t) {
+    if (_lvlTraderFilter !== 'all' && _lvlTraderFilter !== t.id) return;
+    var morning = latestMorning(_allData.mornings, t.id, dateStr);
+    if (!morning || !morning.levels_json) return;
+    var lvls = []; try { lvls = JSON.parse(morning.levels_json); } catch(e){}
+    var shortName = traderDisplayName(t).split(' ')[0];
+    lvls.forEach(function(lv) {
+      var isLong = (lv.direction||'').toLowerCase() === 'long';
+      if (lv.price) {
+        _lwPriceLines.push(_lwCandleSeries.createPriceLine({
+          price: parseFloat(lv.price), color: isLong ? '#4ed68a' : '#f06060',
+          lineWidth: 2, lineStyle: 0, axisLabelVisible: true,
+          title: (isLong ? '▲ ' : '▼ ') + shortName
+        }));
+      }
+      if (lv.tp) {
+        _lwPriceLines.push(_lwCandleSeries.createPriceLine({
+          price: parseFloat(lv.tp), color: 'rgba(78,214,138,0.55)',
+          lineWidth: 1, lineStyle: 2, axisLabelVisible: true,
+          title: 'TP ' + shortName
+        }));
+      }
+      if (lv.sl) {
+        _lwPriceLines.push(_lwCandleSeries.createPriceLine({
+          price: parseFloat(lv.sl), color: 'rgba(240,96,96,0.55)',
+          lineWidth: 1, lineStyle: 2, axisLabelVisible: true,
+          title: 'SL ' + shortName
+        }));
+      }
+    });
+  });
 }
 
 var _lvlTraderFilter = 'all';
@@ -1865,6 +1983,7 @@ function renderLevelsPage() {
     var t = item.trader; var lv = item.lv;
     return priceLadderCard(t, lv);
   }).join('');
+  drawLevelLines();
 }
 
 // ── AUTH CHECK ON LOAD ─────────────────────────────────────────────────────
