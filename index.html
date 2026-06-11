@@ -7593,8 +7593,15 @@ async function saveAllYesterday() {
     // Clear tfState
     Object.keys(tfState).forEach(function(k){ delete tfState[k]; });
     if(window.updateVerdictAuto) updateVerdictAuto();
-    // Remove yesterday's loaded trades from state (they're not today's)
-    state.trades.slice().forEach(function(t){ removeTrade(t.id); });
+    // Clear yesterday's trades from state/UI — do NOT call removeTrade() which deletes from Supabase
+    state.trades.slice().forEach(function(t){
+      var el = document.getElementById('tf-' + t.id);
+      if (el) el.remove();
+    });
+    state.trades = [];
+    if (window._persistTradesToLocal) _persistTradesToLocal();
+    if (window.updateHistory) updateHistory();
+    if (window.updateKill) updateKill();
     if(window.updateHistory) updateHistory();
     if(window.renderAccountsPanel) renderAccountsPanel();
     // Show notice
