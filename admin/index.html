@@ -9674,7 +9674,7 @@ var _ptgQsDefault = [
   { main: "This is a setup I planned, not one I'm forcing." },
   { main: "I've accepted this loss and I'm fine if it stops me out." },
   { main: "I know my exact stop, size, and max loss, and I won't add to a loser." },
-  { main: "If my gut says I'm in a bad trade, I get out at breakeven to protect my capital." },
+  { main: "If my gut says it is a bad trade, focus is on protecting capital." },
   { main: "I will obey the rules, only today.", gold: true }
 ];
 (function(){
@@ -9793,7 +9793,7 @@ function ptgToggle(i) {
     cb.textContent = '✓';
     // Show text in title area
     var cur = document.getElementById('ptg-current-text');
-    if (cur) { cur.textContent = '(Say it out loud!)'; cur.style.color = _ptgQs[i].gold ? 'rgba(240,188,78,0.5)' : 'rgba(78,214,138,0.5)'; }
+    if (cur) { cur.textContent = '— I am not forcing trades.'; cur.style.color = _ptgQs[i].gold ? 'rgba(240,188,78,0.5)' : 'rgba(78,214,138,0.5)'; }
   } else {
     item.classList.remove('checked');
     cb.textContent = '';
