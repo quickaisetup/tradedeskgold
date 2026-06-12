@@ -1728,13 +1728,13 @@ async function loadFeedbacks() {
   }
 }
 
-async function fbMarkDone(id) {
+window.fbMarkDone = async function fbMarkDone(id) {
   var card = document.getElementById('fb-card-' + id);
   if (card) { card.style.opacity = '0.3'; card.style.pointerEvents = 'none'; }
   try {
     var sb = getSB();
     var res = await sb.from('feedback').update({ status: 'done' }).eq('id', id);
-    if (res.error) throw res.error;
+    if (res.error) throw new Error(res.error.message || JSON.stringify(res.error));
     loadFeedbacks();
   } catch(e) {
     if (card) { card.style.opacity = '1'; card.style.pointerEvents = ''; }
