@@ -4296,7 +4296,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 
       <!-- Single enter button -->
       <div style="margin-top:24px;display:flex;gap:10px;align-items:center">
-        <button onclick="ptgCombinedUnlock()" style="flex:1;font-family:var(--display);font-size:15px;letter-spacing:0.1em;padding:14px 0;border-radius:8px;border:1.5px solid rgba(78,214,138,0.5);background:rgba(78,214,138,0.08);color:var(--green);cursor:pointer;transition:all 0.2s" onmouseover="this.style.background='rgba(78,214,138,0.18)'" onmouseout="this.style.background='rgba(78,214,138,0.08)'">→ ENTER CHARTS</button>
+        <button onclick="ptgCombinedUnlock()" style="flex:1;font-family:var(--display);font-size:15px;letter-spacing:0.1em;padding:14px 0;border-radius:8px;border:1.5px solid rgba(240,188,78,0.4);background:rgba(240,188,78,0.06);color:var(--gold);cursor:pointer;transition:all 0.2s" onmouseover="this.style.background='rgba(240,188,78,0.14)'" onmouseout="this.style.background='rgba(240,188,78,0.06)'">→ ENTER CHARTS</button>
         <button id="ptg-skip-btn" onclick="ptgSkip()">Skip</button>
       </div>
 
@@ -9845,17 +9845,18 @@ function ptgOpen() {
   list.innerHTML = _ptgQs.map(function(q) {
     var gold = q.gold ? ' ptg-item-gold' : '';
     return '<div class="ptg-item checked' + gold + '" style="pointer-events:none;opacity:0.85">' +
-      '<div class="ptg-cb" style="background:rgba(78,214,138,0.15);border-color:rgba(78,214,138,0.5);color:var(--green)">✓</div>' +
+      '<div class="ptg-cb" style="background:rgba(255,255,255,0.04);border-color:rgba(255,255,255,0.15);color:rgba(255,255,255,0.4)">✓</div>' +
       '<div class="ptg-label" style="flex:1"><div class="ptg-main">' + q.main + '</div></div>' +
     '</div>';
   }).join('');
   // Render trading rules pre-checked
-  var rules = (window._currentRules && window._currentRules.length) ? window._currentRules : [];
+  var rules = (window._currentRules && window._currentRules.length) ? window._currentRules
+    : (window._defaultRules && window._defaultRules.length) ? window._defaultRules : [];
   var rgSection = document.getElementById('rg-section');
   if (rules.length && rgSection) {
     document.getElementById('rg-list').innerHTML = rules.map(function(r) {
-      return '<div class="rg-item checked" style="pointer-events:none;opacity:0.85">' +
-        '<div class="rg-cb" style="color:var(--green)">✓</div>' +
+      return '<div class="rg-item checked" style="pointer-events:none">' +
+        '<div class="rg-cb">✓</div>' +
         '<div class="rg-text">' + r + '</div>' +
       '</div>';
     }).join('');
@@ -9935,22 +9936,12 @@ function ptgSkip() {
   document.getElementById('ptg-gate').classList.remove('show');
 }
 function ptgCombinedUnlock() {
-  if (!document.getElementById('ptg-bar-wrap').classList.contains('ready')) return;
-  var ts = new Date().toISOString();
-  _ptgLog({ type: 'pass', ts: ts, answers: _ptgChecked });
+  _ptgLog({ type: 'pass', ts: new Date().toISOString(), answers: [] });
   localStorage.removeItem('ptg_stopout_pending');
   localStorage.setItem(_ptgCompletedKey(), '1');
   document.getElementById('ptg-gate').classList.remove('show');
-  var unsureItems = _ptgQs.filter(function(q, i) { return !_ptgChecked[i] || _ptgUnsure[i]; });
   var warn = document.getElementById('leo-ptg-warning');
-  if (warn) {
-    if (unsureItems.length) {
-      document.getElementById('leo-ptg-warning-items').textContent = unsureItems.map(function(q){ return q.warn || q.main; }).join('  ·  ');
-      warn.style.display = 'block';
-    } else {
-      warn.style.display = 'none';
-    }
-  }
+  if (warn) warn.style.display = 'none';
 }
 function ptgUnlock() { ptgCombinedUnlock(); }
 
