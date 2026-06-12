@@ -1710,7 +1710,7 @@ async function loadFeedbacks() {
     var cards = sorted.map(function(r) {
       var isDone = r.status === 'done';
       var date = r.created_at ? new Date(r.created_at).toLocaleString('en-GB', {timeZone:'Asia/Bangkok',day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}) : '—';
-      return '<div id="fb-card-'+r.id+'" style="display:flex;align-items:flex-start;gap:16px;padding:16px 18px;border:1px solid '+(isDone?'rgba(255,255,255,0.06)':'rgba(255,255,255,0.12)')+';border-radius:10px;margin-bottom:10px;background:'+(isDone?'rgba(255,255,255,0.02)':'rgba(255,255,255,0.04)')+';opacity:'+(isDone?'0.38':'1')+';transition:opacity 0.3s">'
+      return '<div id="fb-card-'+r.id+'" style="display:flex;align-items:flex-start;gap:16px;padding:16px 18px;border:1px solid '+(isDone?'rgba(255,255,255,0.06)':'rgba(255,255,255,0.12)')+';border-radius:10px;margin-bottom:10px;background:'+(isDone?'rgba(255,255,255,0.02)':'rgba(255,255,255,0.04)')+';opacity:'+(isDone?'0.55':'1')+';transition:opacity 0.3s">'
         + '<div style="flex:1;min-width:0">'
         + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">'
         + '<span style="font-family:var(--mono);font-size:12px;font-weight:700;color:'+(isDone?'var(--text3)':'var(--text)')+'">'+( r.username || r.user_id || '—')+'</span>'
