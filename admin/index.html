@@ -3917,6 +3917,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
   </div>
 
   <!-- 05 TRADES -->
+  <!-- 05 TRADES + TODAY'S TRADES + KILL SWITCH -->
   <div class="section" id="trades">
     <div class="wt-banner" id="wt-trades">
       <div class="wt-hd">
@@ -3948,62 +3949,27 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       LOG NEW TRADE
     </button>
-  </div>
 
-  <!-- 05 KILL SWITCH -->
-  <div class="section" id="killswitch">
-    <div class="wt-banner" id="wt-killswitch">
-      <div class="wt-hd">
-        <div class="wt-step">05</div>
-        <div class="wt-hd-main">
-          <div class="wt-tag">Kill Switch</div>
-          <div class="wt-title">Your circuit breaker — obey it</div>
-        </div>
-        <span class="wt-emoji">🔴</span>
+    <!-- TODAY'S TRADES table -->
+    <div style="margin-top:24px">
+      <div style="font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px">Today's Trades</div>
+      <div class="card" style="overflow-x:auto">
+        <table class="history-table" id="history-table">
+          <thead><tr><th>Time</th><th>Acct</th><th>Type</th><th>Instr</th><th>Dir</th><th>Setup</th><th>Risk</th><th>Entry</th><th>SL</th><th>TP</th><th>Result</th><th>R</th><th>Mindset</th></tr></thead>
+          <tbody id="history-body"><tr><td colspan="13" style="color:var(--text3);text-align:center;padding:20px">No trades logged yet today</td></tr></tbody>
+        </table>
       </div>
-      <ul class="wt-list">
-        <li class="wt-li tip">Tracks <b>trade count, consecutive losses, and day P&L</b> in real time — auto-updates as you log</li>
-        <li class="wt-li ok">Any limit hit → <b>stop immediately</b>. This section exists to protect your FTMO account</li>
-        <li class="wt-li warn">Chasing a loss past your daily limit = <b>#1 way to blow a funded account</b></li>
-        <li class="wt-li tip">Can also <b>manually end the session</b> early with the button below</li>
-      </ul>
-      <div class="wt-foot"><span class="wt-foot-hint">Read &amp; dismiss</span><button class="wt-dismiss" onclick="wtDismiss('wt-killswitch')">Got it, let's go →</button></div>
     </div>
-    <div class="section-header"><span class="section-num">05</span><span class="section-title">Kill switch</span><div class="section-line"></div></div>
-    <div id="exp-kill" class="td-explainer"><button class="td-explainer-dismiss" onclick="dismissExplainer('exp-kill')">✕</button><div class="td-explainer-body"><b>Your automatic stop-trading trigger.</b><ul><li>Tracks own trades, consecutive losses and daily R</li><li>Turns red when a limit is hit — <b>stop trading immediately</b></li><li>Protects your funded account from emotional over-trading</li></ul></div></div>
-    <div class="kill-grid">
-      <div class="km" id="km-own"><div class="km-lbl">Own trades</div><div class="km-val" id="km-own-val">0</div><div class="km-limit">max 1 (+1 bonus)</div></div>
-      <div class="km" id="km-consec"><div class="km-lbl">Consecutive losses</div><div class="km-val" id="km-consec-val">0</div><div class="km-limit">max 2 own trades</div></div>
-      <div class="km" id="km-pnl"><div class="km-lbl">Day P&L (R)</div><div class="km-val" id="km-pnl-val">0</div><div class="km-limit">stop at -2R</div></div>
-    </div>
-    <button class="kill-btn" id="kill-btn" onclick="toggleKill()">Session open — click to close</button>
-  </div>
 
-  <!-- 06 HISTORY -->
-  <div class="section" id="history">
-    <div class="wt-banner" id="wt-history">
-      <div class="wt-hd">
-        <div class="wt-step">06</div>
-        <div class="wt-hd-main">
-          <div class="wt-tag">Today's Trades</div>
-          <div class="wt-title">Your live session mirror</div>
-        </div>
-        <span class="wt-emoji">📋</span>
+    <!-- KILL SWITCH -->
+    <div id="killswitch" style="margin-top:24px">
+      <div id="exp-kill" class="td-explainer"><button class="td-explainer-dismiss" onclick="dismissExplainer('exp-kill')">✕</button><div class="td-explainer-body"><b>Your automatic stop-trading trigger.</b><ul><li>Tracks own trades, consecutive losses and daily R</li><li>Turns red when a limit is hit — <b>stop trading immediately</b></li><li>Protects your funded account from emotional over-trading</li></ul></div></div>
+      <div class="kill-grid">
+        <div class="km" id="km-own"><div class="km-lbl">Own trades</div><div class="km-val" id="km-own-val">0</div><div class="km-limit">max 1 (+1 bonus)</div></div>
+        <div class="km" id="km-consec"><div class="km-lbl">Consecutive losses</div><div class="km-val" id="km-consec-val">0</div><div class="km-limit">max 2 own trades</div></div>
+        <div class="km" id="km-pnl"><div class="km-lbl">Day P&L (R)</div><div class="km-val" id="km-pnl-val">0</div><div class="km-limit">stop at -2R</div></div>
       </div>
-      <ul class="wt-list">
-        <li class="wt-li ok">Auto-fills from every trade you save in Section 04 — <b>nothing to do here manually</b></li>
-        <li class="wt-li tip">Review <b>mid-session</b> — winning longs but losing shorts? Losses piling up early? You'll see it here</li>
-        <li class="wt-li ok">Use it to check <b>what you actually did</b> vs what you planned in your morning analysis</li>
-        <li class="wt-li tip">All trades <b>auto-save to database</b> and build your long-term edge statistics</li>
-      </ul>
-      <div class="wt-foot"><span class="wt-foot-hint">Read &amp; dismiss</span><button class="wt-dismiss" onclick="wtDismiss('wt-history')">Got it, let's go →</button></div>
-    </div>
-    <div class="section-header"><span class="section-num">06</span><span class="section-title">Today's trades</span><div class="section-line"></div></div>
-    <div class="card" style="overflow-x:auto">
-      <table class="history-table" id="history-table">
-        <thead><tr><th>Time</th><th>Acct</th><th>Type</th><th>Instr</th><th>Dir</th><th>Setup</th><th>Risk</th><th>Entry</th><th>SL</th><th>TP</th><th>Result</th><th>R</th><th>Mindset</th></tr></thead>
-        <tbody id="history-body"><tr><td colspan="13" style="color:var(--text3);text-align:center;padding:20px">No trades logged yet today</td></tr></tbody>
-      </table>
+      <button class="kill-btn" id="kill-btn" onclick="toggleKill()">Session open — click to close</button>
     </div>
   </div>
 
@@ -4011,7 +3977,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
   <div class="section" id="reflection">
     <div class="wt-banner" id="wt-reflection">
       <div class="wt-hd">
-        <div class="wt-step">07</div>
+        <div class="wt-step">06</div>
         <div class="wt-hd-main">
           <div class="wt-tag">End of Day</div>
           <div class="wt-title">Close the loop — takes 2 minutes</div>
@@ -4027,7 +3993,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
       </ul>
       <div class="wt-foot"><span class="wt-foot-hint">Read &amp; dismiss</span><button class="wt-dismiss" onclick="wtDismiss('wt-reflection')">Got it, let's go →</button></div>
     </div>
-    <div class="section-header"><span class="section-num">07</span><span class="section-title">End of day</span><div class="section-line"></div><span class="section-check" id="check-reflection">Done ✓</span></div>
+    <div class="section-header"><span class="section-num">06</span><span class="section-title">End of day</span><div class="section-line"></div><span class="section-check" id="check-reflection">Done ✓</span></div>
     <div id="exp-eod" class="td-explainer"><button class="td-explainer-dismiss" onclick="dismissExplainer('exp-eod')">✕</button><div class="td-explainer-body"><b>Close out your session properly.</b><ul><li>Answer the 3 questions honestly — takes 2 minutes</li><li>Select whether you followed your rules today</li><li>Hit <b>Save day</b> — powers tomorrow's AI briefing</li><li>This is what separates professionals from gamblers</li></ul></div></div>
     <div class="card">
       <div style="margin-bottom:16px">
