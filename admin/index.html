@@ -2808,7 +2808,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
       <div class="sheets-dot" id="sheets-dot"></div>
       <span id="sheets-status-text">Supabase connected</span>
     </div>
-    <a href="/admin/" target="_blank" id="sb-admin-btn" class="sb-btn" style="display:none;border-color:rgba(240,188,78,0.4);color:var(--gold);text-decoration:none;text-align:center">⚙ Admin Panel</a>
+    <button onclick="window.open('/admin/','_blank','noopener')" id="sb-admin-btn" class="sb-btn" style="display:none;border-color:rgba(240,188,78,0.4);color:var(--gold)">⚙ Admin Panel</button>
     <button onclick="testAlert()" class="sb-btn" style="border-color:rgba(240,96,96,0.4);color:var(--red)">⚠ Test alert</button>
     <button class="sb-btn" onclick="openModal('api-modal')">⚙ API Key</button>
     <button class="sb-btn" onclick="exportCSV()">↓ Export CSV</button>
