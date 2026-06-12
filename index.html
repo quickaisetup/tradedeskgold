@@ -3405,6 +3405,17 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
           <button class="bb" onclick="toggleTrend('1M','down',this)">DOWN</button>
           <button class="bb" onclick="toggleTrend('1M','ranging',this)">RANGING</button>
         </div>
+        <div class="ind-grid" style="margin-bottom:6px">
+          <div class="ind-row">
+            <span class="ind-lbl">AO</span>
+            <div class="ind-btns">
+              <button class="ib" onclick="setInd(this,'bull')" title="Above zero" style="font-size:8px">&gt;0</button>
+              <button class="ib" onclick="setInd(this,'bear')" title="Below zero" style="font-size:8px">&lt;0</button>
+              <button class="ib" onclick="setInd(this,'bull-div')" title="Bull divergence" style="font-size:8px">BD▲</button>
+              <button class="ib" onclick="setInd(this,'bear-div')" title="Bear divergence" style="font-size:8px">BD▼</button>
+            </div>
+          </div>
+        </div>
         <textarea class="tf-note" id="tfn-1M" placeholder="Overall structure..."></textarea>
       </div>
 
@@ -3423,6 +3434,17 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
           <button class="bb" onclick="toggleTrend('1W','down',this)">DOWN</button>
           <button class="bb" onclick="toggleTrend('1W','ranging',this)">RANGING</button>
         </div>
+        <div class="ind-grid" style="margin-bottom:6px">
+          <div class="ind-row">
+            <span class="ind-lbl">AO</span>
+            <div class="ind-btns">
+              <button class="ib" onclick="setInd(this,'bull')" title="Above zero" style="font-size:8px">&gt;0</button>
+              <button class="ib" onclick="setInd(this,'bear')" title="Below zero" style="font-size:8px">&lt;0</button>
+              <button class="ib" onclick="setInd(this,'bull-div')" title="Bull divergence" style="font-size:8px">BD▲</button>
+              <button class="ib" onclick="setInd(this,'bear-div')" title="Bear divergence" style="font-size:8px">BD▼</button>
+            </div>
+          </div>
+        </div>
         <textarea class="tf-note" id="tfn-1W" placeholder="Weekly structure..."></textarea>
       </div>
 
@@ -3440,6 +3462,17 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
           <button class="bb" onclick="toggleTrend('D','up',this)">UP</button>
           <button class="bb" onclick="toggleTrend('D','down',this)">DOWN</button>
           <button class="bb" onclick="toggleTrend('D','ranging',this)">RANGING</button>
+        </div>
+        <div class="ind-grid" style="margin-bottom:6px">
+          <div class="ind-row">
+            <span class="ind-lbl">AO</span>
+            <div class="ind-btns">
+              <button class="ib" onclick="setInd(this,'bull')" title="Above zero" style="font-size:8px">&gt;0</button>
+              <button class="ib" onclick="setInd(this,'bear')" title="Below zero" style="font-size:8px">&lt;0</button>
+              <button class="ib" onclick="setInd(this,'bull-div')" title="Bull divergence" style="font-size:8px">BD▲</button>
+              <button class="ib" onclick="setInd(this,'bear-div')" title="Bear divergence" style="font-size:8px">BD▼</button>
+            </div>
+          </div>
         </div>
         <textarea class="tf-note" id="tfn-D" placeholder="Bias, S/R..."></textarea>
       </div>
@@ -3463,8 +3496,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
           <div class="ind-row">
             <span class="ind-lbl">AO</span>
             <div class="ind-btns">
-              <button class="ib" onclick="setInd(this,'bull')" title="Above zero" style="font-size:8px">Above 0</button>
-              <button class="ib" onclick="setInd(this,'bear')" title="Below zero" style="font-size:8px">Below 0</button>
+              <button class="ib" onclick="setInd(this,'bull')" title="Above zero" style="font-size:8px">&gt;0</button>
+              <button class="ib" onclick="setInd(this,'bear')" title="Below zero" style="font-size:8px">&lt;0</button>
               <button class="ib" onclick="setInd(this,'bull-div')" title="Bull divergence" style="font-size:8px">BD▲</button>
               <button class="ib" onclick="setInd(this,'bear-div')" title="Bear divergence" style="font-size:8px">BD▼</button>
             </div>
@@ -3507,8 +3540,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
           <div class="ind-row">
             <span class="ind-lbl">AO</span>
             <div class="ind-btns">
-              <button class="ib" onclick="setInd(this,'bull')" title="Above zero" style="font-size:8px">Above 0</button>
-              <button class="ib" onclick="setInd(this,'bear')" title="Below zero" style="font-size:8px">Below 0</button>
+              <button class="ib" onclick="setInd(this,'bull')" title="Above zero" style="font-size:8px">&gt;0</button>
+              <button class="ib" onclick="setInd(this,'bear')" title="Below zero" style="font-size:8px">&lt;0</button>
               <button class="ib" onclick="setInd(this,'bull-div')" title="Bull divergence" style="font-size:8px">BD▲</button>
               <button class="ib" onclick="setInd(this,'bear-div')" title="Bear divergence" style="font-size:8px">BD▼</button>
             </div>
@@ -6637,7 +6670,7 @@ function populateTradeForm(id) {
 
   // SL Placement — handle "Other" preset
   if (t.slPlacement) {
-    var slpPresets = ['0.5 candle','1 candle','Below 0.764','Structural'];
+    var slpPresets = ['0.5 candle','1 candle','&lt;0.764','Structural'];
     if (slpPresets.indexOf(t.slPlacement) >= 0) {
       sel(t.slPlacement);
     } else {
@@ -6889,7 +6922,7 @@ function toggleMistake(id, el, val) {
 }
 
 var _MISTAKE_PRESETS = ['Entered too early','Anticipated — no confirmation','SL too tight','Tightened SL inside noise','Removed SL','Added to loser','Missed 50% at 1R','Revenge trade','Overtraded','Traded outside hours','Overleveraged','Ignored HTF bias'];
-var _SLP_PRESETS     = ['0.5 candle','1 candle','Below 0.764','Structural'];
+var _SLP_PRESETS     = ['0.5 candle','1 candle','&lt;0.764','Structural'];
 
 function slpOther(id, btn) {
   var group = btn.parentElement;
@@ -7004,7 +7037,7 @@ function buildTradeForm(id) {
     '<div class="form-field"><label>HTF bias</label><div class="toggle-group"><button class="tgl" onclick="setTV(' + id + ',\'htfBias\',\'With trend\',this)" style="font-size:9px;color:var(--green)">With</button><button class="tgl" onclick="setTV(' + id + ',\'htfBias\',\'Counter\',this)" style="font-size:9px;color:var(--red)">Counter</button><button class="tgl" onclick="setTV(' + id + ',\'htfBias\',\'Range\',this)" style="font-size:9px">Range</button></div></div>' +
     '</div>' +
     '<div class="form-grid">' +
-    '<div class="form-field"><label>SL placement</label><div class="toggle-group"><button class="tgl" onclick="setTV(' + id + ',\'slPlacement\',\'0.5 candle\',this)" style="font-size:9px">0.5 candle</button><button class="tgl" onclick="setTV(' + id + ',\'slPlacement\',\'1 candle\',this)" style="font-size:9px">1 candle</button><button class="tgl" onclick="setTV(' + id + ',\'slPlacement\',\'Below 0.764\',this)" style="font-size:9px">Below 0.764</button><button class="tgl" onclick="setTV(' + id + ',\'slPlacement\',\'Structural\',this)" style="font-size:9px">Structural</button><button class="tgl" id="slp-other-btn-' + id + '" onclick="slpOther(' + id + ',this)" style="font-size:9px">Other</button></div><input type="text" id="slp-other-' + id + '" style="display:none;margin-top:6px;width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:5px;color:var(--text);font-family:var(--mono);font-size:11px;padding:6px 9px;box-sizing:border-box" placeholder="e.g. Below weekly low, Above FVG..." oninput="setTF2(' + id + ',\'slPlacement\',this.value)"></div>' +
+    '<div class="form-field"><label>SL placement</label><div class="toggle-group"><button class="tgl" onclick="setTV(' + id + ',\'slPlacement\',\'0.5 candle\',this)" style="font-size:9px">0.5 candle</button><button class="tgl" onclick="setTV(' + id + ',\'slPlacement\',\'1 candle\',this)" style="font-size:9px">1 candle</button><button class="tgl" onclick="setTV(' + id + ',\'slPlacement\',\'&lt;0.764\',this)" style="font-size:9px">&lt;0.764</button><button class="tgl" onclick="setTV(' + id + ',\'slPlacement\',\'Structural\',this)" style="font-size:9px">Structural</button><button class="tgl" id="slp-other-btn-' + id + '" onclick="slpOther(' + id + ',this)" style="font-size:9px">Other</button></div><input type="text" id="slp-other-' + id + '" style="display:none;margin-top:6px;width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:5px;color:var(--text);font-family:var(--mono);font-size:11px;padding:6px 9px;box-sizing:border-box" placeholder="e.g. Below weekly low, Above FVG..." oninput="setTF2(' + id + ',\'slPlacement\',this.value)"></div>' +
     '<div class="form-field"><label>Mindset (1-10)</label><div class="mindset-wrap"><input type="range" min="1" max="10" value="7" step="1" oninput="document.getElementById(\'ms-val-' + id + '\').textContent=this.value;setTF2(' + id + ',\'mindset\',this.value)"><span class="mindset-val" id="ms-val-' + id + '">7</span></div></div>' +
     '</div>' +
     '<div class="divider"></div>' +
