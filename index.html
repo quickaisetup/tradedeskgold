@@ -13233,12 +13233,13 @@ async function submitFeedback() {
   try {
     var sb = getSB();
     var uname = localStorage.getItem('td_username') || '';
-    await sb.from('feedback').insert({
+    var res = await sb.from('feedback').insert({
       user_id:  _userId || null,
       username: uname,
       message:  msg,
       status:   'new'
     });
+    if (res.error) throw new Error(res.error.message || JSON.stringify(res.error));
     document.getElementById('fb-modal-footer').style.display = 'none';
     document.getElementById('fb-success').style.display = 'block';
     setTimeout(closeFeedback, 2200);
