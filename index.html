@@ -4366,6 +4366,9 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
       <button id="leo-refresh" onclick="leoRefreshCharts(this)" style="font-family:var(--mono);font-size:8px;color:rgba(255,255,255,0.4);background:transparent;border:1px solid rgba(255,255,255,0.15);border-radius:4px;padding:3px 9px;cursor:pointer">↻ Refresh</button>
     </div>
   </div>
+  <div id="leo-ptg-warning" style="display:none;background:rgba(255,180,0,0.08);border-bottom:1px solid rgba(255,180,0,0.25);padding:5px 14px;font-family:var(--mono);font-size:10px;color:#ffb400;letter-spacing:0.06em;flex-shrink:0">
+    ⚠ NOT SURE: <span id="leo-ptg-warning-items"></span>
+  </div>
 
   <div id="leo-sym-ema-bar">
     <div id="leo-sym-tabs">
@@ -9685,6 +9688,7 @@ var _ptgQsDefault = [
 })();
 var _ptgQs = _ptgQsDefault.slice();
 var _ptgChecked = [];
+var _ptgUnsure = [];
 
 function ptgEditOpen() {
   var overlay = document.getElementById('ptg-edit-overlay');
@@ -9768,6 +9772,7 @@ function ptgMarkStopOut() {
 }
 function ptgOpen() {
   _ptgChecked = new Array(_ptgQs.length).fill(false);
+  _ptgUnsure  = new Array(_ptgQs.length).fill(false);
   var badge = document.getElementById('ptg-override-badge');
   if (badge) badge.style.display = 'none';
   // Build checklist
@@ -9776,13 +9781,29 @@ function ptgOpen() {
     var gold = q.gold ? ' ptg-item-gold' : '';
     return '<div class="ptg-item'+gold+'" id="ptg-item-'+i+'" onclick="ptgToggle('+i+')">' +
       '<div class="ptg-cb" id="ptg-cb-'+i+'"></div>' +
-      '<div class="ptg-label">' +
+      '<div class="ptg-label" style="flex:1">' +
         '<div class="ptg-main">'+q.main+'</div>' +
       '</div>' +
+      '<div onclick="event.stopPropagation();ptgToggleUnsure('+i+')" id="ptg-unsure-'+i+'" style="flex-shrink:0;font-family:var(--mono);font-size:10px;padding:4px 10px;border-radius:6px;border:1px solid rgba(255,180,0,0.2);color:rgba(255,180,0,0.35);cursor:pointer;transition:all 0.18s;white-space:nowrap">Not sure</div>' +
     '</div>';
   }).join('');
   _ptgUpdateState();
   document.getElementById('ptg-gate').classList.add('show');
+}
+function ptgToggleUnsure(i) {
+  _ptgUnsure[i] = !_ptgUnsure[i];
+  var btn = document.getElementById('ptg-unsure-'+i);
+  var item = document.getElementById('ptg-item-'+i);
+  if (_ptgUnsure[i]) {
+    btn.style.color = '#ffb400'; btn.style.borderColor = 'rgba(255,180,0,0.7)'; btn.style.background = 'rgba(255,180,0,0.1)';
+    // uncheck yes if switching to not sure
+    _ptgChecked[i] = false;
+    item.classList.remove('checked');
+    document.getElementById('ptg-cb-'+i).textContent = '';
+  } else {
+    btn.style.color = 'rgba(255,180,0,0.35)'; btn.style.borderColor = 'rgba(255,180,0,0.2)'; btn.style.background = '';
+  }
+  _ptgUpdateState();
 }
 function ptgToggle(i) {
   _ptgChecked[i] = !_ptgChecked[i];
@@ -9839,6 +9860,17 @@ function ptgUnlock() {
   _ptgLog({ type: 'pass', ts: ts, answers: _ptgChecked });
   localStorage.removeItem('ptg_stopout_pending');
   document.getElementById('ptg-gate').classList.remove('show');
+  // Show warning bar for any unchecked or not-sure items
+  var unsureItems = _ptgQs.filter(function(q, i) { return !_ptgChecked[i] || _ptgUnsure[i]; });
+  var warn = document.getElementById('leo-ptg-warning');
+  if (warn) {
+    if (unsureItems.length) {
+      document.getElementById('leo-ptg-warning-items').textContent = unsureItems.map(function(q){ return q.main; }).join(' · ');
+      warn.style.display = 'block';
+    } else {
+      warn.style.display = 'none';
+    }
+  }
   rgOpen();
 }
 
