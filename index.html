@@ -5444,9 +5444,9 @@ function _saveTFStateLocal() {
     // London bias — find selected button
     var lbEl = document.querySelector('[onclick^="setLondonBias"].sel, [onclick^="setLondonBias"].sel-bull, [onclick^="setLondonBias"].sel-bear, [onclick^="setLondonBias"].sel-range');
     var lbOnclick = lbEl ? (lbEl.getAttribute('onclick')||'') : '';
-    // Save AO/MACD indicator button selections and Elliott wave checkboxes for 4H + 1H
+    // Save AO/MACD indicator button selections and Elliott wave checkboxes for all timeframes
     var inds = {};
-    ['4H','1H'].forEach(function(tf) {
+    ['1M','1W','D','4H','1H'].forEach(function(tf) {
       var card = document.getElementById('tfc-' + tf);
       if (!card) return;
       inds[tf] = {};
@@ -5535,7 +5535,7 @@ function _restoreTFStateLocal() {
 
     // AO/MACD indicator buttons + Elliott wave checkboxes
     if (data.inds) {
-      ['4H','1H'].forEach(function(tf) {
+      ['1M','1W','D','4H','1H'].forEach(function(tf) {
         var saved = data.inds[tf];
         if (!saved) return;
         var card = document.getElementById('tfc-' + tf);
