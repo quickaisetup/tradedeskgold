@@ -4294,13 +4294,11 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
         <div id="rg-list" style="display:grid;grid-template-columns:1fr 1fr;gap:8px"></div>
       </div>
 
-      <!-- Reminder mode: Enter Charts button (shown when already done today) -->
-      <div id="ptg-enter-btn" style="display:none;margin-top:24px;gap:10px;align-items:center">
-        <button onclick="ptgCombinedUnlock()" style="flex:1;font-family:var(--display);font-size:15px;letter-spacing:0.1em;padding:14px 0;border-radius:8px;border:1.5px solid rgba(240,188,78,0.4);background:rgba(240,188,78,0.06);color:var(--gold);cursor:pointer;transition:all 0.2s" onmouseover="this.style.background='rgba(240,188,78,0.14)'" onmouseout="this.style.background='rgba(240,188,78,0.06)'">→ ENTER CHARTS</button>
-      </div>
+      <!-- Enter Charts button (reminder mode) -->
+      <button id="ptg-enter-btn" onclick="ptgCombinedUnlock()" style="display:none;width:100%;margin-top:24px;font-family:var(--display);font-size:15px;letter-spacing:0.1em;padding:14px 0;border-radius:8px;border:1.5px solid rgba(240,188,78,0.4);background:rgba(240,188,78,0.06);color:var(--gold);cursor:pointer;transition:all 0.2s" onmouseover="this.style.background='rgba(240,188,78,0.14)'" onmouseout="this.style.background='rgba(240,188,78,0.06)'">→ ENTER CHARTS</button>
 
-      <!-- Interactive mode: progress bar + skip (shown when not yet done today) -->
-      <div id="ptg-footer" style="margin-top:16px">
+      <!-- Progress bar + skip (interactive mode) -->
+      <div id="ptg-footer" style="display:none;margin-top:16px">
         <div id="ptg-bar-wrap" onclick="ptgCombinedUnlock()">
           <div id="ptg-bar-fill"></div>
           <div id="ptg-bar-label">
@@ -4311,7 +4309,6 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
         <button id="ptg-skip-btn" onclick="ptgSkip()">Skip</button>
       </div>
 
-      <!-- hidden refs for compat -->
       <div id="ptg-counter" style="display:none"></div>
       <div id="ptg-current-text" style="display:none"></div>
     </div>
