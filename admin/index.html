@@ -1704,21 +1704,41 @@ async function loadFeedbacks() {
       el.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:16px">No feedback submitted yet.</div>';
       return;
     }
-    var html = '<table class="adm-table"><thead><tr><th>Date</th><th>User</th><th>Message</th><th>Status</th></tr></thead><tbody>';
-    rows.forEach(function(r) {
-      var date = r.created_at ? new Date(r.created_at).toLocaleString('en-GB', {timeZone:'Asia/Bangkok',day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
-      var statusColor = r.status === 'new' ? '#fbbf24' : r.status === 'done' ? '#34d399' : 'var(--text3)';
-      html += '<tr style="cursor:default">';
-      html += '<td style="font-family:var(--mono);font-size:11px;white-space:nowrap;color:var(--text3)">' + date + '</td>';
-      html += '<td style="font-family:var(--mono);font-size:12px;white-space:nowrap">' + (r.username || r.user_id || '—') + '</td>';
-      html += '<td style="max-width:480px;word-break:break-word">' + (r.message || '') + '</td>';
-      html += '<td style="font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:' + statusColor + '">' + (r.status || '—') + '</td>';
-      html += '</tr>';
-    });
-    html += '</tbody></table>';
-    el.innerHTML = html;
+    var open = rows.filter(function(r){ return r.status !== 'done'; });
+    var done = rows.filter(function(r){ return r.status === 'done'; });
+    var sorted = open.concat(done);
+    var cards = sorted.map(function(r) {
+      var isDone = r.status === 'done';
+      var date = r.created_at ? new Date(r.created_at).toLocaleString('en-GB', {timeZone:'Asia/Bangkok',day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}) : '—';
+      return '<div id="fb-card-'+r.id+'" style="display:flex;align-items:flex-start;gap:16px;padding:16px 18px;border:1px solid '+(isDone?'rgba(255,255,255,0.06)':'rgba(255,255,255,0.12)')+';border-radius:10px;margin-bottom:10px;background:'+(isDone?'rgba(255,255,255,0.02)':'rgba(255,255,255,0.04)')+';opacity:'+(isDone?'0.38':'1')+';transition:opacity 0.3s">'
+        + '<div style="flex:1;min-width:0">'
+        + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">'
+        + '<span style="font-family:var(--mono);font-size:12px;font-weight:700;color:'+(isDone?'var(--text3)':'var(--text)')+'">'+( r.username || r.user_id || '—')+'</span>'
+        + '<span style="font-family:var(--mono);font-size:10px;color:var(--text3)">'+date+'</span>'
+        + (isDone ? '<span style="font-family:var(--mono);font-size:9px;letter-spacing:0.1em;color:#34d399;text-transform:uppercase;background:rgba(52,211,153,0.1);border:1px solid rgba(52,211,153,0.25);border-radius:4px;padding:1px 7px">done</span>' : '<span style="font-family:var(--mono);font-size:9px;letter-spacing:0.1em;color:#fbbf24;text-transform:uppercase;background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.25);border-radius:4px;padding:1px 7px">new</span>')
+        + '</div>'
+        + '<div style="font-size:13px;line-height:1.55;color:'+(isDone?'var(--text3)':'var(--text)')+'">'+( r.message || '')+'</div>'
+        + '</div>'
+        + (isDone ? '' : '<button onclick="fbMarkDone(\''+r.id+'\')" title="Mark as done" style="flex-shrink:0;width:26px;height:26px;border-radius:50%;border:1px solid rgba(255,255,255,0.15);background:transparent;color:rgba(255,255,255,0.35);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s;line-height:1" onmouseover="this.style.background=\'rgba(255,255,255,0.08)\';this.style.color=\'#fff\'" onmouseout="this.style.background=\'transparent\';this.style.color=\'rgba(255,255,255,0.35)\'">×</button>')
+        + '</div>';
+    }).join('');
+    el.innerHTML = '<div style="max-width:760px">'+cards+'</div>';
   } catch(e) {
     el.innerHTML = '<div style="color:#f87171;font-size:13px;padding:16px">Error loading feedbacks: ' + e.message + '</div>';
+  }
+}
+
+async function fbMarkDone(id) {
+  var card = document.getElementById('fb-card-' + id);
+  if (card) { card.style.opacity = '0.3'; card.style.pointerEvents = 'none'; }
+  try {
+    var sb = getSB();
+    var res = await sb.from('feedback').update({ status: 'done' }).eq('id', id);
+    if (res.error) throw res.error;
+    loadFeedbacks();
+  } catch(e) {
+    if (card) { card.style.opacity = '1'; card.style.pointerEvents = ''; }
+    alert('Error: ' + e.message);
   }
 }
 
