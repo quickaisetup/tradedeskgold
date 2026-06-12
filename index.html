@@ -5608,10 +5608,14 @@ function renderAnalysisInstrumentTabs() {
   _tdLoadAnalysisTickers().forEach(function(name) {
     var b = document.createElement('button');
     b.className = 'tgl td-instr-custom' + (name === _tdActiveInstrument ? ' sel' : '');
-    b.textContent = name;
-    b.title = 'Right-click to remove this tab';
+    b.style.display = 'inline-flex'; b.style.alignItems = 'center'; b.style.gap = '5px';
     b.onclick = function(){ switchAnalysisInstrument(name, b); };
-    b.oncontextmenu = function(e){ e.preventDefault(); removeAnalysisInstrument(name); };
+    var lbl = document.createElement('span'); lbl.textContent = name; b.appendChild(lbl);
+    var x = document.createElement('span');
+    x.textContent = '×'; x.style.cssText = 'font-size:12px;opacity:0.4;line-height:1;margin-left:1px';
+    x.onmouseenter = function(){ x.style.opacity='1'; }; x.onmouseleave = function(){ x.style.opacity='0.4'; };
+    x.onclick = function(e){ e.stopPropagation(); removeAnalysisInstrument(name); };
+    b.appendChild(x);
     if (addBtn) bar.insertBefore(b, addBtn); else bar.appendChild(b);
   });
 }
@@ -9595,10 +9599,15 @@ function leoRenderCustomTabs() {
     LEO_SYMBOL_MAP[item.label] = item.sym;
     var b = document.createElement('button');
     b.className = 'leo-sym-tab leo-custom-tab';
-    b.textContent = item.label;
+    b.style.display = 'inline-flex'; b.style.alignItems = 'center'; b.style.gap = '4px';
     b.title = item.sym;
     b.onclick = function() { leoSetSymbol(item.label, b); };
-    b.oncontextmenu = function(e) { e.preventDefault(); leoRemoveCustomTab(item.label); };
+    var lbl = document.createElement('span'); lbl.textContent = item.label; b.appendChild(lbl);
+    var x = document.createElement('span');
+    x.textContent = '×'; x.style.cssText = 'font-size:12px;opacity:0.4;line-height:1';
+    x.onmouseenter = function(){ x.style.opacity='1'; }; x.onmouseleave = function(){ x.style.opacity='0.4'; };
+    x.onclick = function(e){ e.stopPropagation(); leoRemoveCustomTab(item.label); };
+    b.appendChild(x);
     tabs.insertBefore(b, addBtn);
   });
 }
