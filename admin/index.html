@@ -4366,7 +4366,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
       <button id="leo-refresh" onclick="leoRefreshCharts(this)" style="font-family:var(--mono);font-size:8px;color:rgba(255,255,255,0.4);background:transparent;border:1px solid rgba(255,255,255,0.15);border-radius:4px;padding:3px 9px;cursor:pointer">↻ Refresh</button>
     </div>
   </div>
-  <div id="leo-ptg-warning" style="display:none;background:rgba(255,180,0,0.08);border-bottom:1px solid rgba(255,180,0,0.25);padding:5px 14px;font-family:var(--mono);font-size:10px;color:#ffb400;letter-spacing:0.06em;flex-shrink:0">
+  <div id="leo-ptg-warning" style="display:none;background:rgba(255,180,0,0.08);border-bottom:1px solid rgba(255,180,0,0.25);padding:5px 14px;font-family:var(--mono);font-size:10px;color:#ffb400;letter-spacing:0.06em;flex-shrink:0;text-align:center">
     ⚠ NOT SURE: <span id="leo-ptg-warning-items"></span>
   </div>
 
@@ -9824,7 +9824,7 @@ function ptgToggle(i) {
   _ptgUpdateState();
 }
 function _ptgUpdateState() {
-  var done = _ptgChecked.filter(Boolean).length;
+  var done = _ptgChecked.filter(Boolean).length + _ptgUnsure.filter(Boolean).length;
   var total = _ptgQs.length;
   var pct = Math.round(done / total * 100);
 
