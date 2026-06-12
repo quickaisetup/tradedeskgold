@@ -4294,15 +4294,25 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
         <div id="rg-list" style="display:grid;grid-template-columns:1fr 1fr;gap:8px"></div>
       </div>
 
-      <!-- Single enter button -->
-      <div style="margin-top:24px;display:flex;gap:10px;align-items:center">
+      <!-- Reminder mode: Enter Charts button (shown when already done today) -->
+      <div id="ptg-enter-btn" style="display:none;margin-top:24px;gap:10px;align-items:center">
         <button onclick="ptgCombinedUnlock()" style="flex:1;font-family:var(--display);font-size:15px;letter-spacing:0.1em;padding:14px 0;border-radius:8px;border:1.5px solid rgba(240,188,78,0.4);background:rgba(240,188,78,0.06);color:var(--gold);cursor:pointer;transition:all 0.2s" onmouseover="this.style.background='rgba(240,188,78,0.14)'" onmouseout="this.style.background='rgba(240,188,78,0.06)'">→ ENTER CHARTS</button>
+      </div>
+
+      <!-- Interactive mode: progress bar + skip (shown when not yet done today) -->
+      <div id="ptg-footer" style="margin-top:16px">
+        <div id="ptg-bar-wrap" onclick="ptgCombinedUnlock()">
+          <div id="ptg-bar-fill"></div>
+          <div id="ptg-bar-label">
+            <div class="ptg-bar-dots" id="ptg-bar-dots"></div>
+            <span class="ptg-bar-count" id="ptg-bar-count">0 / 6</span>
+          </div>
+        </div>
         <button id="ptg-skip-btn" onclick="ptgSkip()">Skip</button>
       </div>
 
       <!-- hidden refs for compat -->
       <div id="ptg-counter" style="display:none"></div>
-      <div id="ptg-bar-wrap" style="display:none"><div id="ptg-bar-fill"></div><div id="ptg-bar-label"><div id="ptg-bar-dots"></div><span id="ptg-bar-count"></span></div></div>
       <div id="ptg-current-text" style="display:none"></div>
     </div>
   </div>
@@ -9832,7 +9842,7 @@ function _ptgCompletedKey() {
   return 'ptg_completed_' + new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
 }
 function ptgShouldShow() {
-  return !localStorage.getItem(_ptgCompletedKey());
+  return true; // always show — reminder mode if already done today, interactive if not
 }
 function ptgMarkStopOut() {
   localStorage.setItem('ptg_stopout_pending', '1');
@@ -9840,29 +9850,53 @@ function ptgMarkStopOut() {
 function ptgOpen() {
   var badge = document.getElementById('ptg-override-badge');
   if (badge) badge.style.display = 'none';
-  // Render PTG items pre-checked (read-only reminder)
+  var alreadyDone = !!localStorage.getItem(_ptgCompletedKey());
   var list = document.getElementById('ptg-list');
-  list.innerHTML = _ptgQs.map(function(q) {
-    var gold = q.gold ? ' ptg-item-gold' : '';
-    return '<div class="ptg-item checked' + gold + '" style="pointer-events:none;opacity:0.85">' +
-      '<div class="ptg-cb" style="background:rgba(255,255,255,0.04);border-color:rgba(255,255,255,0.15);color:rgba(255,255,255,0.4)">✓</div>' +
-      '<div class="ptg-label" style="flex:1"><div class="ptg-main">' + q.main + '</div></div>' +
-    '</div>';
-  }).join('');
-  // Render trading rules pre-checked
-  var rules = (window._currentRules && window._currentRules.length) ? window._currentRules
-    : (window._defaultRules && window._defaultRules.length) ? window._defaultRules : [];
-  var rgSection = document.getElementById('rg-section');
-  if (rules.length && rgSection) {
-    document.getElementById('rg-list').innerHTML = rules.map(function(r) {
-      return '<div class="rg-item checked" style="pointer-events:none">' +
-        '<div class="rg-cb">✓</div>' +
-        '<div class="rg-text">' + r + '</div>' +
+  var footer = document.getElementById('ptg-footer');
+  var enterBtn = document.getElementById('ptg-enter-btn');
+  var skipBtn = document.getElementById('ptg-skip-btn');
+  if (alreadyDone) {
+    // ── REMINDER MODE: show pre-checked, single Enter button ──
+    list.style.display = 'grid';
+    list.innerHTML = _ptgQs.map(function(q) {
+      var gold = q.gold ? ' ptg-item-gold' : '';
+      return '<div class="ptg-item checked' + gold + '" style="pointer-events:none;opacity:0.85">' +
+        '<div class="ptg-cb" style="background:rgba(255,255,255,0.04);border-color:rgba(255,255,255,0.15);color:rgba(255,255,255,0.4)">✓</div>' +
+        '<div class="ptg-label" style="flex:1"><div class="ptg-main">' + q.main + '</div></div>' +
       '</div>';
     }).join('');
-    rgSection.style.display = 'block';
-  } else if (rgSection) {
-    rgSection.style.display = 'none';
+    var rules = (window._currentRules && window._currentRules.length) ? window._currentRules
+      : (window._defaultRules && window._defaultRules.length) ? window._defaultRules : [];
+    var rgSection = document.getElementById('rg-section');
+    if (rules.length && rgSection) {
+      document.getElementById('rg-list').innerHTML = rules.map(function(r) {
+        return '<div class="rg-item checked" style="pointer-events:none">' +
+          '<div class="rg-cb">✓</div><div class="rg-text">' + r + '</div></div>';
+      }).join('');
+      rgSection.style.display = 'block';
+    } else if (rgSection) { rgSection.style.display = 'none'; }
+    if (footer) footer.style.display = 'none';
+    if (enterBtn) enterBtn.style.display = 'flex';
+    if (skipBtn) skipBtn.style.display = 'none';
+  } else {
+    // ── INTERACTIVE MODE: step-by-step check ──
+    _ptgChecked = new Array(_ptgQs.length).fill(false);
+    _ptgUnsure  = new Array(_ptgQs.length).fill(false);
+    list.style.display = 'flex'; list.style.flexDirection = 'column';
+    list.innerHTML = _ptgQs.map(function(q, i) {
+      var gold = q.gold ? ' ptg-item-gold' : '';
+      return '<div class="ptg-item'+gold+'" id="ptg-item-'+i+'" onclick="ptgToggle('+i+')">' +
+        '<div class="ptg-cb" id="ptg-cb-'+i+'"></div>' +
+        '<div class="ptg-label" style="flex:1"><div class="ptg-main">'+q.main+'</div></div>' +
+        '<div onclick="event.stopPropagation();ptgToggleUnsure('+i+')" id="ptg-unsure-'+i+'" style="flex-shrink:0;font-family:var(--mono);font-size:10px;padding:4px 10px;border-radius:6px;border:1px solid rgba(255,180,0,0.2);color:rgba(255,180,0,0.35);cursor:pointer;transition:all 0.18s;white-space:nowrap">Not sure</div>' +
+      '</div>';
+    }).join('');
+    var rgSection = document.getElementById('rg-section');
+    if (rgSection) rgSection.style.display = 'none';
+    if (footer) footer.style.display = 'flex';
+    if (enterBtn) enterBtn.style.display = 'none';
+    if (skipBtn) skipBtn.style.display = '';
+    _ptgUpdateCombinedState();
   }
   document.getElementById('ptg-gate').classList.add('show');
 }
