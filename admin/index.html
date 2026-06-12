@@ -9673,12 +9673,12 @@ function _leoEscClose(e) { if (e.key === 'Escape') closeLiveExec(); }
 
 // ── PRE-TRADE GATE ────────────────────────────────────
 var _ptgQsDefault = [
-  { main: "The higher timeframe is clear and I'm trading with it." },
-  { main: "This is a setup I planned, not one I'm forcing." },
-  { main: "I've accepted this loss and I'm fine if it stops me out." },
-  { main: "I know my exact stop, size, and max loss, and I won't add to a loser." },
-  { main: "If my gut says it is a bad trade, focus is on protecting capital." },
-  { main: "I will obey the rules, only today.", gold: true }
+  { main: "The higher timeframe is clear and I'm trading with it.", warn: "Be cautious — the higher timeframe is not clear." },
+  { main: "This is a setup I planned, not one I'm forcing.", warn: "Warning — you may be forcing this trade." },
+  { main: "I've accepted this loss and I'm fine if it stops me out.", warn: "You haven't fully accepted this loss — be careful." },
+  { main: "I know my exact stop, size, and max loss, and I won't add to a loser.", warn: "Danger — stop and size are not clearly defined." },
+  { main: "If my gut says it is a bad trade, focus is on protecting capital.", warn: "Your gut is uncertain — protect your capital first." },
+  { main: "I will obey the rules, only today.", gold: true, warn: "You're not committed to the rules today." }
 ];
 (function(){
   try {
@@ -9865,7 +9865,7 @@ function ptgUnlock() {
   var warn = document.getElementById('leo-ptg-warning');
   if (warn) {
     if (unsureItems.length) {
-      document.getElementById('leo-ptg-warning-items').textContent = unsureItems.map(function(q){ return q.main; }).join(' · ');
+      document.getElementById('leo-ptg-warning-items').textContent = unsureItems.map(function(q){ return q.warn || q.main; }).join('  ·  ');
       warn.style.display = 'block';
     } else {
       warn.style.display = 'none';
