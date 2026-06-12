@@ -14150,30 +14150,29 @@ window.tdSaveLevels = async function() {
   var today   = new Date().toLocaleDateString('sv-SE', {timeZone: 'Asia/Bangkok'});
   var levJson = JSON.stringify(window.levels || []);
   try {
-    // Single upsert — updates levels_json if row exists, inserts minimal row if not.
-    // onConflict on (user_id,date) means existing rows get only levels_json patched;
-    // other columns (tf_state, score, etc.) are left untouched via ignoreDuplicates:false.
-    var res = await sb.from('morning_analysis').upsert({
-      user_id:      uid,
-      date:         today,
-      levels_json:  levJson,
-      // Provide safe defaults so a brand-new row is valid
-      tf_state:     '{}',
-      pivot_state:  '',
-      london_bias:  '',
-      market_dir:   '',
-      news_notes:   '',
-      high_impact:  false,
-      score:        0,
-      verdict:      ''
-    }, { onConflict: 'user_id,date' });
+    // Try a targeted UPDATE first — only touches levels_json, leaves all other columns intact
+    var upd = await sb.from('morning_analysis')
+      .update({ levels_json: levJson })
+      .eq('user_id', uid)
+      .eq('date', today)
+      .select('user_id');
 
-    if (res.error) {
-      console.warn('[supabase] tdSaveLevels upsert error:', res.error.message);
-    } else {
-      var count = (window.levels || []).length;
-      console.log('[supabase] tdSaveLevels saved →', today, count + ' level(s)');
+    if (upd.error) throw new Error(upd.error.message);
+
+    // If no row existed for today yet, insert a minimal one
+    if (!upd.data || upd.data.length === 0) {
+      var ins = await sb.from('morning_analysis').insert({
+        user_id:     uid,
+        date:        today,
+        levels_json: levJson,
+        tf_state:    '{}',
+        score:       0,
+        verdict:     ''
+      });
+      if (ins.error) throw new Error(ins.error.message);
     }
+
+    console.log('[supabase] tdSaveLevels saved →', today, (window.levels||[]).length + ' level(s)');
   } catch(e) {
     console.warn('[supabase] tdSaveLevels error:', e.message);
   }
