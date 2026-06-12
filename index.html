@@ -3643,14 +3643,22 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 
         <!-- Trading mode -->
         <div style="padding:16px 20px;border-left:1px solid var(--border);display:flex;flex-direction:column;justify-content:center;gap:6px;min-width:190px">
-          <div style="font-family:var(--mono);font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3);margin-bottom:2px">Trading mode</div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:2px">
+            <div style="font-family:var(--mono);font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3)">Trading mode</div>
+            <button onclick="tmToggleEdit()" id="tm-edit-btn" style="font-family:var(--mono);font-size:8px;padding:1px 7px;border-radius:4px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:var(--text3);cursor:pointer">Edit</button>
+          </div>
           <div id="trading-mode-btns" style="display:flex;flex-direction:column;gap:4px">
-            <button class="tgl" onclick="setTradingMode(this,'Buy on dips')" style="font-size:9px;padding:5px 10px;text-align:left">Buy on dips</button>
-            <button class="tgl" onclick="setTradingMode(this,'Short on bounces')" style="font-size:9px;padding:5px 10px;text-align:left">Short on bounces</button>
-            <button class="tgl" onclick="setTradingMode(this,'Buy breakouts')" style="font-size:9px;padding:5px 10px;text-align:left">Buy breakouts</button>
-            <button class="tgl" onclick="setTradingMode(this,'Short breakdowns')" style="font-size:9px;padding:5px 10px;text-align:left">Short breakdowns</button>
-            <button class="tgl" onclick="setTradingMode(this,'Range play')" style="font-size:9px;padding:5px 10px;text-align:left">Range play</button>
-            <button class="tgl" onclick="setTradingMode(this,'Wait — no clear setup')" style="font-size:9px;padding:5px 10px;text-align:left">Wait — no clear setup</button>
+            <button class="tgl tm-mode-btn" onclick="setTradingMode(this,'Buy on dips')" style="font-size:9px;padding:5px 10px;text-align:left">Buy on dips</button>
+            <button class="tgl tm-mode-btn" onclick="setTradingMode(this,'Short on bounces')" style="font-size:9px;padding:5px 10px;text-align:left">Short on bounces</button>
+            <button class="tgl tm-mode-btn" onclick="setTradingMode(this,'Buy breakouts')" style="font-size:9px;padding:5px 10px;text-align:left">Buy breakouts</button>
+            <button class="tgl tm-mode-btn" onclick="setTradingMode(this,'Short breakdowns')" style="font-size:9px;padding:5px 10px;text-align:left">Short breakdowns</button>
+            <button class="tgl tm-mode-btn" onclick="setTradingMode(this,'Range play')" style="font-size:9px;padding:5px 10px;text-align:left">Range play</button>
+            <button class="tgl tm-mode-btn" onclick="setTradingMode(this,'Wait — no clear setup')" style="font-size:9px;padding:5px 10px;text-align:left">Wait — no clear setup</button>
+          </div>
+          <div id="tm-add-wrap" style="display:none;margin-top:4px">
+            <input id="tm-add-input" type="text" placeholder="New mode, press Enter"
+              style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);border-radius:6px;padding:5px 9px;font-family:var(--mono);font-size:10px;color:var(--text);outline:none"
+              onkeydown="if(event.key==='Enter'){tmAddMode(this.value);this.value='';}">
           </div>
 
           <div id="trading-mode-display" style="font-family:var(--display);font-size:16px;letter-spacing:0.04em;color:var(--text3);margin-top:4px"></div>
@@ -6204,6 +6212,58 @@ function setTradingMode(btn, val) {
   _saveTFStateLocal();
 }
 
+var _tmEditMode = false;
+function tmToggleEdit() {
+  _tmEditMode = !_tmEditMode;
+  var btn = document.getElementById('tm-edit-btn');
+  var addWrap = document.getElementById('tm-add-wrap');
+  if (btn) { btn.textContent = _tmEditMode ? 'Done' : 'Edit'; btn.style.color = _tmEditMode ? 'var(--gold)' : 'var(--text3)'; btn.style.borderColor = _tmEditMode ? 'rgba(240,188,78,0.4)' : 'rgba(255,255,255,0.1)'; }
+  if (addWrap) addWrap.style.display = _tmEditMode ? 'block' : 'none';
+  document.querySelectorAll('.tm-mode-btn').forEach(function(b) {
+    var existing = b.querySelector('.tm-del');
+    if (_tmEditMode && !existing) {
+      var x = document.createElement('span');
+      x.className = 'tm-del';
+      x.textContent = '×';
+      x.style.cssText = 'margin-left:auto;padding-left:10px;color:rgba(240,96,96,0.6);font-size:13px;line-height:1';
+      x.onclick = function(e) { e.stopPropagation(); tmRemoveMode(b); };
+      b.style.display = 'flex'; b.style.alignItems = 'center';
+      b.appendChild(x);
+    } else if (!_tmEditMode && existing) {
+      existing.remove();
+    }
+  });
+  if (_tmEditMode) { setTimeout(function(){ var i=document.getElementById('tm-add-input'); if(i) i.focus(); },50); }
+}
+function tmAddMode(val) {
+  val = val.trim();
+  if (!val) return;
+  var container = document.getElementById('trading-mode-btns');
+  if (!container) return;
+  var b = document.createElement('button');
+  b.className = 'tgl tm-mode-btn';
+  b.style.cssText = 'font-size:9px;padding:5px 10px;text-align:left';
+  b.textContent = val;
+  b.onclick = function() { setTradingMode(b, val); };
+  if (_tmEditMode) {
+    b.style.display = 'flex'; b.style.alignItems = 'center';
+    var x = document.createElement('span');
+    x.className = 'tm-del';
+    x.textContent = '×';
+    x.style.cssText = 'margin-left:auto;padding-left:10px;color:rgba(240,96,96,0.6);font-size:13px;line-height:1';
+    x.onclick = function(e) { e.stopPropagation(); tmRemoveMode(b); };
+    b.appendChild(x);
+  }
+  container.appendChild(b);
+}
+function tmRemoveMode(btn) {
+  if (tradingMode === (btn.childNodes[0] && btn.childNodes[0].textContent || btn.textContent.replace('×','').trim())) {
+    tradingMode = '';
+    var disp = document.getElementById('trading-mode-display');
+    if (disp) { disp.textContent = ''; }
+  }
+  btn.remove();
+}
 // ── KEY LEVELS ────────────────────────────────────────
 // ── LEVEL FORM STATE ──────────────────────────────────
 var _lvlFormDir = 'long';
@@ -6806,6 +6866,26 @@ function toggleConf(id, el, val) {
   else { t.confluence = t.confluence.filter(function(v) { return v !== val; }); }
 }
 
+function tradeConfShowOther(id) {
+  var wrap = document.getElementById('conf-other-wrap-' + id);
+  if (wrap) { wrap.style.display = 'block'; setTimeout(function(){ var i = document.getElementById('conf-other-input-' + id); if(i) i.focus(); }, 50); }
+}
+function tradeConfAddOther(id, val) {
+  val = val.trim();
+  if (!val) return;
+  var t = state.trades.find(function(t){ return t.id === id; });
+  if (!t) return;
+  if (t.confluence.includes(val)) return;
+  var grid = document.getElementById('conf-grid-' + id);
+  if (!grid) return;
+  var otherBtn = grid.lastElementChild;
+  var el = document.createElement('div');
+  el.className = 'conf-item';
+  el.innerHTML = '<div class="cb-box">&#10003;</div>' + val;
+  el.onclick = function() { toggleConf(id, el, val); };
+  grid.insertBefore(el, otherBtn);
+  toggleConf(id, el, val);
+}
 function toggleMistake(id, el, val) {
   el.classList.toggle('sel');
   const t = state.trades.find(function(t) { return t.id === id; });
@@ -6890,7 +6970,7 @@ function addCustomTicker(id) {
 }
 
 function buildTradeForm(id) {
-  var confItems = ['Fib 0.764','Fib 0.618','Fib 0.5','Fib 0.382','Support/Resistance','Trendline','Liquidity sweep','Prev high/low','AO divergence','Elliott wave','Volume spike','Other'];
+  var confItems = ['Fib 0.764','Fib 0.618','Fib 0.5','Fib 0.382','Support/Resistance','Trendline','Liquidity sweep','Prev high/low','AO divergence','Elliott wave','Volume spike'];
   var mistakeItems = ['Entered too early','Anticipated — no confirmation','SL too tight','Tightened SL inside noise','Removed SL','Added to loser','Missed 50% at 1R','Revenge trade','Overtraded','Traded outside hours','Overleveraged','Ignored HTF bias'];
   return '<div class="trade-form-header">' +
     '<span class="trade-num">Trade #' + id + '</span>' +
@@ -6935,9 +7015,11 @@ function buildTradeForm(id) {
     '</div>' +
     '<div class="divider"></div>' +
     '<span class="small-label">Confluence</span>' +
-    '<div class="conf-grid" style="margin-bottom:12px">' +
+    '<div class="conf-grid" id="conf-grid-' + id + '" style="margin-bottom:6px">' +
     confItems.map(function(c) { return '<div class="conf-item" onclick="toggleConf(' + id + ',this,\'' + c + '\')"><div class="cb-box">&#10003;</div>' + c + '</div>'; }).join('') +
+    '<div class="conf-item" style="border-style:dashed;opacity:0.6" onclick="tradeConfShowOther(' + id + ')"><div class="cb-box" style="opacity:0">&#10003;</div>+ Other</div>' +
     '</div>' +
+    '<div id="conf-other-wrap-' + id + '" style="display:none;margin-bottom:10px"><input id="conf-other-input-' + id + '" type="text" placeholder="Type confluence and press Enter" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);border-radius:6px;padding:7px 12px;font-family:var(--mono);font-size:11px;color:var(--text);outline:none" onkeydown="if(event.key===\'Enter\'){tradeConfAddOther(' + id + ',this.value);this.value=\'\';}"></div>' +
     '<div class="divider"></div>' +
     '<span class="small-label">Result</span>' +
     '<div class="toggle-group" style="margin-bottom:12px">' +
