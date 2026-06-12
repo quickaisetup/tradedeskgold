@@ -3847,6 +3847,12 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
         <button class="lvl-cf" onclick="lvlToggleConf(this,'EMA')">EMA</button>
         <button class="lvl-cf" onclick="lvlToggleConf(this,'Pivot')">Pivot</button>
         <button class="lvl-cf" onclick="lvlToggleConf(this,'VWAP')">VWAP</button>
+        <button class="lvl-cf" id="lvl-cf-other-btn" onclick="lvlShowOtherInput()" style="border-style:dashed">+ Other</button>
+      </div>
+      <div id="lvl-cf-other-wrap" style="display:none;margin-top:-8px;margin-bottom:10px;display:none">
+        <input id="lvl-cf-other-input" type="text" placeholder="Type confluence and press Enter"
+          style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);border-radius:6px;padding:7px 12px;font-family:var(--mono);font-size:11px;color:var(--text);outline:none"
+          onkeydown="if(event.key==='Enter'){lvlAddOtherConf(this.value);this.value='';}" />
       </div>
 
       <!-- Confidence -->
@@ -6378,6 +6384,24 @@ function scheduleLevelsSave() {
     }
   } catch(e) {}
 })();
+function lvlShowOtherInput() {
+  var wrap = document.getElementById('lvl-cf-other-wrap');
+  if (wrap) { wrap.style.display = 'block'; setTimeout(function(){ var i=document.getElementById('lvl-cf-other-input'); if(i) i.focus(); }, 50); }
+}
+function lvlAddOtherConf(val) {
+  val = val.trim();
+  if (!val) return;
+  var container = document.getElementById('lvl-conf-btns');
+  var otherBtn = document.getElementById('lvl-cf-other-btn');
+  if (!container || !otherBtn) return;
+  if (_lvlFormConf.includes(val)) return;
+  var btn = document.createElement('button');
+  btn.className = 'lvl-cf';
+  btn.textContent = val;
+  btn.onclick = function() { lvlToggleConf(btn, val); };
+  container.insertBefore(btn, otherBtn);
+  lvlToggleConf(btn, val);
+}
 function toggleLvlConf(id, btn, v) {
   var l = levels.find(function(l) { return l.id === id; });
   if (!l) return;
