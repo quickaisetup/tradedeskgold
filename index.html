@@ -4222,9 +4222,14 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
         <path d="M 18 98 A 82 82 0 0 1 182 98" stroke="rgba(255,255,255,0.06)" stroke-width="6" fill="none" stroke-linecap="round"/>
         <!-- gradient color track (always visible, dimmed) -->
         <path d="M 18 98 A 82 82 0 0 1 182 98" stroke="url(#gauge-grad)" stroke-width="6" fill="none" stroke-linecap="round" opacity="0.25"/>
-        <!-- active fill arc -->
-        <path d="M 18 98 A 82 82 0 0 1 182 98" id="rp-arc" stroke="#707880" stroke-width="6" fill="none" stroke-linecap="round"
-          stroke-dasharray="0 258" style="transition:stroke-dasharray .9s cubic-bezier(0.4,0,0.2,1),stroke .6s ease" filter="url(#gauge-glow)"/>
+        <!-- bull arc: center → right -->
+        <path d="M 18 98 A 82 82 0 0 1 182 98" id="rp-arc-bull" stroke="#4ed68a" stroke-width="6" fill="none" stroke-linecap="round"
+          stroke-dasharray="0 258" stroke-dashoffset="-129"
+          style="transition:stroke-dasharray .9s cubic-bezier(0.4,0,0.2,1)" filter="url(#gauge-glow)"/>
+        <!-- bear arc: center → left (reverse direction) -->
+        <path d="M 182 98 A 82 82 0 0 0 18 98" id="rp-arc-bear" stroke="#f06060" stroke-width="6" fill="none" stroke-linecap="round"
+          stroke-dasharray="0 258" stroke-dashoffset="-129"
+          style="transition:stroke-dasharray .9s cubic-bezier(0.4,0,0.2,1)" filter="url(#gauge-glow)"/>
 
         <!-- tick marks: 9 ticks across arc -->
         <line x1="18"  y1="98"  x2="23"  y2="90"  stroke="rgba(240,96,96,0.5)"  stroke-width="1.5" stroke-linecap="round"/>
@@ -9012,11 +9017,20 @@ function updateRightPanel() {
     else                     panel.classList.add('neutral-panel');
   }
 
-  // ── Arc fill ──
-  var arcLen = Math.round(((Math.max(-10, Math.min(10, scoreVal)) + 10) / 20) * RP_HALF_ARC);
-  arcLen = Math.max(4, Math.min(RP_HALF_ARC, arcLen));
-  var arc = document.getElementById('rp-arc');
-  if (arc) { arc.setAttribute('stroke-dasharray', arcLen + ' ' + (RP_HALF_ARC * 2)); arc.setAttribute('stroke', arcColor); }
+  // ── Arc fill: center-out (red left for bear, green right for bull) ──
+  var clampedVal = Math.max(-10, Math.min(10, scoreVal));
+  var HALF = 129; // half of RP_HALF_ARC=258
+  var bullArc = document.getElementById('rp-arc-bull');
+  var bearArc = document.getElementById('rp-arc-bear');
+  if (clampedVal >= 0) {
+    var bLen = Math.round((clampedVal / 10) * HALF);
+    if (bullArc) { bullArc.setAttribute('stroke-dasharray', bLen + ' 258'); bullArc.setAttribute('stroke', arcColor); }
+    if (bearArc) { bearArc.setAttribute('stroke-dasharray', '0 258'); }
+  } else {
+    var bLen = Math.round((Math.abs(clampedVal) / 10) * HALF);
+    if (bearArc) { bearArc.setAttribute('stroke-dasharray', bLen + ' 258'); bearArc.setAttribute('stroke', arcColor); }
+    if (bullArc) { bullArc.setAttribute('stroke-dasharray', '0 258'); }
+  }
 
   // ── Score number + glow ──
   var rpScore = document.getElementById('rp-score-num');
