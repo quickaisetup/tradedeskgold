@@ -6119,7 +6119,7 @@ function updateVerdictAuto() {
   if (marketDirEl) {
     if (marketDirEl.textContent.indexOf('Up') > -1)        { score += 2; bullSignals.push({ label: 'Direction moving up',   pts: '+2' }); }
     else if (marketDirEl.textContent.indexOf('Down') > -1) { score -= 2; bearSignals.push({ label: 'Direction moving down', pts: '-2' }); }
-    else if (marketDirEl.textContent.indexOf('Rang') > -1) { bearSignals.push({ label: 'Direction ranging', pts: '0' }); }
+    // Ranging = neutral, no signal logged
   }
 
   // ── Raw score preserved for logging; needle clamped to ±10 ──
@@ -12243,8 +12243,8 @@ window.updateEdgeButtonState = function(analysisScore) {
     var scoreLabel = (analysisScore > 0 ? '+' : '') + analysisScore;
     // Determine strength label
     var abs = Math.abs(analysisScore);
-    var strength = abs >= 6 ? 'STRONG' : abs >= 3 ? 'CLEAR' : 'MILD';
-    var dir = analysisScore > 0 ? 'BULLISH' : 'BEARISH';
+    var strength = abs >= 6 ? 'STRONG' : abs >= 3 ? 'CLEAR' : abs >= 1 ? 'MILD' : '';
+    var dir = analysisScore > 0 ? 'BULLISH' : analysisScore < 0 ? 'BEARISH' : 'NEUTRAL';
 
     btn.disabled = false;
     btn.style.cssText = 'background:rgba(240,188,78,0.12);border:1px solid rgba(240,188,78,0.55);border-radius:8px;'+
@@ -12259,7 +12259,7 @@ window.updateEdgeButtonState = function(analysisScore) {
     var morningBtn = document.getElementById('save-morning-btn');
     if (morningBtn) morningBtn.style.display = 'block';
     // Update locked state text to show score context
-    if (headEl) { headEl.textContent = strength+' '+dir+' BIAS — SCORE '+scoreLabel; headEl.style.color='var(--gold)'; }
+    if (headEl) { headEl.textContent = (strength ? strength+' ' : '')+dir+' BIAS — SCORE '+scoreLabel; headEl.style.color='var(--gold)'; }
     if (subEl)  { subEl.textContent  = 'Your analysis is set. Get AI coaching specific to today\'s score and your historical edge.'; }
   } else {
     btn.disabled = true;
