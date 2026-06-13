@@ -2815,7 +2815,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
     <button class="sb-btn" onclick="exportJSON()" style="border-color:rgba(78,214,138,0.4);color:var(--green)">↓ Export JSON</button>
     <button class="sb-btn" onclick="document.getElementById('import-json-input').click()" style="border-color:rgba(18,85,176,0.4);color:var(--blue)">↑ Import JSON</button>
     <input type="file" id="import-json-input" accept=".json" style="display:none" onchange="importJSON(this)">
-    <button class="sb-btn" onclick="openFeedback();mobMenuClose();" style="border-color:rgba(139,92,246,0.4);color:#a78bfa">💬 Ideas &amp; Feedback</button>
+    <button class="sb-btn" onclick="openFeedback();mobMenuClose();" style="border-color:rgba(139,92,246,0.4);color:#a78bfa">💬 Ideas, Bugs &amp; Feedback</button>
     <!-- Theme toggle (primary is in topbar) -->
     <div id="theme-toggle-wrap" onclick="tdToggleTheme()" title="Toggle light / dark mode">
       <span class="tt-icon">🌙</span>
@@ -4278,7 +4278,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 <!-- FEEDBACK BUTTON — fixed to viewport, aligned to bottom of right panel, outside scroll flow so it never covers sidebar content and always receives clicks -->
 <button id="fb-btn" onclick="openFeedback()">
   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-  Ideas &amp; Feedback
+  Ideas, Bugs &amp; Feedback
 </button>
 
 <!-- theme toggle moved to sidebar -->
@@ -4288,7 +4288,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
   <div id="fb-modal">
     <div id="fb-modal-title">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-      Ideas &amp; Feedback
+      Ideas, Bugs &amp; Feedback
     </div>
     <div id="fb-modal-sub">Got a bug, idea, or feature request? Drop it here — it goes straight to the admin panel.</div>
     <textarea id="fb-textarea" placeholder="e.g. Would love a dark/light toggle, the P&L chart feels off, can we add weekly goals..." maxlength="1000" oninput="document.getElementById('fb-char').textContent=this.value.length+'/1000'"></textarea>
