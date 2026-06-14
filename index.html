@@ -11242,18 +11242,33 @@ function _renderCalendar(srcLabel) {
   var todayStr=new Date().toLocaleDateString('sv-SE',{timeZone:tz});
   var todayTZ=new Date(new Date().toLocaleString('en-US',{timeZone:tz}));
   todayTZ.setHours(0,0,0,0);
-  var dow=todayTZ.getDay()||7;
+  var dow=todayTZ.getDay()||7; // 1=Mon … 7=Sun
   var mon=new Date(todayTZ);mon.setDate(todayTZ.getDate()-(dow-1));
   var week=[];
   for(var i=0;i<5;i++){var d=new Date(mon);d.setDate(mon.getDate()+i);week.push({key:d.toLocaleDateString('sv-SE'),date:d});}
+  // Next week: Mon–Fri of next week + Sat/Sun of THIS weekend as preview
+  var nextMon=new Date(mon);nextMon.setDate(mon.getDate()+7);
+  var nextWeek=[];
+  // Saturday and Sunday of current week
+  for(var j=5;j<7;j++){var dw=new Date(mon);dw.setDate(mon.getDate()+j);nextWeek.push({key:dw.toLocaleDateString('sv-SE'),date:dw,weekend:true});}
+  // Mon–Fri of next week
+  for(var k=0;k<5;k++){var dn=new Date(nextMon);dn.setDate(nextMon.getDate()+k);nextWeek.push({key:dn.toLocaleDateString('sv-SE'),date:dn});}
 
-  if (!_ffActiveDay || !byDay[_ffActiveDay]) {
-    _ffActiveDay = byDay[todayStr] ? todayStr : ((week.find(function(w){return byDay[w.key];})||week[0]).key);
+  // On Saturday/Sunday auto-switch view to next week
+  var isSatOrSun = todayTZ.getDay()===6 || todayTZ.getDay()===0;
+  if (!_ffActiveDay) {
+    if (isSatOrSun) {
+      _ffActiveDay = (nextWeek.find(function(w){return byDay[w.key];})||nextWeek[0]).key;
+    } else {
+      _ffActiveDay = byDay[todayStr] ? todayStr : ((week.find(function(w){return byDay[w.key];})||week[0]).key);
+    }
   }
+  var showingNextWeek = nextWeek.some(function(w){return w.key===_ffActiveDay;});
 
   var _lmFF = document.body.classList.contains('light-mode');
   var tabStyle='font-family:var(--mono);font-size:9px;padding:3px 9px;border-radius:4px;border:1px solid;cursor:pointer;white-space:nowrap;';
   var th='';
+  // This week tabs
   week.forEach(function(info){
     var ev2=byDay[info.key]||[];
     var isToday=info.key===todayStr;
@@ -11261,7 +11276,7 @@ function _renderCalendar(srcLabel) {
     var active=info.key===_ffActiveDay;
     var dayName=DAYS[info.date.getDay()];
     var ds=(info.date.getMonth()+1)+'/'+info.date.getDate();
-    var hasEvents = ev2.length > 0;
+    var hasEvents=ev2.length>0;
     var style=tabStyle+(active
       ?'border-color:var(--gb);background:var(--gd);color:var(--gold)'
       :hasHigh?'border-color:var(--rb);background:var(--rd);color:var(--red)'
@@ -11269,6 +11284,24 @@ function _renderCalendar(srcLabel) {
       :_lmFF?'border-color:rgba(0,0,0,0.1);background:rgba(0,0,0,0.04);color:rgba(0,0,0,0.3)'
       :'border-color:rgba(255,255,255,0.06);background:rgba(255,255,255,0.02);color:rgba(255,255,255,0.2)');
     th+='<button style="'+style+'" onclick="switchFFDay(\''+info.key+'\')">'+(isToday?'▸ ':'')+dayName+' '+ds+(hasHigh?' ⚡':'')+' </button> ';
+  });
+  // Divider + Next week label
+  th+='<span style="font-family:var(--mono);font-size:8px;color:rgba(139,92,246,0.6);letter-spacing:0.1em;margin:0 4px;align-self:center">│ NEXT</span>';
+  // Next week tabs (Sat/Sun + Mon–Fri)
+  nextWeek.forEach(function(info){
+    var ev2=byDay[info.key]||[];
+    var hasHigh=ev2.some(function(x){return(x.ev.impact||'').toLowerCase()==='high';});
+    var active=info.key===_ffActiveDay;
+    var dayName=DAYS[info.date.getDay()];
+    var ds=(info.date.getMonth()+1)+'/'+info.date.getDate();
+    var hasEvents=ev2.length>0;
+    var isWeekend=info.weekend;
+    var style=tabStyle+(active
+      ?'border-color:rgba(139,92,246,0.7);background:rgba(139,92,246,0.15);color:#a78bfa'
+      :hasHigh?'border-color:var(--rb);background:var(--rd);color:var(--red)'
+      :hasEvents?'border-color:rgba(139,92,246,0.2);background:rgba(139,92,246,0.05);color:rgba(139,92,246,0.6)'
+      :'border-color:rgba(255,255,255,0.04);background:transparent;color:rgba(255,255,255,0.15)');
+    th+='<button style="'+style+'" onclick="switchFFDay(\''+info.key+'\')">'+(isWeekend?'<span style="opacity:0.5">'+dayName+' '+ds+'</span>':dayName+' '+ds+(hasHigh?' ⚡':''))+'</button> ';
   });
   if (tabsEl) tabsEl.innerHTML=th;
 
