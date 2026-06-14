@@ -14318,6 +14318,7 @@ async function tdlOnAuth(user) {
   ls.style.zIndex = '-1';
   ls.style.opacity = '0';
   console.log('[td] Login screen hidden');
+  if (window._fwTryShow) window._fwTryShow();
 
   // Show username in sidebar
   tdlPatchUsernameDisplay();
@@ -15902,11 +15903,10 @@ window.fwOpenPtgEdit = fwOpenPtgEdit;
 window.fwOpenRules = fwOpenRules;
 
 // Trigger on first load after auth
-document.addEventListener('DOMContentLoaded', function() {
-  setTimeout(function() {
-    if (fwShouldShow()) fwOpen();
-  }, 900);
-});
+// Triggered after auth (login screen hidden) — not on DOMContentLoaded
+window._fwTryShow = function() {
+  if (fwShouldShow()) setTimeout(fwOpen, 600);
+};
 // ── END FIRST-TIME WALKTHROUGH ─────────────────────────
 </script>
 </body>
