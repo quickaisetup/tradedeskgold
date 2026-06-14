@@ -9801,14 +9801,16 @@ function leoLoadWidget(tfId, sym, interval) {
   if (!container) return;
   container.innerHTML = '';
 
-  // Watermark — preserve existing trend state if already set
+  // Watermark — restore trend from localStorage (persisted per instrument+tf)
+  var wmKey = 'wm_' + (_lvlInstrument || 'XAUUSD') + '_' + tfId;
   var existingWm = container.querySelector('.leo-tv-cell-wm');
-  var savedTrend = existingWm ? existingWm.dataset.trend : '';
+  var savedTrend = localStorage.getItem(wmKey) || (existingWm ? existingWm.dataset.trend : '') || '';
   var wm = document.createElement('div');
   wm.className = 'leo-tv-cell-wm';
   wm.textContent = tfId;
   wm.title = 'Click to set trend';
-  wm.dataset.trend = savedTrend || '';
+  wm.dataset.trend = savedTrend;
+  wm.dataset.wmKey = wmKey;
   if (savedTrend === 'up')      wm.classList.add('wm-up');
   else if (savedTrend === 'down')    wm.classList.add('wm-down');
   else if (savedTrend === 'ranging') wm.classList.add('wm-ranging');
@@ -10063,6 +10065,11 @@ function cycleWmTrend(el) {
   if (next === 'up')      el.classList.add('wm-up');
   else if (next === 'down')    el.classList.add('wm-down');
   else if (next === 'ranging') el.classList.add('wm-ranging');
+  // Persist so color survives page refreshes
+  if (el.dataset.wmKey) {
+    if (next) localStorage.setItem(el.dataset.wmKey, next);
+    else localStorage.removeItem(el.dataset.wmKey);
+  }
 }
 
 function closeLiveExec() {
