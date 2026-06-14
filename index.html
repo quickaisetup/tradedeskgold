@@ -15828,12 +15828,16 @@ var _fwSteps = [
     tipBody:'After the session, write a <strong>free-text reflection</strong> — what worked, what didn\'t, what you\'ll do differently tomorrow.<br><br>This is where discipline compounds. The traders who review their process consistently are the ones who improve. Takes 2 minutes. Do it every day.'
   },
 
-  // 12 — Rank & XP (dim)
-  { type:'dim', tag:'TOUR · 07', text:'Rank & XP',
-    target:'right-panel',
-    tipStep:'07 / 7',
-    tipTitle:'Rank & XP',
-    tipBody:'Every session you complete and every trade you log earns <strong>XP</strong>. Your rank advances as you build a consistent process — not just from winning.<br><br>Ranks go from <strong>Degenerate → Gambler → … → Elite</strong>. Your streak, all-time stats, and leaderboard position are all tracked here. The community sees your progress in real time.'
+  // 12 — Rank & XP (card)
+  { type:'card', tag:'TOUR · 07', text:'',
+    html: function() { return (
+      '<div class="fw-c-icon">🏆</div>' +
+      '<div class="fw-c-eyebrow">Tour · 07 / 07</div>' +
+      '<div class="fw-c-title">Rank & XP</div>' +
+      '<div class="fw-c-body">Every session you complete and every trade you log earns <strong>XP</strong>. Your rank advances as you build a consistent, disciplined process — not just from winning.<br><br>' +
+      'Ranks go from <strong>Degenerate → Gambler → … → Elite</strong>. The right-side panel tracks your day streak, all-time stats, best streak, and leaderboard position. The community sees your progress in real time.</div>' +
+      '<button class="fw-btn-p" onclick="fwNext()">Got it →</button>'
+    );}
   },
 
   // 13 — Final oath card
