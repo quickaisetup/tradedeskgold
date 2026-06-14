@@ -4987,7 +4987,8 @@ function renderAccountsPanel() {
     var targetUsd  = Math.round(size * targetPct);
     var progPct    = effectiveBal && size ? Math.min(100, Math.max(0, profit / targetUsd * 100)) : 0;
     var progClr    = profit>=0 ? '#4ed68a' : '#f06060';
-    var profitDisp = profit>=0 ? '+$'+profit.toLocaleString() : '-$'+Math.abs(profit).toLocaleString();
+    var cur        = acc.currency || '$';
+    var profitDisp = profit>=0 ? '+'+cur+profit.toLocaleString() : '-'+cur+Math.abs(profit).toLocaleString();
     var barClr     = dayUsd>0?'rgba(78,214,138,0.5)':dayUsd<0?'rgba(240,96,96,0.5)':'rgba(255,255,255,0.08)';
     // Funded: withdrawable = current profit (capped at 0 if negative)
     var withdrawable    = Math.max(0, profit);
@@ -5026,7 +5027,7 @@ function renderAccountsPanel() {
             // Today P&L
             '<div style="text-align:right">' +
               '<div style="'+MN+'font-size:7px;letter-spacing:0.1em;text-transform:uppercase;color:'+_CDim2+';margin-bottom:2px">Today</div>' +
-              '<div style="'+MN+'font-size:14px;font-weight:700;color:'+dayClr+'">'+(dayUsd>=0?'+$':'-$')+Math.abs(dayUsd).toLocaleString()+'</div>' +
+              '<div style="'+MN+'font-size:14px;font-weight:700;color:'+dayClr+'">'+(dayUsd>=0?'+'+cur:'-'+cur)+Math.abs(dayUsd).toLocaleString()+'</div>' +
             '</div>' +
           '</div>' +
           // Progress bar — eval: toward profit target | funded: withdrawable
@@ -5038,9 +5039,9 @@ function renderAccountsPanel() {
                   '<div style="position:absolute;top:0;left:0;height:100%;width:'+withdrawPct.toFixed(1)+'%;background:#4ed68a;border-radius:2px;transition:width 0.5s ease"></div>' +
                 '</div>' +
                 '<div style="display:flex;justify-content:space-between;align-items:center">' +
-                  '<span style="'+MN+'font-size:7px;color:'+_CDim2+'">$0</span>' +
-                  '<span style="'+MN+'font-size:9px;font-weight:700;color:#4ed68a">$'+withdrawable.toLocaleString()+'</span>' +
-                  '<span style="'+MN+'font-size:7px;color:'+_CDim2+'">'+fmtK(targetUsd)+' max</span>' +
+                  '<span style="'+MN+'font-size:7px;color:'+_CDim2+'">'+cur+'0</span>' +
+                  '<span style="'+MN+'font-size:9px;font-weight:700;color:#4ed68a">'+cur+withdrawable.toLocaleString()+'</span>' +
+                  '<span style="'+MN+'font-size:7px;color:'+_CDim2+'">'+cur+fmtK(targetUsd)+' max</span>' +
                 '</div>' +
               '</div>'
             ) : (
@@ -5051,23 +5052,37 @@ function renderAccountsPanel() {
                 '<div style="display:flex;justify-content:space-between;align-items:center">' +
                   '<span style="'+MN+'font-size:7px;color:'+_CDim2+'">'+fmtK(size)+'</span>' +
                   '<span style="'+MN+'font-size:9px;font-weight:700;color:'+progClr+'">' +
-                    '$'+effectiveBal.toLocaleString()+' &nbsp;·&nbsp; '+progPct.toFixed(0)+'%' +
+                    cur+effectiveBal.toLocaleString()+' &nbsp;·&nbsp; '+progPct.toFixed(0)+'%' +
                   '</span>' +
                   '<span style="'+MN+'font-size:7px;color:'+_CDim2+'">'+fmtK(size+targetUsd)+'</span>' +
                 '</div>' +
               '</div>'
             )
           ) : '') +
+          // Currency selector
+          '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:7px;padding-top:6px;border-top:1px solid '+_Cdiv+'">' +
+            '<span style="'+MN+'font-size:7px;letter-spacing:0.1em;text-transform:uppercase;color:'+_CDim2+'">Currency</span>' +
+            '<div style="display:flex;border-radius:4px;overflow:hidden;border:1px solid '+_CBd2+'">' +
+              ['$','€','£','¥','A$','C$','CHF'].map(function(c,i){
+                return '<button onclick="updateAccount(\''+acc.id+'\',\'currency\',\''+c+'\')" '+
+                  'style="'+MN+'font-size:7px;letter-spacing:0.04em;padding:3px 7px;border:none;cursor:pointer;transition:all 0.15s;'+(i>0?'border-left:1px solid '+_CBd2+';':'')+
+                  (cur===c?'background:rgba(240,188,78,0.15);color:var(--gold)':'background:transparent;color:'+_CL)+'">'+c+'</button>';
+              }).join('') +
+            '</div>' +
+          '</div>' +
           // Phase toggle (bottom of card)
           '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:7px;padding-top:6px;border-top:1px solid '+_Cdiv+'">' +
             '<span style="'+MN+'font-size:7px;letter-spacing:0.1em;text-transform:uppercase;color:'+_CDim2+'">Phase</span>' +
             '<div style="display:flex;border-radius:4px;overflow:hidden;border:1px solid '+_CBd2+'">' +
               '<button onclick="updateAccount(\''+acc.id+'\',\'phase\',\'Evaluation\')" '+
                 'style="'+MN+'font-size:7px;letter-spacing:0.06em;text-transform:uppercase;padding:3px 9px;border:none;cursor:pointer;transition:all 0.15s;'+
-                (!isFunded?'background:rgba(240,188,78,0.15);color:var(--gold)':'background:transparent;color:'+_CL)+'">Eval</button>' +
+                (phase==='Evaluation'?'background:rgba(240,188,78,0.15);color:var(--gold)':'background:transparent;color:'+_CL)+'">Eval</button>' +
               '<button onclick="updateAccount(\''+acc.id+'\',\'phase\',\'Funded\')" '+
                 'style="'+MN+'font-size:7px;letter-spacing:0.06em;text-transform:uppercase;padding:3px 9px;border:none;cursor:pointer;transition:all 0.15s;border-left:1px solid '+_CBd2+';'+
-                (isFunded?'background:rgba(78,214,138,0.15);color:#4ed68a':'background:transparent;color:'+_CL)+'">Funded</button>' +
+                (phase==='Funded'?'background:rgba(78,214,138,0.15);color:#4ed68a':'background:transparent;color:'+_CL)+'">Funded</button>' +
+              '<button onclick="updateAccount(\''+acc.id+'\',\'phase\',\'Own Fund\')" '+
+                'style="'+MN+'font-size:7px;letter-spacing:0.06em;text-transform:uppercase;padding:3px 9px;border:none;cursor:pointer;transition:all 0.15s;border-left:1px solid '+_CBd2+';'+
+                (phase==='Own Fund'?'background:rgba(139,92,246,0.15);color:#a78bfa':'background:transparent;color:'+_CL)+'">Own Fund</button>' +
             '</div>' +
           '</div>' +
         '</div>' +
@@ -6555,6 +6570,14 @@ function toggleAccount(id, acc, btn) {
   t.account = t.accounts.join('+') || '';
   var lbl = document.getElementById('acc-lbl-'+id);
   if (lbl) lbl.textContent = t.accounts.length ? '→ Trading on: ' + t.accounts.join(' + ') : 'Select account(s)';
+  // Update profit label currency to match first selected account
+  var pnlLbl = document.getElementById('pnl-lbl-'+id);
+  if (pnlLbl && t.accounts.length && window._tdAccounts) {
+    var firstAccId = t.accounts[0];
+    var accObj = _tdAccounts.find(function(a){ return a.id === firstAccId; });
+    var cur = (accObj && accObj.currency) || '$';
+    pnlLbl.innerHTML = cur + ' Profit <span style="font-family:var(--mono);font-size:7px;color:var(--text3);font-weight:400">(actual from broker)</span>';
+  }
   checkSaveReady(id);
 }
 
@@ -6792,7 +6815,8 @@ function collapseTradeToCard(id) {
   if (!t || !wrap) return;
   var resClr = t.result==='Win' ? 'var(--green)' : t.result==='Loss' ? 'var(--red)' : 'var(--text2)';
   var rSign  = t.result==='Win' ? '+' : t.result==='Loss' ? '-' : '';
-  var usdTxt = t.usdAchieved ? (t.result==='Loss'?'-$':'$') + Math.abs(parseFloat(t.usdAchieved)||0).toLocaleString() : '';
+  var _tCur = (function(){ var acctIds = t.accounts||[]; if(!acctIds.length && t.account) acctIds=[t.account]; var a=_tdAccounts.find(function(x){ return acctIds.indexOf(x.id)>-1; }); return (a&&a.currency)||'$'; })();
+  var usdTxt = t.usdAchieved ? (t.result==='Loss'?'-'+_tCur:_tCur) + Math.abs(parseFloat(t.usdAchieved)||0).toLocaleString() : '';
   wrap.innerHTML =
     '<div class="trade-summary-card ' + (t.result==='Win'?'win':t.result==='Loss'?'loss':'') + '" id="tsc-'+id+'">' +
       '<span class="ts-num">Trade #'+id+'</span>' +
@@ -7084,7 +7108,7 @@ function buildTradeForm(id) {
     '</div>' +
     '<div class="form-grid">' +
     '<div class="form-field"><label>R achieved</label><input type="text" onchange="setTF2(' + id + ',\'rAchieved\',this.value)" placeholder="e.g. 1.5"></div>' +
-    '<div class="form-field"><label>USD profit <span style="font-family:var(--mono);font-size:7px;color:var(--text3);font-weight:400">(actual from broker)</span></label><input type="number" onchange="setTF2(' + id + ',\'usdAchieved\',this.value)" placeholder="e.g. 750" style="background:var(--bg3);border:1px solid var(--border2);border-radius:5px;color:var(--green);font-family:var(--mono);font-size:12px;padding:6px 9px;width:100%" onfocus="this.style.borderColor=\'rgba(78,214,138,0.4)\'" onblur="this.style.borderColor=\'var(--border2)\'"></div>' +
+    '<div class="form-field"><label id="pnl-lbl-' + id + '">Profit <span style="font-family:var(--mono);font-size:7px;color:var(--text3);font-weight:400">(actual from broker)</span></label><input type="number" onchange="setTF2(' + id + ',\'usdAchieved\',this.value)" placeholder="e.g. 750" style="background:var(--bg3);border:1px solid var(--border2);border-radius:5px;color:var(--green);font-family:var(--mono);font-size:12px;padding:6px 9px;width:100%" onfocus="this.style.borderColor=\'rgba(78,214,138,0.4)\'" onblur="this.style.borderColor=\'var(--border2)\'"></div>' +
     '<div class="form-field"><label>Took 50% at 1R?</label><div class="toggle-group"><button class="tgl" onclick="setTV(' + id + ',\'took50\',\'Yes\',this)">Yes</button><button class="tgl" onclick="setTV(' + id + ',\'took50\',\'No\',this)">No</button><button class="tgl" onclick="setTV(' + id + ',\'took50\',\'NA\',this)">N/A</button></div></div>' +
     '<div class="form-field"><label>Moved SL?</label><div class="toggle-group"><button class="tgl" onclick="setTV(' + id + ',\'movedSL\',\'No\',this)" style="color:var(--green);font-size:9px">No &#10003;</button><button class="tgl" onclick="setTV(' + id + ',\'movedSL\',\'Tightened\',this)" style="color:var(--red);font-size:9px">Tightened</button><button class="tgl" onclick="setTV(' + id + ',\'movedSL\',\'Removed\',this)" style="color:var(--red);font-size:9px">Removed</button></div></div>' +
     '</div>' +
