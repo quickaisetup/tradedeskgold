@@ -14256,6 +14256,22 @@ function tdlTodayBKK() {
   return new Date().toLocaleDateString('sv-SE', {timeZone: 'Asia/Bangkok'});
 }
 
+// ── PRESENCE HEARTBEAT ───────────────────────────────────
+// Updates last_seen on profiles every 2 minutes so admin can see who's online
+(function() {
+  function _heartbeat() {
+    var uid = localStorage.getItem('td_user_id');
+    var sb = getSB && getSB();
+    if (!uid || !sb) return;
+    sb.from('profiles').update({ last_seen: new Date().toISOString() }).eq('id', uid).then(function(){});
+  }
+  // Fire immediately on load, then every 2 minutes
+  setTimeout(function() {
+    _heartbeat();
+    setInterval(_heartbeat, 120000);
+  }, 3000);
+})();
+
 // ── THEME TOGGLE ─────────────────────────────────────────
 function _tdApplyThemeUI(isLight) {
   // Topbar button
