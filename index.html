@@ -4298,6 +4298,20 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
     <div id="fb-modal-sub">Got a bug, idea, or feature request? Drop it here — it goes straight to the admin panel.</div>
     <textarea id="fb-textarea" placeholder="e.g. Would love a dark/light toggle, the P&L chart feels off, can we add weekly goals..." maxlength="1000" oninput="document.getElementById('fb-char').textContent=this.value.length+'/1000'"></textarea>
     <div id="fb-char">0 / 1000</div>
+    <!-- image drop zone -->
+    <div id="fb-drop" onclick="document.getElementById('fb-file').click()"
+      ondragover="event.preventDefault();this.style.borderColor='rgba(139,92,246,0.7)'"
+      ondragleave="this.style.borderColor='rgba(139,92,246,0.25)'"
+      ondrop="event.preventDefault();this.style.borderColor='rgba(139,92,246,0.25)';fbHandleFile(event.dataTransfer.files[0])"
+      style="margin-top:10px;border:1.5px dashed rgba(139,92,246,0.25);border-radius:8px;padding:10px 14px;cursor:pointer;transition:border-color .15s;display:flex;align-items:center;gap:10px;min-height:40px">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(139,92,246,0.6)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+      <span id="fb-drop-lbl" style="font-family:var(--mono);font-size:9px;color:rgba(139,92,246,0.5);letter-spacing:0.06em">ATTACH SCREENSHOT (optional)</span>
+      <input type="file" id="fb-file" accept="image/*" style="display:none" onchange="fbHandleFile(this.files[0])">
+    </div>
+    <div id="fb-img-preview" style="display:none;margin-top:8px;position:relative">
+      <img id="fb-preview-img" style="width:100%;max-height:180px;object-fit:contain;border-radius:6px;border:1px solid rgba(139,92,246,0.25)">
+      <button onclick="fbClearImage()" style="position:absolute;top:4px;right:4px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,0.7);border:none;color:#fff;font-size:12px;cursor:pointer;line-height:1;display:flex;align-items:center;justify-content:center">×</button>
+    </div>
     <div id="fb-modal-footer">
       <button id="fb-cancel" onclick="closeFeedback()">Cancel</button>
       <button id="fb-submit" onclick="submitFeedback()">Send Feedback</button>
@@ -13224,10 +13238,13 @@ window.autoRestoreToday = async function() {
 };
 
 // ── FEEDBACK ──────────────────────────────────────────
+var _fbImageFile = null;
+
 document.addEventListener('DOMContentLoaded', function() {
   var fbBtn = document.getElementById('fb-btn');
   if (fbBtn) fbBtn.addEventListener('click', openFeedback);
 });
+
 function openFeedback() {
   document.getElementById('fb-overlay').classList.add('open');
   document.getElementById('fb-textarea').focus();
@@ -13235,10 +13252,36 @@ function openFeedback() {
   document.getElementById('fb-modal-footer').style.display = 'flex';
   document.getElementById('fb-textarea').value = '';
   document.getElementById('fb-char').textContent = '0 / 1000';
+  fbClearImage();
 }
+
 function closeFeedback() {
   document.getElementById('fb-overlay').classList.remove('open');
+  fbClearImage();
 }
+
+function fbHandleFile(file) {
+  if (!file || !file.type.startsWith('image/')) return;
+  _fbImageFile = file;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    document.getElementById('fb-preview-img').src = e.target.result;
+    document.getElementById('fb-img-preview').style.display = 'block';
+    document.getElementById('fb-drop-lbl').textContent = file.name;
+  };
+  reader.readAsDataURL(file);
+}
+
+function fbClearImage() {
+  _fbImageFile = null;
+  var preview = document.getElementById('fb-img-preview');
+  if (preview) preview.style.display = 'none';
+  var lbl = document.getElementById('fb-drop-lbl');
+  if (lbl) lbl.textContent = 'ATTACH SCREENSHOT (optional)';
+  var fileInput = document.getElementById('fb-file');
+  if (fileInput) fileInput.value = '';
+}
+
 async function submitFeedback() {
   var msg = (document.getElementById('fb-textarea').value || '').trim();
   if (!msg) { document.getElementById('fb-textarea').focus(); return; }
@@ -13247,11 +13290,26 @@ async function submitFeedback() {
   try {
     var sb = getSB();
     var uname = localStorage.getItem('td_username') || '';
+    var imageUrl = null;
+
+    // Upload image if one was selected
+    if (_fbImageFile) {
+      btn.textContent = 'Uploading image…';
+      var ext = _fbImageFile.name.split('.').pop() || 'png';
+      var path = 'feedback/' + Date.now() + '-' + (Math.random().toString(36).slice(2)) + '.' + ext;
+      var upRes = await sb.storage.from('feedback-images').upload(path, _fbImageFile, { upsert: false });
+      if (upRes.error) throw new Error('Image upload failed: ' + upRes.error.message);
+      var pub = sb.storage.from('feedback-images').getPublicUrl(path);
+      imageUrl = pub.data && pub.data.publicUrl;
+      btn.textContent = 'Sending…';
+    }
+
     var res = await sb.from('feedback').insert({
-      user_id:  _userId || null,
-      username: uname,
-      message:  msg,
-      status:   'new'
+      user_id:   _userId || null,
+      username:  uname,
+      message:   msg,
+      status:    'new',
+      image_url: imageUrl
     });
     if (res.error) throw new Error(res.error.message || JSON.stringify(res.error));
     document.getElementById('fb-modal-footer').style.display = 'none';
