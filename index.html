@@ -4512,44 +4512,16 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
         <div class="ob-label">FEATURE 1 OF 2</div>
         <div class="ob-title">Mark your bias per timeframe</div>
         <div class="ob-body">Click the timeframe watermark to cycle through <span class="ob-hl ob-hl-up">bullish</span>, <span class="ob-hl ob-hl-down">bearish</span>, and <span class="ob-hl ob-hl-rng">ranging</span>. Click it <strong id="ob-wm-remain">4</strong> more times to continue.</div>
-        <!-- Demo chart cell -->
-        <div id="ob-wm-demo" onclick="obWmClick(this)" style="position:relative;width:100%;height:140px;background:#0a0c0e;border:1px solid rgba(255,255,255,0.07);border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;overflow:hidden;margin:24px 0;transition:border-color 0.2s;user-select:none">
-          <!-- fake candles decoration -->
-          <svg style="position:absolute;inset:0;width:100%;height:100%;opacity:0.18" viewBox="0 0 480 140" preserveAspectRatio="none">
-            <rect x="20" y="40" width="6" height="60" fill="#4ed68a" rx="1"/>
-            <rect x="22" y="30" width="2" height="80" fill="#4ed68a"/>
-            <rect x="40" y="55" width="6" height="45" fill="#f06060" rx="1"/>
-            <rect x="42" y="45" width="2" height="65" fill="#f06060"/>
-            <rect x="60" y="50" width="6" height="50" fill="#4ed68a" rx="1"/>
-            <rect x="80" y="60" width="6" height="40" fill="#f06060" rx="1"/>
-            <rect x="100" y="45" width="6" height="55" fill="#4ed68a" rx="1"/>
-            <rect x="120" y="70" width="6" height="35" fill="#4ed68a" rx="1"/>
-            <rect x="140" y="55" width="6" height="50" fill="#f06060" rx="1"/>
-            <rect x="160" y="48" width="6" height="42" fill="#4ed68a" rx="1"/>
-            <rect x="180" y="62" width="6" height="38" fill="#f06060" rx="1"/>
-            <rect x="200" y="44" width="6" height="52" fill="#4ed68a" rx="1"/>
-            <rect x="220" y="58" width="6" height="44" fill="#f06060" rx="1"/>
-            <rect x="240" y="50" width="6" height="56" fill="#4ed68a" rx="1"/>
-            <rect x="260" y="66" width="6" height="36" fill="#f06060" rx="1"/>
-            <rect x="280" y="42" width="6" height="60" fill="#4ed68a" rx="1"/>
-            <rect x="300" y="56" width="6" height="48" fill="#f06060" rx="1"/>
-            <rect x="320" y="48" width="6" height="54" fill="#4ed68a" rx="1"/>
-            <rect x="340" y="64" width="6" height="38" fill="#f06060" rx="1"/>
-            <rect x="360" y="46" width="6" height="58" fill="#4ed68a" rx="1"/>
-            <rect x="380" y="60" width="6" height="44" fill="#f06060" rx="1"/>
-            <rect x="400" y="50" width="6" height="52" fill="#4ed68a" rx="1"/>
-            <rect x="420" y="68" width="6" height="34" fill="#f06060" rx="1"/>
-            <rect x="440" y="44" width="6" height="62" fill="#4ed68a" rx="1"/>
-            <rect x="460" y="58" width="6" height="46" fill="#f06060" rx="1"/>
-          </svg>
-          <!-- TW logo -->
-          <div style="position:absolute;bottom:10px;left:10px;width:22px;height:22px;background:rgba(255,255,255,0.08);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:rgba(255,255,255,0.25);font-family:var(--mono)">TV</div>
-          <!-- Watermark label -->
-          <div id="ob-wm-label" style="font-size:80px;font-weight:900;font-family:var(--mono);color:rgba(255,255,255,0.08);letter-spacing:-2px;transition:color 0.25s,transform 0.12s;pointer-events:none;line-height:1">1H</div>
+        <!-- Demo chart cell — real TradingView XAUUSD 1H -->
+        <div id="ob-wm-demo" onclick="obWmClick(this)" style="position:relative;width:100%;height:180px;border:1px solid rgba(255,255,255,0.07);border-radius:10px;cursor:pointer;overflow:hidden;margin:24px 0;transition:border-color 0.2s;user-select:none">
+          <!-- Live chart iframe -->
+          <iframe id="ob-tv-frame" scrolling="no" style="position:absolute;inset:0;width:100%;height:100%;border:none;pointer-events:none" allowtransparency="true"></iframe>
+          <!-- Watermark label — sits on top of chart -->
+          <div id="ob-wm-label" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:88px;font-weight:900;font-family:var(--mono);color:rgba(255,255,255,0.1);letter-spacing:-2px;transition:color 0.25s,transform 0.15s;pointer-events:none;line-height:1;text-shadow:0 2px 24px rgba(0,0,0,0.6)">1H</div>
           <!-- Pulse ring -->
-          <div id="ob-wm-pulse" style="position:absolute;width:90px;height:90px;border:2px solid rgba(240,188,78,0.4);border-radius:50%;animation:obPulse 1.4s ease-out infinite;pointer-events:none"></div>
+          <div id="ob-wm-pulse" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:110px;height:110px;border:2px solid rgba(240,188,78,0.45);border-radius:50%;animation:obPulse 1.4s ease-out infinite;pointer-events:none"></div>
           <!-- Tap hint -->
-          <div id="ob-wm-hint" style="position:absolute;bottom:12px;right:12px;font-size:9px;font-family:var(--mono);color:rgba(240,188,78,0.7);letter-spacing:0.1em;animation:obBlink 1.2s ease-in-out infinite">TAP</div>
+          <div id="ob-wm-hint" style="position:absolute;bottom:10px;right:12px;font-size:9px;font-family:var(--mono);color:rgba(240,188,78,0.75);letter-spacing:0.1em;animation:obBlink 1.2s ease-in-out infinite;background:rgba(6,7,8,0.7);padding:3px 7px;border-radius:4px">TAP TO CYCLE</div>
         </div>
         <div id="ob-wm-status" style="text-align:center;font-size:10px;font-family:var(--mono);color:rgba(255,255,255,0.25);letter-spacing:0.08em;min-height:20px"></div>
       </div>
@@ -10206,6 +10178,13 @@ function obShouldShow() {
 function obOpen() {
   var el = document.getElementById('leo-onboard');
   if (el) el.classList.add('show');
+  // Load real XAUUSD 1H chart into the demo cell
+  var frame = document.getElementById('ob-tv-frame');
+  if (frame && !frame.src) {
+    var html = leoMakeWidgetHTML('XAUUSD', '60', '1H');
+    var blob = new Blob([html], { type: 'text/html' });
+    frame.src = URL.createObjectURL(blob);
+  }
 }
 
 function obClose() {
