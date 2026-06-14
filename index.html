@@ -5276,15 +5276,18 @@ function renderAccountsPanel() {
   // daily_summaries Mon-yesterday. Adding today's live P&L gives the full week.
   // Falls back to R-estimate from PAL cache if DB data not yet loaded.
   var _wU;
-  // Prefer live-calculated weeklyUsd (from daily_summaries via updatePALFromRows) over the
-  // stale pre-computed week_pnl column stored in the leaderboard RPC result (_myDbWeekPnl).
-  // _myDbWeekPnl never resets at the start of a new week and causes the +$1570 Monday bug.
-  if (typeof pal.weeklyUsd === 'number') {
-    _wU = pal.weeklyUsd + (_todayUsd || 0);
+  // Prefer live-calculated weekly total (from daily_summaries via updatePALFromRows) over
+  // the stale pre-computed week_pnl column from leaderboard RPC (_myDbWeekPnl never resets
+  // at week boundaries, causing the +$1570-on-Monday bug).
+  // _tdPalCache is populated by updatePALFromRows; wDays being defined (even 0) means it ran.
+  if ('wDays' in pal) {
+    // PAL has loaded: weeklyUsd is the sum of this week's saved sessions (Mon–yesterday).
+    // When wDays===0 (no sessions yet this week) weeklyUsd is null — treat as 0.
+    _wU = (typeof pal.weeklyUsd === 'number' ? pal.weeklyUsd : 0) + (_todayUsd || 0);
   } else if (window._myDbWeekPnl != null) {
     _wU = window._myDbWeekPnl + (_todayUsd || 0);
   } else {
-    _wU = (_todayUsd !== null && pal.wDays <= 1) ? _todayUsd : null;
+    _wU = _todayUsd !== null ? _todayUsd : null;
   }
   var _mU = pal.monthlyUsd;
   var _wR = pal.weeklyR  ? Math.round((pal.weeklyR )*100)/100 : null;
