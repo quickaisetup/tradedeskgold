@@ -11233,12 +11233,15 @@ function updatePALFromRows(rows, rankName) {
   var now    = new Date();
   var bkkNow = _tzNow();
 
-  // Week start (Monday)
-  var dow    = bkkNow.getDay();
+  // Week start (Monday) — use Bangkok date string directly to avoid local-TZ getDay() bug
+  var _bkkTodayStr = now.toLocaleDateString('sv-SE', {timeZone: _tdTZ.iana}); // YYYY-MM-DD
+  var _bkkParts = _bkkTodayStr.split('-').map(Number); // [Y, M, D]
+  var _bkkDate  = new Date(_bkkParts[0], _bkkParts[1]-1, _bkkParts[2]); // midnight local — safe for getDay()
+  var dow    = _bkkDate.getDay();
   var mOff   = dow === 0 ? -6 : 1 - dow;
-  var wkDate = new Date(bkkNow.getFullYear(), bkkNow.getMonth(), bkkNow.getDate() + mOff);
+  var wkDate = new Date(_bkkParts[0], _bkkParts[1]-1, _bkkParts[2] + mOff);
   var wkKey  = wkDate.getFullYear() + '-' + ('0'+(wkDate.getMonth()+1)).slice(-2) + '-' + ('0'+wkDate.getDate()).slice(-2);
-  var mKey   = bkkNow.getFullYear() + '-' + ('0'+(bkkNow.getMonth()+1)).slice(-2);
+  var mKey   = _bkkParts[0] + '-' + ('0'+_bkkParts[1]).slice(-2);
 
   var wR = 0, mR = 0, wUsdSum = 0, mUsdSum = 0, wDays = 0, mDays = 0, wHasUsd = true, mHasUsd = true;
 
@@ -13510,12 +13513,15 @@ window.palDiag = async function() {
     console.log('   ['+i+'] date:', r.date, '| totalR:', r.totalR, '| rules:', r.rulesFollowed);
   });
 
-  // 2. Bangkok time
+  // 2. Bangkok time — parse date string to avoid browser-TZ getDay() bug
   var now = new Date();
   var bkkNow = _tzNow();
-  var dow = bkkNow.getDay();
+  var _bkkStr2 = now.toLocaleDateString('sv-SE', {timeZone: _tdTZ.iana});
+  var _bkkP2 = _bkkStr2.split('-').map(Number);
+  var _bkkD2 = new Date(_bkkP2[0], _bkkP2[1]-1, _bkkP2[2]);
+  var dow = _bkkD2.getDay();
   var mondayOffset = dow === 0 ? -6 : 1 - dow;
-  var weekStart = new Date(bkkNow.getFullYear(), bkkNow.getMonth(), bkkNow.getDate() + mondayOffset);
+  var weekStart = new Date(_bkkP2[0], _bkkP2[1]-1, _bkkP2[2] + mondayOffset);
   var weekStartKey = weekStart.getFullYear() + '-' + ('0'+(weekStart.getMonth()+1)).slice(-2) + '-' + ('0'+weekStart.getDate()).slice(-2);
   var monthKey = bkkNow.getFullYear() + '-' + ('0'+(bkkNow.getMonth()+1)).slice(-2);
   console.log('2. weekStartKey:', weekStartKey, '| monthKey:', monthKey);
@@ -13568,11 +13574,13 @@ window.weekDiag = async function() {
   var uid = localStorage.getItem('td_user_id');
   if (!uid) { console.error('No user_id in localStorage'); return; }
 
-  // Bangkok now
-  var bkkNow = (typeof _tzNow === 'function') ? _tzNow() : new Date();
-  var todayKey = bkkNow.toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
-  var dow = bkkNow.getDay() || 7;
-  var wkDate = new Date(bkkNow); wkDate.setDate(bkkNow.getDate() - dow + 1);
+  // Bangkok now — parse date string to avoid browser-TZ getDay() bug
+  var _nowLB = new Date();
+  var todayKey = _nowLB.toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
+  var _bkkP3 = todayKey.split('-').map(Number);
+  var _bkkD3 = new Date(_bkkP3[0], _bkkP3[1]-1, _bkkP3[2]);
+  var dow = _bkkD3.getDay() || 7;
+  var wkDate = new Date(_bkkP3[0], _bkkP3[1]-1, _bkkP3[2] - dow + 1);
   var wkKey = wkDate.toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
   console.log('Today (Bangkok):', todayKey, '| Week start (Mon):', wkKey);
 
