@@ -2295,6 +2295,23 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
   /* ── SCROLLBAR HIDE ── */
   *{-ms-overflow-style:none;scrollbar-width:none}
   *::-webkit-scrollbar{display:none}
+
+  /* ── LIVE EXEC MOBILE ── */
+  #leo-back-btn{display:none!important}
+  #leo-close{font-size:16px!important;padding:6px 14px!important;min-width:36px;min-height:36px;display:flex;align-items:center;justify-content:center}
+}
+
+/* ── LIVE EXEC — LANDSCAPE MOBILE (maximize charts) ── */
+@media(max-width:900px) and (orientation:landscape){
+  #leo-back-btn{display:none!important}
+  #leo-header{height:36px!important;min-height:36px!important;padding:0 10px!important}
+  #leo-levels-bar{display:none!important}
+  #leo-kl-bar{display:none!important}
+  #leo-ltf-trend-bar{display:none!important}
+  #leo-sym-ema-bar{height:26px!important}
+  #leo-calc-bar{display:none!important}
+  #leo-charts-grid{grid-template-columns:1fr 1fr 1fr!important;grid-template-rows:1fr 1fr!important;gap:1px!important}
+  #live-exec-overlay{overflow:hidden!important}
 }
 
 @media(max-width:480px){
