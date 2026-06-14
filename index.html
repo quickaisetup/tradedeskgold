@@ -10542,8 +10542,22 @@ function ptgOpen() {
         '<div onclick="event.stopPropagation();ptgToggleUnsure('+i+')" id="ptg-unsure-'+i+'" style="flex-shrink:0;font-family:var(--mono);font-size:10px;padding:4px 10px;border-radius:6px;border:1px solid rgba(255,180,0,0.2);color:rgba(255,180,0,0.35);cursor:pointer;transition:all 0.18s;white-space:nowrap">Not sure</div>' +
       '</div>';
     }).join('');
+    // Build interactive rules list (hidden until PTG complete)
+    var rules = (window._currentRules && window._currentRules.length) ? window._currentRules
+      : (window._defaultRules && window._defaultRules.length) ? window._defaultRules : [];
+    _rgChecked = new Array(rules.length).fill(false);
     var rgSection = document.getElementById('rg-section');
-    if (rgSection) rgSection.style.display = 'none';
+    var rgList = document.getElementById('rg-list');
+    if (rgList) {
+      rgList.style.display = 'flex'; rgList.style.flexDirection = 'column';
+      rgList.innerHTML = rules.map(function(r, i) {
+        return '<div class="rg-item" id="rg-item-'+i+'" onclick="rgToggle('+i+')">' +
+          '<div class="rg-cb" id="rg-cb-'+i+'"></div>' +
+          '<div class="rg-text">'+r+'</div>' +
+        '</div>';
+      }).join('');
+    }
+    if (rgSection) rgSection.style.display = 'none'; // shown when PTG complete
     if (footer) footer.style.display = 'flex';
     if (enterBtn) enterBtn.style.display = 'none';
     if (skipBtn) skipBtn.style.display = '';
@@ -10591,12 +10605,21 @@ function _ptgUpdateCombinedState() {
   var rules = (window._currentRules && window._currentRules.length) ? window._currentRules : [];
   var rgDone = (_rgChecked || []).filter(Boolean).length;
   var rgTotal = rules.length;
+  var ptgComplete = ptgDone === ptgTotal;
+  var allDone = ptgComplete && (rgTotal === 0 || rgDone === rgTotal);
+
+  // Reveal rules section as soon as PTG is fully checked
+  var rgSection = document.getElementById('rg-section');
+  if (rgSection && ptgComplete && rgTotal > 0) {
+    if (rgSection.style.display === 'none') {
+      rgSection.style.display = 'block';
+      setTimeout(function() { rgSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 80);
+    }
+  }
+
   var done = ptgDone + rgDone;
   var total = ptgTotal + rgTotal;
   var pct = total ? Math.round(done / total * 100) : 100;
-  var allDone = ptgDone === ptgTotal && (rgTotal === 0 || rgDone === rgTotal);
-  var displayDone = ptgDone;
-  var displayTotal = ptgTotal;
 
   var counter = document.getElementById('ptg-counter');
   if (counter) counter.textContent = ptgDone + ' / ' + ptgTotal;
@@ -10608,7 +10631,11 @@ function _ptgUpdateCombinedState() {
   if (fill) fill.style.width = pct + '%';
 
   var count = document.getElementById('ptg-bar-count');
-  if (count) count.textContent = allDone ? '→ Enter Charts' : displayDone + ' / ' + displayTotal;
+  if (count) {
+    if (allDone) count.textContent = '→ Enter Charts';
+    else if (ptgComplete && rgTotal > 0) count.textContent = ptgTotal + ' / ' + ptgTotal + ' · Rules ' + rgDone + ' / ' + rgTotal;
+    else count.textContent = ptgDone + ' / ' + ptgTotal;
+  }
 
   var dots = document.getElementById('ptg-bar-dots');
   if (dots) dots.innerHTML = _ptgQs.map(function(_, i) {
@@ -10641,7 +10668,9 @@ function rgOpen() { /* merged into ptgOpen — no-op */ }
 function rgToggle(i) {
   _rgChecked[i] = !_rgChecked[i];
   var item = document.getElementById('rg-item-'+i);
+  var cb   = document.getElementById('rg-cb-'+i);
   if (item) item.classList.toggle('checked', _rgChecked[i]);
+  if (cb)   cb.textContent = _rgChecked[i] ? '✓' : '';
   _ptgUpdateCombinedState();
 }
 function _rgUpdateState() { _ptgUpdateCombinedState(); }
