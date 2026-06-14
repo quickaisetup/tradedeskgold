@@ -10564,6 +10564,8 @@ function ptgOpen() {
     _ptgUpdateCombinedState();
   }
   document.getElementById('ptg-gate').classList.add('show');
+  var backBtn = document.getElementById('leo-back-btn');
+  if (backBtn) backBtn.style.display = 'none';
 }
 function ptgToggleUnsure(i) {
   _ptgUnsure[i] = !_ptgUnsure[i];
@@ -10658,6 +10660,8 @@ function ptgCombinedUnlock() {
   document.getElementById('ptg-gate').classList.remove('show');
   var warn = document.getElementById('leo-ptg-warning');
   if (warn) warn.style.display = 'none';
+  var backBtn = document.getElementById('leo-back-btn');
+  if (backBtn) backBtn.style.display = '';
   if (obShouldShow()) obOpen();
 }
 function ptgUnlock() { ptgCombinedUnlock(); }
