@@ -1633,7 +1633,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 .kl-pill{display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:3px;font-size:9px;letter-spacing:0.06em}
 .kl-pill.long{background:rgba(78,214,138,0.12);border:1px solid rgba(78,214,138,0.4);color:#4ed68a}
 .kl-pill.short{background:rgba(240,96,96,0.12);border:1px solid rgba(240,96,96,0.4);color:#f06060}
-#kl-hover-card{display:none;position:fixed;z-index:99999;min-width:260px;max-width:340px;background:#0d0f14;border:1px solid rgba(255,255,255,0.12);border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,0.7),0 4px 20px rgba(0,0,0,0.5);padding:18px 20px;pointer-events:none}
+#kl-hover-card{display:none;position:fixed;z-index:99999;min-width:260px;max-width:340px;background:#0d0f14;border:1px solid rgba(255,255,255,0.12);border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,0.7),0 4px 20px rgba(0,0,0,0.5);padding:18px 20px;pointer-events:all}
 #kl-hover-card.show{display:block}
 .klh-dir{font-family:var(--display);font-size:13px;letter-spacing:0.12em;margin-bottom:14px;display:flex;align-items:center;gap:8px}
 .klh-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px}
@@ -4443,7 +4443,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
       <div id="leo-dir" style="font-family:var(--mono);font-size:9px;color:var(--text3)">—</div>
     </div>
     <div id="leo-kl-bar"></div>
-    <div id="kl-hover-card"></div>
+    <div id="kl-hover-card" onmouseenter="clearTimeout(_klhHideTimer)" onmouseleave="klhHide()"></div>
     <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
       <div id="leo-live-price" style="font-family:var(--mono);font-size:13px;color:var(--gold);letter-spacing:0.05em">—</div>
       <span id="ptg-override-badge">⚠ gate overridden</span>
@@ -10292,11 +10292,12 @@ function leoRenderKLBar() {
     var arr = isLong ? '▲' : '▼';
     var price = parseFloat(l.price).toFixed(2);
     var dataIdx = allEntries.indexOf(e);
-    return '<div class="kl-pill-rich" onmouseenter="klhShow('+dataIdx+',this)" onmouseleave="klhHide()" style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:6px;border:1px solid '+gbd+';background:'+gb+';flex-shrink:0;cursor:default">' +
+    return '<div class="kl-pill-rich" onmouseenter="klhShow('+dataIdx+',this)" onmouseleave="klhHide()" onclick="klSendToCalc('+dataIdx+')" title="Click to load into calculator" style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:6px;border:1px solid '+gbd+';background:'+gb+';flex-shrink:0;cursor:pointer;transition:filter 0.12s" onmouseover="this.style.filter=\'brightness(1.35)\'" onmouseout="this.style.filter=\'\'">' +
       '<span style="font-family:var(--mono);font-size:8px;color:rgba(255,255,255,0.35);letter-spacing:0.04em">@'+user+'</span>' +
       '<span style="font-family:var(--display);font-size:9px;color:'+gc+'">'+arr+'</span>' +
       '<span style="font-family:var(--mono);font-size:11px;font-weight:700;color:'+gc+';letter-spacing:0.02em">'+price+'</span>' +
-      (mine ? '<span onclick="removeLevel('+l.id+');leoRenderKLBar()" style="font-size:9px;color:rgba(255,255,255,0.18);cursor:pointer;margin-left:2px;transition:color 0.15s" onmouseover="this.style.color=\'#f06060\'" onmouseout="this.style.color=\'rgba(255,255,255,0.18)\'">✕</span>' : '') +
+      '<span style="font-family:var(--mono);font-size:8px;color:rgba(255,255,255,0.25);letter-spacing:0.04em" title="Click to load into calculator">⊞</span>' +
+      (mine ? '<span onclick="event.stopPropagation();removeLevel('+l.id+');leoRenderKLBar()" style="font-size:9px;color:rgba(255,255,255,0.18);cursor:pointer;margin-left:2px;transition:color 0.15s" onmouseover="this.style.color=\'#f06060\'" onmouseout="this.style.color=\'rgba(255,255,255,0.18)\'">✕</span>' : '') +
     '</div>';
   }).join('');
   window._klAllEntries = allEntries;
@@ -10361,7 +10362,11 @@ function klhShow(idx, el) {
     // Confluences
     (confs.length ? '<div style="margin-top:14px;display:flex;flex-wrap:wrap;gap:4px">' + confs.map(function(c){ return '<span style="font-family:var(--mono);font-size:8px;padding:2px 9px;border-radius:4px;border:1px solid '+gborder+';color:'+gc+';background:'+gc2+'">'+c+'</span>'; }).join('') + '</div>' : '') +
     // Notes
-    (l.notes ? '<div style="margin-top:10px;font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.35);font-style:italic">'+l.notes+'</div>' : '');
+    (l.notes ? '<div style="margin-top:10px;font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.35);font-style:italic">'+l.notes+'</div>' : '') +
+    // Send to calc button
+    '<div style="margin-top:14px;border-top:1px solid rgba(255,255,255,0.06);padding-top:12px;pointer-events:all">' +
+      '<button onclick="klSendToCalc('+idx+')" style="width:100%;font-family:var(--mono);font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:'+gc+';background:'+gc2+';border:1px solid '+gborder+';border-radius:6px;padding:7px 0;cursor:pointer;transition:filter 0.12s" onmouseover="this.style.filter=\'brightness(1.3)\'" onmouseout="this.style.filter=\'\'">⊞ Load into calculator</button>' +
+    '</div>';
 
   // Position: below the hovered pill
   var rect = el.getBoundingClientRect();
@@ -10373,10 +10378,34 @@ function klhHide() {
   _klhHideTimer = setTimeout(function(){
     var card = document.getElementById('kl-hover-card');
     if (card) card.classList.remove('show');
-  }, 120);
+  }, 220);
 }
 window.klhShow = klhShow;
 window.klhHide = klhHide;
+
+function klSendToCalc(idx) {
+  var entry = (window._klAllEntries || [])[idx];
+  if (!entry) return;
+  var l = entry.l;
+  var eEl = document.getElementById('calc-entry');
+  var sEl = document.getElementById('calc-sl');
+  var tEl = document.getElementById('calc-tp');
+  if (eEl && l.price) eEl.value = parseFloat(l.price).toFixed(2);
+  if (sEl && l.sl)    sEl.value = parseFloat(l.sl).toFixed(2);
+  if (tEl && l.tp)    tEl.value = parseFloat(l.tp).toFixed(2);
+  if (typeof calcLotSize === 'function') calcLotSize();
+  // Flash calc bar to confirm
+  var bar = document.getElementById('leo-calc-bar');
+  if (bar) {
+    bar.style.transition = 'background 0.15s';
+    bar.style.background = 'rgba(240,188,78,0.12)';
+    setTimeout(function(){ bar.style.background = ''; setTimeout(function(){ bar.style.transition=''; }, 300); }, 350);
+  }
+  // Hide hover card
+  var card = document.getElementById('kl-hover-card');
+  if (card) card.classList.remove('show');
+}
+window.klSendToCalc = klSendToCalc;
 
 // ── FETCH ALL TRADERS' KEY LEVELS ────────────────────
 async function leoFetchAllLevels() {
@@ -12825,7 +12854,11 @@ window.loadEdgePanel = async function(forceAI) {
       var aiEl3 = document.getElementById('edge-ai');
       var lockedEl = document.getElementById('edge-ai-locked');
       if (lockedEl) lockedEl.style.display = 'none';
-      if (aiEl3) { aiEl3.style.display='block'; aiEl3.style.padding='0'; aiEl3.innerHTML=resultHtml; }
+      var refreshBtnHtml = '<div style="padding:12px 20px 16px;border-top:1px solid rgba(255,255,255,0.06);display:flex;justify-content:flex-end">' +
+        '<button onclick="edgeAIClick()" style="font-family:var(--mono);font-size:9px;letter-spacing:0.08em;color:var(--text3);background:transparent;border:1px solid rgba(255,255,255,0.15);border-radius:4px;padding:5px 12px;cursor:pointer" ' +
+        'onmouseover="this.style.color=\'var(--text2)\';this.style.borderColor=\'rgba(255,255,255,0.3)\'" ' +
+        'onmouseout="this.style.color=\'var(--text3)\';this.style.borderColor=\'rgba(255,255,255,0.15)\'">↻ Refresh analysis</button></div>';
+      if (aiEl3) { aiEl3.style.display='block'; aiEl3.style.padding='0'; aiEl3.innerHTML=resultHtml+refreshBtnHtml; }
       localStorage.setItem('td_edge_ai_cache_' + _edgeInstrument, resultHtml);
       localStorage.setItem('td_edge_ai_ts_' + _edgeInstrument, Date.now().toString());
     } catch(e) {
