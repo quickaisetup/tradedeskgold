@@ -5141,11 +5141,6 @@ function renderAccountsPanel() {
               '</div>'
             )
           ) : '') +
-          // Currency badge (read-only, set at creation)
-          '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:7px;padding-top:6px;border-top:1px solid '+_Cdiv+'">' +
-            '<span style="'+MN+'font-size:7px;letter-spacing:0.1em;text-transform:uppercase;color:'+_CDim2+'">Currency</span>' +
-            '<span style="'+MN+'font-size:10px;font-weight:700;color:var(--gold)">'+cur+'</span>' +
-          '</div>' +
           // Phase toggle — only for Challenge accounts
           (acc.accountType !== 'OwnFund' ?
             '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:7px;padding-top:6px;border-top:1px solid '+_Cdiv+'">' +
