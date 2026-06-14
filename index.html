@@ -4555,17 +4555,40 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
           <div id="ob-kl-hint" style="position:absolute;top:-20px;left:14px;font-size:8px;font-family:var(--mono);color:rgba(240,188,78,0.8);letter-spacing:0.1em;animation:obBlink 1.2s ease-in-out infinite">↓ TAP THIS LEVEL</div>
         </div>
 
-        <!-- Calc bar replica — shown after clicking the pill -->
+        <!-- Calc bar replica — shown after clicking the pill, exact copy of #leo-calc-bar -->
         <div id="ob-calc-preview" style="display:none;flex-direction:column;gap:8px;animation:obFadeIn 0.3s ease">
-          <div style="display:flex;align-items:center;gap:10px;padding:0 14px;background:#09090d;border:1px solid rgba(240,188,78,0.3);border-radius:6px;min-height:40px;font-family:var(--mono);font-size:10px">
-            <span style="font-size:8px;letter-spacing:0.14em;color:rgba(255,255,255,0.3);text-transform:uppercase;white-space:nowrap">Position Calc</span>
-            <span style="font-size:8px;color:rgba(78,214,138,0.6);text-transform:uppercase">Entry</span><span style="font-size:11px;font-weight:700;color:#4ed68a">4218.54</span>
-            <span style="font-size:8px;color:rgba(240,96,96,0.6);text-transform:uppercase">SL</span><span style="font-size:11px;font-weight:700;color:#f06060">4201.00</span>
-            <span style="font-size:8px;color:rgba(106,163,245,0.6);text-transform:uppercase">TP</span><span style="font-size:11px;font-weight:700;color:#6aa3f5">4250.00</span>
-            <span style="color:rgba(240,188,78,0.8);font-size:9px;margin-left:4px">✓ loaded</span>
+          <div style="display:flex;align-items:center;gap:10px;padding:0 14px;background:#09090d;border:1px solid rgba(240,188,78,0.3);border-radius:6px;min-height:42px;flex-wrap:wrap">
+            <span style="font-family:var(--mono);font-size:8px;letter-spacing:0.14em;color:rgba(255,255,255,0.3);text-transform:uppercase;white-space:nowrap">Position Calc</span>
+            <div style="display:flex;align-items:center;gap:4px">
+              <span style="font-family:var(--mono);font-size:8px;color:rgba(78,214,138,0.6);text-transform:uppercase;letter-spacing:0.08em">Entry</span>
+              <div style="width:72px;background:rgba(78,214,138,0.06);border:1px solid rgba(78,214,138,0.25);border-radius:4px;color:#4ed68a;font-family:var(--mono);font-size:11px;padding:4px 7px;text-align:center">4218.54</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:4px">
+              <span style="font-family:var(--mono);font-size:8px;color:rgba(240,96,96,0.6);text-transform:uppercase;letter-spacing:0.08em">SL</span>
+              <div style="width:72px;background:rgba(240,96,96,0.06);border:1px solid rgba(240,96,96,0.25);border-radius:4px;color:#f06060;font-family:var(--mono);font-size:11px;padding:4px 7px;text-align:center">4201.00</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:4px">
+              <span style="font-family:var(--mono);font-size:8px;color:rgba(106,163,245,0.6);text-transform:uppercase;letter-spacing:0.08em">TP</span>
+              <div style="width:72px;background:rgba(106,163,245,0.06);border:1px solid rgba(106,163,245,0.25);border-radius:4px;color:#6aa3f5;font-family:var(--mono);font-size:11px;padding:4px 7px;text-align:center">4250.00</div>
+            </div>
+            <div style="width:1px;height:20px;background:rgba(255,255,255,0.08);flex-shrink:0"></div>
+            <div style="display:flex;align-items:center;gap:4px">
+              <span style="font-family:var(--mono);font-size:8px;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:0.08em">Acct $</span>
+              <div style="width:80px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);border-radius:4px;color:rgba(255,255,255,0.7);font-family:var(--mono);font-size:11px;padding:4px 7px;text-align:center">100000</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:4px">
+              <span style="font-family:var(--mono);font-size:8px;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:0.08em">Risk%</span>
+              <div style="width:50px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);border-radius:4px;color:rgba(255,255,255,0.7);font-family:var(--mono);font-size:11px;padding:4px 7px;text-align:center">0.5</div>
+            </div>
+            <div style="width:1px;height:20px;background:rgba(255,255,255,0.08);flex-shrink:0"></div>
+            <div style="display:flex;align-items:center;gap:12px;font-family:var(--mono);font-size:10px">
+              <span style="color:rgba(255,255,255,0.25)">Lots: <span style="color:#f0bc4e;font-size:12px;font-weight:700">0.33</span></span>
+              <span style="color:rgba(255,255,255,0.25)">Risk: <span style="color:#f06060">$500</span></span>
+              <span style="color:rgba(255,255,255,0.25)">R:R <span style="color:#4ed68a">1:1.9</span></span>
+            </div>
           </div>
-          <div style="padding:12px 14px;background:rgba(78,214,138,0.05);border:1px solid rgba(78,214,138,0.15);border-radius:6px;font-size:12px;color:rgba(255,255,255,0.55);line-height:1.6">
-            The app now calculates your <span style="color:#f0bc4e;font-weight:600">exact lot size</span> based on your account size and risk percentage — so you never risk more than you planned.
+          <div style="padding:11px 14px;background:rgba(240,188,78,0.05);border:1px solid rgba(240,188,78,0.15);border-radius:6px;font-size:12px;color:rgba(255,255,255,0.5);line-height:1.6;text-align:center">
+            Based on a <span style="color:rgba(255,255,255,0.8)">$100,000 account</span> risking <span style="color:rgba(255,255,255,0.8)">0.5%</span> — the app tells you exactly how many lots to trade.
           </div>
           <button class="ob-btn-primary" onclick="obNext()" style="margin-top:4px">Next →</button>
         </div>
