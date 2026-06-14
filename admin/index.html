@@ -2062,21 +2062,54 @@ async function initTVChart() {
     });
     _lwChart = chart; _lwCandleSeries = candleSeries;
     new ResizeObserver(function() { chart.applyOptions({ width: container.clientWidth }); }).observe(container);
-    // Fetch XAUUSD daily data (GC=F via Yahoo Finance)
-    try {
-      var r = await fetch('https://query1.finance.yahoo.com/v8/finance/chart/GC=F?interval=1d&range=90d');
-      var j = await r.json();
-      var res = j.chart.result[0];
-      var q = res.indicators.quote[0];
-      var data = res.timestamp.map(function(t,i){
-        if (!q.open[i]||!q.close[i]) return null;
-        return {time:t, open:q.open[i], high:q.high[i], low:q.low[i], close:q.close[i]};
-      }).filter(Boolean);
-      candleSeries.setData(data);
-      chart.timeScale().fitContent();
-    } catch(e) {
-      console.warn('[admin] chart data fetch failed:', e.message);
-      // Chart still usable — level lines will still show on price axis
+    // Fetch XAUUSD daily candles — try multiple sources
+    var chartLoaded = false;
+    // Source 1: Stooq CSV (no CORS issues)
+    if (!chartLoaded) {
+      try {
+        var r = await fetch('https://stooq.com/q/d/l/?s=xauusd&i=d', {signal: AbortSignal.timeout(8000)});
+        var csv = await r.text();
+        var lines = csv.trim().split('\n').slice(1); // skip header
+        var data = lines.map(function(line) {
+          var p = line.split(',');
+          if (p.length < 5) return null;
+          var dateStr2 = p[0].trim(); // YYYY-MM-DD
+          var o=parseFloat(p[1]),h=parseFloat(p[2]),l=parseFloat(p[3]),c=parseFloat(p[4]);
+          if (!o||!c||isNaN(o)||isNaN(c)) return null;
+          // Convert YYYY-MM-DD to unix timestamp
+          var ts = Math.floor(new Date(dateStr2+'T00:00:00Z').getTime()/1000);
+          return {time: ts, open:o, high:h, low:l, close:c};
+        }).filter(Boolean).slice(-90).sort(function(a,b){return a.time-b.time;});
+        if (data.length > 5) {
+          candleSeries.setData(data);
+          chart.timeScale().fitContent();
+          chartLoaded = true;
+          console.log('[admin] chart loaded from Stooq:', data.length, 'candles');
+        }
+      } catch(e) { console.warn('[admin] Stooq failed:', e.message); }
+    }
+    // Source 2: Yahoo Finance via allorigins proxy
+    if (!chartLoaded) {
+      try {
+        var yhUrl = 'https://query1.finance.yahoo.com/v8/finance/chart/GC=F?interval=1d&range=90d';
+        var r2 = await fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent(yhUrl), {signal: AbortSignal.timeout(8000)});
+        var j2 = await r2.json();
+        var res2 = j2.chart.result[0];
+        var q2 = res2.indicators.quote[0];
+        var data2 = res2.timestamp.map(function(t,i){
+          if (!q2.open[i]||!q2.close[i]) return null;
+          return {time:t, open:q2.open[i], high:q2.high[i], low:q2.low[i], close:q2.close[i]};
+        }).filter(Boolean);
+        if (data2.length > 5) {
+          candleSeries.setData(data2);
+          chart.timeScale().fitContent();
+          chartLoaded = true;
+          console.log('[admin] chart loaded from Yahoo proxy:', data2.length, 'candles');
+        }
+      } catch(e) { console.warn('[admin] Yahoo proxy failed:', e.message); }
+    }
+    if (!chartLoaded) {
+      console.warn('[admin] all chart data sources failed — lines still visible');
     }
     drawLevelLines();
   } catch(e) {
