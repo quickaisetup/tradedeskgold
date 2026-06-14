@@ -3786,7 +3786,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
       </div>
 
       <!-- Bottom bar -->
-      <div style="border-top:1px solid var(--border);padding:7px 20px;display:flex;align-items:center;gap:10px;background:rgba(0,0,0,0.15)">
+      <div id="vs-score-bar" style="border-top:1px solid var(--border);padding:7px 20px;display:flex;align-items:center;gap:10px;background:rgba(0,0,0,0.15)">
         <span style="font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:0.1em;text-transform:uppercase">Score</span>
         <span style="font-family:var(--mono);font-size:11px;color:var(--text2)" id="vs-num">—</span>
         <span style="color:var(--text3)">·</span>
@@ -15674,6 +15674,8 @@ document.addEventListener('DOMContentLoaded', function() {
   font-family:var(--mono);font-size:10.5px;cursor:pointer;
   border:1px solid rgba(255,255,255,0.09)}
 .fw-btn-s:hover{color:rgba(255,255,255,0.65);background:rgba(255,255,255,0.05)}
+/* Hide yellow explainers during walkthrough */
+body.fw-active .td-explainer{display:none!important}
 /* Elevated section rises above dim */
 .fw-elevated{position:relative!important;z-index:9990!important;
   border-radius:6px;
@@ -15767,9 +15769,9 @@ var _fwSteps = [
     tipBody:'Work <strong>Monthly → Weekly → Daily → 4H → 1H</strong>. Set bias (Bull / Bear / Neutral), AO signal, MACD signal, and trend direction for each timeframe.<br><br>Every input feeds the automated scoring engine in real time. The more complete your analysis, the sharper the AI briefing that follows.'
   },
 
-  // 6 — Scoring System + Trading Mode (dim, right panel)
+  // 6 — Scoring System + Trading Mode (dim, score bar under top-down)
   { type:'dim', tag:'TOUR · 02b', text:'Scoring system & trading mode',
-    target:'right-panel',
+    target:'vs-score-bar',
     tipStep:'02b / 5',
     tipTitle:'Scoring System & Trading Mode',
     tipBody:(
@@ -15817,6 +15819,7 @@ function fwShouldShow() { return !localStorage.getItem('fw_done'); }
 function fwOpen() {
   _fwStep = 0;
   document.getElementById('fw-banner').classList.add('show');
+  document.body.classList.add('fw-active');
   document.body.style.paddingTop = '50px';
   fwRender();
 }
@@ -15828,6 +15831,7 @@ function fwClose() {
   document.getElementById('fw-dim').style.display = 'none';
   document.getElementById('fw-tip').style.display = 'none';
   document.body.style.paddingTop = '';
+  document.body.classList.remove('fw-active');
   fwClearElevated();
 }
 
