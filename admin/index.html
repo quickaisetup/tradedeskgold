@@ -587,7 +587,7 @@ async function admLoadData() {
     var sb = getSB();
     // Fetch everything in parallel
     var [profRes, tradeRes, summRes, morningRes] = await Promise.all([
-      sb.from('profiles').select('id,username,email,is_admin,first_name,last_name,avatar_url,last_seen,rules,ptg_checklist'),
+      sb.from('profiles').select('id,username,email,is_admin,first_name,last_name,avatar_url,last_seen,rules'),
       sb.from('trades').select('*').order('date',{ascending:false}),
       sb.from('daily_summaries').select('*').order('date',{ascending:false}),
       sb.from('morning_analysis').select('*').order('date',{ascending:false}).order('created_at',{ascending:false})
@@ -633,7 +633,7 @@ async function admSilentRefresh() {
   try {
     var sb = getSB();
     var [profRes, tradeRes, summRes, morningRes] = await Promise.all([
-      sb.from('profiles').select('id,username,email,is_admin,first_name,last_name,avatar_url,last_seen,rules,ptg_checklist'),
+      sb.from('profiles').select('id,username,email,is_admin,first_name,last_name,avatar_url,last_seen,rules'),
       sb.from('trades').select('*').order('date',{ascending:false}),
       sb.from('daily_summaries').select('*').order('date',{ascending:false}),
       sb.from('morning_analysis').select('*').order('date',{ascending:false}).order('created_at',{ascending:false})
