@@ -10012,6 +10012,10 @@ function ptgEditSave() {
   if (!newQs.length) return;
   _ptgQs = newQs;
   try { localStorage.setItem('ptg_custom_qs', JSON.stringify(_ptgQs)); } catch(e) {}
+  // Sync to Supabase so admin can view
+  if (window._tdSB && window._userId) {
+    window._tdSB.from('profiles').update({ ptg_checklist: _ptgQs }).eq('id', window._userId).then(function(){});
+  }
   ptgEditClose();
   ptgOpen();
 }
