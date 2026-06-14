@@ -14232,13 +14232,14 @@ function renderLeaderboard(rows) {
       if (tp.hasTrades) { liveToday = tp.total; live.yesterday_pnl = tp.total; }
     }
 
-    // THIS WEEK = DB week (Mon–yesterday, already accurate) + today's live trades
-    // The DB week_pnl does NOT include today because today hasn't been saved yet.
-    var liveWeek = dbWeek;
-    if (typeof calcTodayPnl === 'function') {
-      var tp2 = calcTodayPnl();
-      if (tp2.hasTrades) { liveWeek = dbWeek + tp2.total; live.week_pnl = liveWeek; }
-    }
+    // THIS WEEK — use live-calculated value from updatePALFromRows (_tdPalCache) which
+    // queries daily_summaries with the correct wkKey. The DB week_pnl column never resets
+    // at week boundaries, so on Monday morning it still shows last week's total.
+    var pal2 = window._tdPalCache || {};
+    var palWeekUsd = 'wDays' in pal2 ? (typeof pal2.weeklyUsd === 'number' ? pal2.weeklyUsd : 0) : null;
+    var todayExtra = (typeof calcTodayPnl === 'function' && calcTodayPnl().hasTrades) ? calcTodayPnl().total : 0;
+    var liveWeek = palWeekUsd !== null ? palWeekUsd + todayExtra : dbWeek + todayExtra;
+    live.week_pnl = liveWeek;
 
     console.log('[leaderboard] MY ROW patch — DB today:', dbToday, '→ live:', liveToday,
       '| DB week:', dbWeek, '→ live:', liveWeek,
