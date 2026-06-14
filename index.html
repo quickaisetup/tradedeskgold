@@ -4495,6 +4495,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
       <div class="ob-dot"></div>
       <div class="ob-dot"></div>
       <div class="ob-dot"></div>
+      <div class="ob-dot"></div>
     </div>
 
     <!-- Cards -->
@@ -4510,7 +4511,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 
       <!-- Step 1: Watermark clicks -->
       <div class="ob-card" id="ob-s1">
-        <div class="ob-label">FEATURE 1 OF 2</div>
+        <div class="ob-label">FEATURE 1 OF 3</div>
         <div class="ob-title">Mark your bias per timeframe</div>
         <div class="ob-body">Click the timeframe watermark to cycle through <span class="ob-hl ob-hl-up">bullish</span>, <span class="ob-hl ob-hl-down">bearish</span>, and <span class="ob-hl ob-hl-rng">ranging</span>. Click it <strong id="ob-wm-remain">4</strong> more times to continue.</div>
         <!-- Exact replica of .leo-tv-cell -->
@@ -4526,9 +4527,10 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 
       <!-- Step 2: Key level click -->
       <div class="ob-card" id="ob-s2">
-        <div class="ob-label">FEATURE 2 OF 2</div>
-        <div class="ob-title">Load key levels into the calculator</div>
-        <div class="ob-body">Click any key level pill to instantly populate the position calculator — no manual typing required.</div>
+        <div class="ob-label">FEATURE 2 OF 3</div>
+        <div class="ob-title">One tap loads your trade</div>
+        <div class="ob-body">The bar at the top shows saved price levels. Tap any green or red tag and your Entry, Stop Loss, and Take Profit fill in automatically — no typing needed.</div>
+
         <!-- Exact replica of #leo-kl-bar -->
         <div style="margin:22px 0 10px;display:flex;align-items:center;gap:6px;padding:0 12px;flex-wrap:nowrap;overflow:hidden;background:#09090d;border:1px solid rgba(255,255,255,0.08);border-radius:6px;min-height:42px;position:relative">
           <div id="ob-kl-pill" onclick="obKlClick(this)" class="kl-pill-rich" style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:6px;border:1px solid rgba(78,214,138,0.3);background:rgba(78,214,138,0.08);flex-shrink:0;cursor:pointer;transition:filter 0.12s;position:relative" onmouseover="this.style.filter='brightness(1.35)'" onmouseout="this.style.filter=''">
@@ -4550,23 +4552,72 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
             <span style="font-family:var(--mono);font-size:11px;font-weight:700;color:#4ed68a">4201.02</span>
             <span style="font-family:var(--mono);font-size:8px;color:rgba(255,255,255,0.25)">⊞</span>
           </div>
-          <div id="ob-kl-hint" style="position:absolute;top:-20px;left:14px;font-size:8px;font-family:var(--mono);color:rgba(240,188,78,0.8);letter-spacing:0.1em;animation:obBlink 1.2s ease-in-out infinite">↓ CLICK THIS LEVEL</div>
+          <div id="ob-kl-hint" style="position:absolute;top:-20px;left:14px;font-size:8px;font-family:var(--mono);color:rgba(240,188,78,0.8);letter-spacing:0.1em;animation:obBlink 1.2s ease-in-out infinite">↓ TAP THIS LEVEL</div>
         </div>
-        <!-- Calc bar replica shown after click -->
-        <div id="ob-calc-preview" style="display:none;align-items:center;gap:10px;padding:0 14px;background:#09090d;border:1px solid rgba(240,188,78,0.3);border-radius:6px;min-height:40px;font-family:var(--mono);font-size:10px;animation:obFadeIn 0.3s ease">
-          <span style="font-size:8px;letter-spacing:0.14em;color:rgba(255,255,255,0.3);text-transform:uppercase;white-space:nowrap">Position Calc</span>
-          <span style="font-size:8px;color:rgba(78,214,138,0.6);text-transform:uppercase">Entry</span><span style="font-size:11px;font-weight:700;color:#4ed68a">4218.54</span>
-          <span style="font-size:8px;color:rgba(240,96,96,0.6);text-transform:uppercase">SL</span><span style="font-size:11px;font-weight:700;color:#f06060">4201.00</span>
-          <span style="font-size:8px;color:rgba(106,163,245,0.6);text-transform:uppercase">TP</span><span style="font-size:11px;font-weight:700;color:#6aa3f5">4250.00</span>
-          <span style="color:rgba(240,188,78,0.8);font-size:9px;margin-left:4px">✓ loaded</span>
+
+        <!-- Calc bar replica — shown after clicking the pill -->
+        <div id="ob-calc-preview" style="display:none;flex-direction:column;gap:8px;animation:obFadeIn 0.3s ease">
+          <div style="display:flex;align-items:center;gap:10px;padding:0 14px;background:#09090d;border:1px solid rgba(240,188,78,0.3);border-radius:6px;min-height:40px;font-family:var(--mono);font-size:10px">
+            <span style="font-size:8px;letter-spacing:0.14em;color:rgba(255,255,255,0.3);text-transform:uppercase;white-space:nowrap">Position Calc</span>
+            <span style="font-size:8px;color:rgba(78,214,138,0.6);text-transform:uppercase">Entry</span><span style="font-size:11px;font-weight:700;color:#4ed68a">4218.54</span>
+            <span style="font-size:8px;color:rgba(240,96,96,0.6);text-transform:uppercase">SL</span><span style="font-size:11px;font-weight:700;color:#f06060">4201.00</span>
+            <span style="font-size:8px;color:rgba(106,163,245,0.6);text-transform:uppercase">TP</span><span style="font-size:11px;font-weight:700;color:#6aa3f5">4250.00</span>
+            <span style="color:rgba(240,188,78,0.8);font-size:9px;margin-left:4px">✓ loaded</span>
+          </div>
+          <div style="padding:12px 14px;background:rgba(78,214,138,0.05);border:1px solid rgba(78,214,138,0.15);border-radius:6px;font-size:12px;color:rgba(255,255,255,0.55);line-height:1.6">
+            The app now calculates your <span style="color:#f0bc4e;font-weight:600">exact lot size</span> based on your account size and risk percentage — so you never risk more than you planned.
+          </div>
+          <button class="ob-btn-primary" onclick="obNext()" style="margin-top:4px">Next →</button>
         </div>
       </div>
 
-      <!-- Step 3: Done -->
+      <!-- Step 3: Countdown explainer -->
       <div class="ob-card" id="ob-s3">
+        <div class="ob-label">FEATURE 3 OF 3</div>
+        <div class="ob-title">How long until the candle closes?</div>
+        <div class="ob-body" style="margin-bottom:24px">The pill in the corner of each chart counts down to when the candle closes. The color tells you how much time is left — like a traffic light.</div>
+
+        <div style="width:100%;display:flex;flex-direction:column;gap:10px;margin-bottom:28px">
+          <!-- Green -->
+          <div style="display:flex;align-items:center;gap:16px;padding:12px 16px;background:rgba(78,214,138,0.06);border:1px solid rgba(78,214,138,0.2);border-radius:8px">
+            <div class="leo-tv-cell-cd cd-green" style="position:static;pointer-events:none;flex-shrink:0;font-size:12px;padding:4px 10px">
+              <div class="cd-tf">1H</div><div class="cd-time">48:20</div>
+            </div>
+            <div style="text-align:left">
+              <div style="font-family:var(--mono);font-size:11px;font-weight:700;color:#4ed68a;letter-spacing:0.06em;margin-bottom:3px">GREEN — Plenty of time</div>
+              <div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.5">More than half the candle is still open. Good time to plan your trade.</div>
+            </div>
+          </div>
+          <!-- Yellow -->
+          <div style="display:flex;align-items:center;gap:16px;padding:12px 16px;background:rgba(240,188,78,0.06);border:1px solid rgba(240,188,78,0.2);border-radius:8px">
+            <div class="leo-tv-cell-cd cd-yellow" style="position:static;pointer-events:none;flex-shrink:0;font-size:12px;padding:4px 10px">
+              <div class="cd-tf">1H</div><div class="cd-time">18:05</div>
+            </div>
+            <div style="text-align:left">
+              <div style="font-family:var(--mono);font-size:11px;font-weight:700;color:#f0bc4e;letter-spacing:0.06em;margin-bottom:3px">YELLOW — Getting close</div>
+              <div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.5">Between 30–50% of time left. The candle is in its final stretch.</div>
+            </div>
+          </div>
+          <!-- Red -->
+          <div style="display:flex;align-items:center;gap:16px;padding:12px 16px;background:rgba(240,96,96,0.06);border:1px solid rgba(240,96,96,0.2);border-radius:8px">
+            <div class="leo-tv-cell-cd cd-red" style="position:static;pointer-events:none;flex-shrink:0;font-size:12px;padding:4px 10px">
+              <div class="cd-tf">1H</div><div class="cd-time">04:12</div>
+            </div>
+            <div style="text-align:left">
+              <div style="font-family:var(--mono);font-size:11px;font-weight:700;color:#f06060;letter-spacing:0.06em;margin-bottom:3px">RED — Candle closing soon</div>
+              <div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.5">Under 30% of time left. Be careful entering trades right before a close.</div>
+            </div>
+          </div>
+        </div>
+
+        <button class="ob-btn-primary" onclick="obNext()" style="margin-top:0">Got it →</button>
+      </div>
+
+      <!-- Step 4: Done -->
+      <div class="ob-card" id="ob-s4">
         <div class="ob-icon">✦</div>
         <div class="ob-title">You're ready to trade</div>
-        <div class="ob-body">This tutorial won't appear again. Access your trading rules, AI analysis, and market bias from the main dashboard before entering any trade.</div>
+        <div class="ob-body">Check your trading rules and AI analysis on the main dashboard before every trade. This tutorial won't appear again.</div>
         <button class="ob-btn-primary" onclick="obClose()" style="margin-top:8px">Enter Live Execution →</button>
         <div style="margin-top:14px;font-size:9px;font-family:var(--mono);color:rgba(255,255,255,0.2);letter-spacing:0.08em;cursor:pointer" onclick="obClose()">skip / don't show again</div>
       </div>
@@ -10279,12 +10330,11 @@ function obKlClick(el) {
     el.style.borderColor = 'rgba(78,214,138,0.45)';
   }, 400);
 
-  // Show calc populated
+  // Show calc populated + lot size explainer + Next button
   var prev = document.getElementById('ob-calc-preview');
   if (prev) prev.style.display = 'flex';
-
-  // Auto-advance
-  setTimeout(function() { obGoTo(3); }, 1200);
+  // Pill is no longer clickable after first tap
+  el.style.pointerEvents = 'none';
 }
 
 window.obNext = obNext;
