@@ -15583,157 +15583,235 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <!-- ═══════════════════════════════════════════════════
-     FIRST-TIME APP WALKTHROUGH
-     Dim-tour through real app UI
+     FIRST-TIME APP WALKTHROUGH  v3
+     Setup modals → dim spotlight tour → live execution
      ═══════════════════════════════════════════════════ -->
 <style>
-/* ── Banner ── */
-#fw-banner{display:none;position:fixed;top:0;left:0;right:0;z-index:100000;background:#0a0b0e;border-bottom:1px solid rgba(240,188,78,0.2);padding:0 20px;height:50px;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 2px 24px rgba(0,0,0,0.7)}
+/* ─── Banner ─────────────────────────────────────────── */
+#fw-banner{display:none;position:fixed;top:0;left:0;right:0;z-index:100000;
+  background:#09090d;border-bottom:1px solid rgba(240,188,78,0.18);
+  padding:0 20px;height:50px;align-items:center;justify-content:space-between;
+  gap:12px;box-shadow:0 2px 28px rgba(0,0,0,0.8)}
 #fw-banner.show{display:flex}
 #fw-b-left{display:flex;align-items:center;gap:12px;flex:1;min-width:0}
-#fw-b-tag{font-family:var(--mono);font-size:8px;letter-spacing:0.18em;color:var(--gold);background:rgba(240,188,78,0.1);border:1px solid rgba(240,188,78,0.25);border-radius:4px;padding:3px 9px;white-space:nowrap;flex-shrink:0}
-#fw-b-text{font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.65);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#fw-b-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
-#fw-b-dots{display:flex;gap:5px;align-items:center}
+#fw-b-tag{font-family:var(--mono);font-size:7.5px;letter-spacing:0.2em;
+  color:var(--gold);background:rgba(240,188,78,0.08);
+  border:1px solid rgba(240,188,78,0.22);border-radius:4px;
+  padding:3px 9px;white-space:nowrap;flex-shrink:0}
+#fw-b-text{font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.55);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#fw-b-right{display:flex;align-items:center;gap:10px;flex-shrink:0}
+#fw-b-dots{display:flex;gap:4px;align-items:center}
 .fw-dot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,0.1);transition:all 0.3s}
-.fw-dot.done{background:rgba(240,188,78,0.3)}
-.fw-dot.active{background:var(--gold);transform:scale(1.3)}
-#fw-b-next{display:none;font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:0.08em;color:#060708;background:var(--gold);border:none;border-radius:5px;padding:6px 16px;cursor:pointer}
-#fw-b-next:hover{opacity:0.85}
-#fw-b-skip{font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.28);background:none;border:none;cursor:pointer;padding:4px 8px}
-#fw-b-skip:hover{color:rgba(255,255,255,0.6)}
-/* ── Dim overlay ── */
-#fw-dim{display:none;position:fixed;inset:0;z-index:9985;background:rgba(0,0,0,0.82);pointer-events:all;transition:opacity 0.35s}
-/* ── Tooltip card ── */
-#fw-tip{display:none;position:fixed;z-index:100001;bottom:28px;left:50%;transform:translateX(-50%);max-width:460px;width:calc(100% - 40px);background:#131519;border:1px solid rgba(240,188,78,0.2);border-radius:14px;padding:20px 22px;box-shadow:0 8px 40px rgba(0,0,0,0.7)}
-#fw-tip-title{font-family:var(--mono);font-size:10px;letter-spacing:0.14em;color:var(--gold);margin-bottom:7px}
-#fw-tip-body{font-size:12px;color:rgba(255,255,255,0.6);line-height:1.75}
-#fw-tip-body strong{color:rgba(255,255,255,0.9)}
-#fw-tip-next{margin-top:16px;width:100%;padding:11px 0;border-radius:7px;background:var(--gold);color:#060708;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:0.09em;cursor:pointer;border:none}
+.fw-dot.done{background:rgba(240,188,78,0.28)}
+.fw-dot.active{background:var(--gold);transform:scale(1.35)}
+#fw-b-skip{font-family:var(--mono);font-size:9.5px;color:rgba(255,255,255,0.25);
+  background:none;border:none;cursor:pointer;padding:4px 6px;letter-spacing:0.05em}
+#fw-b-skip:hover{color:rgba(255,255,255,0.55)}
+
+/* ─── Dim overlay ─────────────────────────────────────── */
+#fw-dim{display:none;position:fixed;inset:0;z-index:9985;
+  background:rgba(0,0,0,0.84);pointer-events:all;transition:opacity 0.3s}
+
+/* ─── Tooltip card (dim steps) ───────────────────────── */
+#fw-tip{display:none;position:fixed;z-index:100001;
+  bottom:24px;left:50%;transform:translateX(-50%);
+  width:calc(100% - 40px);max-width:500px;
+  background:#111318;border:1px solid rgba(240,188,78,0.18);
+  border-radius:14px;padding:22px 24px 20px;
+  box-shadow:0 12px 50px rgba(0,0,0,0.75),0 0 0 1px rgba(240,188,78,0.06)}
+#fw-tip-step{font-family:var(--mono);font-size:7.5px;letter-spacing:0.2em;
+  color:rgba(240,188,78,0.6);margin-bottom:6px;text-transform:uppercase}
+#fw-tip-title{font-family:var(--display);font-size:17px;font-weight:700;
+  color:var(--text);margin-bottom:10px;line-height:1.25}
+#fw-tip-body{font-size:12.5px;color:rgba(255,255,255,0.52);line-height:1.8;margin-bottom:18px}
+#fw-tip-body strong{color:rgba(255,255,255,0.88)}
+#fw-tip-body .fw-score-row{display:flex;align-items:center;gap:10px;margin:4px 0;
+  font-family:var(--mono);font-size:11px}
+#fw-tip-body .fw-score-val{min-width:48px;color:var(--gold)}
+#fw-tip-body .fw-score-lbl{color:rgba(255,255,255,0.45)}
+#fw-tip-foot{display:flex;align-items:center;justify-content:space-between;gap:10px}
+#fw-tip-counter{font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.2);letter-spacing:0.1em}
+#fw-tip-next{font-family:var(--mono);font-size:11px;font-weight:700;
+  letter-spacing:0.08em;color:#060708;background:var(--gold);
+  border:none;border-radius:6px;padding:9px 22px;cursor:pointer;white-space:nowrap}
 #fw-tip-next:hover{opacity:0.87}
-/* ── Fullscreen card overlay ── */
-#fw-overlay{display:none;position:fixed;inset:0;z-index:100002;background:rgba(4,5,7,0.97);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);flex-direction:column;align-items:center;justify-content:center;padding:40px 24px}
+
+/* ─── Fullscreen card overlay ─────────────────────────── */
+#fw-overlay{display:none;position:fixed;inset:0;z-index:100002;
+  background:rgba(4,5,7,0.97);backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  flex-direction:column;align-items:center;justify-content:center;padding:40px 24px}
 #fw-overlay.show{display:flex}
 #fw-card{width:100%;max-width:460px}
-.fw-icon{font-size:32px;margin-bottom:16px}
-.fw-phase{font-family:var(--mono);font-size:8px;letter-spacing:0.2em;color:rgba(255,255,255,0.2);margin-bottom:7px}
-.fw-title{font-family:var(--display);font-size:24px;font-weight:700;color:var(--text);line-height:1.2;margin-bottom:11px}
-.fw-body{font-size:13px;color:var(--text2);line-height:1.75;margin-bottom:26px}
-.fw-body strong{color:var(--text)}
-.fw-btn-p{width:100%;padding:13px 0;border-radius:8px;background:var(--gold);color:#060708;font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:0.1em;cursor:pointer;border:none;margin-bottom:9px}
+/* card typography */
+.fw-c-eyebrow{font-family:var(--mono);font-size:8px;letter-spacing:0.22em;
+  color:rgba(255,255,255,0.2);margin-bottom:8px;text-transform:uppercase}
+.fw-c-icon{font-size:32px;margin-bottom:16px;line-height:1}
+.fw-c-title{font-family:var(--display);font-size:26px;font-weight:700;
+  color:var(--text);line-height:1.2;margin-bottom:12px}
+.fw-c-body{font-size:13px;color:var(--text2);line-height:1.8;margin-bottom:28px}
+.fw-c-body strong{color:var(--text)}
+.fw-c-steps{margin:16px 0 28px;display:flex;flex-direction:column;gap:10px}
+.fw-c-step{display:flex;align-items:flex-start;gap:14px}
+.fw-c-step-num{font-family:var(--mono);font-size:9px;color:var(--gold);
+  background:rgba(240,188,78,0.1);border:1px solid rgba(240,188,78,0.25);
+  border-radius:4px;padding:3px 8px;flex-shrink:0;margin-top:1px;letter-spacing:0.1em}
+.fw-c-step-text{font-size:12px;color:rgba(255,255,255,0.5);line-height:1.6}
+.fw-c-step-text strong{color:rgba(255,255,255,0.85)}
+.fw-btn-p{width:100%;padding:14px 0;border-radius:8px;background:var(--gold);
+  color:#060708;font-family:var(--mono);font-size:12px;font-weight:700;
+  letter-spacing:0.1em;cursor:pointer;border:none;margin-bottom:9px}
 .fw-btn-p:hover{opacity:0.87}
-.fw-btn-o{width:100%;padding:13px 0;border-radius:8px;background:rgba(240,188,78,0.09);color:var(--gold);font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:0.1em;cursor:pointer;border:1.5px solid rgba(240,188,78,0.35);margin-bottom:9px}
-.fw-btn-o:hover{background:rgba(240,188,78,0.16)}
-.fw-btn-s{width:100%;padding:11px 0;border-radius:8px;background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.45);font-family:var(--mono);font-size:11px;cursor:pointer;border:1px solid rgba(255,255,255,0.1)}
-.fw-btn-s:hover{color:rgba(255,255,255,0.75);background:rgba(255,255,255,0.08)}
-/* Elevated section sits above dim */
-.fw-elevated{position:relative!important;z-index:9990!important;border-radius:8px;box-shadow:0 0 0 3px rgba(240,188,78,0.35),0 0 50px rgba(240,188,78,0.06)!important;transition:box-shadow 0.3s}
-/* Push main content down so banner doesn't overlap */
-#fw-banner.show ~ * { /* handled via JS padding */ }
+.fw-btn-o{width:100%;padding:13px 0;border-radius:8px;
+  background:rgba(240,188,78,0.08);color:var(--gold);
+  font-family:var(--mono);font-size:11px;font-weight:700;
+  letter-spacing:0.08em;cursor:pointer;
+  border:1.5px solid rgba(240,188,78,0.3);margin-bottom:9px}
+.fw-btn-o:hover{background:rgba(240,188,78,0.15)}
+.fw-btn-s{width:100%;padding:11px 0;border-radius:8px;
+  background:transparent;color:rgba(255,255,255,0.35);
+  font-family:var(--mono);font-size:10.5px;cursor:pointer;
+  border:1px solid rgba(255,255,255,0.09)}
+.fw-btn-s:hover{color:rgba(255,255,255,0.65);background:rgba(255,255,255,0.05)}
+/* Elevated section rises above dim */
+.fw-elevated{position:relative!important;z-index:9990!important;
+  border-radius:6px;
+  box-shadow:0 0 0 2px rgba(240,188,78,0.4),0 0 60px rgba(240,188,78,0.07)!important;
+  transition:box-shadow 0.3s}
 </style>
 
-<!-- Guide banner -->
+<!-- Banner -->
 <div id="fw-banner">
   <div id="fw-b-left">
-    <div id="fw-b-tag">SETUP</div>
-    <div id="fw-b-text">Let's get you set up</div>
+    <div id="fw-b-tag">WELCOME</div>
+    <div id="fw-b-text">Setting up your workspace</div>
   </div>
   <div id="fw-b-right">
     <div id="fw-b-dots"></div>
-    <button id="fw-b-next" onclick="fwNext()">Next →</button>
-    <button id="fw-b-skip" onclick="fwSkip()">Skip</button>
+    <button id="fw-b-skip" onclick="fwSkip()">Skip tour</button>
   </div>
 </div>
 
-<!-- Dim overlay -->
+<!-- Dim layer -->
 <div id="fw-dim" onclick="return false"></div>
 
-<!-- Floating tooltip for dim steps -->
+<!-- Tooltip for dim steps -->
 <div id="fw-tip">
+  <div id="fw-tip-step"></div>
   <div id="fw-tip-title"></div>
   <div id="fw-tip-body"></div>
-  <button id="fw-tip-next" onclick="fwNext()">Got it, next →</button>
+  <div id="fw-tip-foot">
+    <div id="fw-tip-counter"></div>
+    <button id="fw-tip-next" onclick="fwNext()">Next →</button>
+  </div>
 </div>
 
-<!-- Fullscreen overlay for card steps -->
+<!-- Fullscreen card -->
 <div id="fw-overlay"><div id="fw-card"></div></div>
 
 <script>
-// ── FIRST-TIME WALKTHROUGH ─────────────────────────────
+// ── FIRST-TIME WALKTHROUGH v3 ──────────────────────────
 var _fwStep = -1;
 var _fwElevated = null;
 
-// Step definitions
+// ── Step definitions ───────────────────────────────────
 // type: 'card' | 'modal' | 'dim'
 var _fwSteps = [
-  {
-    type: 'card',
-    tag: 'WELCOME',
-    html: function() {
-      return '<div class="fw-icon">⚡</div>' +
-        '<div class="fw-phase">First time setup</div>' +
-        '<div class="fw-title">Your professional trading cockpit</div>' +
-        '<div class="fw-body">We\'ll walk you through the app in a few quick steps — <strong>set up your account, checklist, and rules</strong>, then a guided tour of the key sections before you go live.</div>' +
-        '<button class="fw-btn-p" onclick="fwNext()">Let\'s go →</button>' +
-        '<button class="fw-btn-s" onclick="fwSkip()">Skip — I\'ll explore myself</button>';
-    }
+
+  // 0 — Welcome
+  { type:'card', tag:'WELCOME', text:'',
+    html: function() { return (
+      '<div class="fw-c-icon">⚡</div>' +
+      '<div class="fw-c-eyebrow">TradeDesk Gold — First time setup</div>' +
+      '<div class="fw-c-title">Your professional trading cockpit</div>' +
+      '<div class="fw-c-body">We\'ll get you set up and walk you through the platform in about 2 minutes. You\'ll see every section of the app in context — the way it\'s used on a real trading day.</div>' +
+      '<div class="fw-c-steps">' +
+        '<div class="fw-c-step"><div class="fw-c-step-num">01</div><div class="fw-c-step-text"><strong>Setup</strong> — account, checklist, rules</div></div>' +
+        '<div class="fw-c-step"><div class="fw-c-step-num">02</div><div class="fw-c-step-text"><strong>Tour</strong> — morning routine, analysis, scoring, key levels, AI briefing</div></div>' +
+        '<div class="fw-c-step"><div class="fw-c-step-num">03</div><div class="fw-c-step-text"><strong>Live</strong> — open the execution panel and trade</div></div>' +
+      '</div>' +
+      '<button class="fw-btn-p" onclick="fwNext()">Start setup →</button>' +
+      '<button class="fw-btn-s" onclick="fwSkip()">Skip — I\'ll explore myself</button>'
+    );}
   },
-  {
-    type: 'modal',
-    tag: 'STEP 1 · ACCOUNT',
-    text: 'Add your trading account',
+
+  // 1 — Account
+  { type:'modal', tag:'SETUP 1 / 3', text:'Add your first trading account',
     fn: function() { fwOpenAcct(); }
   },
-  {
-    type: 'modal',
-    tag: 'STEP 2 · CHECKLIST',
-    text: 'Customise your pre-trade checklist',
+
+  // 2 — Checklist
+  { type:'modal', tag:'SETUP 2 / 3', text:'Customise your pre-trade checklist',
     fn: function() { fwOpenChecklist(); }
   },
-  {
-    type: 'modal',
-    tag: 'STEP 3 · RULES',
-    text: 'Set your personal trading rules',
+
+  // 3 — Rules
+  { type:'modal', tag:'SETUP 3 / 3', text:'Write your personal trading rules',
     fn: function() { fwOpenRules(); }
   },
-  {
-    type: 'dim',
-    tag: 'MORNING ROUTINE',
-    text: 'Your morning starts here',
-    target: 'gate',
-    tipTitle: '01 · MORNING ROUTINE',
-    tipBody: 'Start every session by checking <strong>FTMO maintenance</strong> and the <strong>economic calendar</strong> for high-impact events.<br><br>Tick items to confirm them. You can also <strong>set alerts</strong> on any news event — click the clock icon next to a news row to get notified.'
+
+  // 4 — Morning Routine (dim)
+  { type:'dim', tag:'TOUR · 01', text:'Morning Routine',
+    target:'gate',
+    tipStep:'01 / 5',
+    tipTitle:'Morning Routine',
+    tipBody:'Every session starts here. <strong>Check FTMO maintenance</strong> and the <strong>economic calendar</strong> before opening a single chart.<br><br>The news feed below shows high-impact events — click the <strong>clock icon</strong> next to any event to set an alert. A 5-minute warning fires automatically before any event you\'re watching.'
   },
-  {
-    type: 'dim',
-    tag: 'TOP-DOWN ANALYSIS',
-    text: 'Set your bias before touching a chart',
-    target: 'analysis',
-    tipTitle: '02 · TOP-DOWN ANALYSIS',
-    tipBody: 'Work from <strong>higher timeframes down</strong> — Monthly → Weekly → Daily → 4H → 1H. Set Bull / Bear / Neutral for each.<br><br>Once your scores are in, hit <strong>Run AI Analysis</strong> — it builds a full session briefing based on your bias. The more you fill in, the better it gets.'
+
+  // 5 — Top-Down Analysis (dim)
+  { type:'dim', tag:'TOUR · 02', text:'Top-Down Analysis',
+    target:'analysis',
+    tipStep:'02 / 5',
+    tipTitle:'Top-Down Analysis',
+    tipBody:'Work <strong>Monthly → Weekly → Daily → 4H → 1H</strong>. Set bias (Bull / Bear / Neutral), AO signal, MACD signal, and trend direction for each timeframe.<br><br>Every input feeds the automated scoring engine in real time. The more complete your analysis, the sharper the AI briefing that follows.'
   },
-  {
-    type: 'dim',
-    tag: 'KEY LEVELS',
-    text: 'Mark the levels you\'ll trade from',
-    target: 'levels',
-    tipTitle: '03 · KEY LEVELS',
-    tipBody: 'Add the price levels you\'re watching today — supply zones, demand zones, round numbers, Fibs.<br><br>Set <strong>Entry, Stop Loss, and Take Profit</strong> on each. In Live Execution, <strong>tap any level tag</strong> and it fills the position calculator in one click.'
+
+  // 6 — Scoring System + Trading Mode (dim, right panel)
+  { type:'dim', tag:'TOUR · 02b', text:'Scoring system & trading mode',
+    target:'right-panel',
+    tipStep:'02b / 5',
+    tipTitle:'Scoring System & Trading Mode',
+    tipBody:(
+      'The <strong>bias score</strong> is calculated automatically from your timeframe inputs:<br>' +
+      '<div class="fw-score-row"><span class="fw-score-val">Daily ±2.0</span><span class="fw-score-lbl">highest weight — your anchor bias</span></div>' +
+      '<div class="fw-score-row"><span class="fw-score-val">4H ±1.5</span><span class="fw-score-lbl">entry-timeframe momentum</span></div>' +
+      '<div class="fw-score-row"><span class="fw-score-val">AO / MACD</span><span class="fw-score-lbl">up to ±2.0 extra per signal</span></div>' +
+      '<br>Verdicts: <strong>≥7 Strong Buy · ≥4 Bullish · ≥2 Lean Bullish · Neutral · Lean Bearish · Bearish · ≤−7 Strong Sell</strong><br><br>' +
+      'Set your <strong>Trading Mode</strong> (Long Only / Short Only / Both) to lock yourself into a direction for the session. It shows on every chart and in your log.'
+    )
   },
-  {
-    type: 'card',
-    tag: 'LIVE EXECUTION',
-    html: function() {
-      return '<div class="fw-icon">⚡</div>' +
-        '<div class="fw-phase">You\'re all set</div>' +
-        '<div class="fw-title">Time to go live</div>' +
-        '<div class="fw-body">Open <strong>Live Execution</strong>. Your pre-trade checklist runs first — you can edit items right there. Confirm your rules, then <strong>6 live charts open</strong> with your key levels ready to click.</div>' +
-        '<button class="fw-btn-p" onclick="fwGoLive()">Open Live Execution →</button>' +
-        '<button class="fw-btn-s" onclick="fwSkip()">Enter the app without walkthrough</button>';
-    }
+
+  // 7 — Key Levels (dim)
+  { type:'dim', tag:'TOUR · 03', text:'Key Levels',
+    target:'levels',
+    tipStep:'03 / 5',
+    tipTitle:'Key Levels',
+    tipBody:'Mark every price zone you\'d consider trading from. Set <strong>Entry, Stop Loss, and Take Profit</strong> per level — along with confluence tags (Fib, Order Block, S/R, FVG…) and confidence rating.<br><br>In Live Execution, each level appears as a <strong>clickable pill above the charts</strong>. One tap loads Entry, SL, and TP straight into the position calculator.'
+  },
+
+  // 8 — AI Briefing (dim)
+  { type:'dim', tag:'TOUR · 04', text:'AI Briefing',
+    target:'ai-briefing-section',
+    tipStep:'04 / 5',
+    tipTitle:'AI Morning Briefing',
+    tipBody:'Once your top-down analysis is complete, hit <strong>Run AI Analysis</strong>. Claude reads your full bias scores, AO, MACD, trend, key levels, and economic calendar — then finds similar historical trading days.<br><br>It reports <strong>long and short win rates</strong> on days with your score, the best setups and sessions, risk factors to watch, and a directional lean for today. Refresh it any time.'
+  },
+
+  // 9 — Live Execution card
+  { type:'card', tag:'TOUR · 05', text:'',
+    html: function() { return (
+      '<div class="fw-c-icon">⚡</div>' +
+      '<div class="fw-c-eyebrow">Final step</div>' +
+      '<div class="fw-c-title">Enter Live Execution</div>' +
+      '<div class="fw-c-body">Six live TradingView charts open simultaneously — <strong>Daily, 4H, 1H, 15M, 5M, 1M</strong>. Your key level pills sit above the charts. The position calculator updates every tap.<br><br>But first: your pre-trade checklist runs as a gate. Check each item, confirm your rules — then the charts open. Watermarks and countdown timers are explained on the way in.</div>' +
+      '<button class="fw-btn-p" onclick="fwGoLive()">Open Live Execution →</button>' +
+      '<button class="fw-btn-s" onclick="fwSkip()">Enter the app without live execution</button>'
+    );}
   }
 ];
 
+// ── Core ───────────────────────────────────────────────
 function fwShouldShow() { return !localStorage.getItem('fw_done'); }
 
 function fwOpen() {
@@ -15744,7 +15822,7 @@ function fwOpen() {
 }
 
 function fwClose() {
-  localStorage.setItem('fw_done', '1');
+  localStorage.setItem('fw_done','1');
   document.getElementById('fw-banner').classList.remove('show');
   document.getElementById('fw-overlay').classList.remove('show');
   document.getElementById('fw-dim').style.display = 'none';
@@ -15758,14 +15836,12 @@ function fwSkip() { fwClose(); }
 function fwNext() {
   fwClearElevated();
   _fwStep = Math.min(_fwStep + 1, _fwSteps.length - 1);
+  if (_fwStep >= _fwSteps.length) { fwClose(); return; }
   fwRender();
 }
 
 function fwClearElevated() {
-  if (_fwElevated) {
-    _fwElevated.classList.remove('fw-elevated');
-    _fwElevated = null;
-  }
+  if (_fwElevated) { _fwElevated.classList.remove('fw-elevated'); _fwElevated = null; }
 }
 
 function fwRender() {
@@ -15776,18 +15852,15 @@ function fwRender() {
   document.getElementById('fw-b-tag').textContent = step.tag;
   document.getElementById('fw-b-text').textContent = step.text || '';
 
-  // Dots
+  // Progress dots — only dim + card steps count (not modal steps as they have their own UX)
+  var dotSteps = [0,4,5,6,7,8,9]; // indices to show dots for
   var dotsEl = document.getElementById('fw-b-dots');
-  dotsEl.innerHTML = _fwSteps.map(function(s, i) {
-    var cls = i < _fwStep ? 'fw-dot done' : i === _fwStep ? 'fw-dot active' : 'fw-dot';
+  dotsEl.innerHTML = dotSteps.map(function(si) {
+    var cls = si < _fwStep ? 'fw-dot done' : si === _fwStep ? 'fw-dot active' : 'fw-dot';
     return '<div class="' + cls + '"></div>';
   }).join('');
 
-  // Next button in banner (only for non-dim types; dim uses tooltip button)
-  var nb = document.getElementById('fw-b-next');
-  nb.style.display = 'none';
-
-  // Hide all panels
+  // Hide all overlays first
   document.getElementById('fw-overlay').classList.remove('show');
   document.getElementById('fw-dim').style.display = 'none';
   document.getElementById('fw-tip').style.display = 'none';
@@ -15797,26 +15870,32 @@ function fwRender() {
     document.getElementById('fw-overlay').classList.add('show');
   }
   else if (step.type === 'modal') {
-    document.getElementById('fw-b-text').textContent = step.text;
     if (step.fn) step.fn();
   }
   else if (step.type === 'dim') {
     document.getElementById('fw-dim').style.display = 'block';
-    document.getElementById('fw-tip-title').textContent = step.tipTitle;
-    document.getElementById('fw-tip-body').innerHTML = step.tipBody;
+    // tooltip
+    document.getElementById('fw-tip-step').textContent = step.tipStep || '';
+    document.getElementById('fw-tip-title').textContent = step.tipTitle || '';
+    document.getElementById('fw-tip-body').innerHTML = step.tipBody || '';
+    // counter
+    var dimSteps = _fwSteps.filter(function(s){return s.type==='dim';});
+    var dimIdx = dimSteps.indexOf(step);
+    document.getElementById('fw-tip-counter').textContent = 'SECTION ' + (dimIdx+1) + ' OF ' + dimSteps.length;
     document.getElementById('fw-tip').style.display = 'block';
+    // spotlight
     setTimeout(function() {
       var el = document.getElementById(step.target);
       if (el) {
         _fwElevated = el;
         el.classList.add('fw-elevated');
-        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        el.scrollIntoView({ behavior:'smooth', block:'start' });
       }
-    }, 150);
+    }, 180);
   }
 }
 
-// ── Modal openers ──
+// ── Modal openers ──────────────────────────────────────
 function fwOpenAcct() {
   var el = document.getElementById('acct-setup-overlay');
   if (el) { el.style.display = 'flex'; el.style.zIndex = '100010'; }
@@ -15844,12 +15923,17 @@ function fwOpenChecklist() {
     window.ptgEditSave = _orig;
     setTimeout(fwNext, 200);
   };
-  // cancel button — add close handler
-  var cancelBtn = document.querySelector('#ptg-edit-overlay .ptg-edit-cancel, #ptg-edit-overlay [onclick*="ptgEditClose"]');
-  if (cancelBtn) {
-    var _oc = cancelBtn.onclick;
-    cancelBtn.onclick = function(e) { if (_oc) _oc.call(this, e); setTimeout(fwNext, 100); };
-  }
+  // handle cancel / close buttons
+  setTimeout(function() {
+    var btns = document.querySelectorAll('#ptg-edit-overlay button');
+    btns.forEach(function(b) {
+      if (b.textContent.trim().match(/cancel|close|done/i) && !b._fwPatched) {
+        b._fwPatched = true;
+        var _oc = b.onclick;
+        b.onclick = function(e) { if (_oc) _oc.call(this,e); setTimeout(fwNext, 150); };
+      }
+    });
+  }, 200);
 }
 
 function fwOpenRules() {
@@ -15875,11 +15959,13 @@ function fwGoLive() {
   if (typeof openLiveExec === 'function') openLiveExec();
 }
 
-// ── Boot ──
+// ── Boot ───────────────────────────────────────────────
 window._fwTryShow = function() {
   if (typeof fwShouldShow === 'function' && fwShouldShow()) setTimeout(fwOpen, 700);
 };
-window.fwNext = fwNext; window.fwSkip = fwSkip; window.fwGoLive = fwGoLive;
+window.fwNext = fwNext;
+window.fwSkip = fwSkip;
+window.fwGoLive = fwGoLive;
 // ── END FIRST-TIME WALKTHROUGH ─────────────────────────
 </script>
 </body>
