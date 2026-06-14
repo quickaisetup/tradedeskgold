@@ -15757,7 +15757,7 @@ var _fwSteps = [
   // 4 — Morning Routine (dim)
   { type:'dim', tag:'TOUR · 01', text:'Morning Routine',
     target:'gate',
-    tipStep:'01 / 5',
+    tipStep:'01 / 7',
     tipTitle:'Morning Routine',
     tipBody:'Every session starts here. <strong>Check FTMO maintenance</strong> and the <strong>economic calendar</strong> before opening a single chart.<br><br>The news feed below shows high-impact events — click the <strong>clock icon</strong> next to any event to set an alert. A 5-minute warning fires automatically before any event you\'re watching.'
   },
@@ -15765,7 +15765,7 @@ var _fwSteps = [
   // 5 — Top-Down Analysis (dim)
   { type:'dim', tag:'TOUR · 02', text:'Top-Down Analysis',
     target:'analysis',
-    tipStep:'02 / 5',
+    tipStep:'02 / 7',
     tipTitle:'Top-Down Analysis',
     tipBody:'Work <strong>Monthly → Weekly → Daily → 4H → 1H</strong>. Set bias (Bull / Bear / Neutral), AO signal, MACD signal, and trend direction for each timeframe.<br><br>Every input feeds the automated scoring engine in real time. The more complete your analysis, the sharper the AI briefing that follows.'
   },
@@ -15773,7 +15773,7 @@ var _fwSteps = [
   // 6 — Scoring System + Trading Mode (dim, score bar under top-down)
   { type:'dim', tag:'TOUR · 02b', text:'Scoring system & trading mode',
     target:'score-dashboard',
-    tipStep:'02b / 5',
+    tipStep:'03 / 7',
     tipTitle:'Scoring System & Trading Mode',
     tipBody:(
       'The <strong>bias score</strong> is calculated automatically from your timeframe inputs:<br>' +
@@ -15788,7 +15788,7 @@ var _fwSteps = [
   // 7 — Key Levels (dim)
   { type:'dim', tag:'TOUR · 03', text:'Key Levels',
     target:'levels',
-    tipStep:'03 / 5',
+    tipStep:'04 / 7',
     tipTitle:'Key Levels',
     tipBody:'Mark every price zone you\'d consider trading from. Set <strong>Entry, Stop Loss, and Take Profit</strong> per level — along with confluence tags (Fib, Order Block, S/R, FVG…) and confidence rating.<br><br>In Live Execution, each level appears as a <strong>clickable pill above the charts</strong>. One tap loads Entry, SL, and TP straight into the position calculator.'
   },
@@ -15796,20 +15796,55 @@ var _fwSteps = [
   // 8 — AI Briefing (dim)
   { type:'dim', tag:'TOUR · 04', text:'AI Briefing',
     target:'ai-briefing-section',
-    tipStep:'04 / 5',
+    tipStep:'04 / 7',
     tipTitle:'AI Morning Briefing',
     tipBody:'Once your top-down analysis is complete, hit <strong>Run AI Analysis</strong>. Claude reads your full bias scores, AO, MACD, trend, key levels, and economic calendar — then finds similar historical trading days.<br><br>It reports <strong>long and short win rates</strong> on days with your score, the best setups and sessions, risk factors to watch, and a directional lean for today. Refresh it any time.'
   },
 
-  // 9 — Live Execution card
+  // 9 — Live Execution (card — explains, then continue tour)
   { type:'card', tag:'TOUR · 05', text:'',
     html: function() { return (
       '<div class="fw-c-icon">⚡</div>' +
-      '<div class="fw-c-eyebrow">Final step</div>' +
-      '<div class="fw-c-title">Enter Live Execution</div>' +
-      '<div class="fw-c-body">Six live TradingView charts open simultaneously — <strong>Daily, 4H, 1H, 15M, 5M, 1M</strong>. Your key level pills sit above the charts. The position calculator updates every tap.<br><br>But first: your pre-trade checklist runs as a gate. Check each item, confirm your rules — then the charts open. Watermarks and countdown timers are explained on the way in.</div>' +
-      '<button class="fw-btn-p" onclick="fwGoLive()">Open Live Execution →</button>' +
-      '<button class="fw-btn-s" onclick="fwSkip()">Enter the app without live execution</button>'
+      '<div class="fw-c-eyebrow">Tour · 05 / 07</div>' +
+      '<div class="fw-c-title">Live Execution</div>' +
+      '<div class="fw-c-body">Six live TradingView charts — <strong>Daily, 4H, 1H, 15M, 5M, 1M</strong> — open simultaneously. Key level pills above the charts load Entry, SL, and TP in one tap.<br><br>Your <strong>pre-trade checklist runs as a gate</strong> before the charts open. Once you confirm your rules and check every item, the charts unlock. Watermarks and countdown timers are explained on the way in.</div>' +
+      '<button class="fw-btn-p" onclick="fwNext()">Got it →</button>'
+    );}
+  },
+
+  // 10 — Trade Journal (dim)
+  { type:'dim', tag:'TOUR · 06', text:'Trade Journal',
+    target:'trades',
+    tipStep:'05 / 7',
+    tipTitle:'Trade Journal',
+    tipBody:'Log every trade the same day you take it. <strong>Win, Loss, or Breakeven</strong> — R achieved, USD P&L, setup type, session, and notes.<br><br>You can attach screenshots and write what you did right and wrong. Every logged trade feeds your <strong>stats, streak, and rank</strong> — and builds the historical data the AI uses to coach you.'
+  },
+
+  // 11 — End of Day (dim)
+  { type:'dim', tag:'TOUR · 06b', text:'End of Day Reflection',
+    target:'reflection',
+    tipStep:'06 / 7',
+    tipTitle:'End of Day Reflection',
+    tipBody:'After the session, write a <strong>free-text reflection</strong> — what worked, what didn\'t, what you\'ll do differently tomorrow.<br><br>This is where discipline compounds. The traders who review their process consistently are the ones who improve. Takes 2 minutes. Do it every day.'
+  },
+
+  // 12 — Rank & XP (dim)
+  { type:'dim', tag:'TOUR · 07', text:'Rank & XP',
+    target:'right-panel',
+    tipStep:'07 / 7',
+    tipTitle:'Rank & XP',
+    tipBody:'Every session you complete and every trade you log earns <strong>XP</strong>. Your rank advances as you build a consistent process — not just from winning.<br><br>Ranks go from <strong>Degenerate → Gambler → … → Elite</strong>. Your streak, all-time stats, and leaderboard position are all tracked here. The community sees your progress in real time.'
+  },
+
+  // 13 — Final oath card
+  { type:'card', tag:'YOU\'RE READY', text:'',
+    html: function() { return (
+      '<div style="font-family:var(--mono);font-size:9px;letter-spacing:0.22em;color:rgba(240,188,78,0.5);margin-bottom:20px">SETUP COMPLETE</div>' +
+      '<div style="font-family:var(--display);font-size:13px;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.25);margin-bottom:10px">The trader\'s oath</div>' +
+      '<div style="font-family:var(--display);font-size:28px;font-weight:700;color:var(--gold);line-height:1.3;margin-bottom:6px;letter-spacing:0.04em">I will obey the rules.</div>' +
+      '<div style="font-family:var(--display);font-size:28px;font-weight:700;color:var(--gold);line-height:1.3;margin-bottom:28px;letter-spacing:0.04em">Only today.</div>' +
+      '<div style="font-size:12px;color:rgba(255,255,255,0.4);line-height:1.8;margin-bottom:32px">You\'ve seen everything. The platform is ready. Your process is set.<br>Now open the charts, trust your analysis, and execute with discipline.</div>' +
+      '<button class="fw-btn-p" onclick="fwFinish()" style="font-size:13px;padding:16px 0;letter-spacing:0.12em">ENTER TRADEDESK →</button>'
     );}
   }
 ];
@@ -15858,7 +15893,7 @@ function fwRender() {
   document.getElementById('fw-b-text').textContent = step.text || '';
 
   // Progress dots — only dim + card steps count (not modal steps as they have their own UX)
-  var dotSteps = [0,4,5,6,7,8,9]; // indices to show dots for
+  var dotSteps = [0,4,5,6,7,8,9,10,11,12,13]; // indices to show dots for
   var dotsEl = document.getElementById('fw-b-dots');
   dotsEl.innerHTML = dotSteps.map(function(si) {
     var cls = si < _fwStep ? 'fw-dot done' : si === _fwStep ? 'fw-dot active' : 'fw-dot';
@@ -16021,9 +16056,14 @@ function fwGoLive() {
 window._fwTryShow = function() {
   if (typeof fwShouldShow === 'function' && fwShouldShow()) setTimeout(fwOpen, 700);
 };
+function fwFinish() {
+  fwClose();
+}
+
 window.fwNext = fwNext;
 window.fwSkip = fwSkip;
 window.fwGoLive = fwGoLive;
+window.fwFinish = fwFinish;
 // ── END FIRST-TIME WALKTHROUGH ─────────────────────────
 </script>
 </body>
