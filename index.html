@@ -2299,6 +2299,34 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
   /* ── LIVE EXEC MOBILE ── */
   #leo-back-btn{display:none!important}
   #leo-close{font-size:16px!important;padding:6px 14px!important;min-width:36px;min-height:36px;display:flex;align-items:center;justify-content:center}
+
+  /* ── LIVE EXEC PORTRAIT — professional layout ── */
+  /* Header: strip clutter */
+  #leo-mode{display:none!important}
+  #leo-dir{display:none!important}
+  #leo-bias-bar{display:none!important}
+  #leo-kl-bar{flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;justify-content:flex-start;padding:4px 12px;-webkit-overflow-scrolling:touch}
+  /* Hide levels + LTF bars — save vertical space */
+  #leo-levels-bar{display:none!important}
+  #leo-ltf-trend-bar{display:none!important}
+  /* Calc bar: collapsible */
+  #leo-calc-bar{flex-direction:column;align-items:stretch;min-height:auto}
+  #leo-calc-mob-toggle{display:flex!important}
+  #leo-calc-inputs{display:none;flex-wrap:wrap;gap:10px;padding:10px 14px;border-top:1px solid rgba(255,255,255,0.07)}
+  #leo-calc-inputs.mob-open{display:flex!important}
+  #leo-calc-inputs .leo-lvl-input{width:64px}
+  #calc-result{flex-wrap:wrap;gap:8px}
+  #leo-admin-alert-wrap{display:none!important;flex-wrap:wrap;gap:8px;padding:10px 14px;border-left:none!important;border-top:1px solid rgba(255,255,255,0.07)}
+  #leo-admin-alert-wrap.mob-open{display:flex!important}
+  #leo-alert-note{width:100%!important;box-sizing:border-box}
+  /* Charts: 2-column grid, 3 rows */
+  #leo-charts-grid{grid-template-columns:1fr 1fr!important;grid-template-rows:repeat(3,minmax(160px,1fr))!important;gap:2px!important}
+  /* Countdown pill: smaller on mobile */
+  .leo-tv-cell-cd{padding:4px 8px!important;gap:3px!important}
+  .leo-tv-cell-cd .cd-tf{font-size:8px!important}
+  .leo-tv-cell-cd .cd-time{font-size:12px!important}
+  /* Watermarks: right-align inside smaller cells */
+  .leo-tv-cell-wm{font-size:clamp(24px,7vw,40px)!important;right:8px!important;top:2px!important}
 }
 
 /* ── LIVE EXEC — LANDSCAPE MOBILE (maximize charts) ── */
@@ -4490,6 +4518,13 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 
   <!-- POSITION CALCULATOR + ADMIN ALERT BAR -->
   <div id="leo-calc-bar" style="display:flex;align-items:center;gap:0;background:#09090d;border-bottom:1px solid rgba(255,255,255,0.08);flex-shrink:0;min-height:42px">
+
+    <!-- Mobile toggle bar (hidden on desktop) -->
+    <div id="leo-calc-mob-toggle" onclick="toggleLeoCalc()" style="display:none;align-items:center;justify-content:space-between;padding:0 14px;height:38px;cursor:pointer;width:100%;box-sizing:border-box;flex-shrink:0">
+      <span style="font-family:var(--mono);font-size:8px;letter-spacing:0.14em;color:rgba(255,255,255,0.3);text-transform:uppercase">Position Calc</span>
+      <span id="leo-calc-mob-summary" style="font-family:var(--mono);font-size:10px;color:var(--text2)">tap to expand</span>
+      <span id="leo-calc-mob-chev" style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.3)">▼</span>
+    </div>
 
     <!-- POSITION CALCULATOR (all users) -->
     <div id="leo-calc-inputs" style="display:flex;align-items:center;gap:10px;padding:0 14px;flex:1">
@@ -9483,7 +9518,29 @@ function calcLotSize() {
   if(riskEl)  riskEl.textContent  = '$' + Math.round(riskUsd).toLocaleString();
   if(rrEl)    rrEl.textContent    = rr > 0 ? '1:' + rr.toFixed(1) : '—';
   if(ptsEl)   ptsEl.textContent   = slPts.toFixed(1) + 'pt SL' + (tpPts>0?' / '+tpPts.toFixed(1)+'pt TP':'');
+  // Update mobile summary line
+  var mobSum = document.getElementById('leo-calc-mob-summary');
+  if (mobSum) {
+    if (entry && sl) {
+      var rrTxt = rr > 0 ? ' · 1:'+rr.toFixed(1) : '';
+      mobSum.textContent = entry + ' → ' + sl + (tp?' → '+tp:'') + ' · '+lots.toFixed(2)+'L'+rrTxt;
+      mobSum.style.color = 'var(--text)';
+    } else {
+      mobSum.textContent = 'tap to expand';
+      mobSum.style.color = 'rgba(255,255,255,0.3)';
+    }
+  }
 }
+
+function toggleLeoCalc() {
+  var inputs  = document.getElementById('leo-calc-inputs');
+  var alert   = document.getElementById('leo-admin-alert-wrap');
+  var chev    = document.getElementById('leo-calc-mob-chev');
+  var open    = inputs && inputs.classList.toggle('mob-open');
+  if (alert && alert.style.display !== 'none') alert.classList.toggle('mob-open', open);
+  if (chev) chev.textContent = open ? '▲' : '▼';
+}
+window.toggleLeoCalc = toggleLeoCalc;
 
 // Restore saved account size
 document.addEventListener('DOMContentLoaded', function() {
