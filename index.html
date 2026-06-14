@@ -1691,6 +1691,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 .leo-tv-cell-wm.wm-up{color:rgba(78,214,138,0.55);}
 .leo-tv-cell-wm.wm-down{color:rgba(240,96,96,0.55);}
 .leo-tv-cell-wm.wm-ranging{color:rgba(240,188,78,0.45);}
+.wm-bias-label{font-size:0.28em;letter-spacing:0.18em;line-height:1;margin-top:-0.1em;opacity:0.85;}
 /* Countdown pill — top-left of each cell, TF label + time in one pill */
 .leo-tv-cell-cd{
   position:absolute;top:8px;left:9px;z-index:10;
@@ -4699,27 +4700,27 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 
   <div id="leo-charts-grid">
     <div class="leo-tv-cell" id="leo-tv-D">
-      <div class="leo-tv-cell-wm" onclick="cycleWmTrend(this)" title="Click to set trend">1D</div>
+      <div class="leo-tv-cell-wm" onclick="cycleWmTrend(this)" title="Click to set trend"><div>1D</div><div class="wm-bias-label"></div></div>
       <div class="leo-tv-cell-cd cd-green" id="leo-cd-D"><div class="cd-tf">1D</div><div class="cd-time">—</div></div>
     </div>
     <div class="leo-tv-cell" id="leo-tv-4H">
-      <div class="leo-tv-cell-wm" onclick="cycleWmTrend(this)" title="Click to set trend">4H</div>
+      <div class="leo-tv-cell-wm" onclick="cycleWmTrend(this)" title="Click to set trend"><div>4H</div><div class="wm-bias-label"></div></div>
       <div class="leo-tv-cell-cd cd-green" id="leo-cd-4H"><div class="cd-tf">4H</div><div class="cd-time">—</div></div>
     </div>
     <div class="leo-tv-cell" id="leo-tv-1H">
-      <div class="leo-tv-cell-wm" onclick="cycleWmTrend(this)" title="Click to set trend">1H</div>
+      <div class="leo-tv-cell-wm" onclick="cycleWmTrend(this)" title="Click to set trend"><div>1H</div><div class="wm-bias-label"></div></div>
       <div class="leo-tv-cell-cd cd-green" id="leo-cd-1H"><div class="cd-tf">1H</div><div class="cd-time">—</div></div>
     </div>
     <div class="leo-tv-cell" id="leo-tv-15m">
-      <div class="leo-tv-cell-wm" onclick="cycleWmTrend(this)" title="Click to set trend">15</div>
+      <div class="leo-tv-cell-wm" onclick="cycleWmTrend(this)" title="Click to set trend"><div>15</div><div class="wm-bias-label"></div></div>
       <div class="leo-tv-cell-cd cd-green" id="leo-cd-15m"><div class="cd-tf">15m</div><div class="cd-time">—</div></div>
     </div>
     <div class="leo-tv-cell" id="leo-tv-5m">
-      <div class="leo-tv-cell-wm" onclick="cycleWmTrend(this)" title="Click to set trend">5</div>
+      <div class="leo-tv-cell-wm" onclick="cycleWmTrend(this)" title="Click to set trend"><div>5</div><div class="wm-bias-label"></div></div>
       <div class="leo-tv-cell-cd cd-green" id="leo-cd-5m"><div class="cd-tf">5m</div><div class="cd-time">—</div></div>
     </div>
     <div class="leo-tv-cell" id="leo-tv-1m">
-      <div class="leo-tv-cell-wm" onclick="cycleWmTrend(this)" title="Click to set trend">1</div>
+      <div class="leo-tv-cell-wm" onclick="cycleWmTrend(this)" title="Click to set trend"><div>1</div><div class="wm-bias-label"></div></div>
       <div class="leo-tv-cell-cd cd-green" id="leo-cd-1m"><div class="cd-tf">1m</div><div class="cd-time">—</div></div>
     </div>
   </div>
@@ -9916,10 +9917,17 @@ function leoLoadWidget(tfId, sym, interval) {
   var savedTrend = localStorage.getItem(wmKey) || (existingWm ? existingWm.dataset.trend : '') || '';
   var wm = document.createElement('div');
   wm.className = 'leo-tv-cell-wm';
-  wm.textContent = tfId;
   wm.title = 'Click to set trend';
   wm.dataset.trend = savedTrend;
   wm.dataset.wmKey = wmKey;
+  var wmTfSpan = document.createElement('div');
+  wmTfSpan.textContent = tfId;
+  var wmBiasSpan = document.createElement('div');
+  wmBiasSpan.className = 'wm-bias-label';
+  var _wmBiasMap = { up: 'BULLISH', down: 'BEARISH', ranging: 'RANGING' };
+  wmBiasSpan.textContent = _wmBiasMap[savedTrend] || '';
+  wm.appendChild(wmTfSpan);
+  wm.appendChild(wmBiasSpan);
   if (savedTrend === 'up')      wm.classList.add('wm-up');
   else if (savedTrend === 'down')    wm.classList.add('wm-down');
   else if (savedTrend === 'ranging') wm.classList.add('wm-ranging');
@@ -10230,7 +10238,7 @@ function obWmClick(e) {
     else { wm.style.color = 'rgba(255,255,255,0.08)'; }
   }
 
-  var stateNames = ['','▲ BULLISH','▼ BEARISH','◆ RANGING','—'];
+  var stateNames = ['','▲ BULLISH / UPTREND','▼ BEARISH / DOWNTREND','◆ RANGING / NEUTRAL','—'];
   var stateColors = ['','#4ed68a','#f06060','var(--gold)','rgba(255,255,255,0.3)'];
   var sidx = _obWmClicks % 4;
   if (sidx === 0) sidx = 4;
@@ -10294,6 +10302,10 @@ function cycleWmTrend(el) {
   if (next === 'up')      el.classList.add('wm-up');
   else if (next === 'down')    el.classList.add('wm-down');
   else if (next === 'ranging') el.classList.add('wm-ranging');
+  // Update bias sub-label
+  var biasMap = { up: 'BULLISH', down: 'BEARISH', ranging: 'RANGING' };
+  var biasEl = el.querySelector('.wm-bias-label');
+  if (biasEl) biasEl.textContent = biasMap[next] || '';
   // Persist so color survives page refreshes
   if (el.dataset.wmKey) {
     if (next) localStorage.setItem(el.dataset.wmKey, next);
