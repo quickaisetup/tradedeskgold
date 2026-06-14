@@ -15235,6 +15235,13 @@ window.forceRestoreTrades = async function() {
   setTimeout(function(){ notice.remove(); }, 4000);
 };
 
+// Define early so tdlOnAuth can call it even if fw script hasn't parsed yet
+window._fwTryShow = function() {
+  if (typeof fwShouldShow === 'function' && fwShouldShow()) {
+    setTimeout(fwOpen, 600);
+  }
+};
+
 // ── AUTO-LOGIN: check for existing session ────────────
 async function tdlInit() {
   try {
@@ -15903,10 +15910,6 @@ window.fwOpenPtgEdit = fwOpenPtgEdit;
 window.fwOpenRules = fwOpenRules;
 
 // Trigger on first load after auth
-// Triggered after auth (login screen hidden) — not on DOMContentLoaded
-window._fwTryShow = function() {
-  if (fwShouldShow()) setTimeout(fwOpen, 600);
-};
 // ── END FIRST-TIME WALKTHROUGH ─────────────────────────
 </script>
 </body>
