@@ -15920,43 +15920,90 @@ function fwOpenAcct() {
 }
 
 function fwOpenChecklist() {
-  if (typeof ptgEditOpen === 'function') ptgEditOpen();
-  var editEl = document.getElementById('ptg-edit-overlay');
-  if (editEl) { editEl.style.position = 'fixed'; editEl.style.zIndex = '100010'; }
-  var _orig = window.ptgEditSave;
-  window.ptgEditSave = function() {
-    if (_orig) _orig.apply(this, arguments);
-    window.ptgEditSave = _orig;
-    setTimeout(fwNext, 200);
-  };
-  // handle cancel / close buttons
-  setTimeout(function() {
-    var btns = document.querySelectorAll('#ptg-edit-overlay button');
-    btns.forEach(function(b) {
-      if (b.textContent.trim().match(/cancel|close|done/i) && !b._fwPatched) {
-        b._fwPatched = true;
-        var _oc = b.onclick;
-        b.onclick = function(e) { if (_oc) _oc.call(this,e); setTimeout(fwNext, 150); };
-      }
+  // ptgEditOpen appends to #ptg-gate which is hidden — build a standalone fixed overlay
+  var existing = document.getElementById('fw-checklist-overlay');
+  if (existing) existing.remove();
+  var ov = document.createElement('div');
+  ov.id = 'fw-checklist-overlay';
+  ov.style.cssText = 'position:fixed;inset:0;z-index:100010;background:rgba(4,5,7,0.97);display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:80px 24px 32px;overflow-y:auto;backdrop-filter:blur(8px)';
+  ov.innerHTML = (function() {
+    var rows = (window._ptgQs || []).map(function(q, i) {
+      return '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">' +
+        '<input type="text" value="' + q.main.replace(/"/g,'&quot;') + '" id="fwcl-input-' + i + '" ' +
+        'style="flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:8px;color:var(--text);font-size:13px;padding:10px 12px;font-family:inherit">' +
+        '<button onclick="fwClRemove(this,' + i + ')" style="background:rgba(240,96,96,0.12);border:1px solid rgba(240,96,96,0.3);color:#f06060;border-radius:6px;width:28px;height:28px;cursor:pointer;font-size:14px;flex-shrink:0">✕</button>' +
+      '</div>';
     });
-  }, 200);
+    return '<div style="max-width:560px;width:100%">' +
+      '<div style="font-family:var(--display);font-size:22px;letter-spacing:0.1em;margin-bottom:6px">Edit Checklist</div>' +
+      '<div style="font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.3);letter-spacing:0.1em;margin-bottom:24px">SETUP 2 / 3 · These are confirmed before every trade</div>' +
+      '<div id="fwcl-list">' + rows.join('') + '</div>' +
+      '<button onclick="fwClAdd()" style="width:100%;margin-top:4px;padding:10px;background:rgba(255,255,255,0.04);border:1px dashed rgba(255,255,255,0.15);border-radius:8px;color:rgba(255,255,255,0.4);font-family:var(--mono);font-size:11px;cursor:pointer;letter-spacing:0.08em">+ ADD ITEM</button>' +
+      '<div style="display:flex;gap:10px;margin-top:24px">' +
+        '<button onclick="fwClSkip()" style="flex:1;padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:rgba(255,255,255,0.4);font-family:var(--mono);font-size:10px;letter-spacing:0.1em;cursor:pointer">SKIP</button>' +
+        '<button onclick="fwClSave()" style="flex:2;padding:12px;border-radius:8px;background:var(--gold);color:#060708;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:0.1em;cursor:pointer;border:none">SAVE & CONTINUE →</button>' +
+      '</div>' +
+    '</div>';
+  })();
+  document.body.appendChild(ov);
 }
+
+window.fwClAdd = function() {
+  var list = document.getElementById('fwcl-list');
+  if (!list) return;
+  var idx = list.querySelectorAll('input[type=text]').length;
+  var row = document.createElement('div');
+  row.style.cssText = 'display:flex;align-items:center;gap:10px;margin-bottom:10px';
+  row.innerHTML = '<input type="text" placeholder="New item..." id="fwcl-input-' + idx + '" style="flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:8px;color:var(--text);font-size:13px;padding:10px 12px;font-family:inherit">' +
+    '<button onclick="fwClRemove(this,' + idx + ')" style="background:rgba(240,96,96,0.12);border:1px solid rgba(240,96,96,0.3);color:#f06060;border-radius:6px;width:28px;height:28px;cursor:pointer;font-size:14px;flex-shrink:0">✕</button>';
+  list.appendChild(row);
+};
+window.fwClRemove = function(btn) { btn.closest('div').remove(); };
+window.fwClSave = function() {
+  var inputs = document.querySelectorAll('#fwcl-list input[type=text]');
+  var qs = [];
+  inputs.forEach(function(inp) { if (inp.value.trim()) qs.push({ main: inp.value.trim(), gold: false }); });
+  if (qs.length) {
+    window._ptgQs = qs;
+    localStorage.setItem('ptg_custom_qs', JSON.stringify(qs));
+  }
+  var ov = document.getElementById('fw-checklist-overlay');
+  if (ov) ov.remove();
+  fwNext();
+};
+window.fwClSkip = function() {
+  var ov = document.getElementById('fw-checklist-overlay');
+  if (ov) ov.remove();
+  fwNext();
+};
 
 function fwOpenRules() {
   if (typeof openRulesModal === 'function') openRulesModal();
   var ov = document.getElementById('rules-modal-overlay');
-  if (ov) ov.style.zIndex = '100010';
+  if (ov) { ov.style.zIndex = '100010'; }
+  // Add Skip button if not already there
+  var modal = document.getElementById('rules-modal');
+  if (modal && !modal.querySelector('#fw-rules-skip-btn')) {
+    var skipBtn = document.createElement('button');
+    skipBtn.id = 'fw-rules-skip-btn';
+    skipBtn.textContent = 'Skip';
+    skipBtn.style.cssText = 'width:100%;margin-top:0;padding:11px;border-radius:8px;background:transparent;color:rgba(255,255,255,0.35);font-family:var(--mono);font-size:10px;letter-spacing:0.1em;cursor:pointer;border:1px solid rgba(255,255,255,0.09)';
+    skipBtn.onclick = function() {
+      if (typeof closeRulesModal === 'function') closeRulesModal();
+      skipBtn.remove();
+      if (ov) ov.style.zIndex = '';
+      fwNext();
+    };
+    modal.appendChild(skipBtn);
+  }
   var _orig = window.saveRules;
   window.saveRules = async function() {
     if (_orig) await _orig.apply(this, arguments);
     window.saveRules = _orig;
+    var s = document.getElementById('fw-rules-skip-btn');
+    if (s) s.remove();
+    if (ov) ov.style.zIndex = '';
     setTimeout(fwNext, 350);
-  };
-  var _origC = window.closeRulesModal;
-  window.closeRulesModal = function() {
-    if (_origC) _origC.apply(this, arguments);
-    window.closeRulesModal = _origC;
-    setTimeout(fwNext, 100);
   };
 }
 
