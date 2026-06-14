@@ -16062,6 +16062,7 @@ window._fwTryShow = function() {
 };
 function fwFinish() {
   fwClose();
+  if (typeof openLiveExec === 'function') openLiveExec();
 }
 
 window.fwNext = fwNext;
