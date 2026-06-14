@@ -4512,52 +4512,53 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
         <div class="ob-label">FEATURE 1 OF 2</div>
         <div class="ob-title">Mark your bias per timeframe</div>
         <div class="ob-body">Click the timeframe watermark to cycle through <span class="ob-hl ob-hl-up">bullish</span>, <span class="ob-hl ob-hl-down">bearish</span>, and <span class="ob-hl ob-hl-rng">ranging</span>. Click it <strong id="ob-wm-remain">4</strong> more times to continue.</div>
-        <!-- Demo chart cell — real TradingView XAUUSD 1H -->
-        <div id="ob-wm-demo" onclick="obWmClick(this)" style="position:relative;width:100%;height:180px;border:1px solid rgba(255,255,255,0.07);border-radius:10px;cursor:pointer;overflow:hidden;margin:24px 0;transition:border-color 0.2s;user-select:none">
-          <!-- Live chart iframe -->
+        <!-- Exact replica of .leo-tv-cell -->
+        <div id="ob-wm-demo" onclick="obWmClick(event)" style="position:relative;width:100%;height:200px;background:#060708;border:1px solid rgba(255,255,255,0.08);border-radius:6px;overflow:hidden;margin:20px 0;cursor:pointer;user-select:none">
           <iframe id="ob-tv-frame" scrolling="no" style="position:absolute;inset:0;width:100%;height:100%;border:none;pointer-events:none" allowtransparency="true"></iframe>
-          <!-- Watermark label — sits on top of chart -->
-          <div id="ob-wm-label" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:88px;font-weight:900;font-family:var(--mono);color:rgba(255,255,255,0.1);letter-spacing:-2px;transition:color 0.25s,transform 0.15s;pointer-events:none;line-height:1;text-shadow:0 2px 24px rgba(0,0,0,0.6)">1H</div>
-          <!-- Pulse ring -->
-          <div id="ob-wm-pulse" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:110px;height:110px;border:2px solid rgba(240,188,78,0.45);border-radius:50%;animation:obPulse 1.4s ease-out infinite;pointer-events:none"></div>
-          <!-- Tap hint -->
-          <div id="ob-wm-hint" style="position:absolute;bottom:10px;right:12px;font-size:9px;font-family:var(--mono);color:rgba(240,188,78,0.75);letter-spacing:0.1em;animation:obBlink 1.2s ease-in-out infinite;background:rgba(6,7,8,0.7);padding:3px 7px;border-radius:4px">TAP TO CYCLE</div>
+          <div class="leo-tv-cell-cd cd-green" style="pointer-events:none"><div class="cd-tf">1H</div><div class="cd-time">14:46</div></div>
+          <div id="ob-wm-label" class="leo-tv-cell-wm" style="pointer-events:none;transition:color 0.25s;font-size:clamp(32px,8vw,64px)">1H</div>
+          <div id="ob-wm-pulse" style="position:absolute;top:8px;right:82px;width:74px;height:74px;border:2px solid rgba(240,188,78,0.5);border-radius:50%;animation:obPulse 1.4s ease-out infinite;pointer-events:none"></div>
+          <div id="ob-wm-hint" style="position:absolute;bottom:10px;right:12px;font-size:8px;font-family:var(--mono);color:rgba(240,188,78,0.85);letter-spacing:0.12em;animation:obBlink 1.2s ease-in-out infinite;background:rgba(6,7,8,0.8);padding:3px 8px;border-radius:4px;pointer-events:none">TAP TO CYCLE</div>
         </div>
-        <div id="ob-wm-status" style="text-align:center;font-size:10px;font-family:var(--mono);color:rgba(255,255,255,0.25);letter-spacing:0.08em;min-height:20px"></div>
+        <div id="ob-wm-status" style="text-align:center;font-size:10px;font-family:var(--mono);color:rgba(255,255,255,0.25);letter-spacing:0.08em;min-height:18px"></div>
       </div>
 
       <!-- Step 2: Key level click -->
       <div class="ob-card" id="ob-s2">
         <div class="ob-label">FEATURE 2 OF 2</div>
         <div class="ob-title">Load key levels into the calculator</div>
-        <div class="ob-body">Key level pills show price, stop-loss, and take-profit. Click any pill to instantly populate the position calculator — no manual typing required.</div>
-        <!-- Demo KL pill -->
-        <div style="margin:28px 0;display:flex;flex-direction:column;gap:12px">
-          <div id="ob-kl-pill" onclick="obKlClick(this)" style="display:inline-flex;align-items:center;gap:10px;padding:10px 16px;border-radius:8px;border:1px solid rgba(78,214,138,0.45);background:rgba(78,214,138,0.08);cursor:pointer;transition:filter 0.15s,border-color 0.15s,background 0.15s;position:relative;align-self:flex-start;width:100%;box-sizing:border-box" onmouseover="this.style.filter='brightness(1.3)'" onmouseout="this.style.filter=''">
-            <div style="display:flex;flex-direction:column;gap:2px">
-              <div style="font-size:9px;font-family:var(--mono);color:rgba(78,214,138,0.6);letter-spacing:0.1em">LONG · XAUUSD</div>
-              <div style="font-size:15px;font-weight:700;font-family:var(--mono);color:#4ed68a;letter-spacing:0.04em">4 218.54</div>
-            </div>
-            <div style="display:flex;gap:12px;margin-left:auto">
-              <div style="display:flex;flex-direction:column;gap:2px;align-items:flex-end">
-                <div style="font-size:8px;font-family:var(--mono);color:rgba(255,255,255,0.25);letter-spacing:0.08em">SL</div>
-                <div style="font-size:11px;font-family:var(--mono);color:#f06060">4 201.00</div>
-              </div>
-              <div style="display:flex;flex-direction:column;gap:2px;align-items:flex-end">
-                <div style="font-size:8px;font-family:var(--mono);color:rgba(255,255,255,0.25);letter-spacing:0.08em">TP</div>
-                <div style="font-size:11px;font-family:var(--mono);color:#4ed68a">4 250.00</div>
-              </div>
-              <div style="display:flex;align-items:center;margin-left:6px;font-size:16px;color:rgba(240,188,78,0.7)">⊞</div>
-            </div>
-            <!-- Pulse hint -->
-            <div id="ob-kl-pulse" style="position:absolute;inset:-3px;border-radius:10px;border:1.5px solid rgba(240,188,78,0.5);animation:obPulse 1.4s ease-out infinite;pointer-events:none"></div>
+        <div class="ob-body">Click any key level pill to instantly populate the position calculator — no manual typing required.</div>
+        <!-- Exact replica of #leo-kl-bar -->
+        <div style="margin:22px 0 10px;display:flex;align-items:center;gap:6px;padding:0 12px;flex-wrap:nowrap;overflow:hidden;background:#09090d;border:1px solid rgba(255,255,255,0.08);border-radius:6px;min-height:42px;position:relative">
+          <div id="ob-kl-pill" onclick="obKlClick(this)" class="kl-pill-rich" style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:6px;border:1px solid rgba(78,214,138,0.3);background:rgba(78,214,138,0.08);flex-shrink:0;cursor:pointer;transition:filter 0.12s;position:relative" onmouseover="this.style.filter='brightness(1.35)'" onmouseout="this.style.filter=''">
+            <span style="font-family:var(--mono);font-size:8px;color:rgba(255,255,255,0.35);letter-spacing:0.04em">@leo</span>
+            <span style="font-family:var(--display);font-size:9px;color:#4ed68a">▲</span>
+            <span style="font-family:var(--mono);font-size:11px;font-weight:700;color:#4ed68a;letter-spacing:0.02em">4218.54</span>
+            <span style="font-family:var(--mono);font-size:8px;color:rgba(255,255,255,0.25)">⊞</span>
+            <div id="ob-kl-pulse" style="position:absolute;inset:-3px;border-radius:8px;border:1.5px solid rgba(240,188,78,0.6);animation:obPulse 1.4s ease-out infinite;pointer-events:none"></div>
           </div>
-          <!-- Fake calc bar preview (hidden, shown after click) -->
-          <div id="ob-calc-preview" style="display:none;padding:10px 16px;border-radius:8px;border:1px solid rgba(240,188,78,0.3);background:rgba(240,188,78,0.06);font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.5);animation:obFadeIn 0.3s ease">
-            <span style="color:rgba(240,188,78,0.8)">✓</span>&nbsp; Calculator populated — Entry <span style="color:var(--text)">4218.54</span> · SL <span style="color:#f06060">4201.00</span> · TP <span style="color:#4ed68a">4250.00</span>
+          <div class="kl-pill-rich" style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:6px;border:1px solid rgba(240,96,96,0.3);background:rgba(240,96,96,0.08);flex-shrink:0;opacity:0.5;pointer-events:none">
+            <span style="font-family:var(--mono);font-size:8px;color:rgba(255,255,255,0.35)">@leo</span>
+            <span style="font-family:var(--display);font-size:9px;color:#f06060">▼</span>
+            <span style="font-family:var(--mono);font-size:11px;font-weight:700;color:#f06060">4283.99</span>
+            <span style="font-family:var(--mono);font-size:8px;color:rgba(255,255,255,0.25)">⊞</span>
           </div>
+          <div class="kl-pill-rich" style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:6px;border:1px solid rgba(78,214,138,0.3);background:rgba(78,214,138,0.08);flex-shrink:0;opacity:0.5;pointer-events:none">
+            <span style="font-family:var(--mono);font-size:8px;color:rgba(255,255,255,0.35)">@leo</span>
+            <span style="font-family:var(--display);font-size:9px;color:#4ed68a">▲</span>
+            <span style="font-family:var(--mono);font-size:11px;font-weight:700;color:#4ed68a">4201.02</span>
+            <span style="font-family:var(--mono);font-size:8px;color:rgba(255,255,255,0.25)">⊞</span>
+          </div>
+          <div id="ob-kl-hint" style="position:absolute;top:-20px;left:14px;font-size:8px;font-family:var(--mono);color:rgba(240,188,78,0.8);letter-spacing:0.1em;animation:obBlink 1.2s ease-in-out infinite">↓ CLICK THIS LEVEL</div>
         </div>
-        <div id="ob-kl-hint" style="font-size:9px;font-family:var(--mono);color:rgba(240,188,78,0.6);letter-spacing:0.1em;text-align:center;animation:obBlink 1.2s ease-in-out infinite">↑ CLICK THE LEVEL</div>
+        <!-- Calc bar replica shown after click -->
+        <div id="ob-calc-preview" style="display:none;align-items:center;gap:10px;padding:0 14px;background:#09090d;border:1px solid rgba(240,188,78,0.3);border-radius:6px;min-height:40px;font-family:var(--mono);font-size:10px;animation:obFadeIn 0.3s ease">
+          <span style="font-size:8px;letter-spacing:0.14em;color:rgba(255,255,255,0.3);text-transform:uppercase;white-space:nowrap">Position Calc</span>
+          <span style="font-size:8px;color:rgba(78,214,138,0.6);text-transform:uppercase">Entry</span><span style="font-size:11px;font-weight:700;color:#4ed68a">4218.54</span>
+          <span style="font-size:8px;color:rgba(240,96,96,0.6);text-transform:uppercase">SL</span><span style="font-size:11px;font-weight:700;color:#f06060">4201.00</span>
+          <span style="font-size:8px;color:rgba(106,163,245,0.6);text-transform:uppercase">TP</span><span style="font-size:11px;font-weight:700;color:#6aa3f5">4250.00</span>
+          <span style="color:rgba(240,188,78,0.8);font-size:9px;margin-left:4px">✓ loaded</span>
+        </div>
       </div>
 
       <!-- Step 3: Done -->
@@ -10209,7 +10210,8 @@ function obNext() {
   obGoTo(_obStep + 1);
 }
 
-function obWmClick(el) {
+function obWmClick(e) {
+  var el = document.getElementById('ob-wm-demo');
   _obWmClicks++;
   var wm = document.getElementById('ob-wm-label');
   var status = document.getElementById('ob-wm-status');
@@ -10271,7 +10273,7 @@ function obKlClick(el) {
 
   // Show calc populated
   var prev = document.getElementById('ob-calc-preview');
-  if (prev) prev.style.display = 'block';
+  if (prev) prev.style.display = 'flex';
 
   // Auto-advance
   setTimeout(function() { obGoTo(3); }, 1200);
