@@ -15584,85 +15584,162 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <!-- ═══════════════════════════════════════════════════
      FIRST-TIME APP WALKTHROUGH
-     Guided tour through the real app UI
+     Dim-tour through real app UI
      ═══════════════════════════════════════════════════ -->
 <style>
-/* ── Guide banner ── */
-#fw-banner{display:none;position:fixed;top:0;left:0;right:0;z-index:99998;background:#0e0f14;border-bottom:1px solid rgba(240,188,78,0.22);padding:0 20px;height:52px;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 2px 20px rgba(0,0,0,0.6)}
+/* ── Banner ── */
+#fw-banner{display:none;position:fixed;top:0;left:0;right:0;z-index:100000;background:#0a0b0e;border-bottom:1px solid rgba(240,188,78,0.2);padding:0 20px;height:50px;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 2px 24px rgba(0,0,0,0.7)}
 #fw-banner.show{display:flex}
-#fw-banner-left{display:flex;align-items:center;gap:14px;flex:1;min-width:0}
-#fw-banner-tag{font-family:var(--mono);font-size:8px;letter-spacing:0.18em;color:var(--gold);background:rgba(240,188,78,0.1);border:1px solid rgba(240,188,78,0.25);border-radius:4px;padding:3px 8px;white-space:nowrap;flex-shrink:0}
-#fw-banner-text{font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.72);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#fw-banner-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
-#fw-banner-next{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:0.08em;color:#060708;background:var(--gold);border:none;border-radius:5px;padding:6px 14px;cursor:pointer;white-space:nowrap;display:none}
-#fw-banner-next:hover{opacity:0.88}
-#fw-banner-skip{font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.3);background:none;border:none;cursor:pointer;white-space:nowrap;padding:4px 8px}
-#fw-banner-skip:hover{color:rgba(255,255,255,0.6)}
-/* Progress dots */
-#fw-dots{display:flex;gap:5px;align-items:center;flex-shrink:0}
-.fw-dot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,0.12);transition:background 0.3s}
-.fw-dot.active{background:var(--gold)}
-.fw-dot.done{background:rgba(240,188,78,0.35)}
-/* Spotlight highlight */
-.fw-spotlight{outline:2px solid rgba(240,188,78,0.6)!important;outline-offset:6px!important;border-radius:4px;animation:fwPulse 2s ease-in-out infinite}
-@keyframes fwPulse{0%,100%{outline-color:rgba(240,188,78,0.4)}50%{outline-color:rgba(240,188,78,0.9)}}
-/* Fullscreen card overlay */
-#fw-overlay{display:none;position:fixed;inset:0;z-index:99997;background:rgba(4,5,7,0.97);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);flex-direction:column;align-items:center;justify-content:center;padding:32px 20px 48px}
+#fw-b-left{display:flex;align-items:center;gap:12px;flex:1;min-width:0}
+#fw-b-tag{font-family:var(--mono);font-size:8px;letter-spacing:0.18em;color:var(--gold);background:rgba(240,188,78,0.1);border:1px solid rgba(240,188,78,0.25);border-radius:4px;padding:3px 9px;white-space:nowrap;flex-shrink:0}
+#fw-b-text{font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.65);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#fw-b-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+#fw-b-dots{display:flex;gap:5px;align-items:center}
+.fw-dot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,0.1);transition:all 0.3s}
+.fw-dot.done{background:rgba(240,188,78,0.3)}
+.fw-dot.active{background:var(--gold);transform:scale(1.3)}
+#fw-b-next{display:none;font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:0.08em;color:#060708;background:var(--gold);border:none;border-radius:5px;padding:6px 16px;cursor:pointer}
+#fw-b-next:hover{opacity:0.85}
+#fw-b-skip{font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.28);background:none;border:none;cursor:pointer;padding:4px 8px}
+#fw-b-skip:hover{color:rgba(255,255,255,0.6)}
+/* ── Dim overlay ── */
+#fw-dim{display:none;position:fixed;inset:0;z-index:9985;background:rgba(0,0,0,0.82);pointer-events:all;transition:opacity 0.35s}
+/* ── Tooltip card ── */
+#fw-tip{display:none;position:fixed;z-index:100001;bottom:28px;left:50%;transform:translateX(-50%);max-width:460px;width:calc(100% - 40px);background:#131519;border:1px solid rgba(240,188,78,0.2);border-radius:14px;padding:20px 22px;box-shadow:0 8px 40px rgba(0,0,0,0.7)}
+#fw-tip-title{font-family:var(--mono);font-size:10px;letter-spacing:0.14em;color:var(--gold);margin-bottom:7px}
+#fw-tip-body{font-size:12px;color:rgba(255,255,255,0.6);line-height:1.75}
+#fw-tip-body strong{color:rgba(255,255,255,0.9)}
+#fw-tip-next{margin-top:16px;width:100%;padding:11px 0;border-radius:7px;background:var(--gold);color:#060708;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:0.09em;cursor:pointer;border:none}
+#fw-tip-next:hover{opacity:0.87}
+/* ── Fullscreen card overlay ── */
+#fw-overlay{display:none;position:fixed;inset:0;z-index:100002;background:rgba(4,5,7,0.97);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);flex-direction:column;align-items:center;justify-content:center;padding:40px 24px}
 #fw-overlay.show{display:flex}
-#fw-card{width:100%;max-width:480px}
-.fw-icon{font-size:34px;margin-bottom:18px;line-height:1}
-.fw-phase{font-family:var(--mono);font-size:8px;letter-spacing:0.2em;color:rgba(255,255,255,0.22);margin-bottom:8px}
-.fw-title{font-family:var(--display);font-size:26px;font-weight:700;color:var(--text);line-height:1.15;margin-bottom:12px}
-.fw-body{font-size:13px;color:var(--text2);line-height:1.75;margin-bottom:28px}
+#fw-card{width:100%;max-width:460px}
+.fw-icon{font-size:32px;margin-bottom:16px}
+.fw-phase{font-family:var(--mono);font-size:8px;letter-spacing:0.2em;color:rgba(255,255,255,0.2);margin-bottom:7px}
+.fw-title{font-family:var(--display);font-size:24px;font-weight:700;color:var(--text);line-height:1.2;margin-bottom:11px}
+.fw-body{font-size:13px;color:var(--text2);line-height:1.75;margin-bottom:26px}
 .fw-body strong{color:var(--text)}
-.fw-btn-primary{width:100%;padding:14px 0;border-radius:8px;background:var(--gold);color:#060708;font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:0.1em;cursor:pointer;border:none;margin-bottom:10px}
-.fw-btn-primary:hover{opacity:0.88}
-.fw-btn-open{width:100%;padding:14px 0;border-radius:8px;background:rgba(240,188,78,0.1);color:var(--gold);font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:0.1em;cursor:pointer;border:1.5px solid rgba(240,188,78,0.4);margin-bottom:10px}
-.fw-btn-open:hover{background:rgba(240,188,78,0.18)}
-.fw-btn-skip{width:100%;padding:12px 0;border-radius:8px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.5);font-family:var(--mono);font-size:11px;cursor:pointer;border:1px solid rgba(255,255,255,0.12)}
-.fw-btn-skip:hover{background:rgba(255,255,255,0.09);color:rgba(255,255,255,0.8)}
+.fw-btn-p{width:100%;padding:13px 0;border-radius:8px;background:var(--gold);color:#060708;font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:0.1em;cursor:pointer;border:none;margin-bottom:9px}
+.fw-btn-p:hover{opacity:0.87}
+.fw-btn-o{width:100%;padding:13px 0;border-radius:8px;background:rgba(240,188,78,0.09);color:var(--gold);font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:0.1em;cursor:pointer;border:1.5px solid rgba(240,188,78,0.35);margin-bottom:9px}
+.fw-btn-o:hover{background:rgba(240,188,78,0.16)}
+.fw-btn-s{width:100%;padding:11px 0;border-radius:8px;background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.45);font-family:var(--mono);font-size:11px;cursor:pointer;border:1px solid rgba(255,255,255,0.1)}
+.fw-btn-s:hover{color:rgba(255,255,255,0.75);background:rgba(255,255,255,0.08)}
+/* Elevated section sits above dim */
+.fw-elevated{position:relative!important;z-index:9990!important;border-radius:8px;box-shadow:0 0 0 3px rgba(240,188,78,0.35),0 0 50px rgba(240,188,78,0.06)!important;transition:box-shadow 0.3s}
+/* Push main content down so banner doesn't overlap */
+#fw-banner.show ~ * { /* handled via JS padding */ }
 </style>
 
-<!-- Persistent guide banner (shown during in-app steps) -->
+<!-- Guide banner -->
 <div id="fw-banner">
-  <div id="fw-banner-left">
-    <div id="fw-banner-tag">SETUP</div>
-    <div id="fw-banner-text">Follow the guide</div>
+  <div id="fw-b-left">
+    <div id="fw-b-tag">SETUP</div>
+    <div id="fw-b-text">Let's get you set up</div>
   </div>
-  <div id="fw-banner-right">
-    <div id="fw-dots"></div>
-    <button id="fw-banner-next" onclick="fwNext()">Next →</button>
-    <button id="fw-banner-skip" onclick="fwSkip()">Skip</button>
+  <div id="fw-b-right">
+    <div id="fw-b-dots"></div>
+    <button id="fw-b-next" onclick="fwNext()">Next →</button>
+    <button id="fw-b-skip" onclick="fwSkip()">Skip</button>
   </div>
 </div>
 
-<!-- Fullscreen card overlay (welcome, live exec intro, done) -->
-<div id="fw-overlay">
-  <div id="fw-card"></div>
+<!-- Dim overlay -->
+<div id="fw-dim" onclick="return false"></div>
+
+<!-- Floating tooltip for dim steps -->
+<div id="fw-tip">
+  <div id="fw-tip-title"></div>
+  <div id="fw-tip-body"></div>
+  <button id="fw-tip-next" onclick="fwNext()">Got it, next →</button>
 </div>
+
+<!-- Fullscreen overlay for card steps -->
+<div id="fw-overlay"><div id="fw-card"></div></div>
 
 <script>
 // ── FIRST-TIME WALKTHROUGH ─────────────────────────────
 var _fwStep = -1;
-var _fwSpotlit = null;
+var _fwElevated = null;
 
-// Steps: 0=welcome, 1=account, 2=morning, 3=topdown, 4=keylevels, 5=liveexec-card, done
+// Step definitions
+// type: 'card' | 'modal' | 'dim'
 var _fwSteps = [
-  { tag: 'WELCOME',       text: '',                                       card: true,  next: false },
-  { tag: 'STEP 1',        text: 'Add your trading account',               card: false, modal: true,  next: false },
-  { tag: 'STEP 2',        text: 'Complete your morning routine checks',   card: false, next: true,  scroll: 'gate',     spotlight: 'gate' },
-  { tag: 'STEP 3',        text: 'Run your top-down analysis',             card: false, next: true,  scroll: 'analysis', spotlight: 'analysis' },
-  { tag: 'STEP 4',        text: 'Mark your key levels for the session',   card: false, next: true,  scroll: 'levels',   spotlight: 'levels' },
-  { tag: 'LIVE EXECUTION',text: "You're ready — open live execution",     card: true,  next: false },
+  {
+    type: 'card',
+    tag: 'WELCOME',
+    html: function() {
+      return '<div class="fw-icon">⚡</div>' +
+        '<div class="fw-phase">First time setup</div>' +
+        '<div class="fw-title">Your professional trading cockpit</div>' +
+        '<div class="fw-body">We\'ll walk you through the app in a few quick steps — <strong>set up your account, checklist, and rules</strong>, then a guided tour of the key sections before you go live.</div>' +
+        '<button class="fw-btn-p" onclick="fwNext()">Let\'s go →</button>' +
+        '<button class="fw-btn-s" onclick="fwSkip()">Skip — I\'ll explore myself</button>';
+    }
+  },
+  {
+    type: 'modal',
+    tag: 'STEP 1 · ACCOUNT',
+    text: 'Add your trading account',
+    fn: function() { fwOpenAcct(); }
+  },
+  {
+    type: 'modal',
+    tag: 'STEP 2 · CHECKLIST',
+    text: 'Customise your pre-trade checklist',
+    fn: function() { fwOpenChecklist(); }
+  },
+  {
+    type: 'modal',
+    tag: 'STEP 3 · RULES',
+    text: 'Set your personal trading rules',
+    fn: function() { fwOpenRules(); }
+  },
+  {
+    type: 'dim',
+    tag: 'MORNING ROUTINE',
+    text: 'Your morning starts here',
+    target: 'gate',
+    tipTitle: '01 · MORNING ROUTINE',
+    tipBody: 'Start every session by checking <strong>FTMO maintenance</strong> and the <strong>economic calendar</strong> for high-impact events.<br><br>Tick items to confirm them. You can also <strong>set alerts</strong> on any news event — click the clock icon next to a news row to get notified.'
+  },
+  {
+    type: 'dim',
+    tag: 'TOP-DOWN ANALYSIS',
+    text: 'Set your bias before touching a chart',
+    target: 'analysis',
+    tipTitle: '02 · TOP-DOWN ANALYSIS',
+    tipBody: 'Work from <strong>higher timeframes down</strong> — Monthly → Weekly → Daily → 4H → 1H. Set Bull / Bear / Neutral for each.<br><br>Once your scores are in, hit <strong>Run AI Analysis</strong> — it builds a full session briefing based on your bias. The more you fill in, the better it gets.'
+  },
+  {
+    type: 'dim',
+    tag: 'KEY LEVELS',
+    text: 'Mark the levels you\'ll trade from',
+    target: 'levels',
+    tipTitle: '03 · KEY LEVELS',
+    tipBody: 'Add the price levels you\'re watching today — supply zones, demand zones, round numbers, Fibs.<br><br>Set <strong>Entry, Stop Loss, and Take Profit</strong> on each. In Live Execution, <strong>tap any level tag</strong> and it fills the position calculator in one click.'
+  },
+  {
+    type: 'card',
+    tag: 'LIVE EXECUTION',
+    html: function() {
+      return '<div class="fw-icon">⚡</div>' +
+        '<div class="fw-phase">You\'re all set</div>' +
+        '<div class="fw-title">Time to go live</div>' +
+        '<div class="fw-body">Open <strong>Live Execution</strong>. Your pre-trade checklist runs first — you can edit items right there. Confirm your rules, then <strong>6 live charts open</strong> with your key levels ready to click.</div>' +
+        '<button class="fw-btn-p" onclick="fwGoLive()">Open Live Execution →</button>' +
+        '<button class="fw-btn-s" onclick="fwSkip()">Enter the app without walkthrough</button>';
+    }
+  }
 ];
 
-function fwShouldShow() {
-  return !localStorage.getItem('fw_done');
-}
+function fwShouldShow() { return !localStorage.getItem('fw_done'); }
 
 function fwOpen() {
   _fwStep = 0;
   document.getElementById('fw-banner').classList.add('show');
+  document.body.style.paddingTop = '50px';
   fwRender();
 }
 
@@ -15670,91 +15747,127 @@ function fwClose() {
   localStorage.setItem('fw_done', '1');
   document.getElementById('fw-banner').classList.remove('show');
   document.getElementById('fw-overlay').classList.remove('show');
-  fwClearSpotlight();
-  // Close any open modals
-  var el;
-  el = document.getElementById('acct-setup-overlay'); if (el) el.style.display = 'none';
+  document.getElementById('fw-dim').style.display = 'none';
+  document.getElementById('fw-tip').style.display = 'none';
+  document.body.style.paddingTop = '';
+  fwClearElevated();
 }
 
 function fwSkip() { fwClose(); }
 
 function fwNext() {
-  fwClearSpotlight();
+  fwClearElevated();
   _fwStep = Math.min(_fwStep + 1, _fwSteps.length - 1);
   fwRender();
 }
 
-function fwClearSpotlight() {
-  if (_fwSpotlit) { _fwSpotlit.classList.remove('fw-spotlight'); _fwSpotlit = null; }
+function fwClearElevated() {
+  if (_fwElevated) {
+    _fwElevated.classList.remove('fw-elevated');
+    _fwElevated = null;
+  }
 }
 
 function fwRender() {
   var step = _fwSteps[_fwStep];
-  if (!step) return;
+  if (!step) { fwClose(); return; }
 
-  // Update banner tag + text
-  document.getElementById('fw-banner-tag').textContent = step.tag;
-  document.getElementById('fw-banner-text').textContent = step.text;
+  // Banner
+  document.getElementById('fw-b-tag').textContent = step.tag;
+  document.getElementById('fw-b-text').textContent = step.text || '';
 
-  // Next button
-  var nxt = document.getElementById('fw-banner-next');
-  if (nxt) nxt.style.display = step.next ? 'block' : 'none';
+  // Dots
+  var dotsEl = document.getElementById('fw-b-dots');
+  dotsEl.innerHTML = _fwSteps.map(function(s, i) {
+    var cls = i < _fwStep ? 'fw-dot done' : i === _fwStep ? 'fw-dot active' : 'fw-dot';
+    return '<div class="' + cls + '"></div>';
+  }).join('');
 
-  // Progress dots
-  var dotsEl = document.getElementById('fw-dots');
-  if (dotsEl) {
-    dotsEl.innerHTML = _fwSteps.map(function(s, i) {
-      var cls = i < _fwStep ? 'fw-dot done' : i === _fwStep ? 'fw-dot active' : 'fw-dot';
-      return '<div class="' + cls + '"></div>';
-    }).join('');
+  // Next button in banner (only for non-dim types; dim uses tooltip button)
+  var nb = document.getElementById('fw-b-next');
+  nb.style.display = 'none';
+
+  // Hide all panels
+  document.getElementById('fw-overlay').classList.remove('show');
+  document.getElementById('fw-dim').style.display = 'none';
+  document.getElementById('fw-tip').style.display = 'none';
+
+  if (step.type === 'card') {
+    document.getElementById('fw-card').innerHTML = step.html();
+    document.getElementById('fw-overlay').classList.add('show');
   }
-
-  // Card overlay
-  var ov = document.getElementById('fw-overlay');
-  var card = document.getElementById('fw-card');
-  if (step.card) {
-    ov.classList.add('show');
-    card.innerHTML = fwCardHTML(_fwStep);
-  } else {
-    ov.classList.remove('show');
+  else if (step.type === 'modal') {
+    document.getElementById('fw-b-text').textContent = step.text;
+    if (step.fn) step.fn();
   }
-
-  // Spotlight + scroll
-  if (step.spotlight) {
+  else if (step.type === 'dim') {
+    document.getElementById('fw-dim').style.display = 'block';
+    document.getElementById('fw-tip-title').textContent = step.tipTitle;
+    document.getElementById('fw-tip-body').innerHTML = step.tipBody;
+    document.getElementById('fw-tip').style.display = 'block';
     setTimeout(function() {
-      var el = document.getElementById(step.spotlight);
+      var el = document.getElementById(step.target);
       if (el) {
-        _fwSpotlit = el;
-        el.classList.add('fw-spotlight');
-        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        _fwElevated = el;
+        el.classList.add('fw-elevated');
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
-    }, 200);
-  }
-
-  // Modal steps
-  if (step.modal && _fwStep === 1) {
-    fwOpenAcct();
+    }, 150);
   }
 }
 
-function fwCardHTML(step) {
-  if (step === 0) return (
-    '<div class="fw-icon">⚡</div>' +
-    '<div class="fw-phase">Welcome to TradeDesk Gold</div>' +
-    '<div class="fw-title">Your professional trading cockpit</div>' +
-    '<div class="fw-body">Let's get you set up in a few quick steps — <strong>account, morning routine, key levels</strong>, then straight into the charts.<br><br>Takes about 2 minutes.</div>' +
-    '<button class="fw-btn-primary" onclick="fwNext()">Let's go →</button>' +
-    '<button class="fw-btn-skip" onclick="fwSkip()">Skip — set this up later</button>'
-  );
-  if (step === 5) return (
-    '<div class="fw-icon">⚡</div>' +
-    '<div class="fw-phase">Setup complete</div>' +
-    '<div class="fw-title">Time to go live</div>' +
-    '<div class="fw-body">Open <strong>Live Execution</strong> — your pre-trade checklist runs first so you can review and edit your items, then confirm your rules, then the charts open with your key levels loaded.</div>' +
-    '<button class="fw-btn-primary" onclick="fwGoLive()">Open Live Execution →</button>' +
-    '<button class="fw-btn-skip" onclick="fwSkip()">Enter the app without walkthrough</button>'
-  );
-  return '';
+// ── Modal openers ──
+function fwOpenAcct() {
+  var el = document.getElementById('acct-setup-overlay');
+  if (el) { el.style.display = 'flex'; el.style.zIndex = '100010'; }
+  var _orig = window.confirmAcctSetup;
+  window.confirmAcctSetup = function() {
+    if (_orig) _orig.apply(this, arguments);
+    window.confirmAcctSetup = _orig;
+    setTimeout(fwNext, 300);
+  };
+  var _origC = window.closeAcctSetup;
+  window.closeAcctSetup = function() {
+    if (_origC) _origC.apply(this, arguments);
+    window.closeAcctSetup = _origC;
+    setTimeout(fwNext, 100);
+  };
+}
+
+function fwOpenChecklist() {
+  if (typeof ptgEditOpen === 'function') ptgEditOpen();
+  var editEl = document.getElementById('ptg-edit-overlay');
+  if (editEl) { editEl.style.position = 'fixed'; editEl.style.zIndex = '100010'; }
+  var _orig = window.ptgEditSave;
+  window.ptgEditSave = function() {
+    if (_orig) _orig.apply(this, arguments);
+    window.ptgEditSave = _orig;
+    setTimeout(fwNext, 200);
+  };
+  // cancel button — add close handler
+  var cancelBtn = document.querySelector('#ptg-edit-overlay .ptg-edit-cancel, #ptg-edit-overlay [onclick*="ptgEditClose"]');
+  if (cancelBtn) {
+    var _oc = cancelBtn.onclick;
+    cancelBtn.onclick = function(e) { if (_oc) _oc.call(this, e); setTimeout(fwNext, 100); };
+  }
+}
+
+function fwOpenRules() {
+  if (typeof openRulesModal === 'function') openRulesModal();
+  var ov = document.getElementById('rules-modal-overlay');
+  if (ov) ov.style.zIndex = '100010';
+  var _orig = window.saveRules;
+  window.saveRules = async function() {
+    if (_orig) await _orig.apply(this, arguments);
+    window.saveRules = _orig;
+    setTimeout(fwNext, 350);
+  };
+  var _origC = window.closeRulesModal;
+  window.closeRulesModal = function() {
+    if (_origC) _origC.apply(this, arguments);
+    window.closeRulesModal = _origC;
+    setTimeout(fwNext, 100);
+  };
 }
 
 function fwGoLive() {
@@ -15762,31 +15875,11 @@ function fwGoLive() {
   if (typeof openLiveExec === 'function') openLiveExec();
 }
 
-// ── Account modal ──
-function fwOpenAcct() {
-  var ov = document.getElementById('fw-overlay');
-  if (ov) ov.classList.remove('show');
-  var el = document.getElementById('acct-setup-overlay');
-  if (el) { el.style.display = 'flex'; el.style.zIndex = '99999'; }
-  var _orig = window.confirmAcctSetup;
-  window.confirmAcctSetup = function() {
-    if (_orig) _orig.apply(this, arguments);
-    window.confirmAcctSetup = _orig;
-    setTimeout(fwNext, 300);
-  };
-  var _origClose = window.closeAcctSetup;
-  window.closeAcctSetup = function() {
-    if (_origClose) _origClose.apply(this, arguments);
-    window.closeAcctSetup = _origClose;
-    // Re-show skip option but stay on step
-    fwRender();
-  };
-}
-
+// ── Boot ──
 window._fwTryShow = function() {
-  if (typeof fwShouldShow === 'function' && fwShouldShow()) setTimeout(fwOpen, 600);
+  if (typeof fwShouldShow === 'function' && fwShouldShow()) setTimeout(fwOpen, 700);
 };
-window.fwOpen = fwOpen; window.fwClose = fwClose; window.fwNext = fwNext; window.fwSkip = fwSkip; window.fwGoLive = fwGoLive;
+window.fwNext = fwNext; window.fwSkip = fwSkip; window.fwGoLive = fwGoLive;
 // ── END FIRST-TIME WALKTHROUGH ─────────────────────────
 </script>
 </body>
