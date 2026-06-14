@@ -4356,14 +4356,24 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
       ondragover="event.preventDefault();this.style.borderColor='rgba(139,92,246,0.7)'"
       ondragleave="this.style.borderColor='rgba(139,92,246,0.25)'"
       ondrop="event.preventDefault();this.style.borderColor='rgba(139,92,246,0.25)';fbHandleFile(event.dataTransfer.files[0])"
-      style="margin-top:10px;border:1.5px dashed rgba(139,92,246,0.25);border-radius:8px;padding:10px 14px;cursor:pointer;transition:border-color .15s;display:flex;align-items:center;gap:10px;min-height:40px">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(139,92,246,0.6)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-      <span id="fb-drop-lbl" style="font-family:var(--mono);font-size:9px;color:rgba(139,92,246,0.5);letter-spacing:0.06em">ATTACH SCREENSHOT (optional)</span>
+      style="margin-top:10px;border:1.5px dashed rgba(139,92,246,0.25);border-radius:8px;cursor:pointer;transition:border-color .15s;overflow:hidden;position:relative;min-height:52px">
+      <!-- empty state -->
+      <div id="fb-drop-empty" style="display:flex;align-items:center;gap:10px;padding:14px">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(139,92,246,0.6)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        <div>
+          <div style="font-family:var(--mono);font-size:9px;color:rgba(139,92,246,0.7);letter-spacing:0.06em;margin-bottom:2px">DROP SCREENSHOT HERE</div>
+          <div style="font-family:var(--mono);font-size:8px;color:rgba(139,92,246,0.35);letter-spacing:0.04em">or click to browse</div>
+        </div>
+      </div>
+      <!-- filled state -->
+      <div id="fb-img-preview" style="display:none;position:relative">
+        <img id="fb-preview-img" style="width:100%;max-height:200px;object-fit:contain;display:block">
+        <div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.7));padding:6px 10px;display:flex;align-items:center;justify-content:space-between">
+          <span id="fb-drop-lbl" style="font-family:var(--mono);font-size:8px;color:rgba(255,255,255,0.6);letter-spacing:0.04em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:80%"></span>
+          <button onclick="event.stopPropagation();fbClearImage()" style="font-family:var(--mono);font-size:8px;color:#f06060;background:rgba(0,0,0,0.5);border:1px solid rgba(240,96,96,0.3);border-radius:4px;padding:2px 7px;cursor:pointer;letter-spacing:0.06em">✕ Remove</button>
+        </div>
+      </div>
       <input type="file" id="fb-file" accept="image/*" style="display:none" onchange="fbHandleFile(this.files[0])">
-    </div>
-    <div id="fb-img-preview" style="display:none;margin-top:8px;position:relative">
-      <img id="fb-preview-img" style="width:100%;max-height:180px;object-fit:contain;border-radius:6px;border:1px solid rgba(139,92,246,0.25)">
-      <button onclick="fbClearImage()" style="position:absolute;top:4px;right:4px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,0.7);border:none;color:#fff;font-size:12px;cursor:pointer;line-height:1;display:flex;align-items:center;justify-content:center">×</button>
     </div>
     <div id="fb-modal-footer">
       <button id="fb-cancel" onclick="closeFeedback()">Cancel</button>
@@ -13383,6 +13393,7 @@ function fbHandleFile(file) {
   reader.onload = function(e) {
     document.getElementById('fb-preview-img').src = e.target.result;
     document.getElementById('fb-img-preview').style.display = 'block';
+    document.getElementById('fb-drop-empty').style.display = 'none';
     document.getElementById('fb-drop-lbl').textContent = file.name;
   };
   reader.readAsDataURL(file);
@@ -13392,8 +13403,8 @@ function fbClearImage() {
   _fbImageFile = null;
   var preview = document.getElementById('fb-img-preview');
   if (preview) preview.style.display = 'none';
-  var lbl = document.getElementById('fb-drop-lbl');
-  if (lbl) lbl.textContent = 'ATTACH SCREENSHOT (optional)';
+  var empty = document.getElementById('fb-drop-empty');
+  if (empty) empty.style.display = 'flex';
   var fileInput = document.getElementById('fb-file');
   if (fileInput) fileInput.value = '';
 }
