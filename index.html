@@ -15548,10 +15548,13 @@ function mobPnlFromDB() {
     var uname = localStorage.getItem('td_username') || '';
     if (!uname) return;
     var now = new Date();
-    // week start (last Monday)
-    var dayOfWeek = now.getDay() || 7;
-    var weekStart = new Date(now); weekStart.setDate(now.getDate() - dayOfWeek + 1); weekStart.setHours(0,0,0,0);
-    var monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    // week start (Monday) — use Bangkok date to avoid browser-TZ bug
+    var _bkkStrM = now.toLocaleDateString('sv-SE', {timeZone: (_tdTZ && _tdTZ.iana) || 'Asia/Bangkok'});
+    var _bkkPM = _bkkStrM.split('-').map(Number);
+    var _bkkDM = new Date(_bkkPM[0], _bkkPM[1]-1, _bkkPM[2]);
+    var dayOfWeek = _bkkDM.getDay() || 7;
+    var weekStart = new Date(_bkkPM[0], _bkkPM[1]-1, _bkkPM[2] - dayOfWeek + 1);
+    var monthStart = new Date(_bkkPM[0], _bkkPM[1]-1, 1);
     sb.from('daily_summaries')
       .select('date,usd_pnl')
       .eq('user_id', _userId || '')
