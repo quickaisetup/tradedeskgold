@@ -3715,7 +3715,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
     </div>
 
     <!-- SCORE DASHBOARD -->
-    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-top:4px">
+    <div id="score-dashboard" style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-top:4px">
       <div style="display:grid;grid-template-columns:auto 1fr auto;align-items:stretch">
 
         <!-- Verdict -->
@@ -15674,8 +15674,9 @@ document.addEventListener('DOMContentLoaded', function() {
   font-family:var(--mono);font-size:10.5px;cursor:pointer;
   border:1px solid rgba(255,255,255,0.09)}
 .fw-btn-s:hover{color:rgba(255,255,255,0.65);background:rgba(255,255,255,0.05)}
-/* Hide yellow explainers during walkthrough */
+/* Hide yellow explainers and wt-banners during walkthrough */
 body.fw-active .td-explainer{display:none!important}
+body.fw-active .wt-banner{display:none!important}
 /* Elevated section rises above dim */
 .fw-elevated{position:relative!important;z-index:9990!important;
   border-radius:6px;
@@ -15771,7 +15772,7 @@ var _fwSteps = [
 
   // 6 — Scoring System + Trading Mode (dim, score bar under top-down)
   { type:'dim', tag:'TOUR · 02b', text:'Scoring system & trading mode',
-    target:'vs-score-bar',
+    target:'score-dashboard',
     tipStep:'02b / 5',
     tipTitle:'Scoring System & Trading Mode',
     tipBody:(
