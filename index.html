@@ -11083,13 +11083,16 @@ function setTVIntervalFromCard(interval, e) {
 // ── FOREX FACTORY CALENDAR ────────────────────────────
 var _ffRaw      = null;
 var _ffActiveDay = null;
-var FF_CACHE_KEY = 'td_ff_v4';
-var FF_CACHE_TS  = 'td_ff_ts_v4';
+var FF_CACHE_KEY      = 'td_ff_v4';
+var FF_CACHE_TS       = 'td_ff_ts_v4';
+var FF_CACHE_KEY_NEXT = 'td_ff_next_v1';
+var FF_CACHE_TS_NEXT  = 'td_ff_next_ts_v1';
 var FF_WORKER    = 'https://tradingnews.quickaisetup.workers.dev/';
 var FF_SOURCES   = [
   // Only the Cloudflare worker works reliably from file:// — all proxy fallbacks fail
   { url: 'https://tradingnews.quickaisetup.workers.dev/', label: 'live · forexfactory.com', type: 'json' },
 ];
+var _ffRawNext = null;
 var _ffRetryTimer = null;
 var DAYS         = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 var GOLD_KW      = ['nfp','non-farm','payroll','cpi','pce','inflation','fed','fomc','powell',
@@ -11120,27 +11123,37 @@ async function loadFFCalendar(force) {
     } catch(e) {}
   }
 
+  // Load next-week cache into _ffRawNext if available
+  if (!_ffRawNext) {
+    var _rawNext = localStorage.getItem(FF_CACHE_KEY_NEXT);
+    if (_rawNext) { try { _ffRawNext = JSON.parse(_rawNext); } catch(e){} }
+  }
+
   if (!force) {
     try {
       var raw = localStorage.getItem(FF_CACHE_KEY);
       var ts  = parseInt(localStorage.getItem(FF_CACHE_TS)||'0',10);
       if (raw && (Date.now()-ts) < 4*60*60*1000) {
-        // Check cache is from THIS week — if Sunday, next week starts tomorrow
-        var cacheDate = new Date(ts);
-        var now2 = new Date();
         var getWeekMon = function(d) {
           var dd = new Date(d); dd.setHours(0,0,0,0);
           var dow = dd.getDay() || 7;
           dd.setDate(dd.getDate() - (dow - 1));
           return dd.getTime();
         };
-        var sameWeek = getWeekMon(cacheDate) === getWeekMon(now2);
+        var now2 = new Date();
+        var todayDow = now2.getDay(); // 0=Sun,6=Sat
+        // On Sat/Sun the relevant week for "this week" tabs is the PREVIOUS Mon-Fri
+        // — don't use the cache to block fetching next week data
+        var sameWeek = getWeekMon(new Date(ts)) === getWeekMon(now2);
         if (sameWeek) {
           _ffRaw = JSON.parse(raw);
           _renderCalendar('cached · '+_timeAgo(new Date(ts)));
+          // On weekend, also fetch next week in background if not cached
+          if ((todayDow===6||todayDow===0) && !_ffRawNext) {
+            _fetchNextWeek();
+          }
           return;
         }
-        // Different week — clear stale cache and fetch fresh
         localStorage.removeItem(FF_CACHE_KEY);
         localStorage.removeItem(FF_CACHE_TS);
       }
@@ -11234,9 +11247,13 @@ function _renderCalendar(srcLabel) {
   var srcEl=document.getElementById('econ-src');
   if (!bodyEl||!_ffRaw) return;
 
-  var evs=_ffRaw.map(function(ev){return{ev:ev,date:_parseFFDate(ev.date)};}).filter(function(x){return x.date&&_isGoldRelevant(x.ev);});
+  // Merge this week + next week events
+  var allRaw = (_ffRaw||[]).concat(_ffRawNext||[]);
+  var evs=allRaw.map(function(ev){return{ev:ev,date:_parseFFDate(ev.date)};}).filter(function(x){return x.date&&_isGoldRelevant(x.ev);});
   var byDay={};
   evs.forEach(function(x){var k=_ffDateStr(x.date);if(!byDay[k])byDay[k]=[];byDay[k].push(x);});
+  // Kick off next-week background fetch always
+  _fetchNextWeek();
 
   var tz=_tzIANA();
   var todayStr=new Date().toLocaleDateString('sv-SE',{timeZone:tz});
@@ -11310,6 +11327,24 @@ function _renderCalendar(srcLabel) {
 }
 
 function switchFFDay(k){_ffActiveDay=k;_renderCalendar('');}
+
+async function _fetchNextWeek() {
+  try {
+    var tsNext = parseInt(localStorage.getItem(FF_CACHE_TS_NEXT)||'0',10);
+    if (_ffRawNext && (Date.now()-tsNext) < 4*60*60*1000) return; // fresh cache
+    var res = await fetch(FF_WORKER + '?week=next', {signal: AbortSignal.timeout(10000)});
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    var data = await res.json();
+    if (!Array.isArray(data) || !data.length) throw new Error('Empty');
+    _ffRawNext = data;
+    localStorage.setItem(FF_CACHE_KEY_NEXT, JSON.stringify(data));
+    localStorage.setItem(FF_CACHE_TS_NEXT, String(Date.now()));
+    _renderCalendar('live · forexfactory.com');
+  } catch(e) {
+    console.warn('[FF next week]', e.message);
+  }
+}
+
 
 function _renderDay(items,today){
   var bodyEl=document.getElementById('econ-body');
