@@ -15573,5 +15573,435 @@ document.addEventListener('DOMContentLoaded', function() {
   if (rn) { var obs = new MutationObserver(mobProfileSync); obs.observe(rn, {childList:true,subtree:true,characterData:true}); }
 });
 </script>
+
+<!-- ═══════════════════════════════════════════════════
+     FIRST-TIME APP WALKTHROUGH
+     ═══════════════════════════════════════════════════ -->
+<style>
+#fw-overlay{display:none;position:fixed;inset:0;z-index:99999;background:rgba(4,5,7,0.97);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);flex-direction:column;align-items:center;justify-content:flex-start;overflow-y:auto;padding:32px 20px 48px}
+#fw-overlay.show{display:flex}
+#fw-wrap{width:100%;max-width:540px;display:flex;flex-direction:column;gap:0}
+/* Progress bar */
+#fw-progress-bar{width:100%;height:3px;background:rgba(255,255,255,0.07);border-radius:2px;margin-bottom:32px;overflow:hidden;flex-shrink:0}
+#fw-progress-fill{height:100%;background:var(--gold);border-radius:2px;transition:width 0.4s ease}
+/* Phase label */
+.fw-phase{font-family:var(--mono);font-size:8px;letter-spacing:0.22em;text-transform:uppercase;color:rgba(255,255,255,0.22);margin-bottom:8px}
+/* Card */
+.fw-card{display:none;flex-direction:column;gap:0;animation:fwIn 0.3s ease both}
+.fw-card.active{display:flex}
+@keyframes fwIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+/* Icon */
+.fw-icon{font-size:32px;margin-bottom:16px;line-height:1}
+/* Heading */
+.fw-title{font-family:var(--display);font-size:24px;font-weight:700;color:var(--text);letter-spacing:0.02em;line-height:1.15;margin-bottom:10px}
+.fw-body{font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:24px}
+.fw-body strong{color:var(--text)}
+/* Input row */
+.fw-input-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.fw-input-label{font-family:var(--mono);font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.35);white-space:nowrap}
+.fw-input{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:6px;color:var(--text);font-family:var(--mono);font-size:14px;padding:9px 14px;outline:none;width:100%;transition:border-color 0.15s}
+.fw-input:focus{border-color:rgba(240,188,78,0.5);background:rgba(240,188,78,0.04)}
+.fw-hint{font-size:10px;font-family:var(--mono);color:rgba(255,255,255,0.22);margin-bottom:20px;letter-spacing:0.04em}
+/* List editors */
+.fw-list{display:flex;flex-direction:column;gap:7px;margin-bottom:14px}
+.fw-list-item{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:7px;padding:0 6px 0 12px;transition:border-color 0.15s}
+.fw-list-item:focus-within{border-color:rgba(240,188,78,0.3)}
+.fw-list-input{flex:1;background:transparent;border:none;color:var(--text);font-family:var(--mono);font-size:12px;padding:10px 0;outline:none}
+.fw-list-del{background:none;border:none;color:rgba(255,255,255,0.18);cursor:pointer;font-size:14px;padding:4px 6px;line-height:1;transition:color 0.12s;flex-shrink:0}
+.fw-list-del:hover{color:#f06060}
+.fw-add-btn{display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:10px;letter-spacing:0.08em;color:rgba(240,188,78,0.6);background:rgba(240,188,78,0.05);border:1px dashed rgba(240,188,78,0.2);border-radius:7px;padding:9px 14px;cursor:pointer;transition:all 0.15s;width:100%;margin-bottom:20px}
+.fw-add-btn:hover{background:rgba(240,188,78,0.1);border-color:rgba(240,188,78,0.4);color:var(--gold)}
+/* Explainer box */
+.fw-explainer{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:14px 16px;margin-bottom:20px;display:flex;flex-direction:column;gap:8px}
+.fw-explainer-row{display:flex;align-items:flex-start;gap:12px}
+.fw-explainer-icon{font-size:16px;flex-shrink:0;margin-top:1px}
+.fw-explainer-text{font-size:12px;color:rgba(255,255,255,0.45);line-height:1.6}
+.fw-explainer-text strong{color:rgba(255,255,255,0.75)}
+/* Buttons */
+.fw-btn{width:100%;padding:13px 0;border-radius:8px;font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:0.1em;cursor:pointer;transition:all 0.15s;border:none;margin-top:4px}
+.fw-btn-primary{background:var(--gold);color:#060708}
+.fw-btn-primary:hover{opacity:0.88}
+.fw-btn-secondary{background:transparent;color:rgba(255,255,255,0.3);border:1px solid rgba(255,255,255,0.1)!important}
+.fw-btn-secondary:hover{color:rgba(255,255,255,0.6);border-color:rgba(255,255,255,0.2)!important}
+.fw-skip{text-align:center;margin-top:12px;font-size:9px;font-family:var(--mono);color:rgba(255,255,255,0.18);letter-spacing:0.08em;cursor:pointer}
+.fw-skip:hover{color:rgba(255,255,255,0.4)}
+/* Step counter */
+#fw-step-label{font-family:var(--mono);font-size:9px;letter-spacing:0.14em;color:rgba(255,255,255,0.22);margin-bottom:24px}
+/* Highlight boxes */
+.fw-feature-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:24px}
+.fw-feature{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:12px 14px}
+.fw-feature-icon{font-size:18px;margin-bottom:6px}
+.fw-feature-name{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:0.1em;color:rgba(255,255,255,0.6);margin-bottom:3px}
+.fw-feature-desc{font-size:10px;color:rgba(255,255,255,0.3);line-height:1.5}
+</style>
+
+<div id="fw-overlay">
+  <div id="fw-wrap">
+    <div id="fw-progress-bar"><div id="fw-progress-fill" style="width:0%"></div></div>
+    <div id="fw-step-label">STEP 1 OF 8</div>
+
+    <!-- ── STEP 0: Welcome ── -->
+    <div class="fw-card active" id="fw-s0">
+      <div class="fw-icon">⚡</div>
+      <div class="fw-phase">Welcome</div>
+      <div class="fw-title">Your professional trading cockpit</div>
+      <div class="fw-body">TradeDesk Gold keeps your <strong>analysis, rules, key levels, and execution</strong> in one place — so you trade with a clear head and consistent process.<br><br>This takes about 2 minutes. Let's set everything up.</div>
+      <button class="fw-btn fw-btn-primary" onclick="fwNext()">Let's go →</button>
+      <div class="fw-skip" onclick="fwSkip()">skip setup — I'll do this later</div>
+    </div>
+
+    <!-- ── STEP 1: Account size ── -->
+    <div class="fw-card" id="fw-s1">
+      <div class="fw-icon">💰</div>
+      <div class="fw-phase">Setup · 1 of 4</div>
+      <div class="fw-title">What's your account size?</div>
+      <div class="fw-body">This lets the calculator tell you exactly how many lots to trade — so you <strong>never risk more than you planned</strong>.</div>
+      <div class="fw-input-row">
+        <span class="fw-input-label">USD $</span>
+        <input id="fw-acct-input" class="fw-input" type="number" placeholder="100000" min="100" step="1000" oninput="fwAcctChange(this.value)">
+      </div>
+      <div class="fw-hint">Saved automatically. You can change this any time in the calculator bar.</div>
+      <button class="fw-btn fw-btn-primary" onclick="fwSaveAcct()">Save & continue →</button>
+      <div class="fw-skip" onclick="fwNext()">skip for now</div>
+    </div>
+
+    <!-- ── STEP 2: Pre-trade checklist ── -->
+    <div class="fw-card" id="fw-s2">
+      <div class="fw-icon">✅</div>
+      <div class="fw-phase">Setup · 2 of 4</div>
+      <div class="fw-title">Your pre-trade checklist</div>
+      <div class="fw-body">Before every trade you'll run through this list. Each item keeps you <strong>honest and disciplined</strong>. Edit the defaults or add your own.</div>
+      <div class="fw-list" id="fw-ptg-list"></div>
+      <button class="fw-add-btn" onclick="fwAddPtgItem()">+ Add item</button>
+      <button class="fw-btn fw-btn-primary" onclick="fwSavePtg()">Save & continue →</button>
+      <div class="fw-skip" onclick="fwNext()">keep defaults & continue</div>
+    </div>
+
+    <!-- ── STEP 3: Trading rules ── -->
+    <div class="fw-card" id="fw-s3">
+      <div class="fw-icon">📋</div>
+      <div class="fw-phase">Setup · 3 of 4</div>
+      <div class="fw-title">Your personal trading rules</div>
+      <div class="fw-body">Rules you confirm before every trade — max risk, daily loss limit, no revenge trading. <strong>Write them in your own words.</strong></div>
+      <div class="fw-list" id="fw-rules-list"></div>
+      <button class="fw-add-btn" onclick="fwAddRule()">+ Add rule</button>
+      <button class="fw-btn fw-btn-primary" onclick="fwSaveRules()">Save & continue →</button>
+      <div class="fw-skip" onclick="fwNext()">keep defaults & continue</div>
+    </div>
+
+    <!-- ── STEP 4: How the day works ── -->
+    <div class="fw-card" id="fw-s4">
+      <div class="fw-icon">🗓</div>
+      <div class="fw-phase">Setup · 4 of 4</div>
+      <div class="fw-title">How a trading day works</div>
+      <div class="fw-body">The app is built around a <strong>daily process</strong>. Here's how to use it every day:</div>
+      <div class="fw-explainer">
+        <div class="fw-explainer-row">
+          <div class="fw-explainer-icon">🌅</div>
+          <div class="fw-explainer-text"><strong>Morning — Top-Down Analysis</strong><br>Set your bias (bullish / bearish / neutral) on the daily and 4H. Run the AI briefing. This sets the tone for the day.</div>
+        </div>
+        <div class="fw-explainer-row">
+          <div class="fw-explainer-icon">📍</div>
+          <div class="fw-explainer-text"><strong>Mark Key Levels</strong><br>Add the price levels you're watching — entry, stop-loss, take-profit. Tag them long or short. They'll appear in the live panel.</div>
+        </div>
+        <div class="fw-explainer-row">
+          <div class="fw-explainer-icon">⚡</div>
+          <div class="fw-explainer-text"><strong>Live Execution — when ready to trade</strong><br>Open the Live Execution panel. Run your pre-trade checklist, confirm your rules, then trade from 6 live charts.</div>
+        </div>
+      </div>
+      <button class="fw-btn fw-btn-primary" onclick="fwNext()">Got it →</button>
+    </div>
+
+    <!-- ── STEP 5: Top-down analysis ── -->
+    <div class="fw-card" id="fw-s5">
+      <div class="fw-icon">🧠</div>
+      <div class="fw-phase">Daily Routine · 1 of 3</div>
+      <div class="fw-title">Start every day here: Top-Down Analysis</div>
+      <div class="fw-body">The top section of the app is your <strong>morning briefing</strong>. Before you even look at a chart, you set your bias.</div>
+      <div class="fw-feature-grid">
+        <div class="fw-feature">
+          <div class="fw-feature-icon">📊</div>
+          <div class="fw-feature-name">Bias Score</div>
+          <div class="fw-feature-desc">Rate the market 1–10. Sets the colour and direction for the whole session.</div>
+        </div>
+        <div class="fw-feature">
+          <div class="fw-feature-icon">🤖</div>
+          <div class="fw-feature-name">AI Analysis</div>
+          <div class="fw-feature-desc">One-click briefing based on your bias and market context.</div>
+        </div>
+        <div class="fw-feature">
+          <div class="fw-feature-icon">📰</div>
+          <div class="fw-feature-name">News</div>
+          <div class="fw-feature-desc">Key economic events for the day — don't trade into high-impact news blind.</div>
+        </div>
+        <div class="fw-feature">
+          <div class="fw-feature-icon">📈</div>
+          <div class="fw-feature-name">Market Direction</div>
+          <div class="fw-feature-desc">Quick HTF direction buttons — locks in your view for the session.</div>
+        </div>
+      </div>
+      <button class="fw-btn fw-btn-primary" onclick="fwNext()">Next →</button>
+    </div>
+
+    <!-- ── STEP 6: Key levels ── -->
+    <div class="fw-card" id="fw-s6">
+      <div class="fw-icon">📍</div>
+      <div class="fw-phase">Daily Routine · 2 of 3</div>
+      <div class="fw-title">Mark your key levels before going live</div>
+      <div class="fw-body">Key levels are the price areas you're watching. Add them in the <strong>Key Levels</strong> section of the app. Once saved, they appear as clickable tags in the live chart panel — one tap loads them into the calculator.</div>
+      <div class="fw-explainer">
+        <div class="fw-explainer-row">
+          <div class="fw-explainer-icon">🟢</div>
+          <div class="fw-explainer-text"><strong>Long level</strong> — price you'd buy at, with a stop below and target above.</div>
+        </div>
+        <div class="fw-explainer-row">
+          <div class="fw-explainer-icon">🔴</div>
+          <div class="fw-explainer-text"><strong>Short level</strong> — price you'd sell at, with a stop above and target below.</div>
+        </div>
+        <div class="fw-explainer-row">
+          <div class="fw-explainer-icon">⊞</div>
+          <div class="fw-explainer-text"><strong>Tap any level in the live panel</strong> — Entry, SL and TP fill into the calculator instantly.</div>
+        </div>
+      </div>
+      <button class="fw-btn fw-btn-primary" onclick="fwNext()">Next →</button>
+    </div>
+
+    <!-- ── STEP 7: Rank & XP ── -->
+    <div class="fw-card" id="fw-s7">
+      <div class="fw-icon">🏆</div>
+      <div class="fw-phase">Daily Routine · 3 of 3</div>
+      <div class="fw-title">Track your progress with Rank & XP</div>
+      <div class="fw-body">Every trade you log earns XP. Your rank goes up as you build a <strong>consistent, disciplined track record</strong> — not just profitable trades.</div>
+      <div class="fw-explainer">
+        <div class="fw-explainer-row">
+          <div class="fw-explainer-icon">📝</div>
+          <div class="fw-explainer-text"><strong>Log trades</strong> — Win, Loss, or Breakeven. Note what you did right or wrong.</div>
+        </div>
+        <div class="fw-explainer-row">
+          <div class="fw-explainer-icon">🔥</div>
+          <div class="fw-explainer-text"><strong>Streak</strong> — Consecutive days you followed your process. Discipline is rewarded more than luck.</div>
+        </div>
+        <div class="fw-explainer-row">
+          <div class="fw-explainer-icon">🏅</div>
+          <div class="fw-explainer-text"><strong>Leaderboard</strong> — Compare your consistency with other traders on the platform.</div>
+        </div>
+      </div>
+      <button class="fw-btn fw-btn-primary" onclick="fwNext()">Next →</button>
+    </div>
+
+    <!-- ── STEP 8: Live execution ── -->
+    <div class="fw-card" id="fw-s8">
+      <div class="fw-icon">✦</div>
+      <div class="fw-phase">You're ready</div>
+      <div class="fw-title">You're set up and ready to trade</div>
+      <div class="fw-body">This walkthrough won't appear again. Your account size, checklist, and rules are saved.<br><br>When you're ready to trade, open the <strong>Live Execution</strong> panel — your pre-trade checklist runs first, then you get 6 live charts.</div>
+      <button class="fw-btn fw-btn-primary" onclick="fwClose()">Enter the app →</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ── FIRST-TIME WALKTHROUGH ─────────────────────────────
+var _fwStep = 0;
+var _fwTotal = 8;
+
+function fwShouldShow() {
+  return !localStorage.getItem('fw_done');
+}
+
+function fwOpen() {
+  var el = document.getElementById('fw-overlay');
+  if (el) el.classList.add('show');
+  _fwStep = 0;
+  fwPopulatePtg();
+  fwPopulateRules();
+  // Pre-fill account size
+  var saved = localStorage.getItem('calc_acct');
+  var inp = document.getElementById('fw-acct-input');
+  if (inp && saved) inp.value = saved;
+  fwRender();
+}
+
+function fwClose() {
+  localStorage.setItem('fw_done', '1');
+  var el = document.getElementById('fw-overlay');
+  if (el) { el.classList.remove('show'); el.style.display = 'none'; }
+}
+
+function fwSkip() { fwClose(); }
+
+function fwNext() {
+  _fwStep = Math.min(_fwStep + 1, _fwTotal);
+  fwRender();
+}
+
+function fwRender() {
+  document.querySelectorAll('.fw-card').forEach(function(c, i) {
+    c.classList.toggle('active', i === _fwStep);
+  });
+  var pct = Math.round(_fwStep / _fwTotal * 100);
+  var fill = document.getElementById('fw-progress-fill');
+  if (fill) fill.style.width = pct + '%';
+  var lbl = document.getElementById('fw-step-label');
+  if (lbl) lbl.textContent = _fwStep === 0 ? '' : 'STEP ' + _fwStep + ' OF ' + _fwTotal;
+  // Scroll to top on step change
+  var ov = document.getElementById('fw-overlay');
+  if (ov) ov.scrollTop = 0;
+}
+
+// ── Account size ──
+function fwAcctChange(v) {
+  if (!v || isNaN(v)) return;
+  localStorage.setItem('calc_acct', v);
+  var inp = document.getElementById('calc-acct');
+  if (inp) { inp.value = v; if (typeof calcLotSize === 'function') calcLotSize(); }
+}
+
+function fwSaveAcct() {
+  var inp = document.getElementById('fw-acct-input');
+  var v = inp ? inp.value.trim() : '';
+  if (v && !isNaN(v)) {
+    localStorage.setItem('calc_acct', v);
+    var calcInp = document.getElementById('calc-acct');
+    if (calcInp) { calcInp.value = v; if (typeof calcLotSize === 'function') calcLotSize(); }
+    // Save to Supabase profiles
+    var uid = localStorage.getItem('td_user_id');
+    if (uid && window._tdSB) {
+      window._tdSB.from('profiles').update({ account_size: v }).eq('id', uid).catch(function(){});
+    }
+  }
+  fwNext();
+}
+
+// ── Pre-trade checklist ──
+var _fwPtgItems = [];
+
+function fwPopulatePtg() {
+  var defaults = (window._ptgQs && window._ptgQs.length) ? window._ptgQs : [
+    { main: "The higher timeframe is clear and I'm trading with it." },
+    { main: "This is a setup I planned, not one I'm forcing." },
+    { main: "I've accepted this loss and I'm fine if it stops me out." },
+    { main: "I know my exact stop, size, and max loss, and I won't add to a loser." },
+    { main: "If my gut says it is a bad trade, focus is on protecting capital." },
+    { main: "I will obey the rules, only today.", gold: true }
+  ];
+  _fwPtgItems = defaults.map(function(q) { return q.main; });
+  fwRenderPtg();
+}
+
+function fwRenderPtg() {
+  var list = document.getElementById('fw-ptg-list');
+  if (!list) return;
+  list.innerHTML = _fwPtgItems.map(function(text, i) {
+    return '<div class="fw-list-item">' +
+      '<input class="fw-list-input fw-ptg-input" type="text" value="' + text.replace(/"/g,'&quot;') + '" placeholder="Checklist item...">' +
+      '<button class="fw-list-del" onclick="fwDelPtgItem(' + i + ')" title="Remove">✕</button>' +
+    '</div>';
+  }).join('');
+}
+
+function fwAddPtgItem() {
+  _fwPtgItems.push('');
+  fwRenderPtg();
+  var inputs = document.querySelectorAll('.fw-ptg-input');
+  if (inputs.length) inputs[inputs.length - 1].focus();
+}
+
+function fwDelPtgItem(i) {
+  _fwPtgItems.splice(i, 1);
+  fwRenderPtg();
+}
+
+function fwSavePtg() {
+  var inputs = document.querySelectorAll('.fw-ptg-input');
+  var qs = [];
+  inputs.forEach(function(inp, i) {
+    var v = inp.value.trim();
+    if (v) qs.push({ main: v, gold: i === inputs.length - 1 && v.toLowerCase().indexOf('rule') !== -1 });
+  });
+  if (qs.length) {
+    window._ptgQs = qs;
+    try { localStorage.setItem('ptg_custom_qs', JSON.stringify(qs)); } catch(e) {}
+    var uid = localStorage.getItem('td_user_id');
+    if (uid && window._tdSB) {
+      window._tdSB.from('profiles').update({ ptg_checklist: qs }).eq('id', uid).catch(function(){});
+    }
+  }
+  fwNext();
+}
+
+// ── Trading rules ──
+var _fwRuleItems = [];
+
+function fwPopulateRules() {
+  var defaults = (window._currentRules && window._currentRules.length) ? window._currentRules
+    : (window._defaultRules && window._defaultRules.length) ? window._defaultRules
+    : ['Max risk per trade: 0.5%', 'Hard stop -1.5% on the day — you are done', 'If up +0.7%, give back no more than 30% of profit'];
+  _fwRuleItems = defaults.slice();
+  fwRenderRules();
+}
+
+function fwRenderRules() {
+  var list = document.getElementById('fw-rules-list');
+  if (!list) return;
+  list.innerHTML = _fwRuleItems.map(function(text, i) {
+    return '<div class="fw-list-item">' +
+      '<input class="fw-list-input fw-rule-input" type="text" value="' + text.replace(/"/g,'&quot;') + '" placeholder="Your rule...">' +
+      '<button class="fw-list-del" onclick="fwDelRule(' + i + ')" title="Remove">✕</button>' +
+    '</div>';
+  }).join('');
+}
+
+function fwAddRule() {
+  _fwRuleItems.push('');
+  fwRenderRules();
+  var inputs = document.querySelectorAll('.fw-rule-input');
+  if (inputs.length) inputs[inputs.length - 1].focus();
+}
+
+function fwDelRule(i) {
+  _fwRuleItems.splice(i, 1);
+  fwRenderRules();
+}
+
+function fwSaveRules() {
+  var inputs = document.querySelectorAll('.fw-rule-input');
+  var rules = [];
+  inputs.forEach(function(inp) { var v = inp.value.trim(); if (v) rules.push(v); });
+  if (!rules.length) rules = _fwRuleItems.slice();
+  if (rules.length) {
+    window._currentRules = rules;
+    localStorage.setItem('td_rules', JSON.stringify(rules));
+    if (typeof renderRulesList === 'function') renderRulesList();
+    var uid = localStorage.getItem('td_user_id');
+    if (uid && window._tdSB) {
+      window._tdSB.from('profiles').update({ rules: rules }).eq('id', uid).catch(function(){});
+    }
+  }
+  fwNext();
+}
+
+window.fwOpen = fwOpen;
+window.fwClose = fwClose;
+window.fwNext = fwNext;
+window.fwSkip = fwSkip;
+window.fwSaveAcct = fwSaveAcct;
+window.fwAcctChange = fwAcctChange;
+window.fwSavePtg = fwSavePtg;
+window.fwAddPtgItem = fwAddPtgItem;
+window.fwDelPtgItem = fwDelPtgItem;
+window.fwSaveRules = fwSaveRules;
+window.fwAddRule = fwAddRule;
+window.fwDelRule = fwDelRule;
+
+// Trigger on first load (after login/auth resolved)
+document.addEventListener('DOMContentLoaded', function() {
+  setTimeout(function() {
+    if (fwShouldShow()) fwOpen();
+  }, 800);
+});
+// ── END FIRST-TIME WALKTHROUGH ─────────────────────────
+</script>
 </body>
 </html>
