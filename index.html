@@ -4575,16 +4575,12 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
         <span style="color:rgba(255,255,255,0.25)">Lots: <span id="calc-lots" style="color:#f0bc4e;font-size:12px;font-weight:700">—</span></span>
         <span style="color:rgba(255,255,255,0.25)">Risk: <span id="calc-risk-usd" style="color:#f06060">—</span></span>
         <span style="color:rgba(255,255,255,0.25)">R:R <span id="calc-rr" style="color:#4ed68a">—</span></span>
-        <span style="color:rgba(255,255,255,0.25)">Pts: <span id="calc-pts" style="color:rgba(255,255,255,0.5)">—</span></span>
       </div>
     </div>
 
     <!-- ADMIN ALERT BUTTON (admin only) -->
     <div id="leo-admin-alert-wrap" style="display:none;align-items:center;gap:8px;padding:0 14px;border-left:1px solid rgba(255,255,255,0.08)">
-      <div style="display:flex;border-radius:5px;overflow:hidden;border:1px solid rgba(255,255,255,0.1)">
-        <button id="alert-dir-buy" onclick="setAlertDir('BUY')" style="font-family:var(--mono);font-size:8px;letter-spacing:0.08em;padding:4px 10px;border:none;cursor:pointer;transition:all 0.15s;background:rgba(78,214,138,0.15);color:#4ed68a;font-weight:700">▲ BUY</button>
-        <button id="alert-dir-sell" onclick="setAlertDir('SELL')" style="font-family:var(--mono);font-size:8px;letter-spacing:0.08em;padding:4px 10px;border:none;cursor:pointer;transition:all 0.15s;background:transparent;color:rgba(255,255,255,0.35);border-left:1px solid rgba(255,255,255,0.1)">▼ SELL</button>
-      </div>
+      <div id="alert-dir-label" style="font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:0.08em;padding:4px 12px;border-radius:5px;border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.25);background:transparent">—</div>
       <input id="leo-alert-note" placeholder="Note (optional)" style="width:140px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:4px;color:var(--text);font-family:var(--mono);font-size:10px;padding:4px 8px;outline:none">
       <button onclick="sendTradeAlert()" style="font-family:var(--mono);font-size:8px;letter-spacing:0.1em;text-transform:uppercase;background:rgba(240,188,78,0.12);border:1px solid rgba(240,188,78,0.35);border-radius:5px;color:var(--gold);padding:6px 14px;cursor:pointer;white-space:nowrap;transition:all 0.15s;font-weight:700" onmouseover="this.style.background='rgba(240,188,78,0.22)'" onmouseout="this.style.background='rgba(240,188,78,0.12)'">🔔 Alert All Traders</button>
     </div>
@@ -9536,7 +9532,29 @@ function calcLotSize() {
   if(lotsEl)  lotsEl.textContent  = lots.toFixed(2);
   if(riskEl)  riskEl.textContent  = '$' + Math.round(riskUsd).toLocaleString();
   if(rrEl)    rrEl.textContent    = rr > 0 ? '1:' + rr.toFixed(1) : '—';
-  if(ptsEl)   ptsEl.textContent   = slPts.toFixed(1) + 'pt SL' + (tpPts>0?' / '+tpPts.toFixed(1)+'pt TP':'');
+  // Auto-detect direction and update label + _alertDir
+  var dirLabel = document.getElementById('alert-dir-label');
+  if (dirLabel && entry && sl) {
+    var isBuy = entry < sl ? false : entry > sl;
+    if (entry > sl) {
+      dirLabel.textContent = '▲ BUY';
+      dirLabel.style.color = '#4ed68a';
+      dirLabel.style.borderColor = 'rgba(78,214,138,0.4)';
+      dirLabel.style.background = 'rgba(78,214,138,0.1)';
+      _alertDir = 'BUY';
+    } else if (entry < sl) {
+      dirLabel.textContent = '▼ SELL';
+      dirLabel.style.color = '#f06060';
+      dirLabel.style.borderColor = 'rgba(240,96,96,0.4)';
+      dirLabel.style.background = 'rgba(240,96,96,0.1)';
+      _alertDir = 'SELL';
+    }
+  } else if (dirLabel && (!entry || !sl)) {
+    dirLabel.textContent = '—';
+    dirLabel.style.color = 'rgba(255,255,255,0.25)';
+    dirLabel.style.borderColor = 'rgba(255,255,255,0.1)';
+    dirLabel.style.background = 'transparent';
+  }
   // Update mobile summary line
   var mobSum = document.getElementById('leo-calc-mob-summary');
   if (mobSum) {
