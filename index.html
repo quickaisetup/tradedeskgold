@@ -15828,16 +15828,35 @@ var _fwSteps = [
     tipBody:'After the session, write a <strong>free-text reflection</strong> — what worked, what didn\'t, what you\'ll do differently tomorrow.<br><br>This is where discipline compounds. The traders who review their process consistently are the ones who improve. Takes 2 minutes. Do it every day.'
   },
 
-  // 12 — Rank & XP (card)
+  // 12 — Rank & XP (card with full rank table)
   { type:'card', tag:'TOUR · 07', text:'',
-    html: function() { return (
-      '<div class="fw-c-icon">🏆</div>' +
-      '<div class="fw-c-eyebrow">Tour · 07 / 07</div>' +
-      '<div class="fw-c-title">Rank & XP</div>' +
-      '<div class="fw-c-body">Every session you complete and every trade you log earns <strong>XP</strong>. Your rank advances as you build a consistent, disciplined process — not just from winning.<br><br>' +
-      'Ranks go from <strong>Degenerate → Gambler → … → Elite</strong>. The right-side panel tracks your day streak, all-time stats, best streak, and leaderboard position. The community sees your progress in real time.</div>' +
-      '<button class="fw-btn-p" onclick="fwNext()">Got it →</button>'
-    );}
+    html: function() {
+      var ranks = [
+        { roman:'I',   name:'DEGENERATE',  color:'#707880', quote:'bro what are you doing',                              min:0,  max:2  },
+        { roman:'II',  name:'GAMBLER',     color:'#cd7f32', quote:'this is not a casino. or is it?',                     min:3,  max:6  },
+        { roman:'III', name:'NINJA',       color:'#c0c8d8', quote:'I was never here. Neither was my stoploss.',          min:7,  max:13 },
+        { roman:'IV',  name:'SUPER SAIYAN',color:'#f0bc4e', quote:"I haven't even shown you 10% of my discipline.",     min:14, max:20 },
+        { roman:'V',   name:'ELITE',       color:'#4ed68a', quote:'the market fears you',                                min:21, max:29 },
+        { roman:'VI',  name:'LEGENDARY',   color:'#a8d8f0', quote:'FTMO is scared of you',                              min:30, max:59 },
+        { roman:'VII', name:'GOD MODE',    color:'#00e5ff', quote:"you don't trade the market. the market trades around you", min:60, max:'∞' }
+      ];
+      var rows = ranks.map(function(r) {
+        return '<div style="display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.05)">' +
+          '<div style="font-family:var(--mono);font-size:9px;color:' + r.color + ';width:22px;flex-shrink:0;opacity:0.7">' + r.roman + '</div>' +
+          '<div style="font-family:var(--display);font-size:13px;letter-spacing:0.06em;color:' + r.color + ';min-width:110px;flex-shrink:0">' + r.name + '</div>' +
+          '<div style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.25);flex:1;font-style:italic">' + r.quote + '</div>' +
+          '<div style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.2);white-space:nowrap;flex-shrink:0">' + r.min + (r.max === '∞' ? '+ days' : '–' + r.max + ' days') + '</div>' +
+        '</div>';
+      }).join('');
+      return (
+        '<div class="fw-c-icon">🏆</div>' +
+        '<div class="fw-c-eyebrow">Tour · 07 / 07</div>' +
+        '<div class="fw-c-title">Rank & XP</div>' +
+        '<div style="font-size:12.5px;color:rgba(255,255,255,0.5);line-height:1.75;margin-bottom:18px">Every session you complete and every trade you log earns <strong style="color:rgba(255,255,255,0.85)">XP days</strong>. Your rank advances as you build a consistent process — not just from winning. The right panel tracks your streak, all-time stats, and leaderboard.</div>' +
+        '<div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:4px 14px;margin-bottom:22px">' + rows + '</div>' +
+        '<button class="fw-btn-p" onclick="fwNext()">Got it →</button>'
+      );
+    }
   },
 
   // 13 — Final oath card
