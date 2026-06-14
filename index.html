@@ -4304,6 +4304,21 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
         Own Fund
       </button>
     </div>
+    <!-- Name + Size -->
+    <div style="display:flex;gap:10px;margin-bottom:18px">
+      <div style="flex:2">
+        <div style="font-family:var(--mono);font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3);margin-bottom:6px">Account name</div>
+        <input id="as-name" type="text" placeholder="e.g. FTMO 100K" maxlength="30"
+          style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);border-radius:6px;color:var(--text);font-family:var(--mono);font-size:11px;padding:8px 10px;outline:none"
+          onfocus="this.style.borderColor='rgba(240,188,78,0.4)'" onblur="this.style.borderColor='rgba(255,255,255,0.12)'">
+      </div>
+      <div style="flex:1">
+        <div style="font-family:var(--mono);font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3);margin-bottom:6px">Size</div>
+        <input id="as-size" type="number" placeholder="100000" min="0" step="1000"
+          style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);border-radius:6px;color:var(--gold);font-family:var(--mono);font-size:11px;font-weight:700;padding:8px 10px;outline:none;-moz-appearance:textfield"
+          onfocus="this.style.borderColor='rgba(240,188,78,0.4)'" onblur="this.style.borderColor='rgba(255,255,255,0.12)'">
+      </div>
+    </div>
     <!-- Currency -->
     <div style="font-family:var(--mono);font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3);margin-bottom:8px">Currency</div>
     <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:22px" id="as-cur-btns">
@@ -4822,10 +4837,14 @@ function closeAcctSetup() {
 }
 
 function confirmAcctSetup() {
+  var nameEl = document.getElementById('as-name');
+  var sizeEl = document.getElementById('as-size');
   var used = _tdAccounts.map(function(a){ return a.id; });
   var next = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').find(function(c){ return used.indexOf(c)<0; }) || ('ACC'+(Date.now()%1000));
+  var name = (nameEl && nameEl.value.trim()) || next;
+  var size = (sizeEl && parseFloat(sizeEl.value)) || 100000;
   var phase = _acctSetupType === 'OwnFund' ? 'Own Fund' : 'Evaluation';
-  _tdAccounts.push({ id: next, name: next, size: 100000, currency: _acctSetupCur, phase: phase, accountType: _acctSetupType });
+  _tdAccounts.push({ id: next, name: name, size: size, currency: _acctSetupCur, phase: phase, accountType: _acctSetupType });
   saveAccounts(); renderAccountsPanel(); refreshTradeFormAccounts();
   updatePALFromRows(window._tdLastPalRows||[], window._tdLastPalRank||'DEGENERATE');
   closeAcctSetup();
