@@ -10419,9 +10419,9 @@ function klSendToCalc(idx) {
   var eEl = document.getElementById('calc-entry');
   var sEl = document.getElementById('calc-sl');
   var tEl = document.getElementById('calc-tp');
-  if (eEl && l.price) eEl.value = parseFloat(l.price).toFixed(2);
-  if (sEl && l.sl)    sEl.value = parseFloat(l.sl).toFixed(2);
-  if (tEl && l.tp)    tEl.value = parseFloat(l.tp).toFixed(2);
+  if (eEl && l.price) eEl.value = +parseFloat(l.price).toFixed(2);
+  if (sEl && l.sl)    sEl.value = +parseFloat(l.sl).toFixed(2);
+  if (tEl && l.tp)    tEl.value = +parseFloat(l.tp).toFixed(2);
   if (typeof calcLotSize === 'function') calcLotSize();
   // Flash calc bar to confirm
   var bar = document.getElementById('leo-calc-bar');
