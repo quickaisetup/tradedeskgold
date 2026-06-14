@@ -5276,10 +5276,15 @@ function renderAccountsPanel() {
   // daily_summaries Mon-yesterday. Adding today's live P&L gives the full week.
   // Falls back to R-estimate from PAL cache if DB data not yet loaded.
   var _wU;
-  if (window._myDbWeekPnl != null) {
+  // Prefer live-calculated weeklyUsd (from daily_summaries via updatePALFromRows) over the
+  // stale pre-computed week_pnl column stored in the leaderboard RPC result (_myDbWeekPnl).
+  // _myDbWeekPnl never resets at the start of a new week and causes the +$1570 Monday bug.
+  if (typeof pal.weeklyUsd === 'number') {
+    _wU = pal.weeklyUsd + (_todayUsd || 0);
+  } else if (window._myDbWeekPnl != null) {
     _wU = window._myDbWeekPnl + (_todayUsd || 0);
   } else {
-    _wU = (_todayUsd !== null && pal.wDays <= 1) ? _todayUsd : pal.weeklyUsd;
+    _wU = (_todayUsd !== null && pal.wDays <= 1) ? _todayUsd : null;
   }
   var _mU = pal.monthlyUsd;
   var _wR = pal.weeklyR  ? Math.round((pal.weeklyR )*100)/100 : null;
