@@ -12564,16 +12564,18 @@ window.loadEdgePanel = async function(forceAI) {
     mornings.forEach(function(m) { if (m.date && m.score !== null) scoreByDate[m.date] = parseFloat(m.score)||0; });
 
     // ── 2. Crunch stats ──────────────────────────────────
-    function dirStats(dir) {
-      var rows = trades.filter(function(t){ return (t.direction||'').toLowerCase() === dir.toLowerCase(); });
+    var todayScoreNum = parseFloat((document.getElementById('score-num')||{}).textContent||'0')||0;
+
+    function dirStats(pool, dir) {
+      var rows = pool.filter(function(t){ return (t.direction||'').toLowerCase() === dir.toLowerCase(); });
       var wins = rows.filter(function(t){ return t.result==='Win'; }).length;
       var losses = rows.filter(function(t){ return t.result==='Loss'; }).length;
       var totalR = rows.reduce(function(s,t){ return s+signedR(t.result,t.r_achieved,t.risk_pct); }, 0);
       var pct = rows.length ? Math.round(wins/rows.length*100) : 0;
       return { n: rows.length, wins: wins, losses: losses, pct: pct, totalR: Math.round(totalR*100)/100 };
     }
-    var long  = dirStats('Long');
-    var short = dirStats('Short');
+    var long  = dirStats(trades, 'Long');
+    var short = dirStats(trades, 'Short');
 
     // Score correlation — join trades to morning score by date
     var highScoreTrades = trades.filter(function(t){ return (scoreByDate[t.date]||0) >= 4; });
@@ -12581,7 +12583,55 @@ window.loadEdgePanel = async function(forceAI) {
     var hsWr = highScoreTrades.length ? Math.round(highScoreTrades.filter(function(t){return t.result==='Win';}).length/highScoreTrades.length*100) : null;
     var lsWr = lowScoreTrades.length  ? Math.round(lowScoreTrades.filter(function(t){return t.result==='Win';}).length/lowScoreTrades.length*100)   : null;
 
-    // Best setup by avg R (min 2 trades)
+    // ── SIMILAR SCORE ANALYSIS ───────────────────────────
+    // Find trades on days where score was within ±2 of today's score
+    var BAND = 2;
+    var similarDays = trades.filter(function(t) {
+      var sc = scoreByDate[t.date];
+      return sc !== undefined && Math.abs(sc - todayScoreNum) <= BAND;
+    });
+
+    // Direction WR on similar-score days
+    var simLong  = dirStats(similarDays, 'Long');
+    var simShort = dirStats(similarDays, 'Short');
+
+    // Setup performance on similar-score days (min 2 trades)
+    var simSetupMap = {};
+    similarDays.forEach(function(t) {
+      var s = (t.setup||'').trim(); if (!s) return;
+      if (!simSetupMap[s]) simSetupMap[s] = { n:0, totalR:0, wins:0 };
+      simSetupMap[s].n++;
+      simSetupMap[s].wins += t.result==='Win'?1:0;
+      simSetupMap[s].totalR += signedR(t.result, t.r_achieved, t.risk_pct);
+    });
+    var simSetups = Object.keys(simSetupMap).map(function(s) {
+      var d = simSetupMap[s];
+      return { name:s, n:d.n, avgR:Math.round(d.totalR/d.n*100)/100, wr:Math.round(d.wins/d.n*100) };
+    }).filter(function(s){ return s.n >= 2; }).sort(function(a,b){ return b.avgR - a.avgR; });
+    var bestSimSetup = simSetups[0] || null;
+    var worstSimSetup = simSetups[simSetups.length-1] || null;
+
+    // Session performance on similar-score days
+    var simSessionMap = {};
+    similarDays.forEach(function(t) {
+      var s = (t.session||'').trim(); if (!s) return;
+      if (!simSessionMap[s]) simSessionMap[s] = { n:0, totalR:0, wins:0 };
+      simSessionMap[s].n++;
+      simSessionMap[s].wins += t.result==='Win'?1:0;
+      simSessionMap[s].totalR += signedR(t.result, t.r_achieved, t.risk_pct);
+    });
+    var simSessions = Object.keys(simSessionMap).map(function(s) {
+      var d = simSessionMap[s];
+      return { name:s, n:d.n, avgR:Math.round(d.totalR/d.n*100)/100, wr:Math.round(d.wins/d.n*100) };
+    }).filter(function(s){ return s.n >= 2; }).sort(function(a,b){ return b.wr - a.wr; });
+    var bestSimSession = simSessions[0] || null;
+
+    // Recent form — last 10 trades WR
+    var recent = trades.slice().sort(function(a,b){ return a.date < b.date ? 1 : -1; }).slice(0,10);
+    var recentWr = recent.length ? Math.round(recent.filter(function(t){return t.result==='Win';}).length/recent.length*100) : null;
+    var recentR  = recent.length ? Math.round(recent.reduce(function(s,t){ return s+signedR(t.result,t.r_achieved,t.risk_pct); },0)*100)/100 : null;
+
+    // Best setup overall by avg R (min 2 trades) — kept for stat chips
     var setupMap = {};
     trades.forEach(function(t) {
       var s = (t.setup||'').trim(); if (!s) return;
@@ -12596,25 +12646,44 @@ window.loadEdgePanel = async function(forceAI) {
     });
 
     // ── 3. Render stat chips ─────────────────────────────
-    var longColor  = long.pct  >= 60 ? 'var(--green)' : long.pct  >= 45 ? 'var(--gold)' : 'var(--red)';
-    var shortColor = short.pct >= 60 ? 'var(--green)' : short.pct >= 45 ? 'var(--gold)' : 'var(--red)';
+    // Show similar-score day stats in chips (fall back to all-time if not enough data)
+    var useSimData = similarDays.length >= 3;
+    var chipLabel  = useSimData ? 'score ≈'+todayScoreNum.toFixed(1)+' days ('+simDayCount+')' : 'all-time';
 
-    edgeChip('edge-stat-long',  'Long',  long.n  ? long.pct+'% WR'  : '—',
-      long.n  ? long.wins+'/'+long.n+' · '+( long.totalR>=0?'+':'')+long.totalR+'R'  : 'no longs',  longColor);
-    edgeChip('edge-stat-short', 'Short', short.n ? short.pct+'% WR' : '—',
-      short.n ? short.wins+'/'+short.n+' · '+(short.totalR>=0?'+':'')+short.totalR+'R' : 'no shorts', shortColor);
+    var showLong  = useSimData ? simLong  : long;
+    var showShort = useSimData ? simShort : short;
+    var longColor  = showLong.pct  >= 60 ? 'var(--green)' : showLong.pct  >= 45 ? 'var(--gold)' : 'var(--red)';
+    var shortColor = showShort.pct >= 60 ? 'var(--green)' : showShort.pct >= 45 ? 'var(--gold)' : 'var(--red)';
 
-    if (hsWr !== null || lsWr !== null) {
+    edgeChip('edge-stat-long',  'Long · '+chipLabel,
+      showLong.n  ? showLong.pct+'% WR'  : '—',
+      showLong.n  ? showLong.wins+'/'+showLong.n+' · '+(showLong.totalR>=0?'+':'')+showLong.totalR+'R'  : 'no longs',
+      longColor);
+    edgeChip('edge-stat-short', 'Short · '+chipLabel,
+      showShort.n ? showShort.pct+'% WR' : '—',
+      showShort.n ? showShort.wins+'/'+showShort.n+' · '+(showShort.totalR>=0?'+':'')+showShort.totalR+'R' : 'no shorts',
+      shortColor);
+
+    if (useSimData && bestSimSetup) {
+      edgeChip('edge-stat-score', 'Best setup · similar days',
+        bestSimSetup.name,
+        bestSimSetup.wr+'% WR · avg +'+bestSimSetup.avgR+'R ('+bestSimSetup.n+' trades)',
+        'var(--green)');
+    } else if (hsWr !== null || lsWr !== null) {
       var scoreVal = hsWr !== null ? hsWr+'% when score ≥4' : '—';
       var scoreSub = lsWr !== null ? lsWr+'% when score ≤0' : '';
-      var scoreColor = hsWr >= 60 ? 'var(--green)' : 'var(--gold)';
-      edgeChip('edge-stat-score', 'Score edge', scoreVal, scoreSub, scoreColor);
+      edgeChip('edge-stat-score', 'Score edge', scoreVal, scoreSub, hsWr >= 60 ? 'var(--green)' : 'var(--gold)');
     } else {
-      edgeChip('edge-stat-score', 'Score edge', '—', 'need score data', 'var(--text3)');
+      edgeChip('edge-stat-score', 'Score edge', '—', 'need more data', 'var(--text3)');
     }
 
-    if (bestSetup) {
-      edgeChip('edge-stat-setup', 'Best setup', bestSetup, 'avg +'+Math.round(bestAvgR*100)/100+'R / trade', 'var(--gold)');
+    if (useSimData && bestSimSession) {
+      edgeChip('edge-stat-setup', 'Best session · similar days',
+        bestSimSession.name,
+        bestSimSession.wr+'% WR · avg +'+bestSimSession.avgR+'R',
+        'var(--gold)');
+    } else if (bestSetup) {
+      edgeChip('edge-stat-setup', 'Best setup', bestSetup, 'avg +'+ Math.round(bestAvgR*100)/100+'R / trade', 'var(--gold)');
     } else {
       edgeChip('edge-stat-setup', 'Best setup', '—', 'need more trades', 'var(--text3)');
     }
@@ -12654,22 +12723,39 @@ window.loadEdgePanel = async function(forceAI) {
       : (hsWr!==null ? 'Win rate '+hsWr+'% when score>=4' : 'no score correlation data yet');
     var setupLine = bestSetup ? 'Best setup: '+bestSetup+' averages +'+Math.round(bestAvgR*100)/100+'R per trade' : 'no setup data yet';
 
+    // Similar score context lines
+    var simDayCount = [...new Set(similarDays.map(function(t){return t.date;}))].length;
+    var simLongLine  = simLong.n  ? simLong.pct+'% of longs won ('+simLong.wins+'/'+simLong.n+'), '+simLong.totalR+'R total' : 'no long data on similar days';
+    var simShortLine = simShort.n ? simShort.pct+'% of shorts won ('+simShort.wins+'/'+simShort.n+'), '+simShort.totalR+'R total' : 'no short data on similar days';
+    var simSetupLine = bestSimSetup ? bestSimSetup.name+' was best ('+bestSimSetup.wr+'% WR, avg +'+bestSimSetup.avgR+'R on '+bestSimSetup.n+' trades)' : 'not enough setup data';
+    var simWorstLine = worstSimSetup && worstSimSetup.name !== (bestSimSetup&&bestSimSetup.name) ? worstSimSetup.name+' was worst ('+worstSimSetup.wr+'% WR, avg '+worstSimSetup.avgR+'R)' : null;
+    var simSessionLine = bestSimSession ? bestSimSession.name+' session had best results ('+bestSimSession.wr+'% WR, avg +'+bestSimSession.avgR+'R on '+bestSimSession.n+' trades)' : 'not enough session data';
+    var recentLine = recentWr !== null ? 'Last 10 trades: '+recentWr+'% WR, '+recentR+'R total' : 'no recent trade data';
+
     var prompt =
       'You are a direct trading coach. Never invent stats — only use the exact numbers given.\n\n'+
-      'INSTRUMENT: '+_edgeInstrument+' — analyze ONLY this instrument\'s data below; do not reference any other markets.\n'+
-      'TODAY BIAS SCORE ('+_edgeInstrument+'): '+currentScore+' ('+currentVerdict+')\n\n'+
-      'TRADER\'S REAL HISTORICAL STATS FOR '+_edgeInstrument+' ONLY (use ONLY these, do not invent):\n'+
-      '- '+longLine+'\n'+
-      '- '+shortLine+'\n'+
+      'INSTRUMENT: '+_edgeInstrument+'\n'+
+      'TODAY BIAS SCORE: '+currentScore+' ('+currentVerdict+')\n\n'+
+      '── ALL-TIME STATS ──\n'+
+      '- Longs: '+longLine+'\n'+
+      '- Shorts: '+shortLine+'\n'+
       '- '+scoreLine+'\n'+
-      '- '+setupLine+'\n\n'+
-      'Using ONLY these real stats and today\'s score, give:\n'+
+      '- Overall best setup: '+setupLine+'\n'+
+      '- '+recentLine+'\n\n'+
+      '── ON DAYS WITH SIMILAR SCORE (±2 of today = '+todayScoreNum.toFixed(1)+'), '+simDayCount+' days, '+similarDays.length+' trades ──\n'+
+      '- Longs on similar days: '+simLongLine+'\n'+
+      '- Shorts on similar days: '+simShortLine+'\n'+
+      '- Best setup on similar days: '+simSetupLine+'\n'+
+      (simWorstLine ? '- Worst setup on similar days: '+simWorstLine+'\n' : '')+
+      '- Best session on similar days: '+simSessionLine+'\n\n'+
+      'PRIORITY: base your coaching primarily on the "similar score days" data above — that is what actually happened when the market looked like today.\n\n'+
+      'Give:\n'+
       '- verdict: 5-6 words describing today\'s bias\n'+
       '- lean: long, short, or neutral\n'+
-      '- action: ONE sentence — what specific setup to look for today. Must reference the score.\n'+
-      '- avoid: ONE sentence — what NOT to do today. Must reference at least one real stat above.\n'+
-      '- edge: ONE sentence — the single most important pattern from their stats for today.\n\n'+
-      'Rules: cite actual percentages from the stats. No vague advice. Max 25 words per field.\n'+
+      '- action: ONE sentence — what to look for today based on similar-score-day patterns. Cite real stats.\n'+
+      '- avoid: ONE sentence — what failed on similar-score days. Cite real stats.\n'+
+      '- edge: ONE sentence — the single strongest pattern from similar-score days.\n\n'+
+      'Rules: cite actual numbers. No vague advice. Max 28 words per field. If similar-score sample is small (<5 trades), note this briefly.\n'+
       'Output valid JSON only:\n'+
       '{"lean":"long"|"short"|"neutral","verdict":"...","action":"...","avoid":"...","edge":"..."}';
 
