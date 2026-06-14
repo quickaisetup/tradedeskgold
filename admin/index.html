@@ -1762,13 +1762,34 @@ function loadMembers() {
     html += '<td><div style="display:flex;align-items:center;gap:10px">' + avatarHtml(t, 26) + '<div><div class="trader-name">' + name + '</div><div class="trader-user">@' + (t.username || '—') + '</div></div></div></td>';
     html += '<td style="font-family:var(--mono);font-size:11px;color:var(--text3)">' + (t.email || '—') + '</td>';
     html += '<td style="font-family:var(--mono);font-size:10px;color:var(--text3);max-width:140px;overflow:hidden;text-overflow:ellipsis">' + t.id + '</td>';
-    html += '<td style="font-family:var(--mono);font-size:10px;text-transform:uppercase;color:' + (t.is_admin ? '#fbbf24' : 'var(--text3)') + '">' + (t.is_admin ? 'Yes' : '—') + '</td>';
-    html += '<td><button onclick="openDeleteModal(\'' + t.id + '\',\'' + name.replace(/'/g, "\\'") + '\')" style="padding:5px 12px;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.35);border-radius:6px;color:#f87171;font-family:var(--mono);font-size:9px;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;white-space:nowrap">Delete</button></td>';
+    html += '<td>' + (t.is_admin
+      ? '<span style="font-family:var(--mono);font-size:10px;text-transform:uppercase;color:#fbbf24;background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.3);border-radius:4px;padding:2px 8px">Admin</span>'
+      : '<button onclick="toggleAdmin(\'' + t.id + '\',true)" style="padding:3px 10px;background:rgba(251,191,36,0.07);border:1px solid rgba(251,191,36,0.25);border-radius:5px;color:rgba(251,191,36,0.6);font-family:var(--mono);font-size:9px;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer">Make Admin</button>')
+      + '</td>';
+    html += '<td style="display:flex;gap:6px;align-items:center">'
+      + (t.is_admin ? '<button onclick="toggleAdmin(\'' + t.id + '\',false)" style="padding:5px 10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:6px;color:var(--text3);font-family:var(--mono);font-size:9px;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer">Remove Admin</button>' : '')
+      + '<button onclick="openDeleteModal(\'' + t.id + '\',\'' + name.replace(/'/g, "\\'") + '\')" style="padding:5px 12px;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.35);border-radius:6px;color:#f87171;font-family:var(--mono);font-size:9px;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;white-space:nowrap">Delete</button>'
+      + '</td>';
     html += '</tr>';
   });
   html += '</tbody></table>';
   el.innerHTML = html;
 }
+
+window.toggleAdmin = async function(uid, makeAdmin) {
+  try {
+    var sb = getSB();
+    var res = await sb.from('profiles').update({ is_admin: makeAdmin }).eq('id', uid);
+    if (res.error) throw new Error(res.error.message);
+    if (_allData && _allData.traders) {
+      var t = _allData.traders.find(function(t){ return t.id === uid; });
+      if (t) t.is_admin = makeAdmin;
+    }
+    loadMembers();
+  } catch(e) {
+    alert('Error: ' + e.message);
+  }
+};
 
 var _pendingDeleteId = null;
 function openDeleteModal(uid, name) {
