@@ -2297,19 +2297,29 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
   *::-webkit-scrollbar{display:none}
 
   /* ── PRE-TRADE GATE — compact on mobile ── */
-  #ptg-gate{justify-content:flex-start!important;padding:20px 14px 24px!important;overflow-y:auto}
+  #ptg-gate{justify-content:flex-start!important;padding:20px 14px 24px!important;overflow-y:auto;background:#060708!important}
   #ptg-inner{max-width:100%}
-  #ptg-title{font-size:17px!important;letter-spacing:0.08em!important}
-  #ptg-header{margin-bottom:12px!important}
-  #ptg-list{gap:5px!important;margin-bottom:12px!important;display:grid!important;grid-template-columns:1fr 1fr!important}
-  .ptg-item{padding:9px 10px!important;gap:8px!important;border-radius:8px!important;align-items:flex-start!important}
-  .ptg-cb{width:18px!important;height:18px!important;min-width:18px!important;font-size:10px!important;border-radius:4px!important;margin-top:1px!important}
-  .ptg-main{font-size:11px!important;line-height:1.3!important}
+  #ptg-title{font-size:16px!important;letter-spacing:0.08em!important}
+  #ptg-header{margin-bottom:10px!important}
+  /* checklist grid */
+  #ptg-list{gap:5px!important;margin-bottom:0!important;display:grid!important;grid-template-columns:1fr 1fr!important}
+  /* rules section */
+  #rg-section{padding-top:12px!important;margin-top:12px!important}
+  #rg-list{gap:5px!important;display:grid!important;grid-template-columns:1fr 1fr!important}
+  /* shared card style for both checklist and rules */
+  .ptg-item,.rg-item{padding:8px 9px!important;gap:7px!important;border-radius:7px!important;align-items:flex-start!important}
+  .ptg-cb,.rg-cb{width:17px!important;height:17px!important;min-width:17px!important;font-size:10px!important;border-radius:4px!important;margin-top:1px!important;flex-shrink:0!important}
+  .ptg-main,.rg-text{font-size:11px!important;line-height:1.3!important;font-weight:400!important}
+  /* Not sure button — hide on mobile to save space */
+  [id^="ptg-unsure-"]{display:none!important}
+  /* progress bar */
   #ptg-bar-wrap{height:40px!important}
   #ptg-bar-label{font-size:9px!important;letter-spacing:0.08em!important}
   .ptg-bar-count{font-size:11px!important}
   .ptg-bar-dots{display:none!important}
-  #ptg-footer{gap:8px!important;margin-top:8px!important}
+  #ptg-footer{gap:8px!important;margin-top:10px!important}
+  /* enter charts button */
+  #ptg-enter-btn{margin-top:14px!important;padding:12px 0!important;font-size:13px!important}
 
   /* ── PORTRAIT WATERMARKS ── */
   .leo-tv-cell-wm{font-size:clamp(44px,11vw,72px)!important;right:19%!important;top:4px!important}
