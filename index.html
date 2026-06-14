@@ -3849,6 +3849,13 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
     <!-- LEVEL INPUT FORM -->
     <div id="lvl-form" style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px">
 
+      <!-- Instrument tag -->
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+        <span style="font-family:var(--mono);font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3)">Instrument</span>
+        <span id="lvl-form-instr" style="font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:0.1em;color:var(--gold);background:rgba(240,188,78,0.1);border:1px solid rgba(240,188,78,0.3);border-radius:4px;padding:2px 8px">XAUUSD</span>
+        <span style="font-family:var(--mono);font-size:8px;color:var(--text3);font-style:italic">switches with chart tab above</span>
+      </div>
+
       <!-- LONG / SHORT toggle -->
       <div style="display:flex;gap:8px;margin-bottom:14px">
         <button id="lvl-dir-long" onclick="lvlSetDir('long')" style="flex:1;padding:9px;border-radius:8px;font-family:var(--display);font-size:13px;letter-spacing:0.08em;cursor:pointer;border:1px solid rgba(78,214,138,0.5);color:var(--green);background:rgba(78,214,138,0.15);transition:all 0.15s">▲ LONG</button>
@@ -6437,6 +6444,7 @@ function tmRemoveMode(btn) {
 var _lvlFormDir = 'long';
 var _lvlFormConf = [];
 var _lvlFormConfidence = 0;
+var _lvlInstrument = 'XAUUSD';
 
 function lvlSetDir(dir) {
   _lvlFormDir = dir;
@@ -6484,7 +6492,7 @@ function lvlAddFromForm() {
 
   levelCount++;
   var id = levelCount;
-  var lvl = { id: id, direction: _lvlFormDir, type: _lvlFormDir, price: price, sl: sl, tp: tp, confluence: _lvlFormConf.slice(), confidence: _lvlFormConfidence, notes: notes };
+  var lvl = { id: id, direction: _lvlFormDir, type: _lvlFormDir, price: price, sl: sl, tp: tp, confluence: _lvlFormConf.slice(), confidence: _lvlFormConfidence, notes: notes, instrument: _lvlInstrument };
   levels.push(lvl);
   window.levels = levels;
 
@@ -6572,6 +6580,16 @@ function lvlRenderCard(lvl) {
 
 function addLevel(dir) { lvlSetDir(dir); } // legacy compat
 
+function lvlRenderAll() {
+  var list = document.getElementById('level-list');
+  if (!list) return;
+  list.innerHTML = '';
+  (window.levels || levels || []).forEach(function(lvl) {
+    var instr = lvl.instrument || 'XAUUSD';
+    if (instr === _lvlInstrument) lvlRenderCard(lvl);
+  });
+}
+
 function removeLevel(id) {
   var el=document.getElementById('lvl-'+id); if(el)el.remove();
   levels=levels.filter(function(l){return l.id!==id;});
@@ -6604,10 +6622,11 @@ function scheduleLevelsSave() {
       cached.forEach(function(lv) {
         levelCount++;
         lv.id = levelCount;
+        if (!lv.instrument) lv.instrument = 'XAUUSD'; // backfill legacy levels
         levels.push(lv);
         window.levels = levels;
-        if (typeof lvlRenderCard === 'function') lvlRenderCard(lv);
       });
+      if (typeof lvlRenderAll === 'function') lvlRenderAll();
       if (typeof leoRenderKLBar === 'function') leoRenderKLBar();
     }
   } catch(e) {}
@@ -9754,9 +9773,16 @@ function leoRefreshCharts(btn) {
 
 function leoSetSymbol(sym, btn) {
   _leoSymbol = LEO_SYMBOL_MAP[sym] || sym;
+  _lvlInstrument = sym;
   document.querySelectorAll('.leo-sym-tab').forEach(function(b){ b.classList.remove('active'); });
   if (btn) btn.classList.add('active');
   leoLoadIframes();
+  // Update instrument badge in level form
+  var badge = document.getElementById('lvl-form-instr');
+  if (badge) badge.textContent = sym;
+  // Re-filter level cards and KL bar for this instrument
+  lvlRenderAll();
+  leoRenderKLBar();
 }
 
 // ── CUSTOM TICKER TABS — user can add any TradingView symbol ──
@@ -10272,12 +10298,15 @@ function leoRenderKLBar() {
   var myUser = localStorage.getItem('td_username') || 'me';
   var allEntries = [];
 
-  // My levels
-  (levels || []).filter(function(l){ return l.price && !isNaN(parseFloat(l.price)); })
-    .forEach(function(l){ allEntries.push({ l: l, user: myUser, mine: true }); });
+  // My levels — filter by current instrument
+  (levels || []).filter(function(l){
+    return l.price && !isNaN(parseFloat(l.price)) && (l.instrument || 'XAUUSD') === _lvlInstrument;
+  }).forEach(function(l){ allEntries.push({ l: l, user: myUser, mine: true }); });
 
-  // Other traders' levels (fetched async by leoFetchAllLevels)
-  (_klAllLevels || []).forEach(function(e){ allEntries.push(e); });
+  // Other traders' levels — filter by current instrument
+  (_klAllLevels || []).filter(function(e){
+    return (e.l.instrument || 'XAUUSD') === _lvlInstrument;
+  }).forEach(function(e){ allEntries.push(e); });
 
   if (!allEntries.length) {
     bar.innerHTML = '<span style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.18);letter-spacing:0.08em">no key levels</span>';
@@ -13471,11 +13500,11 @@ window.autoRestoreToday = async function() {
           savedLevels.forEach(function(lv) {
             levelCount++;
             lv.id = levelCount;
+            if (!lv.instrument) lv.instrument = 'XAUUSD';
             levels.push(lv);
             window.levels = levels;
-            if (window.lvlRenderCard) lvlRenderCard(lv);
           });
-          // Update localStorage cache to match authoritative Supabase data
+          if (window.lvlRenderAll) lvlRenderAll();
           try { localStorage.setItem('td_levels_cache', JSON.stringify(levels)); } catch(e) {}
         } else {
           localStorage.removeItem('td_levels_cache');
