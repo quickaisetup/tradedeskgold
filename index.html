@@ -10010,6 +10010,8 @@ function _ptgUpdateCombinedState() {
   var total = ptgTotal + rgTotal;
   var pct = total ? Math.round(done / total * 100) : 100;
   var allDone = ptgDone === ptgTotal && (rgTotal === 0 || rgDone === rgTotal);
+  var displayDone = ptgDone;
+  var displayTotal = ptgTotal;
 
   var counter = document.getElementById('ptg-counter');
   if (counter) counter.textContent = ptgDone + ' / ' + ptgTotal;
@@ -10021,7 +10023,7 @@ function _ptgUpdateCombinedState() {
   if (fill) fill.style.width = pct + '%';
 
   var count = document.getElementById('ptg-bar-count');
-  if (count) count.textContent = allDone ? '→ Enter Charts' : done + ' / ' + total;
+  if (count) count.textContent = allDone ? '→ Enter Charts' : displayDone + ' / ' + displayTotal;
 
   var dots = document.getElementById('ptg-bar-dots');
   if (dots) dots.innerHTML = _ptgQs.map(function(_, i) {
@@ -10033,6 +10035,7 @@ function _ptgUpdateCombinedState() {
 }
 function ptgSkip() {
   _ptgLog({ type: 'skip', ts: new Date().toISOString() });
+  localStorage.setItem(_ptgCompletedKey(), '1');
   document.getElementById('ptg-gate').classList.remove('show');
 }
 function ptgCombinedUnlock() {
