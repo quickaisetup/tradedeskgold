@@ -378,7 +378,8 @@ table.adm-table tbody tr.selected{background:var(--gd)}
         <button class="filter-btn active" onclick="setAnalysisDate('today',this)">Today</button>
         <button class="filter-btn" onclick="setAnalysisDate('yesterday',this)">Yesterday</button>
       </div>
-      <div class="traders-grid" id="analysis-grid"></div>
+      <div id="analysis-summary"></div>
+      <div class="traders-grid" id="analysis-grid" style="margin-top:24px"></div>
     </div>
 
     <!-- KEY LEVELS -->
@@ -1180,8 +1181,9 @@ function renderAnalysis() {
   var grid = document.getElementById('analysis-grid');
   var traders = _allData.traders;
 
-  // Bias summary bar
+  // ── Big summary panel ──────────────────────────────────
   var bCount = {bull:0, bear:0, neutral:0, none:0};
+  var scores = [], scoredTraders = [];
   traders.forEach(function(t) {
     var m = latestMorning(_allData.mornings, t.id, dateStr);
     if (!m) { bCount.none++; return; }
@@ -1190,20 +1192,134 @@ function renderAnalysis() {
     else if (v.includes('bear')||v.includes('sell')) bCount.bear++;
     else if (v) bCount.neutral++;
     else bCount.none++;
+    var sc = parseFloat(m.score);
+    if (!isNaN(sc)) { scores.push(sc); scoredTraders.push({t:t, m:m, sc:sc}); }
   });
   var bTotal = traders.length;
-  var summaryBar = bTotal ? '<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;padding:10px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;flex-wrap:wrap">' +
-    '<span style="font-family:var(--mono);font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3);margin-right:4px">Group Bias</span>' +
-    (bCount.bull  ? '<span style="font-family:var(--mono);font-size:11px;font-weight:600;color:var(--green)">▲ '+bCount.bull+' Bullish</span>' : '') +
-    (bCount.bear  ? '<span style="font-family:var(--mono);font-size:11px;font-weight:600;color:var(--red)">▼ '+bCount.bear+' Bearish</span>' : '') +
-    (bCount.neutral?'<span style="font-family:var(--mono);font-size:11px;color:var(--gold)">◆ '+bCount.neutral+' Neutral</span>' : '') +
-    (bCount.none  ? '<span style="font-family:var(--mono);font-size:11px;color:var(--text3)">— '+bCount.none+' No Analysis</span>' : '') +
-    '<div style="flex:1;height:4px;background:var(--bg4);border-radius:2px;overflow:hidden;min-width:80px;margin-left:8px">' +
-      (bCount.bull  ? '<div style="height:100%;float:left;background:var(--green);width:'+Math.round(bCount.bull/bTotal*100)+'%"></div>' : '') +
-      (bCount.neutral?'<div style="height:100%;float:left;background:var(--gold);width:'+Math.round(bCount.neutral/bTotal*100)+'%"></div>' : '') +
-      (bCount.bear  ? '<div style="height:100%;float:left;background:var(--red);width:'+Math.round(bCount.bear/bTotal*100)+'%"></div>' : '') +
+  var hasAnalysis = bTotal - bCount.none;
+
+  // Consensus direction
+  var consensusDir = bCount.bull > bCount.bear && bCount.bull > bCount.neutral ? 'BULLISH'
+    : bCount.bear > bCount.bull && bCount.bear > bCount.neutral ? 'BEARISH' : 'NEUTRAL';
+  var consensusColor = consensusDir==='BULLISH' ? 'var(--green)' : consensusDir==='BEARISH' ? 'var(--red)' : 'var(--gold)';
+  var avgScore = scores.length ? (scores.reduce(function(s,x){return s+x;},0)/scores.length) : null;
+  var avgScoreStr = avgScore !== null ? (avgScore>0?'+':'')+avgScore.toFixed(1) : '—';
+  var avgScoreColor = avgScore > 2 ? 'var(--green)' : avgScore < -2 ? 'var(--red)' : 'var(--gold)';
+
+  // Score distribution buckets
+  var sDist = {strong_bull:0, bull:0, lean_bull:0, neutral:0, lean_bear:0, bear:0, strong_bear:0};
+  scores.forEach(function(s){
+    if (s>=7) sDist.strong_bull++;
+    else if (s>=4) sDist.bull++;
+    else if (s>=2) sDist.lean_bull++;
+    else if (s>-2) sDist.neutral++;
+    else if (s>=-4) sDist.lean_bear++;
+    else if (s>=-7) sDist.bear++;
+    else sDist.strong_bear++;
+  });
+
+  // TF agreement — how many traders agree per TF
+  var tfOrder = ['1M','1W','D','4H','1H'];
+  var tfAgreement = {};
+  tfOrder.forEach(function(tf) {
+    var bull=0,bear=0,total=0;
+    traders.forEach(function(t) {
+      var m = latestMorning(_allData.mornings, t.id, dateStr);
+      if (!m) return;
+      var tfs = {};
+      try { tfs = typeof m.tf_state==='string' ? JSON.parse(m.tf_state) : (m.tf_state||{}); } catch(e){}
+      var b = (tfs[tf]||{}).bias;
+      if (Array.isArray(b)) b = b.join('+');
+      b = (b||'').toLowerCase();
+      if (!b) return;
+      total++;
+      if (b.includes('bull')) bull++;
+      else if (b.includes('bear')) bear++;
+    });
+    tfAgreement[tf] = {bull:bull, bear:bear, total:total};
+  });
+
+  var summaryEl = document.getElementById('analysis-summary');
+  if (!summaryEl) return;
+
+  var bullPct  = bTotal ? Math.round(bCount.bull/bTotal*100) : 0;
+  var bearPct  = bTotal ? Math.round(bCount.bear/bTotal*100) : 0;
+  var neutPct  = bTotal ? Math.round(bCount.neutral/bTotal*100) : 0;
+
+  var summaryHtml =
+    '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden">' +
+    // Header row
+    '<div style="padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:20px;flex-wrap:wrap">' +
+      '<div>' +
+        '<div style="font-family:var(--mono);font-size:8px;letter-spacing:0.14em;text-transform:uppercase;color:var(--text3);margin-bottom:4px">Group Consensus</div>' +
+        '<div style="font-family:var(--display);font-size:32px;font-weight:700;color:'+consensusColor+';letter-spacing:0.05em">'+consensusDir+'</div>' +
+      '</div>' +
+      '<div style="width:1px;height:48px;background:var(--border);flex-shrink:0"></div>' +
+      '<div>' +
+        '<div style="font-family:var(--mono);font-size:8px;letter-spacing:0.14em;text-transform:uppercase;color:var(--text3);margin-bottom:4px">Avg Score</div>' +
+        '<div style="font-family:var(--display);font-size:32px;font-weight:700;color:'+avgScoreColor+'">'+avgScoreStr+'</div>' +
+      '</div>' +
+      '<div style="width:1px;height:48px;background:var(--border);flex-shrink:0"></div>' +
+      // Vote counts
+      '<div style="display:flex;gap:16px;flex-wrap:wrap">' +
+        (bCount.bull    ? '<div style="text-align:center"><div style="font-family:var(--display);font-size:24px;color:var(--green);font-weight:700">'+bCount.bull+'</div><div style="font-family:var(--mono);font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em">Bullish</div></div>' : '') +
+        (bCount.neutral ? '<div style="text-align:center"><div style="font-family:var(--display);font-size:24px;color:var(--gold);font-weight:700">'+bCount.neutral+'</div><div style="font-family:var(--mono);font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em">Neutral</div></div>' : '') +
+        (bCount.bear    ? '<div style="text-align:center"><div style="font-family:var(--display);font-size:24px;color:var(--red);font-weight:700">'+bCount.bear+'</div><div style="font-family:var(--mono);font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em">Bearish</div></div>' : '') +
+        (bCount.none    ? '<div style="text-align:center"><div style="font-family:var(--display);font-size:24px;color:var(--text3);font-weight:700">'+bCount.none+'</div><div style="font-family:var(--mono);font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em">No data</div></div>' : '') +
+      '</div>' +
+      // Progress bar (pushed right)
+      '<div style="flex:1;min-width:160px;margin-left:auto">' +
+        '<div style="display:flex;height:8px;border-radius:4px;overflow:hidden;gap:1px">' +
+          '<div style="flex:'+bCount.bull+';background:var(--green);min-width:'+(bCount.bull?'2px':'0')+'"></div>' +
+          '<div style="flex:'+bCount.neutral+';background:var(--gold);min-width:'+(bCount.neutral?'2px':'0')+'"></div>' +
+          '<div style="flex:'+bCount.bear+';background:var(--red);min-width:'+(bCount.bear?'2px':'0')+'"></div>' +
+          '<div style="flex:'+bCount.none+';background:rgba(255,255,255,0.08);min-width:'+(bCount.none?'2px':'0')+'"></div>' +
+        '</div>' +
+        '<div style="display:flex;justify-content:space-between;margin-top:4px">' +
+          '<span style="font-family:var(--mono);font-size:8px;color:var(--green)">'+bullPct+'% bull</span>' +
+          '<span style="font-family:var(--mono);font-size:8px;color:var(--red)">'+bearPct+'% bear</span>' +
+        '</div>' +
+      '</div>' +
     '</div>' +
-  '</div>' : '';
+    // TF agreement row
+    '<div style="padding:16px 24px;border-bottom:1px solid var(--border);display:flex;gap:0">' +
+      '<div style="font-family:var(--mono);font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3);align-self:center;min-width:100px">TF Agreement</div>' +
+      tfOrder.map(function(tf) {
+        var ag = tfAgreement[tf];
+        var bullPctTF = ag.total ? Math.round(ag.bull/ag.total*100) : 0;
+        var bearPctTF = ag.total ? Math.round(ag.bear/ag.total*100) : 0;
+        var neutTF    = ag.total - ag.bull - ag.bear;
+        var dominantColor = ag.bull > ag.bear ? 'var(--green)' : ag.bear > ag.bull ? 'var(--red)' : 'var(--gold)';
+        var dominantPct   = ag.bull > ag.bear ? bullPctTF : ag.bear > ag.bull ? bearPctTF : 0;
+        return '<div style="flex:1;text-align:center;padding:0 8px;border-left:1px solid var(--border)">' +
+          '<div style="font-family:var(--mono);font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px">'+tf+'</div>' +
+          '<div style="height:36px;display:flex;flex-direction:column;justify-content:flex-end;gap:1px;margin-bottom:4px">' +
+            '<div style="background:var(--green);border-radius:2px 2px 0 0;height:'+(ag.total?Math.round(ag.bull/ag.total*100)+'%':'0')+'"></div>' +
+            '<div style="background:var(--gold);border-radius:0;height:'+(ag.total?Math.round(neutTF/ag.total*100)+'%':'0')+'"></div>' +
+            '<div style="background:var(--red);border-radius:0 0 2px 2px;height:'+(ag.total?Math.round(ag.bear/ag.total*100)+'%':'0')+'"></div>' +
+          '</div>' +
+          (ag.total ? '<div style="font-family:var(--mono);font-size:10px;font-weight:700;color:'+dominantColor+'">'+dominantPct+'%</div>' : '<div style="font-family:var(--mono);font-size:9px;color:var(--text3)">—</div>') +
+        '</div>';
+      }).join('') +
+    '</div>' +
+    // Score breakdown row
+    (scores.length ? (
+    '<div style="padding:14px 24px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">' +
+      '<div style="font-family:var(--mono);font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3);min-width:100px">Score spread</div>' +
+      scoredTraders.slice().sort(function(a,b){return b.sc-a.sc;}).map(function(x) {
+        var sc = x.sc;
+        var c = sc>=4?'var(--green)':sc<=-4?'var(--red)':sc>0?'rgba(78,214,138,0.6)':sc<0?'rgba(240,96,96,0.6)':'var(--gold)';
+        return '<div style="display:flex;flex-direction:column;align-items:center;gap:3px">'+
+          '<div style="font-family:var(--display);font-size:14px;font-weight:700;color:'+c+'">'+(sc>0?'+':'')+sc.toFixed(1)+'</div>'+
+          '<div style="font-family:var(--mono);font-size:8px;color:var(--text3)">'+traderDisplayName(x.t).split(' ')[0]+'</div>'+
+        '</div>';
+      }).join('<div style="width:1px;height:28px;background:var(--border);align-self:center"></div>') +
+    '</div>'
+    ) : '') +
+    '</div>';
+
+  summaryEl.innerHTML = summaryHtml;
+  var summaryBar = ''; // no longer used inline
 
   var cards = traders.map(function(t) {
     var morning = latestMorning(_allData.mornings, t.id, dateStr);
@@ -1323,7 +1439,7 @@ function renderAnalysis() {
     '</div>';
   }).join('');
 
-  grid.innerHTML = summaryBar + (cards || '<div class="empty-state"><div class="big">📊</div>No data for this date</div>');
+  grid.innerHTML = cards || '<div class="empty-state"><div class="big">📊</div>No data for this date</div>';
 }
 
 // ── SUMMARIES PAGE ─────────────────────────────────────────────────────────
