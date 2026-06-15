@@ -5174,6 +5174,8 @@ function acctToggleSizeEdit(id) {
 }
 // Calculate today's P&L in USD from live trades
 function calcTodayPnl() {
+  // When viewing yesterday's session, don't count those trades as today's P&L
+  if (window._viewingYesterday) return { total: 0, funded: 0, hasTrades: false };
   var dbTrades = window._tdTodayTrades || [];
   // Always fall back to saved UI trades when DB has no results — covers the case
   // where Supabase hasn't synced yet or trades were restored from localStorage.
@@ -8178,6 +8180,7 @@ async function loadYesterdaySession() {
       // Flush localStorage so today's cache doesn't re-appear on next restore
       if (window._persistTradesToLocal) _persistTradesToLocal();
       if (trades.length) window._restoreTradesFromDB(trades);
+      window._viewingYesterday = true; // suppress calcTodayPnl while viewing yesterday
     }
 
     // Load morning analysis (bias, trend, pivot, etc.) — click the actual buttons
@@ -8364,6 +8367,7 @@ async function saveAllYesterday() {
     });
     state.trades = [];
     window._tdTodayTrades = []; // clear stale yesterday-loaded trades from today's P&L cache
+    window._viewingYesterday = false; // back to today mode
     if (window._persistTradesToLocal) _persistTradesToLocal();
     if (window.updateHistory) updateHistory();
     if (window.updateKill) updateKill();
