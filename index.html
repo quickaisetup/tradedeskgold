@@ -6322,8 +6322,8 @@ function setInd(btn, dir) {
   btn.closest('.ind-btns').querySelectorAll('.ib').forEach(function(b) {
     b.className = 'ib'; b.style.color = ''; b.style.borderColor = '';
   });
-  // If wasn't selected, select it; if was selected, leave cleared (deselect)
-  if (!wasSelected) {
+  // During restore always select; during user interaction toggle off if already selected
+  if (!wasSelected || window._inRestore) {
     btn.classList.add('sel');
     var c = {
       'bull': 'var(--green)', 'bear': 'var(--red)',
