@@ -6393,6 +6393,8 @@ function setLondonBias(val, btn) {
 }
 
 function updateVerdictAuto() {
+  // Track user activity so autoRestoreToday skips during active editing
+  if (!window._inRestore) window._lastUserActivity = Date.now();
   if (biasOverride) return;
   var bullSignals = [], bearSignals = [], score = 0;
 
@@ -13799,8 +13801,10 @@ window.tdlDoForgot = async function() {
 // Fetches morning_analysis + trades + daily_summaries for today
 // and repopulates every field in the UI. Only runs if data exists for today.
 window.autoRestoreToday = async function() {
-  // Debounce: skip if a restore ran in the last 5 seconds
+  // Skip if user is actively editing their analysis (within last 3 minutes)
   var now = Date.now();
+  if (window._lastUserActivity && (now - window._lastUserActivity) < 180000) return;
+  // Debounce: skip if a restore ran in the last 5 seconds
   if (window._lastRestoreAt && (now - window._lastRestoreAt) < 5000) return;
   window._lastRestoreAt = now;
 
@@ -13916,8 +13920,8 @@ window.autoRestoreToday = async function() {
           }
         });
 
-        // Trigger score recalculation after all buttons are set
-        setTimeout(function() { if (window.updateVerdictAuto) updateVerdictAuto(); }, 150);
+        // Trigger score recalculation after all buttons are set (keep _inRestore so it doesn't set _lastUserActivity)
+        setTimeout(function() { window._inRestore = true; if (window.updateVerdictAuto) updateVerdictAuto(); window._inRestore = false; }, 150);
       } else {
         // DB has no tf_state — fall back to localStorage (same-device session)
         if (window._restoreTFStateLocal) window._restoreTFStateLocal();
@@ -14088,7 +14092,7 @@ window.autoRestoreToday = async function() {
     if (window.updateDayProgress)  updateDayProgress();
     if (window.updateBottomHUD)    updateBottomHUD();
     if (window.updateStickyBiasBar) updateStickyBiasBar();
-    if (window.updateVerdictAuto)  setTimeout(updateVerdictAuto, 150);
+    if (window.updateVerdictAuto)  setTimeout(function(){ window._inRestore = true; updateVerdictAuto(); window._inRestore = false; }, 150);
 
     // Show a subtle restore notice
     var notice = document.createElement('div');
