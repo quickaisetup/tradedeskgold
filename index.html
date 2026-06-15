@@ -13310,7 +13310,7 @@ window.loadEdgePanel = async function(forceAI) {
     // Fetch all trades for this user — instrument filtering is done client-side
     // so legacy trades without an instrument column still show up
     var tRes = await sb.from('trades')
-      .select('date,direction,setup,session,result,r_achieved,mindset')
+      .select('date,direction,setup,session,result,r_achieved,risk_pct,usd_achieved,mindset')
       .eq('user_id', uid);
     if (tRes.error) console.warn('[edge] trades fetch error:', tRes.error.message);
     var allTrades = tRes.data || [];
@@ -13507,32 +13507,71 @@ window.loadEdgePanel = async function(forceAI) {
     var simSessionLine = bestSimSession ? bestSimSession.name+' session had best results ('+bestSimSession.wr+'% WR, avg +'+bestSimSession.avgR+'R on '+bestSimSession.n+' trades)' : 'not enough session data';
     var recentLine = recentWr !== null ? 'Last 10 trades: '+recentWr+'% WR, '+recentR+'R total' : 'no recent trade data';
 
+    // ── Build rich context for the AI prompt ─────────────
+    // Today's actual TF bias selections
+    var tfCtx = '';
+    var _tf = (typeof tfState !== 'undefined') ? tfState : {};
+    ['1M','1W','D','4H','1H'].forEach(function(k) {
+      var s = _tf[k]; if (!s) return;
+      var b = (s.bias||[]).join('+') || 'unset';
+      var tr = (s.trend||[]).join('+') || 'unset';
+      tfCtx += k+': bias='+b+', trend='+tr+'\n';
+    });
+    // Market direction, London direction, pivot, trading mode
+    var mdEl = document.querySelector('#market-direction .bb.sel-bull,#market-direction .bb.sel-bear,#market-direction .bb.sel-range');
+    var mdText = mdEl ? mdEl.textContent.trim() : 'unset';
+    var londonText = (typeof londonBiasState !== 'undefined' && londonBiasState) ? londonBiasState : 'unset';
+    var pivotText  = (typeof pivotState !== 'undefined' && pivotState) ? pivotState : 'unset';
+    var modeText   = (typeof tradingMode !== 'undefined' && tradingMode) ? tradingMode : 'unset';
+    // Today's news events
+    var newsCtx = 'none';
+    try {
+      var _todayBkkStr = new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
+      if (window._ffRaw && Array.isArray(window._ffRaw)) {
+        var _todayEvs = window._ffRaw.filter(function(ev) {
+          var d = (ev.date||'').slice(0,10); return d === _todayBkkStr && (ev.impact||'').match(/high|medium/i);
+        });
+        if (_todayEvs.length) newsCtx = _todayEvs.map(function(ev){ return (ev.impact||'?')+' impact: '+(ev.title||'?'); }).join('; ');
+      }
+    } catch(e) {}
+    // Last 5 trades for recent streak context
+    var last5 = trades.slice().sort(function(a,b){ return a.date < b.date ? 1 : -1; }).slice(0,5);
+    var last5Str = last5.map(function(t){ return (t.result==='Win'?'W':'L')+' '+t.direction+' ('+((parseFloat(t.r_achieved)||0)>0?'+':'')+parseFloat(t.r_achieved||0).toFixed(1)+'R '+t.date+')'; }).join(', ') || 'none';
+    // Session breakdown on similar days
+    var allSessionLines = simSessions.map(function(s){ return s.name+': '+s.wr+'% WR, avg '+s.avgR+'R ('+s.n+' trades)'; }).join('; ') || 'no session data';
+
     var prompt =
-      'You are a direct trading coach. Never invent stats — only use the exact numbers given.\n\n'+
-      'INSTRUMENT: '+_edgeInstrument+'\n'+
-      'TODAY BIAS SCORE: '+currentScore+' ('+currentVerdict+')\n\n'+
-      '── ALL-TIME STATS ──\n'+
+      'You are a sharp trading coach for '+_edgeInstrument+'. Only use the exact numbers given — never invent stats.\n\n'+
+      '── TODAY\'S SETUP ──\n'+
+      'Score: '+currentScore+' ('+currentVerdict+')\n'+
+      'Market direction: '+mdText+'\n'+
+      'London open: '+londonText+'\n'+
+      'Pivot: '+pivotText+'\n'+
+      'Mode: '+modeText+'\n'+
+      'TF bias:\n'+tfCtx+
+      'News today: '+newsCtx+'\n'+
+      'Last 5 trades: '+last5Str+'\n\n'+
+      '── HISTORICAL STATS (all trades) ──\n'+
       '- Longs: '+longLine+'\n'+
       '- Shorts: '+shortLine+'\n'+
       '- '+scoreLine+'\n'+
-      '- Overall best setup: '+setupLine+'\n'+
-      '- '+recentLine+'\n\n'+
-      '── ON DAYS WITH SIMILAR SCORE (±2 of today = '+todayScoreNum.toFixed(1)+'), '+simDayCount+' days, '+similarDays.length+' trades ──\n'+
-      '- Longs on similar days: '+simLongLine+'\n'+
-      '- Shorts on similar days: '+simShortLine+'\n'+
-      '- Best setup on similar days: '+simSetupLine+'\n'+
-      (simWorstLine ? '- Worst setup on similar days: '+simWorstLine+'\n' : '')+
-      '- Best session on similar days: '+simSessionLine+'\n\n'+
-      'PRIORITY: base your coaching primarily on the "similar score days" data above — that is what actually happened when the market looked like today.\n\n'+
-      'Give:\n'+
-      '- verdict: 5-6 words describing today\'s bias\n'+
-      '- lean: long, short, or neutral\n'+
-      '- action: ONE sentence — what to look for today based on similar-score-day patterns. Cite real stats.\n'+
-      '- avoid: ONE sentence — what failed on similar-score days. Cite real stats.\n'+
-      '- edge: ONE sentence — the single strongest pattern from similar-score days.\n\n'+
-      'Rules: cite actual numbers. No vague advice. Max 28 words per field. If similar-score sample is small (<5 trades), note this briefly.\n'+
+      '- Best setup overall: '+setupLine+'\n'+
+      '- Recent form: '+recentLine+'\n\n'+
+      '── SIMILAR SCORE DAYS (score ±2 of '+todayScoreNum.toFixed(1)+', '+simDayCount+' days, '+similarDays.length+' trades) ──\n'+
+      '- Longs: '+simLongLine+'\n'+
+      '- Shorts: '+simShortLine+'\n'+
+      '- Best setup: '+simSetupLine+'\n'+
+      (simWorstLine ? '- Worst setup: '+simWorstLine+'\n' : '')+
+      '- Session breakdown: '+allSessionLines+'\n\n'+
+      'INSTRUCTIONS:\n'+
+      '1. Use TODAY\'S SETUP (the bias buttons + direction + news) to make the advice specific to right now.\n'+
+      '2. Use SIMILAR SCORE DAYS as historical evidence of what tends to happen.\n'+
+      '3. Cross-reference: if today has bear D+4H bias but historically longs won on similar days, flag that conflict.\n'+
+      '4. If today has high-impact news, factor that into the advice.\n'+
+      '5. Cite actual numbers in every field. Max 30 words per field.\n'+
+      '6. If similar-score sample <5 trades, say so and rely on all-time stats instead.\n\n'+
       'Output valid JSON only:\n'+
-      '{"lean":"long"|"short"|"neutral","verdict":"...","action":"...","avoid":"...","edge":"..."}';
+      '{"lean":"long"|"short"|"neutral","verdict":"5-6 words describing today","action":"what to look for — specific to today\'s setup + historical evidence","avoid":"what failed historically on similar days or conflicts with today\'s setup","edge":"the single sharpest insight combining today\'s context with the data"}';
 
     try {
       var res = await fetch('/api/ai-proxy', {
