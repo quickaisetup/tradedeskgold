@@ -2240,11 +2240,12 @@ function renderLevelsPage() {
     if (_lvlTraderFilter !== 'all' && _lvlTraderFilter !== t.id) return;
     var morning = latestMorning(_allData.mornings, t.id, dateStr);
     if (!morning || !morning.levels_json) return;
+    var hasAnalysis = !!(morning.verdict || (morning.score !== null && morning.score !== undefined && morning.score !== 0));
     var lvls = [];
     try { lvls = JSON.parse(morning.levels_json); } catch(e){}
     lvls.forEach(function(lv) {
       if (!lv.price) return;
-      allCards.push({ trader: t, lv: lv });
+      allCards.push({ trader: t, lv: lv, hasAnalysis: hasAnalysis });
     });
   });
 
@@ -2253,8 +2254,9 @@ function renderLevelsPage() {
     return;
   }
 
-  // Sort: longs first, then by price desc
+  // Sort: analysis-done traders first, then longs first, then by price desc
   allCards.sort(function(a, b) {
+    if (a.hasAnalysis !== b.hasAnalysis) return a.hasAnalysis ? -1 : 1;
     if (a.lv.direction !== b.lv.direction) return a.lv.direction === 'long' ? -1 : 1;
     return parseFloat(b.lv.price||0) - parseFloat(a.lv.price||0);
   });
