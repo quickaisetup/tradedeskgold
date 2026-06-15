@@ -605,6 +605,23 @@ async function admLoadData() {
     renderAllPages();
     document.getElementById('page-overview').classList.add('active');
     startAdmAutoRefresh();
+    // Realtime: re-fetch levels immediately when any trader updates their morning_analysis
+    try {
+      getSB().channel('admin-morning-realtime')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'morning_analysis' }, async function(payload) {
+          // Update just the affected row in _allData.mornings
+          var updated = payload.new || payload.old;
+          if (updated && updated.user_id) {
+            var sb = getSB();
+            var res = await sb.from('morning_analysis').select('*').eq('user_id', updated.user_id).order('date',{ascending:false});
+            if (!res.error && _allData) {
+              _allData.mornings = (_allData.mornings || []).filter(function(m){ return m.user_id !== updated.user_id; }).concat(res.data || []);
+              if (document.getElementById('page-levels').classList.contains('active')) renderLevelsPage();
+            }
+          }
+        })
+        .subscribe();
+    } catch(e) { console.warn('[admin] realtime subscribe failed:', e.message); }
   } catch(e) {
     document.getElementById('adm-loading').innerHTML = '<div style="color:var(--red);font-family:var(--mono);font-size:11px">Error: ' + e.message + '</div>';
   }
