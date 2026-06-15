@@ -13541,37 +13541,39 @@ window.loadEdgePanel = async function(forceAI) {
     var allSessionLines = simSessions.map(function(s){ return s.name+': '+s.wr+'% WR, avg '+s.avgR+'R ('+s.n+' trades)'; }).join('; ') || 'no session data';
 
     var prompt =
-      'You are a sharp trading coach for '+_edgeInstrument+'. Only use the exact numbers given — never invent stats.\n\n'+
-      '── TODAY\'S SETUP ──\n'+
-      'Score: '+currentScore+' ('+currentVerdict+')\n'+
-      'Market direction: '+mdText+'\n'+
-      'London open: '+londonText+'\n'+
-      'Pivot: '+pivotText+'\n'+
-      'Mode: '+modeText+'\n'+
-      'TF bias:\n'+tfCtx+
+      'You are a professional trading analyst producing a structured daily briefing for a '+_edgeInstrument+' trader. Use ONLY the exact numbers provided. Do not invent stats.\n\n'+
+      '═══ TODAY\'S CONTEXT ═══\n'+
+      'Bias score: '+currentScore+' ('+currentVerdict+')\n'+
+      'Market direction: '+mdText+' | London: '+londonText+' | Pivot: '+pivotText+' | Mode: '+modeText+'\n'+
+      'Timeframe breakdown:\n'+tfCtx+
       'News today: '+newsCtx+'\n'+
-      'Last 5 trades: '+last5Str+'\n\n'+
-      '── HISTORICAL STATS (all trades) ──\n'+
-      '- Longs: '+longLine+'\n'+
-      '- Shorts: '+shortLine+'\n'+
-      '- '+scoreLine+'\n'+
-      '- Best setup overall: '+setupLine+'\n'+
-      '- Recent form: '+recentLine+'\n\n'+
-      '── SIMILAR SCORE DAYS (score ±2 of '+todayScoreNum.toFixed(1)+', '+simDayCount+' days, '+similarDays.length+' trades) ──\n'+
-      '- Longs: '+simLongLine+'\n'+
-      '- Shorts: '+simShortLine+'\n'+
-      '- Best setup: '+simSetupLine+'\n'+
-      (simWorstLine ? '- Worst setup: '+simWorstLine+'\n' : '')+
-      '- Session breakdown: '+allSessionLines+'\n\n'+
-      'INSTRUCTIONS:\n'+
-      '1. Use TODAY\'S SETUP (the bias buttons + direction + news) to make the advice specific to right now.\n'+
-      '2. Use SIMILAR SCORE DAYS as historical evidence of what tends to happen.\n'+
-      '3. Cross-reference: if today has bear D+4H bias but historically longs won on similar days, flag that conflict.\n'+
-      '4. If today has high-impact news, factor that into the advice.\n'+
-      '5. Cite actual numbers in every field. Max 30 words per field.\n'+
-      '6. If similar-score sample <5 trades, say so and rely on all-time stats instead.\n\n'+
-      'Output valid JSON only:\n'+
-      '{"lean":"long"|"short"|"neutral","verdict":"5-6 words describing today","action":"what to look for — specific to today\'s setup + historical evidence","avoid":"what failed historically on similar days or conflicts with today\'s setup","edge":"the single sharpest insight combining today\'s context with the data"}';
+      'Recent trades (last 5): '+last5Str+'\n\n'+
+      '═══ HISTORICAL DATA ═══\n'+
+      'All-time — Longs: '+longLine+'\n'+
+      'All-time — Shorts: '+shortLine+'\n'+
+      'All-time — '+scoreLine+'\n'+
+      'All-time — Best setup: '+setupLine+'\n'+
+      'Recent form: '+recentLine+'\n\n'+
+      '═══ SIMILAR SCORE DAYS (score ±1.5 of '+todayScoreNum.toFixed(1)+' → '+simDayCount+' days, '+similarDays.length+' trades) ═══\n'+
+      'Longs on similar days: '+simLongLine+'\n'+
+      'Shorts on similar days: '+simShortLine+'\n'+
+      'Best setup on similar days: '+simSetupLine+'\n'+
+      (simWorstLine ? 'Worst setup on similar days: '+simWorstLine+'\n' : '')+
+      'Session breakdown: '+allSessionLines+'\n\n'+
+      'RULES:\n'+
+      '- Every sentence must cite a specific number from the data above.\n'+
+      '- If similar-score sample is under 5 trades, note "small sample" and use all-time stats.\n'+
+      '- Be direct and specific. No generic advice. No hedging phrases like "consider" or "may".\n'+
+      '- lean must match the direction that has better historical expectancy given today\'s TF alignment.\n\n'+
+      'OUTPUT: Valid JSON only, no markdown, exactly these 5 keys:\n'+
+      '{\n'+
+      '  "lean": "long" | "short" | "neutral",\n'+
+      '  "verdict": "6-8 word summary of today\'s trading environment",\n'+
+      '  "bias": "2 sentences: what the TF stack says + what direction has historical edge today",\n'+
+      '  "playbook": "2-3 sentences: exact session to trade, what setup to look for, entry condition (e.g. reclaim of X, break of Y after London open)",\n'+
+      '  "invalidation": "1-2 sentences: the specific price action or condition that means the thesis is wrong and you stay flat",\n'+
+      '  "edge": "1 sentence: the single most important stat from your data that traders often overlook"\n'+
+      '}';
 
     try {
       var res = await fetch('/api/ai-proxy', {
@@ -13608,50 +13610,60 @@ window.loadEdgePanel = async function(forceAI) {
         '</div>';
       }
 
-      var resultHtml =
-        // Score + verdict header
-        '<div style="padding:11px 20px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;gap:14px;background:rgba(0,0,0,0.15)">'+
-          '<span style="font-family:var(--display);font-size:22px;color:'+leanColor+';letter-spacing:0.06em">'+scoreNow+'</span>'+
-          '<span style="font-family:var(--display);font-size:13px;color:'+leanColor+';letter-spacing:0.07em;opacity:0.85">'+parsed.verdict+'</span>'+
-          '<span style="margin-left:auto;font-family:var(--mono);font-size:8px;color:var(--text3)">AI coaching · real stats only</span>'+
-        '</div>'+
-        // Real stats bar — similar score days (±1.5 band)
-        (function(){
-          var hasSimData = similarDays.length >= 3;
-          var srcLabel = hasSimData
-            ? 'score ≈'+todayScoreNum.toFixed(1)+' · ±1.5 band · '+simDayCount+' days, '+similarDays.length+' trades'
-            : 'all-time (not enough similar-score days)';
-          var sl = hasSimData ? simLong  : long;
-          var ss = hasSimData ? simShort : short;
-          var slColor = sl.pct >= 60 ? 'var(--green)' : sl.pct >= 50 ? 'var(--gold)' : 'var(--red)';
-          var ssColor = ss.pct >= 60 ? 'var(--green)' : ss.pct >= 50 ? 'var(--gold)' : 'var(--red)';
-          var bss = hasSimData ? bestSimSetup : (bestSetup ? {name:bestSetup, wr:null, avgR:Math.round(bestAvgR*100)/100, n:null} : null);
-          var bsSession = hasSimData ? bestSimSession : null;
-          var worstSS = hasSimData ? worstSimSetup : null;
-          return '<div style="padding:10px 20px;display:flex;gap:28px;flex-wrap:wrap;align-items:center;border-bottom:1px solid rgba(255,255,255,0.05);background:rgba(0,0,0,0.1)">'+
-            '<span style="font-family:var(--mono);font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3);flex-shrink:0">'+srcLabel+'</span>'+
-            (sl.n ? statPill('Longs', pct(sl.pct, slColor)+' <span style="font-family:var(--mono);font-size:9px;color:var(--text3)">won ('+sl.wins+'/'+sl.n+')</span>', (sl.totalR>=0?'+':'')+sl.totalR+'R total') : '')+
-            (ss.n ? statPill('Shorts', pct(ss.pct, ssColor)+' <span style="font-family:var(--mono);font-size:9px;color:var(--text3)">won ('+ss.wins+'/'+ss.n+')</span>', (ss.totalR>=0?'+':'')+ss.totalR+'R total') : '')+
-            (bss ? statPill('Best setup', '<span style="font-family:var(--mono);font-size:10px;color:var(--green)">'+bss.name+'</span>', (bss.wr!==null?bss.wr+'% WR · ':'')+' avg +'+(bss.avgR)+'R'+(bss.n?' ('+bss.n+' trades)':'')) : '')+
-            (worstSS && worstSS.name !== (bss&&bss.name) ? statPill('Avoid setup', '<span style="font-family:var(--mono);font-size:10px;color:var(--red)">'+worstSS.name+'</span>', worstSS.wr+'% WR · avg '+worstSS.avgR+'R') : '')+
-            (bsSession ? statPill('Best session', '<span style="font-family:var(--mono);font-size:10px;color:var(--gold)">'+bsSession.name+'</span>', bsSession.wr+'% WR · avg +'+bsSession.avgR+'R') : '')+
-          '</div>';
-        })()+
-        // Three coaching columns
-        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr">'+
-          '<div style="padding:14px 20px;border-right:1px solid rgba(255,255,255,0.05)">'+
-            '<div style="font-family:var(--mono);font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:var(--green);margin-bottom:7px">▶ Look for</div>'+
-            '<div style="font-size:12px;color:var(--text);line-height:1.6">'+parsed.action+'</div>'+
-          '</div>'+
-          '<div style="padding:14px 20px;border-right:1px solid rgba(255,255,255,0.05)">'+
-            '<div style="font-family:var(--mono);font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:var(--red);margin-bottom:7px">✕ Avoid</div>'+
-            '<div style="font-size:12px;color:var(--text2);line-height:1.6">'+parsed.avoid+'</div>'+
-          '</div>'+
-          '<div style="padding:14px 20px">'+
-            '<div style="font-family:var(--mono);font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3);margin-bottom:7px">⚑ Your edge</div>'+
-            '<div style="font-size:12px;color:var(--text2);line-height:1.6">'+parsed.edge+'</div>'+
-          '</div>'+
+      // ── stat bar helpers ──────────────────────────────────
+      var hasSimData = similarDays.length >= 3;
+      var sl = hasSimData ? simLong  : long;
+      var ss = hasSimData ? simShort : short;
+      var slColor = sl.pct >= 60 ? 'var(--green)' : sl.pct >= 50 ? 'var(--gold)' : 'var(--red)';
+      var ssColor = ss.pct >= 60 ? 'var(--green)' : ss.pct >= 50 ? 'var(--gold)' : 'var(--red)';
+      var bss      = hasSimData ? bestSimSetup  : (bestSetup ? {name:bestSetup, wr:null, avgR:Math.round(bestAvgR*100)/100, n:null} : null);
+      var bsSession= hasSimData ? bestSimSession: null;
+      var worstSS  = hasSimData ? worstSimSetup : null;
+      var srcLabel = hasSimData
+        ? 'score ≈'+todayScoreNum.toFixed(1)+' · ±1.5 · '+simDayCount+' days / '+similarDays.length+' trades'
+        : 'all-time data (small similar-score sample)';
+
+      function mkStatPill(label, valHtml, sub) {
+        return '<div style="display:flex;flex-direction:column;gap:3px;min-width:80px">'+
+          '<span style="font-family:var(--mono);font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3)">'+label+'</span>'+
+          '<span style="font-size:12px;font-weight:600">'+valHtml+'</span>'+
+          (sub ? '<span style="font-family:var(--mono);font-size:9px;color:var(--text3)">'+sub+'</span>' : '')+
         '</div>';
+      }
+      function mkPct(n, color) { return '<span style="color:'+color+';font-family:var(--mono)">'+n+'%</span>'; }
+
+      function briefRow(icon, color, label, text) {
+        return '<div style="display:flex;gap:14px;padding:11px 20px;border-bottom:1px solid rgba(255,255,255,0.04);align-items:flex-start">'+
+          '<span style="font-family:var(--mono);font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:'+color+';padding-top:3px;white-space:nowrap;min-width:90px">'+icon+' '+label+'</span>'+
+          '<span style="font-size:12px;color:var(--text);line-height:1.65;flex:1">'+text+'</span>'+
+        '</div>';
+      }
+
+      var leanArrow = parsed.lean==='long' ? '▲ LONG' : parsed.lean==='short' ? '▼ SHORT' : '— NEUTRAL';
+      var resultHtml =
+        // ── Header ──────────────────────────────────────────
+        '<div style="padding:12px 20px;border-bottom:1px solid rgba(255,255,255,0.07);display:flex;align-items:center;gap:16px;background:rgba(0,0,0,0.2)">'+
+          '<span style="font-family:var(--display);font-size:20px;color:'+leanColor+';letter-spacing:0.06em">'+scoreNow+'</span>'+
+          '<div style="display:flex;flex-direction:column;gap:2px">'+
+            '<span style="font-family:var(--display);font-size:12px;color:'+leanColor+';letter-spacing:0.08em;text-transform:uppercase">'+parsed.verdict+'</span>'+
+            '<span style="font-family:var(--mono);font-size:9px;color:var(--text3)">bias: <span style="color:'+leanColor+'">'+leanArrow+'</span></span>'+
+          '</div>'+
+          '<span style="margin-left:auto;font-family:var(--mono);font-size:8px;color:var(--text3)">AI briefing · data-driven</span>'+
+        '</div>'+
+        // ── Stats bar ────────────────────────────────────────
+        '<div style="padding:10px 20px;display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start;border-bottom:1px solid rgba(255,255,255,0.05);background:rgba(0,0,0,0.12)">'+
+          '<div style="font-family:var(--mono);font-size:8px;letter-spacing:0.08em;text-transform:uppercase;color:var(--text3);padding-top:5px;white-space:nowrap">'+srcLabel+'</div>'+
+          (sl.n ? mkStatPill('Longs', mkPct(sl.pct,slColor)+' <span style="font-family:var(--mono);font-size:9px;color:var(--text3)">('+sl.wins+'/'+sl.n+')</span>', (sl.totalR>=0?'+':'')+sl.totalR+'R total') : '')+
+          (ss.n ? mkStatPill('Shorts', mkPct(ss.pct,ssColor)+' <span style="font-family:var(--mono);font-size:9px;color:var(--text3)">('+ss.wins+'/'+ss.n+')</span>', (ss.totalR>=0?'+':'')+ss.totalR+'R total') : '')+
+          (bss ? mkStatPill('Best setup', '<span style="color:var(--green);font-family:var(--mono);font-size:11px">'+bss.name+'</span>', (bss.wr!==null?bss.wr+'% WR · ':'')+' avg +'+(bss.avgR)+'R') : '')+
+          (worstSS&&worstSS.name!==(bss&&bss.name) ? mkStatPill('Avoid', '<span style="color:var(--red);font-family:var(--mono);font-size:11px">'+worstSS.name+'</span>', worstSS.wr+'% WR · avg '+worstSS.avgR+'R') : '')+
+          (bsSession ? mkStatPill('Best session', '<span style="color:var(--gold);font-family:var(--mono);font-size:11px">'+bsSession.name+'</span>', bsSession.wr+'% WR · avg +'+bsSession.avgR+'R') : '')+
+        '</div>'+
+        // ── Briefing rows ────────────────────────────────────
+        briefRow('◈', 'var(--text2)', 'Bias', parsed.bias)+
+        briefRow('▶', 'var(--green)', 'Playbook', parsed.playbook)+
+        briefRow('✕', 'var(--red)', 'Invalidation', parsed.invalidation)+
+        briefRow('◆', 'var(--gold)', 'Edge', parsed.edge);
 
       var aiEl3 = document.getElementById('edge-ai');
       var lockedEl = document.getElementById('edge-ai-locked');
