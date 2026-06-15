@@ -13937,6 +13937,16 @@ window.autoRestoreToday = async function() {
         });
       }
 
+      // London bias
+      if (morning.london_bias) {
+        window.londonBiasState = morning.london_bias;
+        document.querySelectorAll('[onclick^="setLondonBias"]').forEach(function(btn) {
+          var oc = btn.getAttribute('onclick') || '';
+          var m = oc.match(/setLondonBias\([^,]+,\s*'([^']+)'/);
+          if (m && m[1] === morning.london_bias) btn.click();
+        });
+      }
+
       // Trading mode
       if (morning.trading_mode) {
         window.tradingMode = morning.trading_mode;
@@ -14956,7 +14966,13 @@ function tdlPatchApp() {
           pivot_state:  payload.pivot || '',
           london_bias:  payload.londonBias || '',
           market_dir:   payload.marketDirection || '',
+          trading_mode: payload.trading_mode || '',
           news_notes:   payload.newsNotes || '',
+          notes_1M:     payload.notes_1M || '',
+          notes_1W:     payload.notes_1W || '',
+          notes_D:      payload.notes_D  || '',
+          notes_4H:     payload.notes_4H || '',
+          notes_1H:     payload.notes_1H || '',
           high_impact:  !!(payload.newsImpact === 'high' || payload.highImpact),
           score:        parseFloat(payload.score) || 0,
           verdict:      payload.overall_bias || '',
