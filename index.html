@@ -1662,6 +1662,9 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 .leo-sym-tab{font-family:var(--mono);font-size:9px;letter-spacing:0.12em;text-transform:uppercase;padding:0 13px;height:100%;display:flex;align-items:center;color:rgba(255,255,255,0.45);cursor:pointer;border:none;background:transparent;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap;border-right:1px solid rgba(255,255,255,0.07)}
 .leo-sym-tab.active{color:var(--gold);border-bottom-color:var(--gold);background:rgba(240,188,78,0.07)}
 .leo-sym-tab:hover:not(.active){color:rgba(255,255,255,0.75);background:rgba(255,255,255,0.03)}
+.leo-ind-btn{font-family:var(--mono);font-size:8px;letter-spacing:0.1em;text-transform:uppercase;padding:2px 8px;height:20px;border-radius:3px;border:1px solid rgba(255,255,255,0.12);background:transparent;color:rgba(255,255,255,0.35);cursor:pointer;transition:all .15s}
+.leo-ind-btn:hover:not(.active){color:rgba(255,255,255,0.7);border-color:rgba(255,255,255,0.25)}
+.leo-ind-btn.active{color:var(--gold);border-color:rgba(240,188,78,0.5);background:rgba(240,188,78,0.08)}
 #leo-ema-legend{display:flex;align-items:center;gap:10px;padding:0 14px;border-left:1px solid rgba(255,255,255,0.08);flex-shrink:0}
 .leo-ema-item{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:0.04em}
 #leo-price-right{margin-left:auto;display:flex;align-items:center;gap:10px;padding:0 14px;border-left:1px solid rgba(255,255,255,0.08);flex-shrink:0}
@@ -4708,6 +4711,13 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
       <button class="leo-sym-tab active" onclick="leoSetSymbol('XAUUSD',this)">XAUUSD</button>
       <button class="leo-sym-tab" onclick="leoSetSymbol('DXY',this)">DXY</button>
       <button class="leo-sym-tab" onclick="leoAddCustomTab()" title="Add a TradingView ticker (e.g. OANDA:EURUSD, NASDAQ:AAPL)" style="color:rgba(240,188,78,0.6)">+ Add</button>
+    </div>
+    <div id="leo-ind-toggle" style="display:flex;align-items:center;gap:4px;margin-left:auto;padding-right:8px">
+      <span style="font-family:var(--mono);font-size:8px;letter-spacing:0.1em;color:rgba(255,255,255,0.25);text-transform:uppercase;margin-right:2px">Indicator</span>
+      <button class="leo-ind-btn active" onclick="leoSetIndicator('ao',this)">AO</button>
+      <button class="leo-ind-btn" onclick="leoSetIndicator('volume',this)">Volume</button>
+      <button class="leo-ind-btn" onclick="leoSetIndicator('rsi',this)">RSI</button>
+      <button class="leo-ind-btn" onclick="leoSetIndicator('stoch',this)">Stoch</button>
     </div>
   </div>
 
@@ -9995,6 +10005,41 @@ function subscribeTradeAlerts() {
 }
 
 // ── LIVE EXECUTION — TradingView Edition ─────────────
+var _leoIndicator = localStorage.getItem('leo_indicator') || 'ao';
+
+function leoSetIndicator(key, btn) {
+  _leoIndicator = key;
+  localStorage.setItem('leo_indicator', key);
+  document.querySelectorAll('.leo-ind-btn').forEach(function(b){ b.classList.remove('active'); });
+  if (btn) btn.classList.add('active');
+  leoRefreshCharts();
+}
+
+function leoRestoreIndicatorBtn() {
+  var saved = localStorage.getItem('leo_indicator') || 'ao';
+  document.querySelectorAll('.leo-ind-btn').forEach(function(b) {
+    var key = (b.getAttribute('onclick') || '').match(/leoSetIndicator\('([^']+)'/);
+    if (key) b.classList.toggle('active', key[1] === saved);
+  });
+}
+
+function _leoGetStudies() {
+  var emas = [
+    {"id":"MAExp@tv-basicstudies","inputs":{"length":9},"styles":{"Plot.color":"#a855f7","Plot.linewidth":1}},
+    {"id":"MAExp@tv-basicstudies","inputs":{"length":20},"styles":{"Plot.color":"#f0bc4e","Plot.linewidth":1}},
+    {"id":"MAExp@tv-basicstudies","inputs":{"length":50},"styles":{"Plot.color":"#6aa3f5","Plot.linewidth":1}},
+    {"id":"MAExp@tv-basicstudies","inputs":{"length":200},"styles":{"Plot.color":"#ffffff","Plot.linewidth":2}}
+  ];
+  var ind = {
+    ao:     {"id":"STD;Awesome_Oscillator"},
+    rsi:    {"id":"STD;RSI"},
+    stoch:  {"id":"STD;Stochastic"}
+  };
+  return _leoIndicator === 'volume' ? emas : [ind[_leoIndicator]].concat(emas);
+}
+
+function _leoHideVolume() { return _leoIndicator !== 'volume'; }
+
 var _leoCurrentRisk = 0.25;
 var _leoSymbol      = 'CAPITALCOM:XAUUSD';
 var _leoLiveTimer   = null;
@@ -10036,14 +10081,8 @@ function leoMakeWidgetHTML(sym, interval, tfLabel) {
     allow_symbol_change: false,
     save_image: false,
     calendar: false,
-    hide_volume: true,
-    studies: [
-      {"id":"STD;Awesome_Oscillator"},
-      {"id":"MAExp@tv-basicstudies","inputs":{"length":9},"styles":{"Plot.color":"#a855f7","Plot.linewidth":1}},
-      {"id":"MAExp@tv-basicstudies","inputs":{"length":20},"styles":{"Plot.color":"#f0bc4e","Plot.linewidth":1}},
-      {"id":"MAExp@tv-basicstudies","inputs":{"length":50},"styles":{"Plot.color":"#6aa3f5","Plot.linewidth":1}},
-      {"id":"MAExp@tv-basicstudies","inputs":{"length":200},"styles":{"Plot.color":"#ffffff","Plot.linewidth":2}}
-    ],
+    hide_volume: _leoHideVolume(),
+    studies: _leoGetStudies(),
     support_host: 'https://www.tradingview.com'
   });
   return '<!DOCTYPE html><html><head><meta charset="UTF-8">' +
@@ -10110,14 +10149,8 @@ function leoLoadWidget(tfId, sym, interval) {
     autosize: true, symbol: sym, interval: interval,
     timezone: _tzIANA(), theme: 'dark', style: '1', locale: 'en',
     hide_top_toolbar: true, hide_legend: true, hide_side_toolbar: true,
-    allow_symbol_change: false, save_image: false, calendar: false, hide_volume: true,
-    studies: [
-      {"id":"STD;Awesome_Oscillator"},
-      {"id":"MAExp@tv-basicstudies","inputs":{"length":9}},
-      {"id":"MAExp@tv-basicstudies","inputs":{"length":20}},
-      {"id":"MAExp@tv-basicstudies","inputs":{"length":50}},
-      {"id":"MAExp@tv-basicstudies","inputs":{"length":200}}
-    ],
+    allow_symbol_change: false, save_image: false, calendar: false, hide_volume: _leoHideVolume(),
+    studies: _leoGetStudies(),
     support_host: 'https://www.tradingview.com'
   };
 
@@ -10301,6 +10334,8 @@ function openLiveExec() {
   if (leoM) leoM.textContent = tradingMode || '— no mode —';
   var md = document.querySelector('#market-direction .bb.sel');
   if (leoD) leoD.textContent = md ? md.textContent.trim() : '—';
+
+  if (window.leoRestoreIndicatorBtn) leoRestoreIndicatorBtn();
 
   if (!_leoInited) {
     _leoInited = true;
