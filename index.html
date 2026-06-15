@@ -13309,18 +13309,15 @@ window.loadEdgePanel = async function(forceAI) {
     var _edgeInstrument = (typeof _tdActiveInstrument !== 'undefined' && _tdActiveInstrument) || 'Gold';
     // Fetch all trades for this user — instrument filtering is done client-side
     // so legacy trades without an instrument column still show up
-    var tRes = await sb.from('trades')
-      .select('date,direction,setup,session,result,r_achieved,risk_pct,usd_achieved,mindset')
-      .eq('user_id', uid);
+    var [tRes, mRes] = await Promise.all([
+      sb.from('trades').select('date,direction,setup,session,result,r_achieved,risk_pct,usd_achieved,mindset').eq('user_id', uid),
+      sb.from('morning_analysis').select('date,score,tf_state,market_dir,london_bias,trading_mode,pivot_state').eq('user_id', uid)
+    ]);
     if (tRes.error) console.warn('[edge] trades fetch error:', tRes.error.message);
     var allTrades = tRes.data || [];
-    // Prefer trades matching the active instrument; fall back to all trades
     var trades = allTrades.filter(function(t){ return !t.instrument || t.instrument === _edgeInstrument; });
     if (trades.length === 0) trades = allTrades;
     console.log('[edge] uid='+uid+' allTrades='+allTrades.length+' filtered='+trades.length+' instrument='+_edgeInstrument);
-    var mRes = await sb.from('morning_analysis')
-      .select('date,score')
-      .eq('user_id', uid);
     var mornings = mRes.data || [];
 
     if (mRes.error) console.warn('[edge] morning fetch error:', mRes.error.message);
@@ -13406,19 +13403,86 @@ window.loadEdgePanel = async function(forceAI) {
     var recentWr = recent.length ? Math.round(recent.filter(function(t){return t.result==='Win';}).length/recent.length*100) : null;
     var recentR  = recent.length ? Math.round(recent.reduce(function(s,t){ return s+signedR(t.result,t.r_achieved,t.risk_pct); },0)*100)/100 : null;
 
-    // Best setup overall by avg R (min 2 trades) — kept for stat chips
+    // Best/worst setup overall by avg R (min 2 trades)
     var setupMap = {};
     trades.forEach(function(t) {
       var s = (t.setup||'').trim(); if (!s) return;
-      if (!setupMap[s]) setupMap[s] = { n:0, totalR:0 };
+      if (!setupMap[s]) setupMap[s] = { n:0, totalR:0, wins:0 };
       setupMap[s].n++;
+      setupMap[s].wins += t.result==='Win'?1:0;
       setupMap[s].totalR += signedR(t.result, t.r_achieved, t.risk_pct);
     });
-    var bestSetup = null, bestAvgR = -99;
+    var bestSetup = null, bestAvgR = -99, worstSetup = null, worstAvgR = 99;
     Object.keys(setupMap).forEach(function(s) {
       var avg = setupMap[s].totalR / setupMap[s].n;
       if (setupMap[s].n >= 2 && avg > bestAvgR) { bestAvgR = avg; bestSetup = s; }
+      if (setupMap[s].n >= 2 && avg < worstAvgR) { worstAvgR = avg; worstSetup = s; }
     });
+
+    // ── DAY OF WEEK stats ────────────────────────────────
+    var dowMap = {Mon:{n:0,wins:0,totalR:0},Tue:{n:0,wins:0,totalR:0},Wed:{n:0,wins:0,totalR:0},Thu:{n:0,wins:0,totalR:0},Fri:{n:0,wins:0,totalR:0}};
+    var dowNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    trades.forEach(function(t) {
+      var d = new Date(t.date+'T12:00:00Z');
+      var dow = dowNames[d.getUTCDay()];
+      if (!dowMap[dow]) return;
+      dowMap[dow].n++; dowMap[dow].wins += t.result==='Win'?1:0;
+      dowMap[dow].totalR += signedR(t.result,t.r_achieved,t.risk_pct);
+    });
+    var dowLines = Object.keys(dowMap).map(function(d){
+      var v=dowMap[d]; if(!v.n) return null;
+      return d+': '+Math.round(v.wins/v.n*100)+'% WR ('+v.n+' trades, '+(v.totalR>=0?'+':'')+Math.round(v.totalR*100)/100+'R)';
+    }).filter(Boolean).join(' | ');
+    var todayDow = dowNames[new Date().getUTCDay()];
+    var todayDowStats = dowMap[todayDow] && dowMap[todayDow].n
+      ? todayDow+': '+Math.round(dowMap[todayDow].wins/dowMap[todayDow].n*100)+'% WR across '+dowMap[todayDow].n+' historical trades, '+(dowMap[todayDow].totalR>=0?'+':'')+Math.round(dowMap[todayDow].totalR*100)/100+'R total'
+      : todayDow+': no data yet';
+
+    // ── MINDSET correlation ──────────────────────────────
+    var mindsetHigh = trades.filter(function(t){ return parseInt(t.mindset||0)>=7; });
+    var mindsetLow  = trades.filter(function(t){ var m=parseInt(t.mindset||0); return m>0&&m<=5; });
+    var mhWr = mindsetHigh.length ? Math.round(mindsetHigh.filter(function(t){return t.result==='Win';}).length/mindsetHigh.length*100) : null;
+    var mlWr = mindsetLow.length  ? Math.round(mindsetLow.filter(function(t){return t.result==='Win';}).length/mindsetLow.length*100)   : null;
+    var mhR  = mindsetHigh.length ? Math.round(mindsetHigh.reduce(function(s,t){return s+signedR(t.result,t.r_achieved,t.risk_pct);},0)*100)/100 : null;
+    var mlR  = mindsetLow.length  ? Math.round(mindsetLow.reduce(function(s,t){return s+signedR(t.result,t.r_achieved,t.risk_pct);},0)*100)/100  : null;
+    var mindsetLine = (mhWr!==null&&mlWr!==null)
+      ? 'Mindset ≥7: '+mhWr+'% WR ('+mindsetHigh.length+' trades, '+(mhR>=0?'+':'')+mhR+'R) | Mindset ≤5: '+mlWr+'% WR ('+mindsetLow.length+' trades, '+(mlR>=0?'+':'')+mlR+'R)'
+      : 'not enough mindset data';
+
+    // ── ALL SESSIONS overall ─────────────────────────────
+    var allSessionMap = {};
+    trades.forEach(function(t) {
+      var s=(t.session||'').trim(); if(!s) return;
+      if(!allSessionMap[s]) allSessionMap[s]={n:0,wins:0,totalR:0};
+      allSessionMap[s].n++; allSessionMap[s].wins+=t.result==='Win'?1:0;
+      allSessionMap[s].totalR+=signedR(t.result,t.r_achieved,t.risk_pct);
+    });
+    var allSessionLine = Object.keys(allSessionMap).map(function(s){
+      var v=allSessionMap[s];
+      return s+': '+Math.round(v.wins/v.n*100)+'% WR ('+v.n+' trades, '+(v.totalR>=0?'+':'')+Math.round(v.totalR*100)/100+'R)';
+    }).join(' | ') || 'no session data';
+
+    // ── SCORE HISTORY for context ────────────────────────
+    var scoreGroups = {'≥4':{n:0,wins:0,totalR:0},'1-3':{n:0,wins:0,totalR:0},'-1to0':{n:0,wins:0,totalR:0},'≤-2':{n:0,wins:0,totalR:0}};
+    trades.forEach(function(t){
+      var sc=scoreByDate[t.date]; if(sc===undefined) return;
+      var g = sc>=4?'≥4':sc>=1?'1-3':sc>=-1?'-1to0':'≤-2';
+      scoreGroups[g].n++; scoreGroups[g].wins+=t.result==='Win'?1:0;
+      scoreGroups[g].totalR+=signedR(t.result,t.r_achieved,t.risk_pct);
+    });
+    var scoreBreakdownLine = Object.keys(scoreGroups).map(function(g){
+      var v=scoreGroups[g]; if(!v.n) return null;
+      return 'Score '+g+': '+Math.round(v.wins/v.n*100)+'% WR ('+v.n+' trades, '+(v.totalR>=0?'+':'')+Math.round(v.totalR*100)/100+'R)';
+    }).filter(Boolean).join(' | ');
+
+    // ── CURRENT SESSION (Bangkok time) ───────────────────
+    var bkkHour = parseInt(new Date().toLocaleString('en-GB',{hour:'2-digit',hour12:false,timeZone:'Asia/Bangkok'}));
+    var bkkTime = new Date().toLocaleString('en-GB',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:'Asia/Bangkok'});
+    var currentSession = bkkHour>=14&&bkkHour<18 ? 'London' : bkkHour>=18&&bkkHour<23 ? 'NY' : bkkHour>=1&&bkkHour<8 ? 'Asia' : 'Off-session';
+    var currentSessionStats = allSessionMap[currentSession];
+    var currentSessionLine = currentSessionStats
+      ? currentSession+' session active (BKK '+bkkTime+'): historically '+Math.round(currentSessionStats.wins/currentSessionStats.n*100)+'% WR across '+currentSessionStats.n+' trades, '+(currentSessionStats.totalR>=0?'+':'')+Math.round(currentSessionStats.totalR*100)/100+'R total'
+      : currentSession+' (BKK '+bkkTime+') — no trades recorded in this session yet';
 
     // ── 3. Render stat chips ─────────────────────────────
     // Show similar-score day stats in chips (fall back to all-time if not enough data)
@@ -13536,44 +13600,45 @@ window.loadEdgePanel = async function(forceAI) {
     } catch(e) {}
     // Last 5 trades for recent streak context
     var last5 = trades.slice().sort(function(a,b){ return a.date < b.date ? 1 : -1; }).slice(0,5);
-    var last5Str = last5.map(function(t){ return (t.result==='Win'?'W':'L')+' '+t.direction+' ('+((parseFloat(t.r_achieved)||0)>0?'+':'')+parseFloat(t.r_achieved||0).toFixed(1)+'R '+t.date+')'; }).join(', ') || 'none';
-    // Session breakdown on similar days
-    var allSessionLines = simSessions.map(function(s){ return s.name+': '+s.wr+'% WR, avg '+s.avgR+'R ('+s.n+' trades)'; }).join('; ') || 'no session data';
+    var last5Str = last5.map(function(t){ return (t.result==='Win'?'W':'L')+' '+t.direction+' '+t.setup+' mindset:'+(t.mindset||'?')+' ('+(parseFloat(t.r_achieved||0)>=0?'+':'')+parseFloat(t.r_achieved||0).toFixed(1)+'R '+t.date+')'; }).join(' | ') || 'none';
+    var simSessionLines = simSessions.map(function(s){ return s.name+': '+s.wr+'% WR, avg '+s.avgR+'R ('+s.n+' trades)'; }).join(' | ') || 'no session data on similar days';
+    // All setups sorted by avg R
+    var allSetupsLine = Object.keys(setupMap).filter(function(s){return setupMap[s].n>=2;}).map(function(s){
+      var v=setupMap[s]; return s+': '+Math.round(v.wins/v.n*100)+'% WR avg '+(Math.round(v.totalR/v.n*100)/100)+'R ('+v.n+')';
+    }).sort(function(a,b){return b.localeCompare(a);}).join(' | ') || 'no setup data';
 
     var prompt =
-      'You are a professional trading analyst producing a structured daily briefing for a '+_edgeInstrument+' trader. Use ONLY the exact numbers provided. Do not invent stats.\n\n'+
-      '═══ TODAY\'S CONTEXT ═══\n'+
-      'Bias score: '+currentScore+' ('+currentVerdict+')\n'+
-      'Market direction: '+mdText+' | London: '+londonText+' | Pivot: '+pivotText+' | Mode: '+modeText+'\n'+
-      'Timeframe breakdown:\n'+tfCtx+
-      'News today: '+newsCtx+'\n'+
-      'Recent trades (last 5): '+last5Str+'\n\n'+
-      '═══ HISTORICAL DATA ═══\n'+
-      'All-time — Longs: '+longLine+'\n'+
-      'All-time — Shorts: '+shortLine+'\n'+
-      'All-time — '+scoreLine+'\n'+
-      'All-time — Best setup: '+setupLine+'\n'+
-      'Recent form: '+recentLine+'\n\n'+
+      'You are a professional prop-firm trading analyst. Produce a structured daily briefing for a '+_edgeInstrument+' daytrader. ONLY use the exact numbers given — never invent stats.\n\n'+
+      '═══ TODAY ═══\n'+
+      'Time: BKK '+bkkTime+' | Day: '+todayDow+' | Session now: '+currentSession+'\n'+
+      'Bias score: '+currentScore+' ('+currentVerdict+') | Market: '+mdText+' | London: '+londonText+' | Pivot: '+pivotText+' | Mode: '+modeText+'\n'+
+      'TF stack:\n'+tfCtx+
+      'News: '+newsCtx+'\n'+
+      'Last 5 trades: '+last5Str+'\n\n'+
+      '═══ HISTORICAL STATS ('+trades.length+' total trades) ═══\n'+
+      'Direction — Longs: '+longLine+' | Shorts: '+shortLine+'\n'+
+      'Score bands: '+scoreBreakdownLine+'\n'+
+      'Day of week: '+dowLines+'\n'+
+      'Today ('+todayDow+'): '+todayDowStats+'\n'+
+      'All sessions: '+allSessionLine+'\n'+
+      'Current session: '+currentSessionLine+'\n'+
+      'Mindset impact: '+mindsetLine+'\n'+
+      'Setup performance: '+allSetupsLine+'\n'+
+      'Recent form (last 10): '+recentLine+'\n\n'+
       '═══ SIMILAR SCORE DAYS (score ±1.5 of '+todayScoreNum.toFixed(1)+' → '+simDayCount+' days, '+similarDays.length+' trades) ═══\n'+
-      'Longs on similar days: '+simLongLine+'\n'+
-      'Shorts on similar days: '+simShortLine+'\n'+
-      'Best setup on similar days: '+simSetupLine+'\n'+
-      (simWorstLine ? 'Worst setup on similar days: '+simWorstLine+'\n' : '')+
-      'Session breakdown: '+allSessionLines+'\n\n'+
+      'Longs: '+simLongLine+'\n'+
+      'Shorts: '+simShortLine+'\n'+
+      'Setups: '+simSetupLine+(simWorstLine?' | Worst: '+simWorstLine:'')+'\n'+
+      'Sessions: '+simSessionLines+'\n\n'+
       'RULES:\n'+
-      '- Every sentence must cite a specific number from the data above.\n'+
-      '- If similar-score sample is under 5 trades, note "small sample" and use all-time stats.\n'+
-      '- Be direct and specific. No generic advice. No hedging phrases like "consider" or "may".\n'+
-      '- lean must match the direction that has better historical expectancy given today\'s TF alignment.\n\n'+
-      'OUTPUT: Valid JSON only, no markdown, exactly these 5 keys:\n'+
-      '{\n'+
-      '  "lean": "long" | "short" | "neutral",\n'+
-      '  "verdict": "6-8 word summary of today\'s trading environment",\n'+
-      '  "bias": "2 sentences: what the TF stack says + what direction has historical edge today",\n'+
-      '  "playbook": "2-3 sentences: exact session to trade, what setup to look for, entry condition (e.g. reclaim of X, break of Y after London open)",\n'+
-      '  "invalidation": "1-2 sentences: the specific price action or condition that means the thesis is wrong and you stay flat",\n'+
-      '  "edge": "1 sentence: the single most important stat from your data that traders often overlook"\n'+
-      '}';
+      '- Every sentence must reference a specific number from the data. No invented stats.\n'+
+      '- "playbook" must be exactly 3 numbered steps (plain text, no markdown).\n'+
+      '- Steps must name the session, the exact setup type, and the entry trigger.\n'+
+      '- If similar-score sample <5 trades, label stats as "small sample" and weight all-time data.\n'+
+      '- Be direct. No hedging. No "consider" or "may".\n'+
+      '- lean = direction with better R expectancy given the TF alignment today.\n\n'+
+      'OUTPUT: valid JSON only, no markdown fences, exactly these keys:\n'+
+      '{"lean":"long"|"short"|"neutral","verdict":"6-8 word summary","session":"1 sentence on current session + its historical WR","bias":"2 sentences: TF stack read + which direction has edge","playbook":"1. [step] 2. [step] 3. [step]","invalidation":"1 sentence: exact condition that kills the thesis","edge":"1 sentence: sharpest non-obvious insight from the data"}';
 
     try {
       var res = await fetch('/api/ai-proxy', {
@@ -13639,31 +13704,94 @@ window.loadEdgePanel = async function(forceAI) {
         '</div>';
       }
 
-      var leanArrow = parsed.lean==='long' ? '▲ LONG' : parsed.lean==='short' ? '▼ SHORT' : '— NEUTRAL';
+      // ── helpers ──────────────────────────────────────────
+      function cell(label, valHtml, sub, borderRight) {
+        return '<div style="padding:10px 16px;display:flex;flex-direction:column;gap:3px'+(borderRight?';border-right:1px solid rgba(255,255,255,0.05)':'')+'">' +
+          '<span style="font-family:var(--mono);font-size:7.5px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3)">'+label+'</span>'+
+          '<span>'+valHtml+'</span>'+
+          (sub?'<span style="font-family:var(--mono);font-size:9px;color:var(--text3)">'+sub+'</span>':'')+
+        '</div>';
+      }
+      function pctBadge(n,c){ return '<span style="font-family:var(--mono);font-size:13px;font-weight:700;color:'+c+'">'+n+'%</span>'; }
+      function tag(txt,c){ return '<span style="font-family:var(--mono);font-size:11px;font-weight:600;color:'+c+'">'+txt+'</span>'; }
+
+      // playbook steps — split on "1." "2." "3."
+      var playbookSteps = (parsed.playbook||'').split(/\s*[123]\.\s+/).filter(Boolean);
+      while(playbookSteps.length < 3) playbookSteps.push('—');
+      function stepHtml(n, txt) {
+        return '<div style="display:flex;gap:10px;margin-bottom:8px;align-items:flex-start">'+
+          '<span style="font-family:var(--mono);font-size:10px;font-weight:700;color:var(--green);background:rgba(78,214,138,0.1);border-radius:3px;padding:1px 6px;flex-shrink:0;margin-top:1px">'+n+'</span>'+
+          '<span style="font-size:12px;color:var(--text);line-height:1.6">'+txt+'</span>'+
+        '</div>';
+      }
+
+      // dow badge for today
+      var todayDowV = dowMap[todayDow] && dowMap[todayDow].n;
+      var todayDowPct = todayDowV ? Math.round(dowMap[todayDow].wins/dowMap[todayDow].n*100) : null;
+      var todayDowColor = todayDowPct!==null ? (todayDowPct>=60?'var(--green)':todayDowPct>=50?'var(--gold)':'var(--red)') : 'var(--text3)';
+      // current session badge
+      var csStats = allSessionMap[currentSession];
+      var csPct = csStats && csStats.n ? Math.round(csStats.wins/csStats.n*100) : null;
+      var csColor = csPct!==null ? (csPct>=60?'var(--green)':csPct>=50?'var(--gold)':'var(--red)') : 'var(--text3)';
+      // mindset badge
+      var mhColor = mhWr!==null ? (mhWr>=60?'var(--green)':mhWr>=50?'var(--gold)':'var(--red)') : 'var(--text3)';
+      var mlColor = mlWr!==null ? (mlWr>=60?'var(--green)':mlWr>=50?'var(--gold)':'var(--red)') : 'var(--text3)';
+
+      var leanArrow = parsed.lean==='long' ? '▲ LONG BIAS' : parsed.lean==='short' ? '▼ SHORT BIAS' : '— NEUTRAL';
       var resultHtml =
-        // ── Header ──────────────────────────────────────────
-        '<div style="padding:12px 20px;border-bottom:1px solid rgba(255,255,255,0.07);display:flex;align-items:center;gap:16px;background:rgba(0,0,0,0.2)">'+
-          '<span style="font-family:var(--display);font-size:20px;color:'+leanColor+';letter-spacing:0.06em">'+scoreNow+'</span>'+
-          '<div style="display:flex;flex-direction:column;gap:2px">'+
-            '<span style="font-family:var(--display);font-size:12px;color:'+leanColor+';letter-spacing:0.08em;text-transform:uppercase">'+parsed.verdict+'</span>'+
-            '<span style="font-family:var(--mono);font-size:9px;color:var(--text3)">bias: <span style="color:'+leanColor+'">'+leanArrow+'</span></span>'+
+        // ══ HEADER ══════════════════════════════════════════
+        '<div style="padding:11px 18px;display:flex;align-items:center;gap:14px;background:rgba(0,0,0,0.25);border-bottom:1px solid rgba(255,255,255,0.07)">'+
+          '<span style="font-family:var(--display);font-size:21px;color:'+leanColor+';letter-spacing:0.05em">'+scoreNow+'</span>'+
+          '<div>'+
+            '<div style="font-family:var(--display);font-size:11px;color:'+leanColor+';letter-spacing:0.09em;text-transform:uppercase">'+parsed.verdict+'</div>'+
+            '<div style="font-family:var(--mono);font-size:9px;color:var(--text3);margin-top:2px">'+leanArrow+'</div>'+
           '</div>'+
-          '<span style="margin-left:auto;font-family:var(--mono);font-size:8px;color:var(--text3)">AI briefing · data-driven</span>'+
+          '<div style="margin-left:auto;display:flex;gap:16px;align-items:center">'+
+            '<div style="text-align:right">'+
+              '<div style="font-family:var(--mono);font-size:10px;color:var(--text2)">'+currentSession+' · '+bkkTime+' BKK</div>'+
+              '<div style="font-family:var(--mono);font-size:8px;color:var(--text3)">'+todayDow+(todayDowV?' · '+todayDow+' avg: '+todayDowPct+'% WR':'')+' · '+trades.length+' trades total</div>'+
+            '</div>'+
+          '</div>'+
         '</div>'+
-        // ── Stats bar ────────────────────────────────────────
-        '<div style="padding:10px 20px;display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start;border-bottom:1px solid rgba(255,255,255,0.05);background:rgba(0,0,0,0.12)">'+
-          '<div style="font-family:var(--mono);font-size:8px;letter-spacing:0.08em;text-transform:uppercase;color:var(--text3);padding-top:5px;white-space:nowrap">'+srcLabel+'</div>'+
-          (sl.n ? mkStatPill('Longs', mkPct(sl.pct,slColor)+' <span style="font-family:var(--mono);font-size:9px;color:var(--text3)">('+sl.wins+'/'+sl.n+')</span>', (sl.totalR>=0?'+':'')+sl.totalR+'R total') : '')+
-          (ss.n ? mkStatPill('Shorts', mkPct(ss.pct,ssColor)+' <span style="font-family:var(--mono);font-size:9px;color:var(--text3)">('+ss.wins+'/'+ss.n+')</span>', (ss.totalR>=0?'+':'')+ss.totalR+'R total') : '')+
-          (bss ? mkStatPill('Best setup', '<span style="color:var(--green);font-family:var(--mono);font-size:11px">'+bss.name+'</span>', (bss.wr!==null?bss.wr+'% WR · ':'')+' avg +'+(bss.avgR)+'R') : '')+
-          (worstSS&&worstSS.name!==(bss&&bss.name) ? mkStatPill('Avoid', '<span style="color:var(--red);font-family:var(--mono);font-size:11px">'+worstSS.name+'</span>', worstSS.wr+'% WR · avg '+worstSS.avgR+'R') : '')+
-          (bsSession ? mkStatPill('Best session', '<span style="color:var(--gold);font-family:var(--mono);font-size:11px">'+bsSession.name+'</span>', bsSession.wr+'% WR · avg +'+bsSession.avgR+'R') : '')+
+        // ══ STAT GRID (6 cells) ══════════════════════════════
+        '<div style="display:grid;grid-template-columns:repeat(6,1fr);border-bottom:1px solid rgba(255,255,255,0.06);background:rgba(0,0,0,0.12)">'+
+          cell('Longs · '+srcLabel.split('·')[0].trim(), sl.n ? pctBadge(sl.pct,slColor) : tag('—','var(--text3)'), sl.n ? sl.wins+'/'+sl.n+' · '+(sl.totalR>=0?'+':'')+sl.totalR+'R' : 'no data', true)+
+          cell('Shorts', ss.n ? pctBadge(ss.pct,ssColor) : tag('—','var(--text3)'), ss.n ? ss.wins+'/'+ss.n+' · '+(ss.totalR>=0?'+':'')+ss.totalR+'R' : 'no data', true)+
+          cell('Best setup', bss ? tag(bss.name,'var(--green)') : tag('—','var(--text3)'), bss ? (bss.wr!==null?bss.wr+'% WR · ':'')+' avg +'+(bss.avgR)+'R' : '', true)+
+          cell(currentSession+' session', csPct!==null ? pctBadge(csPct,csColor) : tag('—','var(--text3)'), csStats&&csStats.n ? csStats.n+' trades · '+(csStats.totalR>=0?'+':'')+Math.round(csStats.totalR*100)/100+'R' : 'no data', true)+
+          cell(todayDow+' pattern', todayDowPct!==null ? pctBadge(todayDowPct,todayDowColor) : tag('—','var(--text3)'), todayDowV ? todayDowV+' historical trades' : 'no data', true)+
+          cell('Mindset ≥7 vs ≤5', mhWr!==null ? tag(mhWr+'%','var(--green)')+' <span style="font-family:var(--mono);font-size:9px;color:var(--text3)">vs</span> '+tag((mlWr||'?')+'%','var(--red)') : tag('—','var(--text3)'), mhWr!==null ? (mhR>=0?'+':'')+mhR+'R vs '+(mlR>=0?'+':'')+mlR+'R' : 'not enough data', false)+
         '</div>'+
-        // ── Briefing rows ────────────────────────────────────
-        briefRow('◈', 'var(--text2)', 'Bias', parsed.bias)+
-        briefRow('▶', 'var(--green)', 'Playbook', parsed.playbook)+
-        briefRow('✕', 'var(--red)', 'Invalidation', parsed.invalidation)+
-        briefRow('◆', 'var(--gold)', 'Edge', parsed.edge);
+        // ══ SESSION + BIAS (top row) ═════════════════════════
+        '<div style="display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid rgba(255,255,255,0.05)">'+
+          '<div style="padding:12px 18px;border-right:1px solid rgba(255,255,255,0.05)">'+
+            '<div style="font-family:var(--mono);font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3);margin-bottom:6px">◈ Session context</div>'+
+            '<div style="font-size:12px;color:var(--text);line-height:1.65">'+parsed.session+'</div>'+
+          '</div>'+
+          '<div style="padding:12px 18px">'+
+            '<div style="font-family:var(--mono);font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3);margin-bottom:6px">◈ Bias read</div>'+
+            '<div style="font-size:12px;color:var(--text);line-height:1.65">'+parsed.bias+'</div>'+
+          '</div>'+
+        '</div>'+
+        // ══ PLAYBOOK + RIGHT COLUMN ══════════════════════════
+        '<div style="display:grid;grid-template-columns:3fr 2fr;border-bottom:1px solid rgba(255,255,255,0.05)">'+
+          '<div style="padding:14px 18px;border-right:1px solid rgba(255,255,255,0.05)">'+
+            '<div style="font-family:var(--mono);font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:var(--green);margin-bottom:10px">▶ Playbook</div>'+
+            stepHtml('1', playbookSteps[0])+
+            stepHtml('2', playbookSteps[1])+
+            stepHtml('3', playbookSteps[2])+
+          '</div>'+
+          '<div style="padding:14px 18px;display:flex;flex-direction:column;gap:14px">'+
+            '<div>'+
+              '<div style="font-family:var(--mono);font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:var(--red);margin-bottom:6px">✕ Invalidation</div>'+
+              '<div style="font-size:12px;color:var(--text2);line-height:1.6">'+parsed.invalidation+'</div>'+
+            '</div>'+
+            '<div style="border-top:1px solid rgba(255,255,255,0.05);padding-top:12px">'+
+              '<div style="font-family:var(--mono);font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:6px">◆ Edge</div>'+
+              '<div style="font-size:12px;color:var(--text2);line-height:1.6">'+parsed.edge+'</div>'+
+            '</div>'+
+          '</div>'+
+        '</div>';
 
       var aiEl3 = document.getElementById('edge-ai');
       var lockedEl = document.getElementById('edge-ai-locked');
