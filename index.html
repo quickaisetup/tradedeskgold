@@ -8248,6 +8248,18 @@ async function saveAllYesterday() {
   d.setDate(d.getDate() - 1);
   var iso = d.toISOString().slice(0,10);
   await saveAll(iso);
+  // Re-date all individual trade records in Supabase to yesterday's date
+  try {
+    var _sb = window._tdSB; var _uid = localStorage.getItem('td_user_id');
+    if (_sb && _uid) {
+      var sbIds = state.trades.filter(function(t){ return t.saved && t._sbId; }).map(function(t){ return t._sbId; });
+      if (sbIds.length) {
+        var _res = await _sb.from('trades').update({date: iso}).in('id', sbIds);
+        if (_res.error) console.warn('[saveYesterday] Trade re-date failed:', _res.error.message);
+        else console.log('[saveYesterday] Re-dated', sbIds.length, 'trade(s) to', iso);
+      }
+    }
+  } catch(e) { console.warn('[saveYesterday] Trade re-date error:', e.message); }
   // After saving yesterday — clear today's localStorage so refresh is clean slate
   try {
     localStorage.removeItem('td_tfstate_' + todayBKK);
