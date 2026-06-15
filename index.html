@@ -13870,6 +13870,11 @@ window.autoRestoreToday = async function(source) {
       window._morningSaved = true;
       if (window.cbUpdateGate) cbUpdateGate();
 
+      // Hold _inRestore=true for the ENTIRE button-clicking phase so that:
+      // (a) toggleBias/toggleTrend never deselect already-selected buttons
+      // (b) scheduleMorningAutosave doesn't fire mid-restore
+      window._inRestore = true;
+
       // TF state (bias buttons + indicators)
       var tf = {};
       try { tf = JSON.parse(morning.tf_state || '{}'); } catch(e){}
@@ -13929,6 +13934,8 @@ window.autoRestoreToday = async function(source) {
       } else {
         // DB has no tf_state — fall back to localStorage (same-device session)
         if (window._restoreTFStateLocal) window._restoreTFStateLocal();
+        // _restoreTFStateLocal resets _inRestore=false internally — put it back
+        window._inRestore = true;
       }
 
       // TF notes
@@ -14045,6 +14052,13 @@ window.autoRestoreToday = async function(source) {
       if (morning.level_notes) {
         var lnEl = document.getElementById('level-notes');
         if (lnEl) lnEl.value = morning.level_notes;
+      }
+
+      // All button-clicking done — release the inRestore lock
+      window._inRestore = false;
+      // If the DB had no tf_state (we restored from localStorage), push it to DB now
+      if (!tfHasData && window.saveMorningAnalysis) {
+        setTimeout(function() { window.saveMorningAnalysis(true); }, 400);
       }
 
       markSection('analysis');
