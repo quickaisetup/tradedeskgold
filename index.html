@@ -7150,6 +7150,29 @@ function _updateAccountBalance(t, sign) {
   }
 }
 
+async function redateTradeToYesterday(id) {
+  var t = state.trades.find(function(x){ return x.id === id; });
+  if (!t || !t._sbId) { alert('Trade not saved to DB yet — save it first.'); return; }
+  var d = new Date();
+  d.setDate(d.getDate() - 1);
+  var yISO = d.toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
+  if (!confirm('Move this trade to ' + yISO + '?')) return;
+  var res = await window._tdSB.from('trades').update({date: yISO}).eq('id', t._sbId);
+  if (res.error) { alert('Error: ' + res.error.message); return; }
+  // Reverse its balance effect (it's leaving today)
+  if (t._balanceApplied) { _updateAccountBalance(t, -1); t._balanceApplied = false; }
+  // Remove from today's UI/state
+  var el = document.getElementById('tf-' + id);
+  if (el) el.remove();
+  state.trades = state.trades.filter(function(x){ return x.id !== id; });
+  if (window._tdTodayTrades) window._tdTodayTrades = window._tdTodayTrades.filter(function(x){ return x.id !== t._sbId; });
+  if (window._persistTradesToLocal) _persistTradesToLocal();
+  if (window.updateHistory) updateHistory();
+  if (window.updateKill) updateKill();
+  if (window.renderAccountsPanel) renderAccountsPanel();
+  console.log('[redate] Trade', t._sbId, 'moved to', yISO);
+}
+
 function removeTrade(id) {
   var t = state.trades.find(function(x){ return x.id === id; });
   // Delete from Supabase if it was saved
@@ -7331,6 +7354,7 @@ function collapseTradeToCard(id) {
       '<span class="ts-r" style="color:'+resClr+'">'+(t.rAchieved?rSign+t.rAchieved+'R':'—')+'</span>' +
       '<span class="ts-usd">'+(usdTxt||'')+'</span>' +
       '<button class="trade-edit-btn" onclick="expandTradeForm('+id+')">✎ Edit</button>' +
+      '<button class="trade-edit-btn" onclick="redateTradeToYesterday('+id+')" title="Move this trade to yesterday\'s date in Supabase" style="margin-left:4px;opacity:0.5;font-size:8px">→ Yest.</button>' +
     '</div>';
 }
 
