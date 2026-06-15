@@ -13812,19 +13812,37 @@ window.autoRestoreToday = async function() {
   try {
     // ── 1. Fetch all three tables in parallel ─────────────
     var _allRes = await Promise.all([
+      // Fetch today's row AND the most recent row — analysis may have been saved on a
+      // different day (e.g. yesterday) but still represents today's setup. We merge them:
+      // today's row wins for trades/summary; most recent row is used for analysis if today is empty.
       sb.from('morning_analysis').select('*').eq('user_id',uid).eq('date',todayISO).maybeSingle(),
       sb.from('trades').select('*').eq('user_id',uid).eq('date',todayISO).order('created_at',{ascending:true}),
-      sb.from('daily_summaries').select('*').eq('user_id',uid).eq('date',todayISO).maybeSingle()
+      sb.from('daily_summaries').select('*').eq('user_id',uid).eq('date',todayISO).maybeSingle(),
+      sb.from('morning_analysis').select('*').eq('user_id',uid).order('date',{ascending:false}).limit(1).maybeSingle()
     ]);
-    var morRes   = _allRes[0];
-    var tradeRes = _allRes[1];
-    var summRes  = _allRes[2];
+    var morRes      = _allRes[0];
+    var tradeRes    = _allRes[1];
+    var summRes     = _allRes[2];
+    var latestMorRes= _allRes[3];
 
     var morning = morRes.data;
     var trades  = tradeRes.data || [];
     var summ    = summRes.data;
 
-    // Nothing saved today — nothing to restore
+    // If today has no morning row but there's a recent one with analysis, use it
+    // (covers cross-device sync where desktop saved June 12 and mobile opens June 15)
+    var latestMorning = latestMorRes.data;
+    if (!morning && latestMorning) {
+      var latestTf = {};
+      try { latestTf = JSON.parse(latestMorning.tf_state || '{}'); } catch(e){}
+      var latestHasData = Object.keys(latestTf).some(function(k){ return (latestTf[k].bias||[]).length || (latestTf[k].trend||[]).length; });
+      if (latestHasData) {
+        morning = latestMorning;
+        console.log('[restore] Using latest morning from', latestMorning.date, '(no row for today yet)');
+      }
+    }
+
+    // Nothing saved anywhere — clean slate
     if (!morning && !trades.length && !summ) {
       console.log('[restore] No data for today — clean slate');
       return;
@@ -13841,13 +13859,10 @@ window.autoRestoreToday = async function() {
       // TF state (bias buttons + indicators)
       var tf = {};
       try { tf = JSON.parse(morning.tf_state || '{}'); } catch(e){}
-      // Check if DB tf_state has actual data; if not, fall back to localStorage
       var tfHasData = tf && Object.keys(tf).some(function(k){ return (tf[k].bias||[]).length || (tf[k].trend||[]).length; });
-      // Always try localStorage first — it's updated on every button click so most current
-      var localRestored = false;
-      if (window._restoreTFStateLocal) localRestored = window._restoreTFStateLocal();
-      // Fall back to DB tf_state if localStorage had nothing
-      if (!localRestored && tf && typeof tf === 'object' && tfHasData) {
+      // DB is the cross-device source of truth — use it when it has data.
+      // Only fall back to localStorage when DB has no tf_state (e.g. very first save of the day).
+      if (tf && typeof tf === 'object' && tfHasData) {
         // NOTE: tfState is `const` in the main script — cannot reassign via window.tfState.
         // Instead call toggleBias/toggleTrend directly so they mutate tfState properly.
         ['1M','1W','D','4H','1H'].forEach(function(tfKey) {
@@ -13897,6 +13912,9 @@ window.autoRestoreToday = async function() {
 
         // Trigger score recalculation after all buttons are set
         setTimeout(function() { if (window.updateVerdictAuto) updateVerdictAuto(); }, 150);
+      } else {
+        // DB has no tf_state — fall back to localStorage (same-device session)
+        if (window._restoreTFStateLocal) window._restoreTFStateLocal();
       }
 
       // TF notes
@@ -14395,6 +14413,23 @@ async function tdlOnAuth(user) {
         }
       }
       if (typeof subscribeTradeAlerts === 'function') subscribeTradeAlerts();
+
+      // Periodic analysis sync — re-fetches from Supabase every 90s so mobile
+      // automatically picks up analysis done on desktop without a manual refresh.
+      if (!window._analysisSyncTimer) {
+        window._analysisSyncTimer = setInterval(function() {
+          if (window.autoRestoreToday && document.visibilityState !== 'hidden') {
+            autoRestoreToday();
+          }
+        }, 90000);
+        // Also re-sync immediately when the tab/app becomes visible (e.g. switching from desktop → mobile)
+        document.addEventListener('visibilitychange', function() {
+          if (document.visibilityState === 'visible' && window.autoRestoreToday) {
+            setTimeout(autoRestoreToday, 300);
+          }
+        });
+      }
+
       console.log('[td] App re-init done');
     } catch(e) { console.warn('[td] Re-init error:', e.message); }
   }, 200);
