@@ -5527,6 +5527,14 @@ window._restoreTradesFromLocal = function() {
     if (!store || store.date !== today || !store.trades || !store.trades.length) return false;
     // Extra guard: strip any cross-day trades that got mixed in
     store.trades = store.trades.filter(function(tr){ return !tr._dateISO || tr._dateISO === today; });
+    // Deduplicate by _sbId — earlier restore bug could persist 43× the same trade
+    var _seenSbIds = {};
+    store.trades = store.trades.filter(function(tr) {
+      if (!tr._sbId) return true;
+      if (_seenSbIds[tr._sbId]) return false;
+      _seenSbIds[tr._sbId] = true;
+      return true;
+    });
     if (!store.trades.length) return false;
     // Skip if already restored (e.g. Supabase beat us to it)
     if (state.trades.filter(function(t){ return t.saved; }).length > 0) return false;
@@ -11405,11 +11413,12 @@ function updatePALFromRows(rows, rankName) {
     var r   = parseFloat(row.totalR || row['Total R'] || row['R Achieved'] || 0) || 0;
     var usd = (row.totalUsd != null) ? row.totalUsd : null;
 
-    if (dk >= wkKey) {
+    // Exclude today — today's P&L is added separately via _todayUsd to avoid double-counting
+    if (dk >= wkKey && dk !== _bkkTodayStr) {
       wR += r; wDays++;
       if (usd != null) wUsdSum += usd; else wHasUsd = false;
     }
-    if (dk.slice(0,7) === mKey) {
+    if (dk.slice(0,7) === mKey && dk !== _bkkTodayStr) {
       mR += r; mDays++;
       if (usd != null) mUsdSum += usd; else mHasUsd = false;
     }
