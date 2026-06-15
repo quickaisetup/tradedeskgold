@@ -15070,18 +15070,23 @@ window.tdSaveLevels = async function() {
   var today   = new Date().toLocaleDateString('sv-SE', {timeZone: 'Asia/Bangkok'});
   var levJson = JSON.stringify(window.levels || []);
   try {
-    // Try a targeted UPDATE first — only touches levels_json, leaves all other columns intact
+    // Update ALL of the user's morning_analysis rows — levels are pinned per trader,
+    // not per date. The user's latest row may be from a past day (e.g. June 12 when
+    // today is June 15), so updating only today's date left the old row untouched and
+    // caused levels to reappear on refresh and persist in the admin tab.
     var upd = await sb.from('morning_analysis')
       .update({ levels_json: levJson })
-      .eq('user_id', uid)
-      .eq('date', today)
-      .select('user_id');
+      .eq('user_id', uid);
 
     if (upd.error) throw new Error(upd.error.message);
 
-    // If no row existed for today yet, insert a minimal one
-    if (!upd.data || upd.data.length === 0) {
-      var ins = await sb.from('morning_analysis').insert({
+    // Also ensure today's row exists so autoRestoreToday reads the correct empty state
+    var todayCheck = await sb.from('morning_analysis')
+      .select('user_id')
+      .eq('user_id', uid)
+      .eq('date', today);
+    if (!todayCheck.error && (!todayCheck.data || todayCheck.data.length === 0)) {
+      await sb.from('morning_analysis').insert({
         user_id:     uid,
         date:        today,
         levels_json: levJson,
@@ -15089,10 +15094,9 @@ window.tdSaveLevels = async function() {
         score:       0,
         verdict:     ''
       });
-      if (ins.error) throw new Error(ins.error.message);
     }
 
-    console.log('[supabase] tdSaveLevels saved →', today, (window.levels||[]).length + ' level(s)');
+    console.log('[supabase] tdSaveLevels saved → all rows, today=' + today + ', ' + (window.levels||[]).length + ' level(s)');
   } catch(e) {
     console.warn('[supabase] tdSaveLevels error:', e.message);
   }
