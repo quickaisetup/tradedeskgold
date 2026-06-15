@@ -13577,13 +13577,17 @@ window.loadEdgePanel = async function(forceAI) {
       var res = await fetch('/api/ai-proxy', {
         method: 'POST',
         headers: { 'Content-Type':'application/json' },
-        body: JSON.stringify({ model:'claude-sonnet-4-6', max_tokens:200, messages:[{role:'user',content:prompt}], _userKey: apiKey })
+        body: JSON.stringify({ model:'claude-sonnet-4-6', max_tokens:400, messages:[{role:'user',content:prompt}], _userKey: apiKey })
       });
       var data = await res.json();
       var txt = data.content && data.content[0] && data.content[0].text || '';
       var parsed;
-      try { parsed = JSON.parse(txt.replace(/^```json\s*/,'').replace(/^```\s*/,'').replace(/\s*```$/,'').trim()); }
-      catch(e) { var s2=txt.indexOf('{'),e2=txt.lastIndexOf('}'); if(s2!==-1&&e2!==-1)parsed=JSON.parse(txt.slice(s2,e2+1)); else throw new Error('Bad JSON: '+txt.slice(0,80)); }
+      // Strip markdown fences anywhere in response, then extract the JSON object
+      var clean = txt.replace(/```json\s*/gi,'').replace(/```\s*/g,'').trim();
+      var s2=clean.indexOf('{'),e2=clean.lastIndexOf('}');
+      if(s2===-1||e2===-1) throw new Error('Bad JSON: '+txt.slice(0,80));
+      try { parsed = JSON.parse(clean.slice(s2,e2+1)); }
+      catch(e) { throw new Error('Bad JSON: '+txt.slice(0,80)); }
 
       var leanColor  = parsed.lean==='long' ? 'var(--green)' : parsed.lean==='short' ? 'var(--red)' : 'var(--gold)';
       var leanBg     = parsed.lean==='long' ? 'rgba(78,214,138,0.07)' : parsed.lean==='short' ? 'rgba(240,96,96,0.07)' : 'rgba(240,188,78,0.07)';
