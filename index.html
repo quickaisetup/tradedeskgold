@@ -15099,41 +15099,40 @@ window._sbFetchStreak = async function(uid) {
 // the admin panel (isoToday) so dates always match.
 window.tdSaveLevels = async function() {
   var uid = _userId || localStorage.getItem('td_user_id');
-  if (!uid) return;
-  var sb = getSB();
-  if (!sb) return;
+  if (!uid) { console.warn('[levels] tdSaveLevels: no uid'); return; }
+  // Always use the authenticated client — getSB() may lack the session
+  var sb = window._tdSB || getSB();
+  if (!sb) { console.warn('[levels] tdSaveLevels: no Supabase client'); return; }
   var today   = new Date().toLocaleDateString('sv-SE', {timeZone: 'Asia/Bangkok'});
   var levJson = JSON.stringify(window.levels || []);
+  console.log('[levels] Saving', (window.levels||[]).length, 'level(s) to ALL morning_analysis rows. uid=', uid.slice(0,8), 'today=', today);
   try {
     // Update ALL of the user's morning_analysis rows — levels are pinned per trader,
     // not per date. The user's latest row may be from a past day (e.g. June 12 when
-    // today is June 15), so updating only today's date left the old row untouched and
-    // caused levels to reappear on refresh and persist in the admin tab.
+    // today is June 15), so updating only today's date left the old row untouched.
     var upd = await sb.from('morning_analysis')
       .update({ levels_json: levJson })
-      .eq('user_id', uid);
+      .eq('user_id', uid)
+      .select('date');  // .select() forces PostgREST to return affected rows — without it RLS silently blocks with no error
 
     if (upd.error) throw new Error(upd.error.message);
+    console.log('[levels] Updated', (upd.data||[]).length, 'row(s):', (upd.data||[]).map(function(r){return r.date;}).join(', ') || '(none — may need to save analysis first)');
 
-    // Also ensure today's row exists so autoRestoreToday reads the correct empty state
-    var todayCheck = await sb.from('morning_analysis')
-      .select('user_id')
-      .eq('user_id', uid)
-      .eq('date', today);
-    if (!todayCheck.error && (!todayCheck.data || todayCheck.data.length === 0)) {
-      await sb.from('morning_analysis').insert({
+    // If no rows exist yet (user hasn't saved analysis today), insert a minimal one
+    if (!upd.data || upd.data.length === 0) {
+      var ins = await sb.from('morning_analysis').upsert({
         user_id:     uid,
         date:        today,
         levels_json: levJson,
         tf_state:    '{}',
         score:       0,
         verdict:     ''
-      });
+      }, { onConflict: 'user_id,date' }).select('date');
+      if (ins.error) throw new Error(ins.error.message);
+      console.log('[levels] Inserted today row for', today);
     }
-
-    console.log('[supabase] tdSaveLevels saved → all rows, today=' + today + ', ' + (window.levels||[]).length + ' level(s)');
   } catch(e) {
-    console.warn('[supabase] tdSaveLevels error:', e.message);
+    console.warn('[levels] tdSaveLevels error:', e.message);
   }
 };
 
