@@ -14533,13 +14533,13 @@ function renderLeaderboard(rows) {
     var dbToday  = Number(r.yesterday_pnl) || 0;
     var dbWeek   = Number(r.week_pnl)      || 0;
 
-    // TODAY'S live P&L → replaces "today" slot
-    // TODAY'S live P&L (always from calcTodayPnl — DB "today" is yesterday's saved session)
-    var liveToday = dbToday;
+    // TODAY'S live P&L → always use live calculation; DB value is from a saved session (yesterday)
+    var liveToday = 0; // default $0 when no trades today
     if (typeof calcTodayPnl === 'function') {
       var tp = calcTodayPnl();
-      if (tp.hasTrades) { liveToday = tp.total; live.yesterday_pnl = tp.total; }
+      if (tp.hasTrades) { liveToday = tp.total; }
     }
+    live.yesterday_pnl = liveToday;
 
     // THIS WEEK — use live-calculated value from updatePALFromRows (_tdPalCache) which
     // queries daily_summaries with the correct wkKey. The DB week_pnl column never resets
