@@ -8174,20 +8174,47 @@ async function loadYesterdaySession() {
       } catch(e) { window._inRestore = false; console.warn('[loadYesterday] analysis error:', e.message); }
     }
 
-    // Load EOD notes
-    if (summ) {
-      var q1 = document.getElementById('reflection-well');
-      var q2 = document.getElementById('reflection-improve');
-      var q3 = document.getElementById('reflection-tomorrow');
-      if (q1 && summ.did_well)      q1.value = summ.did_well;
-      if (q2 && summ.to_correct)    q2.value = summ.to_correct;
-      if (q3 && summ.tomorrow_goal) q3.value = summ.tomorrow_goal;
-      if (summ.rules_followed) {
-        document.querySelectorAll('#rules-btn-group .tgl').forEach(function(b) {
-          if (b.dataset.val === summ.rules_followed) b.click();
-        });
-      }
+    // Load EOD notes — DB first, localStorage fallback
+    var _eodQ1 = summ && summ.did_well      ? summ.did_well      : '';
+    var _eodQ2 = summ && summ.to_correct    ? summ.to_correct    : '';
+    var _eodQ3 = summ && summ.tomorrow_goal ? summ.tomorrow_goal : '';
+    var _eodRules = summ && summ.rules_followed ? summ.rules_followed : '';
+    try {
+      var _yEod = JSON.parse(localStorage.getItem('td_eod_' + yISO) || '{}');
+      if (!_eodQ1 && _yEod.q1) _eodQ1 = _yEod.q1;
+      if (!_eodQ2 && _yEod.q2) _eodQ2 = _yEod.q2;
+      if (!_eodQ3 && _yEod.q3) _eodQ3 = _yEod.q3;
+    } catch(e) {}
+    var q1 = document.getElementById('reflection-well');
+    var q2 = document.getElementById('reflection-improve');
+    var q3 = document.getElementById('reflection-tomorrow');
+    if (q1 && _eodQ1) q1.value = _eodQ1;
+    if (q2 && _eodQ2) q2.value = _eodQ2;
+    if (q3 && _eodQ3) q3.value = _eodQ3;
+    if (_eodRules) {
+      document.querySelectorAll('#rules-btn-group .tgl').forEach(function(b) {
+        if (b.dataset.val === _eodRules) b.click();
+      });
     }
+
+    // Restore morning routine gates from yesterday's localStorage
+    try {
+      var _yGates = JSON.parse(localStorage.getItem('td_gates_' + yISO) || '{}');
+      if (Object.keys(_yGates).length) {
+        localStorage.setItem('td_gates_' + yISO, JSON.stringify(_yGates));
+        // Temporarily point renderGateItems at yesterday's date by writing into today's key is wrong;
+        // instead directly mark gate items as done/pending based on saved state
+        document.querySelectorAll('.gate-item').forEach(function(el) {
+          var gid = el.dataset.gateId;
+          if (!gid) return;
+          var done = _yGates[gid] === true;
+          el.classList.toggle('done', done);
+          var badge = el.querySelector('.g-badge');
+          if (badge) badge.textContent = done ? 'Done ✓' : 'Pending';
+        });
+        if (window.checkGate) checkGate();
+      }
+    } catch(e) {}
 
     var tradeMsg = trades.length ? trades.length + ' trade' + (trades.length===1?'':'s') + ' found' : 'no trades in DB for ' + yISO;
     if (btn) { btn.textContent = '✓ Loaded — ' + tradeMsg; btn.style.background='rgba(78,214,138,0.12)'; btn.style.borderColor='var(--gnb)'; btn.style.color = trades.length ? 'var(--green)' : 'var(--gold)'; btn.style.pointerEvents='auto'; }
