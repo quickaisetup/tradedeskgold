@@ -13359,8 +13359,8 @@ window.loadEdgePanel = async function(forceAI) {
     var lsWr = lowScoreTrades.length  ? Math.round(lowScoreTrades.filter(function(t){return t.result==='Win';}).length/lowScoreTrades.length*100)   : null;
 
     // ── SIMILAR SCORE ANALYSIS ───────────────────────────
-    // Find trades on days where score was within ±2 of today's score
-    var BAND = 2;
+    // Find trades on days where score was within ±1.5 of today's score
+    var BAND = 1.5;
     var similarDays = trades.filter(function(t) {
       var sc = scoreByDate[t.date];
       return sc !== undefined && Math.abs(sc - todayScoreNum) <= BAND;
@@ -13611,15 +13611,28 @@ window.loadEdgePanel = async function(forceAI) {
           '<span style="font-family:var(--display);font-size:13px;color:'+leanColor+';letter-spacing:0.07em;opacity:0.85">'+parsed.verdict+'</span>'+
           '<span style="margin-left:auto;font-family:var(--mono);font-size:8px;color:var(--text3)">AI coaching · real stats only</span>'+
         '</div>'+
-        // Real stats bar
-        '<div style="padding:10px 20px;display:flex;gap:28px;flex-wrap:wrap;align-items:center;border-bottom:1px solid rgba(255,255,255,0.05);background:rgba(0,0,0,0.1)">'+
-          '<span style="font-family:var(--mono);font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3);flex-shrink:0">With this score</span>'+
-          (long.n  ? statPill('Longs', pct(long.pct, longPctColor)+' <span style="font-family:var(--mono);font-size:9px;color:var(--text3)">won ('+long.wins+'/'+long.n+')</span>', long.totalR>0?'+'+long.totalR+'R total':long.totalR+'R total') : '')+
-          (short.n ? statPill('Shorts', pct(short.pct, shortPctColor)+' <span style="font-family:var(--mono);font-size:9px;color:var(--text3)">won ('+short.wins+'/'+short.n+')</span>', short.totalR>0?'+'+short.totalR+'R total':short.totalR+'R total') : '')+
-          (hsWr!==null ? statPill('Score ≥4 days', pct(hsWr, hsColor), 'win rate on high score days') : '')+
-          (lsWr!==null ? statPill('Score ≤0 days', pct(lsWr, lsColor), 'win rate on low score days') : '')+
-          (bestSetup ? statPill('Best setup', '<span style="font-family:var(--mono);font-size:10px;color:var(--gold)">'+bestSetup+'</span>', 'avg +'+Math.round(bestAvgR*100)/100+'R') : '')+
-        '</div>'+
+        // Real stats bar — similar score days (±1.5 band)
+        (function(){
+          var hasSimData = similarDays.length >= 3;
+          var srcLabel = hasSimData
+            ? 'score ≈'+todayScoreNum.toFixed(1)+' · ±1.5 band · '+simDayCount+' days, '+similarDays.length+' trades'
+            : 'all-time (not enough similar-score days)';
+          var sl = hasSimData ? simLong  : long;
+          var ss = hasSimData ? simShort : short;
+          var slColor = sl.pct >= 60 ? 'var(--green)' : sl.pct >= 50 ? 'var(--gold)' : 'var(--red)';
+          var ssColor = ss.pct >= 60 ? 'var(--green)' : ss.pct >= 50 ? 'var(--gold)' : 'var(--red)';
+          var bss = hasSimData ? bestSimSetup : (bestSetup ? {name:bestSetup, wr:null, avgR:Math.round(bestAvgR*100)/100, n:null} : null);
+          var bsSession = hasSimData ? bestSimSession : null;
+          var worstSS = hasSimData ? worstSimSetup : null;
+          return '<div style="padding:10px 20px;display:flex;gap:28px;flex-wrap:wrap;align-items:center;border-bottom:1px solid rgba(255,255,255,0.05);background:rgba(0,0,0,0.1)">'+
+            '<span style="font-family:var(--mono);font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3);flex-shrink:0">'+srcLabel+'</span>'+
+            (sl.n ? statPill('Longs', pct(sl.pct, slColor)+' <span style="font-family:var(--mono);font-size:9px;color:var(--text3)">won ('+sl.wins+'/'+sl.n+')</span>', (sl.totalR>=0?'+':'')+sl.totalR+'R total') : '')+
+            (ss.n ? statPill('Shorts', pct(ss.pct, ssColor)+' <span style="font-family:var(--mono);font-size:9px;color:var(--text3)">won ('+ss.wins+'/'+ss.n+')</span>', (ss.totalR>=0?'+':'')+ss.totalR+'R total') : '')+
+            (bss ? statPill('Best setup', '<span style="font-family:var(--mono);font-size:10px;color:var(--green)">'+bss.name+'</span>', (bss.wr!==null?bss.wr+'% WR · ':'')+' avg +'+(bss.avgR)+'R'+(bss.n?' ('+bss.n+' trades)':'')) : '')+
+            (worstSS && worstSS.name !== (bss&&bss.name) ? statPill('Avoid setup', '<span style="font-family:var(--mono);font-size:10px;color:var(--red)">'+worstSS.name+'</span>', worstSS.wr+'% WR · avg '+worstSS.avgR+'R') : '')+
+            (bsSession ? statPill('Best session', '<span style="font-family:var(--mono);font-size:10px;color:var(--gold)">'+bsSession.name+'</span>', bsSession.wr+'% WR · avg +'+bsSession.avgR+'R') : '')+
+          '</div>';
+        })()+
         // Three coaching columns
         '<div style="display:grid;grid-template-columns:1fr 1fr 1fr">'+
           '<div style="padding:14px 20px;border-right:1px solid rgba(255,255,255,0.05)">'+
