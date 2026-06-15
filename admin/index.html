@@ -1338,7 +1338,16 @@ function renderAnalysis() {
   summaryEl.innerHTML = summaryHtml;
   var summaryBar = ''; // no longer used inline
 
-  var cards = traders.map(function(t) {
+  // Sort: traders who did analysis first, then those without
+  var sortedTraders = traders.slice().sort(function(a, b) {
+    var ma = latestMorning(_allData.mornings, a.id, dateStr);
+    var mb = latestMorning(_allData.mornings, b.id, dateStr);
+    var ha = !!(ma && (ma.verdict || (ma.score !== null && ma.score !== undefined)));
+    var hb = !!(mb && (mb.verdict || (mb.score !== null && mb.score !== undefined)));
+    return ha === hb ? 0 : ha ? -1 : 1;
+  });
+
+  var cards = sortedTraders.map(function(t) {
     var morning = latestMorning(_allData.mornings, t.id, dateStr);
     var name = traderDisplayName(t);
 
