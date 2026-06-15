@@ -13644,7 +13644,7 @@ window.loadEdgePanel = async function(forceAI) {
       var res = await fetch('/api/ai-proxy', {
         method: 'POST',
         headers: { 'Content-Type':'application/json' },
-        body: JSON.stringify({ model:'claude-sonnet-4-6', max_tokens:400, messages:[{role:'user',content:prompt}], _userKey: apiKey })
+        body: JSON.stringify({ model:'claude-sonnet-4-6', max_tokens:700, messages:[{role:'user',content:prompt}], _userKey: apiKey })
       });
       var data = await res.json();
       var txt = data.content && data.content[0] && data.content[0].text || '';
