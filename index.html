@@ -6854,13 +6854,13 @@ function removeLevel(id) {
   var el=document.getElementById('lvl-'+id); if(el)el.remove();
   levels=levels.filter(function(l){return l.id!==id;});
   window.levels=levels;
-  leoRenderKLBar(); leoDrawKeyLevels();
+  leoRenderKLBar(); if (window.leoDrawKeyLevels) leoDrawKeyLevels();
   // Save immediately — don't debounce, user expects delete to persist
   try { localStorage.setItem('td_levels_cache', JSON.stringify(window.levels)); } catch(e){}
   if (typeof window.tdSaveLevels === 'function') window.tdSaveLevels();
   else scheduleLevelsSave();
 }
-function setLvlField(id, f, v) { var l = levels.find(function(l) { return l.id === id; }); if (l) { l[f] = v; window.levels = levels; leoRenderKLBar(); if (f === 'price') leoDrawKeyLevels(); scheduleLevelsSave(); } }
+function setLvlField(id, f, v) { var l = levels.find(function(l) { return l.id === id; }); if (l) { l[f] = v; window.levels = levels; leoRenderKLBar(); if (f === 'price' && window.leoDrawKeyLevels) leoDrawKeyLevels(); scheduleLevelsSave(); } }
 var _levelsSaveTimer = null;
 function scheduleLevelsSave() {
   // Immediate localStorage backup so refresh never loses data
@@ -15001,13 +15001,7 @@ function tdlPatchApp() {
           pivot_state:  payload.pivot || '',
           london_bias:  payload.londonBias || '',
           market_dir:   payload.marketDirection || '',
-          trading_mode: payload.trading_mode || '',
           news_notes:   payload.newsNotes || '',
-          notes_1M:     payload.notes_1M || '',
-          notes_1W:     payload.notes_1W || '',
-          notes_D:      payload.notes_D  || '',
-          notes_4H:     payload.notes_4H || '',
-          notes_1H:     payload.notes_1H || '',
           high_impact:  !!(payload.newsImpact === 'high' || payload.highImpact),
           score:        parseFloat(payload.score) || 0,
           verdict:      payload.overall_bias || '',
