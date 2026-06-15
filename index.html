@@ -6854,6 +6854,7 @@ function removeLevel(id) {
   var el=document.getElementById('lvl-'+id); if(el)el.remove();
   levels=levels.filter(function(l){return l.id!==id;});
   window.levels=levels;
+  window._levelsUserEditedAt = Date.now();
   leoRenderKLBar(); if (window.leoDrawKeyLevels) leoDrawKeyLevels();
   // Save immediately — don't debounce, user expects delete to persist
   try { localStorage.setItem('td_levels_cache', JSON.stringify(window.levels)); } catch(e){}
@@ -13998,15 +13999,18 @@ window.autoRestoreToday = async function() {
         if (gates.maintenance && gates.calendar && window.checkGate) checkGate();
       } catch(e){}
 
-      // Key levels — clear first to prevent localStorage-cache duplicates
+      // Key levels — skip restore if user edited levels in last 60s (prevents delete from being undone)
+      var _skipLevelsRestore = window._levelsUserEditedAt && (Date.now() - window._levelsUserEditedAt < 60000);
       try {
-        var savedLevels = JSON.parse(morning.levels_json || '[]');
+        var savedLevels = _skipLevelsRestore ? [] : JSON.parse(morning.levels_json || '[]');
         // Wipe whatever the localStorage cache pre-loaded
-        levels.length = 0;
-        window.levels = levels;
-        levelCount = 0;
-        var lvlListEl = document.getElementById('level-list');
-        if (lvlListEl) lvlListEl.innerHTML = '';
+        if (!_skipLevelsRestore) {
+          levels.length = 0;
+          window.levels = levels;
+          levelCount = 0;
+          var lvlListEl = document.getElementById('level-list');
+          if (lvlListEl) lvlListEl.innerHTML = '';
+        }
         if (savedLevels.length) {
           savedLevels.forEach(function(lv) {
             levelCount++;
