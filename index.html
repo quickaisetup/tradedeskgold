@@ -5507,7 +5507,8 @@ window._persistTradesToLocal = function() {
         rAchieved:t.rAchieved||'', took50:t.took50||'',
         movedSL:t.movedSL||'', wouldHaveWorked:t.wouldHaveWorked||'',
         wouldHaveR:t.wouldHaveR||'', mistakes:t.mistakes||[],
-        notes:t.notes||'', usdAchieved:t.usdAchieved||''
+        notes:t.notes||'', usdAchieved:t.usdAchieved||'',
+        _balanceApplied: t._balanceApplied || false
       };
     });
     var store = { date: today, trades: snapshot };
@@ -5558,6 +5559,7 @@ window._restoreTradesFromLocal = function() {
       t.wouldHaveWorked = tr.wouldHaveWorked; t.wouldHaveR = tr.wouldHaveR;
       t.mistakes = Array.isArray(tr.mistakes) ? tr.mistakes : [];
       t.notes = tr.notes; t.usdAchieved = tr.usdAchieved;
+      t._balanceApplied = tr._balanceApplied || false;
       t.saved = true;
       collapseTradeToCard(t.id);
     });
@@ -5612,6 +5614,27 @@ window._restoreTradesFromDB = function(trades) {
   window._restoringTrades = false;
   if(window.updateKill) updateKill();
   if(window.updateHistory) updateHistory();
+  // Apply balance for any trades not yet reflected — _balanceApplied is persisted in
+  // localStorage so survives refresh; only trades restored from DB without a local cache
+  // entry (e.g. cross-device, first load of day) will have _balanceApplied = false.
+  // Migration guard: if this is the first load with this version of the code, mark all
+  // existing trades as applied (their balance effect is already baked in) to avoid double-count.
+  var _balInitKey = 'td_bal_init_v1';
+  var _balInited = localStorage.getItem(_balInitKey);
+  var _unapplied = state.trades.filter(function(t){ return t.saved && t._sbId && !t._balanceApplied; });
+  if (_unapplied.length) {
+    if (!_balInited) {
+      // First run after deploy — balance already includes these trades, just mark them applied
+      console.log('[balance] Migration: marking', _unapplied.length, 'existing trade(s) as applied (no re-apply)');
+      _unapplied.forEach(function(t){ t._balanceApplied = true; });
+      localStorage.setItem(_balInitKey, '1');
+    } else {
+      console.log('[balance] Applying', _unapplied.length, 'unapplied trade(s) to account balance');
+      _unapplied.forEach(function(t){ t._balanceApplied = true; _updateAccountBalance(t, +1); });
+    }
+  } else if (!_balInited) {
+    localStorage.setItem(_balInitKey, '1');
+  }
   if(window.renderAccountsPanel) renderAccountsPanel();
   markSection('history');
   _persistTradesToLocal(); // keep localStorage in sync after DB restore
@@ -7077,6 +7100,23 @@ function _tradeUsdValue(t) {
   return (t.result === 'Loss') ? -Math.abs(usd) : Math.abs(usd);
 }
 
+function _getBalApplied() {
+  try {
+    var today = new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
+    var raw = JSON.parse(localStorage.getItem('td_bal_applied') || '{}');
+    // Reset if it's from a previous day
+    if (raw._date !== today) return {};
+    return raw;
+  } catch(e) { return {}; }
+}
+function _setBalApplied(map) {
+  try {
+    var today = new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
+    map._date = today;
+    localStorage.setItem('td_bal_applied', JSON.stringify(map));
+  } catch(e) {}
+}
+
 function _updateAccountBalance(t, sign) {
   // sign: +1 when trade added, -1 when trade removed
   if (!t || !window._tdAccounts) return;
@@ -7102,6 +7142,12 @@ function _updateAccountBalance(t, sign) {
       console.log('[balance]', a.name, currentBal, (usd>=0?'+':'')+usd, '→', newBal);
     }
   });
+  // Track which sbIds have been applied so we can re-apply correctly after page refresh
+  if (t._sbId) {
+    var _bmap = _getBalApplied();
+    if (sign > 0) _bmap[t._sbId] = true; else delete _bmap[t._sbId];
+    _setBalApplied(_bmap);
+  }
 }
 
 function removeTrade(id) {
@@ -7777,6 +7823,10 @@ async function saveTrade(id) {
       if (header) header.appendChild(badge);
     }
     if (_t && _t._sbId) {
+      // Mark this trade's sbId as balance-applied so restores don't re-apply
+      if (_t._balanceApplied) {
+        var _bm = _getBalApplied(); _bm[_t._sbId] = true; _setBalApplied(_bm);
+      }
       badge.textContent = '✓ DB';
       badge.style.color = '#4ed68a';
       badge.style.background = 'rgba(78,214,138,0.12)';
