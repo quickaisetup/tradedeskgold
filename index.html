@@ -6393,8 +6393,6 @@ function setLondonBias(val, btn) {
 }
 
 function updateVerdictAuto() {
-  // Track user activity so autoRestoreToday skips during active editing
-  if (!window._inRestore) window._lastUserActivity = Date.now();
   if (biasOverride) return;
   var bullSignals = [], bearSignals = [], score = 0;
 
@@ -6585,7 +6583,7 @@ function updateVerdictAuto() {
   // Update community CTA gate (unlocks when score != 0 AND analysis saved)
   if (window.cbUpdateGate) cbUpdateGate();
   // Autosave the top-down analysis whenever the score changes (debounced)
-  if (window.scheduleMorningAutosave) scheduleMorningAutosave(rawScore);
+  if (!window._inRestore && window.scheduleMorningAutosave) scheduleMorningAutosave(rawScore);
 }
 
 // ── Autosave top-down analysis on score change ──────────
@@ -6594,10 +6592,14 @@ function updateVerdictAuto() {
 window._lastAutosaveScore = null;
 window._morningAutosaveTimer = null;
 window.scheduleMorningAutosave = function(score) {
+  // Don't autosave during restore — the restore itself handles saving state
+  if (window._inRestore) return;
   // Only Gold's analysis autosaves to Supabase
   if (typeof _tdActiveInstrument !== 'undefined' && _tdActiveInstrument !== 'Gold') return;
   // Need a logged-in user
   if (!localStorage.getItem('td_user_id')) return;
+  // Track user activity — this is the true signal that a human is editing
+  window._lastUserActivity = Date.now();
   // Build a quick fingerprint of current bias state to detect real changes
   var _fp = '';
   try {
@@ -8098,7 +8100,7 @@ async function loadYesterdaySession() {
         });
         if (morning.news_notes) { var nn=document.getElementById('news-notes'); if(nn) nn.value=morning.news_notes; }
         window._inRestore = false;
-        setTimeout(function(){ if(window.updateVerdictAuto) updateVerdictAuto(); }, 200);
+        setTimeout(function(){ window._inRestore = true; if(window.updateVerdictAuto) updateVerdictAuto(); window._inRestore = false; }, 200);
       } catch(e) { window._inRestore = false; console.warn('[loadYesterday] analysis error:', e.message); }
     }
 
@@ -13800,10 +13802,12 @@ window.tdlDoForgot = async function() {
 // ── AUTO-RESTORE TODAY'S SESSION ─────────────────────
 // Fetches morning_analysis + trades + daily_summaries for today
 // and repopulates every field in the UI. Only runs if data exists for today.
-window.autoRestoreToday = async function() {
-  // Skip if user is actively editing their analysis (within last 3 minutes)
+window.autoRestoreToday = async function(source) {
+  // source: 'pageload' | 'timer' | 'visibilitychange'
+  // Only the periodic 90s timer respects the user-activity guard —
+  // page load and tab-switch always restore so cross-device sync works.
   var now = Date.now();
-  if (window._lastUserActivity && (now - window._lastUserActivity) < 180000) return;
+  if (source === 'timer' && window._lastUserActivity && (now - window._lastUserActivity) < 180000) return;
   // Debounce: skip if a restore ran in the last 5 seconds
   if (window._lastRestoreAt && (now - window._lastRestoreAt) < 5000) return;
   window._lastRestoreAt = now;
@@ -14396,7 +14400,7 @@ async function tdlOnAuth(user) {
       // it loads when the trader opens the panel after passing the gate.
       if (window.cbUpdateGate) cbUpdateGate();
       // Auto-restore today's session data (sets _morningSaved if already saved)
-      setTimeout(function() { if (window.autoRestoreToday) autoRestoreToday(); }, 800);
+      setTimeout(function() { if (window.autoRestoreToday) autoRestoreToday('pageload'); }, 800);
       // Direct trade restore — runs after everything else settles, guaranteed
       setTimeout(async function() {
         try {
@@ -14432,13 +14436,13 @@ async function tdlOnAuth(user) {
       if (!window._analysisSyncTimer) {
         window._analysisSyncTimer = setInterval(function() {
           if (window.autoRestoreToday && document.visibilityState !== 'hidden') {
-            autoRestoreToday();
+            autoRestoreToday('timer');
           }
         }, 90000);
         // Also re-sync immediately when the tab/app becomes visible (e.g. switching from desktop → mobile)
         document.addEventListener('visibilitychange', function() {
           if (document.visibilityState === 'visible' && window.autoRestoreToday) {
-            setTimeout(autoRestoreToday, 300);
+            setTimeout(function(){ autoRestoreToday('visibilitychange'); }, 300);
           }
         });
       }
