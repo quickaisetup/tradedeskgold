@@ -13976,13 +13976,17 @@ window.autoRestoreToday = async function(source) {
         });
       }
 
-      // London bias
+      // London bias — set state + classes directly (avoid btn.click() which toggles off on repeat restore)
       if (morning.london_bias) {
         window.londonBiasState = morning.london_bias;
+        var _lbCls = { bull: 'sel-bull', bear: 'sel-bear', range: 'sel-range' };
         document.querySelectorAll('[onclick^="setLondonBias"]').forEach(function(btn) {
-          var oc = btn.getAttribute('onclick') || '';
-          var m = oc.match(/setLondonBias\([^,]+,\s*'([^']+)'/);
-          if (m && m[1] === morning.london_bias) btn.click();
+          btn.classList.remove('sel', 'sel-bull', 'sel-bear', 'sel-range');
+          btn.style.color = ''; btn.style.borderColor = ''; btn.style.background = '';
+          var _lbM = (btn.getAttribute('onclick') || '').match(/setLondonBias\('([^']+)'/);
+          if (_lbM && _lbM[1] === morning.london_bias) {
+            btn.classList.add(_lbCls[morning.london_bias] || 'sel');
+          }
         });
       }
 
