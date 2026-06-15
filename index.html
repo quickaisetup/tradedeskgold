@@ -8093,10 +8093,17 @@ async function loadYesterdaySession() {
     var summ    = summRes.data;
     var morning = morRes.data;
 
-    // Load trades
-    if (trades.length && window._restoreTradesFromDB) {
-      state.trades.slice().forEach(function(t){ if(!t.saved) removeTrade(t.id); });
-      window._restoreTradesFromDB(trades);
+    // Load trades — clear ALL current trades from UI first (including today's saved ones)
+    // so yesterday's trades replace rather than mix with today's
+    if (window._restoreTradesFromDB) {
+      state.trades.slice().forEach(function(t){
+        var el = document.getElementById('tf-' + t.id);
+        if (el) el.remove();
+      });
+      state.trades = [];
+      // Flush localStorage so today's cache doesn't re-appear on next restore
+      if (window._persistTradesToLocal) _persistTradesToLocal();
+      if (trades.length) window._restoreTradesFromDB(trades);
     }
 
     // Load morning analysis (bias, trend, pivot, etc.) — click the actual buttons
