@@ -5333,9 +5333,11 @@ function renderAccountsPanel() {
     return keywords.some(function(k){ return a.indexOf(k) > -1 && b.indexOf(k) > -1; });
   }
   // Use DB trades if available, otherwise fall back to saved UI trades
-  var _perAcctSrc = (window._tdTodayTrades && window._tdTodayTrades.length)
-    ? window._tdTodayTrades
-    : (state && state.trades ? state.trades.filter(function(t){ return t.saved; }) : []);
+  // When viewing yesterday's session, show $0 per account (those aren't today's trades)
+  var _perAcctSrc = window._viewingYesterday ? [] :
+    ((window._tdTodayTrades && window._tdTodayTrades.length)
+      ? window._tdTodayTrades
+      : (state && state.trades ? state.trades.filter(function(t){ return t.saved; }) : []));
   _perAcctSrc.forEach(function(t) {
     var r    = parseFloat(t.r_achieved !== undefined ? t.r_achieved : t.rAchieved)||0;
     var rp   = parseFloat(t.risk_pct   !== undefined ? t.risk_pct   : t.riskPct)||BASE_RISK_PCT;
@@ -8178,9 +8180,9 @@ async function loadYesterdaySession() {
       });
       state.trades = [];
       // Flush localStorage so today's cache doesn't re-appear on next restore
+      window._viewingYesterday = true; // suppress calcTodayPnl while viewing yesterday
       if (window._persistTradesToLocal) _persistTradesToLocal();
       if (trades.length) window._restoreTradesFromDB(trades);
-      window._viewingYesterday = true; // suppress calcTodayPnl while viewing yesterday
     }
 
     // Load morning analysis (bias, trend, pivot, etc.) — click the actual buttons
