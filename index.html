@@ -14005,15 +14005,16 @@ window.autoRestoreToday = async function(source) {
       }
 
       // Trading mode
-      if (morning.trading_mode) {
-        window.tradingMode = morning.trading_mode;
-        document.querySelectorAll('.mode-btns .tgl').forEach(function(btn) {
-          if (btn.textContent.trim() === morning.trading_mode) {
-            btn.classList.add('sel');
-          }
+      var _tmVal = morning.trading_mode || '';
+      if (!_tmVal && _lsSnap.tradingMode) _tmVal = _lsSnap.tradingMode;
+      if (_tmVal) {
+        window.tradingMode = _tmVal;
+        document.querySelectorAll('#trading-mode-btns .tgl').forEach(function(btn) {
+          btn.classList.remove('sel');
+          if (btn.textContent.trim() === _tmVal) btn.classList.add('sel');
         });
         var modeDisp = document.getElementById('trading-mode-display');
-        if (modeDisp) modeDisp.textContent = morning.trading_mode;
+        if (modeDisp) modeDisp.textContent = _tmVal;
       }
 
       // News notes
