@@ -13966,27 +13966,41 @@ window.autoRestoreToday = async function(source) {
         }
       }
 
-      // Market direction
-      if (morning.market_dir) {
+      // Read localStorage snapshot for fallback when DB columns are empty (from old buggy saves)
+      var _lsSnap = {};
+      try { _lsSnap = JSON.parse(localStorage.getItem('td_tfstate_' + todayISO) || '{}'); } catch(e) {}
+
+      // Market direction — DB stores text like "Moving Up"; localStorage stores onclick string
+      var _mdText = morning.market_dir || '';
+      if (!_mdText && _lsSnap.marketDir) {
+        // Fall back: find button by onclick attr match and read its text content
+        var _mdBtn = document.querySelector('#market-direction .bb[onclick="' + _lsSnap.marketDir + '"]');
+        if (_mdBtn) _mdText = _mdBtn.textContent.trim();
+      }
+      if (_mdText) {
         document.querySelectorAll('#market-direction .bb').forEach(function(btn) {
-          if (btn.textContent.trim() === morning.market_dir) {
-            var cls = morning.market_dir.toLowerCase().includes('bull') ? 'sel-bull' : morning.market_dir.toLowerCase().includes('bear') ? 'sel-bear' : 'sel-range';
-            btn.classList.add(cls);
+          btn.classList.remove('sel', 'sel-bull', 'sel-bear', 'sel-range');
+          if (btn.textContent.trim() === _mdText) {
+            var _mdCls = _mdText.toLowerCase().includes('up') ? 'sel-bull' : _mdText.toLowerCase().includes('down') ? 'sel-bear' : 'sel-range';
+            btn.classList.add(_mdCls);
           }
         });
       }
 
-      // London bias — set state + classes directly (avoid btn.click() which toggles off on repeat restore)
-      if (morning.london_bias) {
-        window.londonBiasState = morning.london_bias;
+      // London bias — set state + classes directly; fall back to localStorage if DB is empty
+      var _lbVal = morning.london_bias || '';
+      if (!_lbVal && _lsSnap.londonBias) {
+        var _lbFbM = _lsSnap.londonBias.match(/setLondonBias\('([^']+)'/);
+        if (_lbFbM) _lbVal = _lbFbM[1];
+      }
+      if (_lbVal) {
+        window.londonBiasState = _lbVal;
         var _lbCls = { bull: 'sel-bull', bear: 'sel-bear', range: 'sel-range' };
         document.querySelectorAll('[onclick^="setLondonBias"]').forEach(function(btn) {
           btn.classList.remove('sel', 'sel-bull', 'sel-bear', 'sel-range');
           btn.style.color = ''; btn.style.borderColor = ''; btn.style.background = '';
           var _lbM = (btn.getAttribute('onclick') || '').match(/setLondonBias\('([^']+)'/);
-          if (_lbM && _lbM[1] === morning.london_bias) {
-            btn.classList.add(_lbCls[morning.london_bias] || 'sel');
-          }
+          if (_lbM && _lbM[1] === _lbVal) btn.classList.add(_lbCls[_lbVal] || 'sel');
         });
       }
 
@@ -14011,6 +14025,7 @@ window.autoRestoreToday = async function(source) {
       // Gates
       try {
         var gates = JSON.parse(morning.gates || '{}');
+        if (!Object.keys(gates).length) { try { gates = JSON.parse(localStorage.getItem('td_gates_' + todayISO) || '{}'); } catch(e) {} }
         var gateEls = document.querySelectorAll('.gate-item');
         if (gates.maintenance && gateEls[0]) {
           gateEls[0].classList.add('done');
