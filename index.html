@@ -3388,16 +3388,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
     </div>
     <div class="section-header"><span class="section-num">01</span><span class="section-title">Morning routine</span><div class="section-line"></div><span class="section-check" id="check-gate">Done ✓</span></div>
     <div id="exp-gate" class="td-explainer"><button class="td-explainer-dismiss" onclick="dismissExplainer('exp-gate')">✕</button><div class="td-explainer-body"><b>Before you trade</b> — two quick checks.<ul><li>Tick <b>FTMO maintenance</b> — confirm no restrictions</li><li>Tick <b>economic calendar</b> — know when the news hits</li><li>Select impact level and log any key events</li></ul></div></div>
-    <div class="gate-item" onclick="toggleGate(this,'maintenance')">
-      <div class="g-check">✓</div>
-      <div class="g-text"><strong>FTMO Maintenance check</strong><a href="https://ftmo.com/en/trading-updates/" target="_blank">ftmo.com/en/trading-updates</a></div>
-      <div class="g-badge">Pending</div>
-    </div>
-    <div class="gate-item" onclick="toggleGate(this,'calendar')">
-      <div class="g-check">✓</div>
-      <div class="g-text"><strong>Economic calendar check</strong><a href="https://trader.ftmo.com/economic-calendar" target="_blank">trader.ftmo.com/economic-calendar</a></div>
-      <div class="g-badge">Pending</div>
-    </div>
+    <div id="gate-items"></div>
+    <button onclick="addGateItem()" style="margin-top:6px;width:100%;background:transparent;border:1px dashed var(--border);border-radius:7px;color:var(--text3);font-family:var(--mono);font-size:10px;padding:8px;cursor:pointer;letter-spacing:0.06em" onmouseover="this.style.borderColor='var(--border2)';this.style.color='var(--text2)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text3)'">+ Add routine item</button>
     <div class="card" style="margin-top:10px;padding:0;overflow:hidden">
       <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border)">
         <div style="font-family:var(--mono);font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text2);display:flex;align-items:center;gap:8px">
@@ -5801,12 +5793,89 @@ function updateDayProgress() {
 }
 
 // ── MORNING GATE ─────────────────────────────────────
+var _DEFAULT_GATE_DEFS = [
+  {id:'maintenance', label:'FTMO Maintenance check', url:'https://ftmo.com/en/trading-updates/'},
+  {id:'calendar',    label:'Economic calendar check', url:'https://trader.ftmo.com/economic-calendar'}
+];
+
+function _getGateDefs() {
+  try { var d = JSON.parse(localStorage.getItem('td_gate_defs')); if (Array.isArray(d)) return d; } catch(e){}
+  return _DEFAULT_GATE_DEFS.map(function(g){ return Object.assign({},g); });
+}
+function _saveGateDefs(defs) {
+  try { localStorage.setItem('td_gate_defs', JSON.stringify(defs)); } catch(e){}
+}
+
+function renderGateItems() {
+  var today = new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
+  var states = {}; try { states = JSON.parse(localStorage.getItem('td_gates_' + today) || '{}'); } catch(e){}
+  var defs = _getGateDefs();
+  var container = document.getElementById('gate-items');
+  if (!container) return;
+  container.innerHTML = defs.map(function(g) {
+    var done = states[g.id] === true;
+    var urlDisplay = g.url ? g.url.replace(/^https?:\/\//,'') : '';
+    return '<div class="gate-item' + (done?' done':'') + '" onclick="toggleGate(this,\''+g.id+'\')" data-gate-id="'+g.id+'">' +
+      '<div class="g-check">✓</div>' +
+      '<div class="g-text"><strong>'+_escHtml(g.label)+'</strong>' +
+        (g.url ? '<a href="'+g.url+'" target="_blank" onclick="event.stopPropagation()">'+_escHtml(urlDisplay)+'</a>' : '') +
+      '</div>' +
+      '<div class="g-badge">'+(done?'Done ✓':'Pending')+'</div>' +
+      '<div class="gate-actions" onclick="event.stopPropagation()" style="display:flex;gap:4px;margin-left:6px;flex-shrink:0">' +
+        '<button onclick="editGateItem(\''+g.id+'\')" title="Edit" style="background:transparent;border:1px solid var(--border);border-radius:4px;color:var(--text3);font-size:11px;width:22px;height:22px;cursor:pointer;display:flex;align-items:center;justify-content:center">✏</button>' +
+        '<button onclick="deleteGateItem(\''+g.id+'\')" title="Remove" style="background:transparent;border:1px solid var(--border);border-radius:4px;color:var(--text3);font-size:13px;width:22px;height:22px;cursor:pointer;display:flex;align-items:center;justify-content:center">×</button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function _escHtml(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function addGateItem() {
+  var label = prompt('Item label:');
+  if (!label || !label.trim()) return;
+  var url = prompt('Link URL (optional — leave blank to skip):') || '';
+  var defs = _getGateDefs();
+  var id = 'custom_' + Date.now();
+  defs.push({id:id, label:label.trim(), url:url.trim()});
+  _saveGateDefs(defs);
+  renderGateItems();
+}
+
+function editGateItem(id) {
+  var defs = _getGateDefs();
+  var def = defs.find(function(g){ return g.id === id; });
+  if (!def) return;
+  var label = prompt('Item label:', def.label);
+  if (label === null) return;
+  var url = prompt('Link URL (leave blank to remove):', def.url || '');
+  if (url === null) return;
+  def.label = label.trim() || def.label;
+  def.url = url.trim();
+  _saveGateDefs(defs);
+  renderGateItems();
+}
+
+function deleteGateItem(id) {
+  if (!confirm('Remove this routine item?')) return;
+  var defs = _getGateDefs().filter(function(g){ return g.id !== id; });
+  _saveGateDefs(defs);
+  // Also clear its saved state for today
+  try {
+    var today = new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
+    var states = JSON.parse(localStorage.getItem('td_gates_' + today) || '{}');
+    delete states[id];
+    localStorage.setItem('td_gates_' + today, JSON.stringify(states));
+  } catch(e){}
+  renderGateItems();
+  checkGate();
+}
+
 function toggleGate(el, id) {
   el.classList.toggle('done');
   const badge = el.querySelector('.g-badge');
   if (badge) badge.textContent = el.classList.contains('done') ? 'Done ✓' : 'Pending';
   checkGate();
-  // Save gate state
   try {
     var today = new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
     var gates = JSON.parse(localStorage.getItem('td_gates_' + today) || '{}');
@@ -5960,17 +6029,8 @@ function _restoreTFStateLocal() {
       });
     }
 
-    // Gate checkboxes
-    try {
-      var gates = JSON.parse(localStorage.getItem('td_gates_' + today) || '{}');
-      document.querySelectorAll('.gate-item').forEach(function(el) {
-        var oc = el.getAttribute('onclick') || '';
-        var m = oc.match(/toggleGate\(this,'([^']+)'\)/);
-        if (m && gates[m[1]] === true && !el.classList.contains('done')) {
-          el.click();
-        }
-      });
-    } catch(e) {}
+    // Gate checkboxes — re-render with today's saved states
+    if (window.renderGateItems) renderGateItems();
 
     // EOD notes + rules
     try {
@@ -9727,7 +9787,7 @@ function calcLotSize() {
   var rr       = (slPts > 0 && tpPts > 0) ? (tpPts / slPts) : 0;
 
   if(lotsEl)  lotsEl.textContent  = lots.toFixed(2);
-  if(riskEl)  riskEl.textContent  = '$' + Math.round(riskUsd).toLocaleString();
+  if(riskEl)  riskEl.textContent  = Math.round(riskUsd).toLocaleString();
   if(rrEl)    rrEl.textContent    = rr > 0 ? '1:' + rr.toFixed(1) : '—';
   // Auto-detect direction and update label + _alertDir
   var dirLabel = document.getElementById('alert-dir-label');
@@ -9864,7 +9924,7 @@ function showTradeAlert(payload) {
   document.getElementById('tap-sl').textContent    = sl    || '—';
   document.getElementById('tap-tp').textContent    = tp    || '—';
   document.getElementById('tap-lots').textContent  = lots + ' lots';
-  document.getElementById('tap-risk').textContent  = '$' + Math.round(riskUsd).toLocaleString();
+  document.getElementById('tap-risk').textContent  = Math.round(riskUsd).toLocaleString();
   document.getElementById('tap-rr').textContent    = rr > 0 ? '1:' + rr.toFixed(1) : '—';
   document.getElementById('tap-pts').textContent   = slPts > 0 ? slPts.toFixed(1) : '—';
   var noteEl = document.getElementById('tap-note');
@@ -9976,8 +10036,9 @@ function leoMakeWidgetHTML(sym, interval, tfLabel) {
     allow_symbol_change: false,
     save_image: false,
     calendar: false,
-    hide_volume: false,
+    hide_volume: true,
     studies: [
+      {"id":"STD;Awesome_Oscillator"},
       {"id":"MAExp@tv-basicstudies","inputs":{"length":9},"styles":{"Plot.color":"#a855f7","Plot.linewidth":1}},
       {"id":"MAExp@tv-basicstudies","inputs":{"length":20},"styles":{"Plot.color":"#f0bc4e","Plot.linewidth":1}},
       {"id":"MAExp@tv-basicstudies","inputs":{"length":50},"styles":{"Plot.color":"#6aa3f5","Plot.linewidth":1}},
@@ -10049,8 +10110,9 @@ function leoLoadWidget(tfId, sym, interval) {
     autosize: true, symbol: sym, interval: interval,
     timezone: _tzIANA(), theme: 'dark', style: '1', locale: 'en',
     hide_top_toolbar: true, hide_legend: true, hide_side_toolbar: true,
-    allow_symbol_change: false, save_image: false, calendar: false, hide_volume: false,
+    allow_symbol_change: false, save_image: false, calendar: false, hide_volume: true,
     studies: [
+      {"id":"STD;Awesome_Oscillator"},
       {"id":"MAExp@tv-basicstudies","inputs":{"length":9}},
       {"id":"MAExp@tv-basicstudies","inputs":{"length":20}},
       {"id":"MAExp@tv-basicstudies","inputs":{"length":50}},
@@ -10749,7 +10811,7 @@ function leoCalc() {
     var lots   = riskUsd / (slDist * 100);
     lotEl.textContent = lots.toFixed(2) + ' lots';
     lotEl.style.color = 'var(--gold)';
-    if (riskEl) { riskEl.textContent = '$' + riskUsd.toFixed(0); riskEl.style.color = 'var(--red)'; }
+    if (riskEl) { riskEl.textContent = riskUsd.toFixed(0); riskEl.style.color = 'var(--red)'; }
     if (rrEl && !isNaN(target) && target > 0) {
       var rr = Math.abs(target - entry) / slDist;
       rrEl.textContent = '1:' + rr.toFixed(2);
@@ -10757,7 +10819,7 @@ function leoCalc() {
     } else if (rrEl) { rrEl.textContent = '—'; rrEl.style.color = 'rgba(255,255,255,0.25)'; }
   } else {
     if (lotEl)  { lotEl.textContent  = '—';  lotEl.style.color  = 'rgba(255,255,255,0.25)'; }
-    if (riskEl) { riskEl.textContent = '$' + riskUsd.toFixed(0); riskEl.style.color = 'rgba(255,255,255,0.3)'; }
+    if (riskEl) { riskEl.textContent = riskUsd.toFixed(0); riskEl.style.color = 'rgba(255,255,255,0.3)'; }
     if (rrEl)   { rrEl.textContent   = '—';  rrEl.style.color   = 'rgba(255,255,255,0.25)'; }
   }
 }
@@ -14023,20 +14085,18 @@ window.autoRestoreToday = async function(source) {
         if (nnEl) nnEl.value = morning.news_notes;
       }
 
-      // Gates
+      // Gates — merge DB/localStorage states then re-render
       try {
         var gates = JSON.parse(morning.gates || '{}');
         if (!Object.keys(gates).length) { try { gates = JSON.parse(localStorage.getItem('td_gates_' + todayISO) || '{}'); } catch(e) {} }
-        var gateEls = document.querySelectorAll('.gate-item');
-        if (gates.maintenance && gateEls[0]) {
-          gateEls[0].classList.add('done');
-          var b0 = gateEls[0].querySelector('.g-badge'); if (b0) b0.textContent = 'Done ✓';
+        if (Object.keys(gates).length) {
+          // Write merged states back to localStorage so renderGateItems picks them up
+          var _existingGates = {}; try { _existingGates = JSON.parse(localStorage.getItem('td_gates_' + todayISO) || '{}'); } catch(e) {}
+          Object.assign(_existingGates, gates);
+          localStorage.setItem('td_gates_' + todayISO, JSON.stringify(_existingGates));
         }
-        if (gates.calendar && gateEls[1]) {
-          gateEls[1].classList.add('done');
-          var b1 = gateEls[1].querySelector('.g-badge'); if (b1) b1.textContent = 'Done ✓';
-        }
-        if (gates.maintenance && gates.calendar && window.checkGate) checkGate();
+        if (window.renderGateItems) renderGateItems();
+        if (window.checkGate) checkGate();
       } catch(e){}
 
       // Key levels — skip restore if user edited levels in last 60s (prevents delete from being undone)
@@ -14151,6 +14211,10 @@ var _fbImageFile = null;
 document.addEventListener('DOMContentLoaded', function() {
   var fbBtn = document.getElementById('fb-btn');
   if (fbBtn) fbBtn.addEventListener('click', openFeedback);
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+  if (window.renderGateItems) renderGateItems();
 });
 
 function openFeedback() {
