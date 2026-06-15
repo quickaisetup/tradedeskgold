@@ -4856,7 +4856,7 @@ localStorage.setItem('td_sheets_url', '');
       return {
         date:          s.date,
         totalR:        Math.round((td.totalR || parseFloat(s.total_r) || 0) * 100) / 100,
-        totalUsd:      td.totalTrades > 0 ? Math.round(td.totalUsd) : null,
+        totalUsd:      td.totalTrades > 0 ? Math.round(td.totalUsd) : (parseFloat(s.usd_pnl) || null),
         wins:          td.wins         || s.wins          || 0,
         losses:        td.losses       || s.losses        || 0,
         totalTrades:   td.totalTrades  || s.total_trades  || 0,
