@@ -13799,6 +13799,11 @@ window.tdlDoForgot = async function() {
 // Fetches morning_analysis + trades + daily_summaries for today
 // and repopulates every field in the UI. Only runs if data exists for today.
 window.autoRestoreToday = async function() {
+  // Debounce: skip if a restore ran in the last 5 seconds
+  var now = Date.now();
+  if (window._lastRestoreAt && (now - window._lastRestoreAt) < 5000) return;
+  window._lastRestoreAt = now;
+
   var uid = _userId || localStorage.getItem('td_user_id');
   if (!uid) return;
   var sb = window._tdSB;
@@ -14021,7 +14026,7 @@ window.autoRestoreToday = async function() {
           });
           if (window.lvlRenderAll) lvlRenderAll();
           try { localStorage.setItem('td_levels_cache', JSON.stringify(levels)); } catch(e) {}
-        } else {
+        } else if (!_skipLevelsRestore) {
           localStorage.removeItem('td_levels_cache');
         }
         if (window.leoRenderKLBar) leoRenderKLBar();
