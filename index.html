@@ -5565,20 +5565,18 @@ window._restoreTradesFromLocal = function() {
 
 window._restoreTradesFromDB = function(trades) {
   if (!trades || !trades.length) return;
-  // Guard: if all trades are already loaded (matched by _sbId), skip
-  var existingIds = state.trades.map(function(t){ return t._sbId; }).filter(Boolean);
-  var newIds = trades.map(function(t){ return t.id; });
-  // Skip only if DB has exactly the same set — if DB has MORE, always restore (cross-device sync)
-  var allMatch = newIds.every(function(id){ return existingIds.indexOf(id) > -1; });
-  var sameCount = newIds.length === existingIds.length;
-  if (allMatch && sameCount) {
+  // Remove any unsaved placeholder trades before restoring
+  state.trades.slice().forEach(function(t){ if (!t.saved && !t._sbId) removeTrade(t.id); });
+  // Build set of already-loaded Supabase IDs to avoid duplicating existing trades
+  var existingIds = {};
+  state.trades.forEach(function(t){ if (t._sbId) existingIds[t._sbId] = true; });
+  var newTrades = trades.filter(function(tr){ return !existingIds[tr.id]; });
+  if (!newTrades.length) {
     console.log('[restore] Trades already loaded — skipping duplicate restore');
     return;
   }
-  // Remove any unsaved placeholder trades before restoring
-  state.trades.slice().forEach(function(t){ if (!t.saved && !t._sbId) removeTrade(t.id); });
   window._restoringTrades = true;
-  trades.forEach(function(tr) {
+  newTrades.forEach(function(tr) {
     addTrade();
     var t = state.trades[state.trades.length - 1];
     if (!t) return;
