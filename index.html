@@ -6752,6 +6752,8 @@ function setTradingMode(btn, val) {
   updateStickyBiasBar();
   updateBottomHUD();
   _saveTFStateLocal();
+  // Auto-save to Supabase so trading mode persists across reloads
+  if (typeof saveMorningAnalysis === 'function') saveMorningAnalysis(true);
 }
 
 var _tmEditMode = false;
