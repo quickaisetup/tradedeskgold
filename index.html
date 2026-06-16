@@ -12044,7 +12044,16 @@ function setTVInterval(interval, btn) {
   document.querySelectorAll('.tf-chart-dot').forEach(function(d){ d.classList.remove('active'); });
   var activeDot = document.querySelector('.tf-chart-dot[data-tf-dot="' + interval + '"]');
   if (activeDot) activeDot.classList.add('active');
-  // Chart is created once on startup — do NOT recreate it here (causes OOM from orphaned iframes)
+  // Change chart interval via postMessage — safe, no iframe recreation
+  var iframe = document.querySelector('#tv-chart-wrap iframe');
+  if (iframe && iframe.contentWindow) {
+    try {
+      iframe.contentWindow.postMessage(
+        JSON.stringify({ name: 'set-symbol', data: { symbol: 'XAUUSD', interval: interval } }),
+        '*'
+      );
+    } catch(e) {}
+  }
 }
 // called from TF card dots — scrolls chart into view on mobile
 function setTVIntervalFromCard(interval, e) {
@@ -14153,15 +14162,7 @@ function _wtGetSubKeys(s) {
 }
 
 function _wtRenderTFWizard(s) {
-  // Update TF button/dot UI — do NOT call setTVInterval (avoids chart recreation)
-  if (s.tvTF) {
-    document.querySelectorAll('#tv-tf-switch .tv-tf-btn').forEach(function(b){ b.classList.remove('sel'); });
-    var ab = document.querySelector('#tv-tf-switch .tv-tf-btn[data-tf="' + s.tvTF + '"]');
-    if (ab) ab.classList.add('sel');
-    document.querySelectorAll('.tf-chart-dot').forEach(function(d){ d.classList.remove('active'); });
-    var ad = document.querySelector('.tf-chart-dot[data-tf-dot="' + s.tvTF + '"]');
-    if (ad) ad.classList.add('active');
-  }
+  if (s.tvTF) setTVInterval(s.tvTF);
   _wtSubStep = 0;
   _wtRenderSubStep(s);
 }
