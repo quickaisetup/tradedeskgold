@@ -3498,7 +3498,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
             </div>
           </div>
         </div>
-        <textarea class="tf-note" id="tfn-1M" placeholder="Overall structure..."></textarea>
+        <textarea class="tf-note" id="tfn-1M" placeholder="Overall structure..." oninput="scheduleNotesSave()"></textarea>
       </div>
 
       <!-- 1W -->
@@ -3527,7 +3527,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
             </div>
           </div>
         </div>
-        <textarea class="tf-note" id="tfn-1W" placeholder="Weekly structure..."></textarea>
+        <textarea class="tf-note" id="tfn-1W" placeholder="Weekly structure..." oninput="scheduleNotesSave()"></textarea>
       </div>
 
       <!-- Daily -->
@@ -3556,7 +3556,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
             </div>
           </div>
         </div>
-        <textarea class="tf-note" id="tfn-D" placeholder="Bias, S/R..."></textarea>
+        <textarea class="tf-note" id="tfn-D" placeholder="Bias, S/R..." oninput="scheduleNotesSave()"></textarea>
       </div>
 
       <!-- 4H -->
@@ -3600,7 +3600,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
           </label>
           <input type="text" id="ew-4H-note" placeholder="Wave position..." style="display:none;flex:1;background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:3px;color:var(--text);font-family:var(--mono);font-size:8px;padding:2px 5px">
         </div>
-        <textarea class="tf-note" id="tfn-4H" placeholder="Fibs, trendlines..."></textarea>
+        <textarea class="tf-note" id="tfn-4H" placeholder="Fibs, trendlines..." oninput="scheduleNotesSave()"></textarea>
       </div>
 
       <!-- 1H -->
@@ -3644,7 +3644,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
           </label>
           <input type="text" id="ew-1H-note" placeholder="Wave position..." style="display:none;flex:1;background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:3px;color:var(--text);font-family:var(--mono);font-size:8px;padding:2px 5px">
         </div>
-        <textarea class="tf-note" id="tfn-1H" placeholder="Entry zones..."></textarea>
+        <textarea class="tf-note" id="tfn-1H" placeholder="Entry zones..." oninput="scheduleNotesSave()"></textarea>
       </div>
 
       <!-- TODAY'S DIRECTION — fills 6th grid slot on mobile -->
@@ -6710,6 +6710,17 @@ function updateVerdictAuto() {
 // non-zero value. Manual "↑ Save analysis" button still works as a backup.
 window._lastAutosaveScore = null;
 window._morningAutosaveTimer = null;
+window.scheduleNotesSave = function() {
+  if (window._inRestore) return;
+  if (typeof _tdActiveInstrument !== 'undefined' && _tdActiveInstrument !== 'Gold') return;
+  if (!localStorage.getItem('td_user_id')) return;
+  _saveTFStateLocal();
+  if (window._notesSaveTimer) clearTimeout(window._notesSaveTimer);
+  window._notesSaveTimer = setTimeout(function() {
+    if (typeof saveMorningAnalysis === 'function') saveMorningAnalysis(true);
+  }, 1500);
+};
+
 window.scheduleMorningAutosave = function(score) {
   // Don't autosave during restore — the restore itself handles saving state
   if (window._inRestore) return;
@@ -15521,6 +15532,11 @@ function tdlPatchApp() {
           high_impact:  !!(payload.newsImpact === 'high' || payload.highImpact),
           score:        parseFloat(payload.score) || 0,
           verdict:      payload.overall_bias || '',
+          notes_1M:     payload.notes_1M || '',
+          notes_1W:     payload.notes_1W || '',
+          notes_D:      payload.notes_D  || '',
+          notes_4H:     payload.notes_4H || '',
+          notes_1H:     payload.notes_1H || '',
           levels_json:  (function(){ try { var l = window.levels||levels||[]; return l.length ? JSON.stringify(l) : (payload.levelsJson||'[]'); } catch(e){ return payload.levelsJson||'[]'; } })(),
         }, { onConflict: 'user_id,date' }).select();
         if (_morningRes && _morningRes.error) {
