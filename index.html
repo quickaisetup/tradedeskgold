@@ -14883,16 +14883,11 @@ window.autoRestoreToday = async function(source) {
         window._inRestore = true;
       }
 
-      // TF notes
-      var noteMap = {
-        '1M': morning.notes_1M, '1W': morning.notes_1W,
-        'D':  morning.notes_D,  '4H': morning.notes_4H, '1H': morning.notes_1H
-      };
-      Object.keys(noteMap).forEach(function(tf) {
-        var v = noteMap[tf];
+      // TF notes — stored inside tf_state JSON (no separate columns)
+      ['1M','1W','D','4H','1H'].forEach(function(tfKey) {
+        var v = (tf[tfKey] && tf[tfKey].notes) || morning['notes_' + tfKey.replace('1M','1M').replace('1W','1W').replace('D','D').replace('4H','4H').replace('1H','1H')] || '';
         if (!v) return;
-        // Notes textarea IDs: tfn-1M or tfc-notes-1M
-        var el = document.getElementById('tfn-' + tf) || document.getElementById('tfc-notes-' + tf);
+        var el = document.getElementById('tfn-' + tfKey) || document.getElementById('tfc-notes-' + tfKey);
         if (el) el.value = v;
       });
 
@@ -15993,6 +15988,11 @@ function tdlPatchApp() {
         if (payload.macd_1H)    _tfStateObj['1H'].macd = payload.macd_1H;
         if (payload.ew_4H)      _tfStateObj['4H'].ew   = payload.ew_4H;
         if (payload.ew_1H)      _tfStateObj['1H'].ew   = payload.ew_1H;
+        // Store TF notes inside tf_state JSON — no separate columns needed
+        ['1M','1W','D','4H','1H'].forEach(function(tf) {
+          var n = payload['notes_' + tf];
+          if (n) _tfStateObj[tf].notes = n;
+        });
         var _pivotRaw = payload.pivotRaw || '';
         var _morningRes = await sb.from('morning_analysis').upsert({
           user_id:      _userId,
@@ -16006,11 +16006,6 @@ function tdlPatchApp() {
           high_impact:  !!(payload.newsImpact === 'high' || payload.highImpact),
           score:        parseFloat(payload.score) || 0,
           verdict:      payload.overall_bias || '',
-          notes_1M:     payload.notes_1M || '',
-          notes_1W:     payload.notes_1W || '',
-          notes_D:      payload.notes_D  || '',
-          notes_4H:     payload.notes_4H || '',
-          notes_1H:     payload.notes_1H || '',
           levels_json:  (function(){ try { var l = window.levels||levels||[]; return l.length ? JSON.stringify(l) : (payload.levelsJson||'[]'); } catch(e){ return payload.levelsJson||'[]'; } })(),
         }, { onConflict: 'user_id,date' }).select();
         if (_morningRes && _morningRes.error) {
@@ -16050,9 +16045,18 @@ function tdlPatchApp() {
   localStorage.setItem('sheets-status', 'Supabase');
 
   // ── OVERRIDE renderStreak to use Supabase directly ────
+  var _streakInFlight = false;
+  var _streakDebounceTimer = null;
   window.renderStreak = async function() {
+    // Debounce: if called again within 1s, defer and let the later call win
+    if (_streakInFlight) {
+      clearTimeout(_streakDebounceTimer);
+      _streakDebounceTimer = setTimeout(function(){ window.renderStreak(); }, 1000);
+      return;
+    }
     var uid = _userId || localStorage.getItem('td_user_id');
     if (!uid) { console.log('[supabase] renderStreak: no uid'); return; }
+    _streakInFlight = true;
     var rpName = document.getElementById('rp-rank-name');
     if (rpName) rpName.textContent = 'SYNCING...';
     try {
@@ -16065,10 +16069,9 @@ function tdlPatchApp() {
         var rn = 'DEGENERATE';
         try { var re = document.getElementById('rp-rank-name'); if (re && re.textContent !== 'SYNCING...') rn = re.textContent.trim(); } catch(e) {}
         updatePALFromRows(sessions, rn);
-        setTimeout(function(){ updatePALFromRows(sessions, rn); }, 400);
-        setTimeout(function(){ updatePALFromRows(sessions, rn); }, 900);
       }
     } catch(e) { console.warn('[supabase] renderStreak error:', e.message); }
+    finally { _streakInFlight = false; }
   };
 
   console.log('[supabase] App patched — renderStreak now uses Supabase directly');
