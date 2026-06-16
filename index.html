@@ -6126,13 +6126,13 @@ function _tdTodayBKK() {
   return new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
 }
 
-// Clear live-execution watermarks when a new Bangkok day begins
+// On a new Bangkok day: clear stale tf_state + watermarks so the slate is truly clean
 (function() {
   var today = _tdTodayBKK();
   var lastOpen = localStorage.getItem('td_last_open_date');
   if (lastOpen !== today) {
     Object.keys(localStorage).forEach(function(k) {
-      if (k.startsWith('wm_')) localStorage.removeItem(k);
+      if (k.startsWith('wm_') || k.startsWith('td_tfstate_')) localStorage.removeItem(k);
     });
     localStorage.setItem('td_last_open_date', today);
   }
