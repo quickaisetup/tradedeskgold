@@ -1044,7 +1044,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 .tv-tf-btn:hover{color:var(--text);border-color:rgba(255,255,255,0.3)}
 .tv-tf-btn.sel{border-color:var(--gold);background:rgba(240,188,78,0.2);color:var(--gold);font-weight:700;box-shadow:0 0 6px rgba(240,188,78,0.25)}
 /* Instrument tabs (top-down analysis) — bigger & bolder than regular toggle buttons */
-#td-instr-tabs{gap:8px}
+#td-instr-tabs{gap:8px;scroll-margin-top:64px}
 #td-instr-tabs .tgl{font-size:12px;letter-spacing:0.08em;padding:9px 20px;border-radius:7px;border-width:1.5px;font-weight:600}
 #td-instr-tabs .tgl.sel{box-shadow:0 0 14px rgba(240,188,78,0.4);transform:translateY(-1px)}
 #td-instr-tabs .tgl[data-role="add-instr"]{font-weight:500;border-style:dashed}
@@ -14235,9 +14235,18 @@ function wtShowStep() {
   var target = document.getElementById(s.id);
   if (target) {
     target.classList.add(s.section ? 'wt-section-active' : 'wt-active');
-    // For TF steps scroll to the chart, not the card
-    var scrollTarget = isTF ? (document.getElementById('tv-chart-wrap') || target) : target;
-    setTimeout(function(){ scrollTarget.scrollIntoView({behavior:'smooth', block:'start'}); }, 100);
+    // For TF steps scroll to show the chart header (td-instr-tabs), offset for fixed 52px bar
+    if (isTF) {
+      setTimeout(function(){
+        var instrTabs = document.getElementById('td-instr-tabs');
+        if (instrTabs) {
+          var y = instrTabs.getBoundingClientRect().top + window.scrollY - 60;
+          window.scrollTo({top: y, behavior: 'smooth'});
+        }
+      }, 100);
+    } else {
+      setTimeout(function(){ target.scrollIntoView({behavior:'smooth', block:'center'}); }, 100);
+    }
   }
 
   if (isTF) {
