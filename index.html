@@ -14201,6 +14201,15 @@ window._wtSubClick = function(btn, key, tf, val) {
   if (key === 'ao')    cardBtn = document.querySelector('#tfc-'   + tf + ' .ind-row:first-child .ib[onclick*="\'' + val + '\'"]');
   if (key === 'macd')  cardBtn = document.querySelector('#tfc-'   + tf + ' .ind-row:last-child .ib[onclick*="\'' + val + '\'"]');
   if (cardBtn) cardBtn.click();
+  // Save progress immediately to the NEXT state so refresh always resumes correctly
+  var keys = _wtGetSubKeys(_wtSteps[_wtStep]);
+  var nextSub = _wtSubStep + 1;
+  var saveKey = 'td_wt_progress_' + _tdTodayBKK();
+  if (nextSub >= keys.length) {
+    localStorage.setItem(saveKey, JSON.stringify({step: _wtStep + 1, sub: 0}));
+  } else {
+    localStorage.setItem(saveKey, JSON.stringify({step: _wtStep, sub: nextSub}));
+  }
   // Auto-advance after short delay
   setTimeout(_wtSubAdvance, 320);
 };
