@@ -2974,7 +2974,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
     <button id="wt-next" onclick="wtNext()">Done ›</button>
     <button id="wt-skip" onclick="wtSkip()">Skip</button>
   </div>
-  <button id="wt-exit" onclick="wtDone()" title="Exit guide">✕ Exit guide</button>
+  <button id="wt-exit" onclick="wtExitGuide()" title="Exit guide">✕ Exit guide</button>
 </div>
 
 <div id="rules-modal-overlay" onclick="if(event.target===this)closeRulesModal()">
@@ -14149,10 +14149,15 @@ function _wtGetSubKeys(s) {
 }
 
 function _wtRenderTFWizard(s) {
-  // Switch chart to this TF
-  if (typeof setTVInterval === 'function') {
-    var tfBtn = document.querySelector('.tv-tf-btn[data-tf="' + s.tvTF + '"]');
-    setTVInterval(s.tvTF, tfBtn || null);
+  // Update TF button/dot UI only — do NOT recreate the TradingView chart.
+  // Recreating the chart for each TF causes orphaned iframes that leak memory.
+  if (s.tvTF) {
+    document.querySelectorAll('#tv-tf-switch .tv-tf-btn').forEach(function(b){ b.classList.remove('sel'); });
+    var activeBtn = document.querySelector('#tv-tf-switch .tv-tf-btn[data-tf="' + s.tvTF + '"]');
+    if (activeBtn) activeBtn.classList.add('sel');
+    document.querySelectorAll('.tf-chart-dot').forEach(function(d){ d.classList.remove('active'); });
+    var activeDot = document.querySelector('.tf-chart-dot[data-tf-dot="' + s.tvTF + '"]');
+    if (activeDot) activeDot.classList.add('active');
   }
   _wtRenderSubStep(s);
 }
@@ -14316,6 +14321,18 @@ window.wtNext = function() {
 
 window.wtSkip = wtDone;
 
+// Called when user clicks "Exit Guide" mid-session.
+// Hides the chip but keeps td_walkthrough_pending so the splash shows again on refresh.
+function wtExitGuide() {
+  document.querySelectorAll('.wt-active,.wt-section-active').forEach(function(el){
+    el.classList.remove('wt-active','wt-section-active');
+  });
+  var chip = document.getElementById('wt-chip');
+  if (chip) chip.style.display = 'none';
+}
+
+// Called only when the guide is fully completed or user skips from splash.
+// Removes the pending flag so the splash doesn't re-appear today.
 function wtDone() {
   localStorage.removeItem('td_walkthrough_pending');
   _wtClearProgress();
@@ -14325,6 +14342,7 @@ function wtDone() {
   var chip = document.getElementById('wt-chip');
   if (chip) chip.style.display = 'none';
 }
+window.wtExitGuide = wtExitGuide;
 
 window.wtRestart = function() {
   localStorage.setItem('td_walkthrough_pending', '1');
