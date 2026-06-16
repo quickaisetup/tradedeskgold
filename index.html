@@ -1668,8 +1668,6 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 #leo-ema-legend{display:flex;align-items:center;gap:10px;padding:0 14px;border-left:1px solid rgba(255,255,255,0.08);flex-shrink:0}
 .leo-ema-item{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:0.04em}
 #leo-price-right{margin-left:auto;display:flex;align-items:center;gap:10px;padding:0 14px;border-left:1px solid rgba(255,255,255,0.08);flex-shrink:0}
-#leo-live-price{font-family:var(--mono);font-size:13px;font-weight:700;color:rgba(255,255,255,0.35);letter-spacing:0.04em;transition:color 0.4s;white-space:nowrap;flex-shrink:0}
-#leo-live-price.live{color:#4ed68a;text-shadow:0 0 8px rgba(78,214,138,0.4)}
 #leo-candle-bar{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:8px;letter-spacing:0.04em;flex-shrink:0}
 .leo-cd-item{display:flex;align-items:center;gap:3px}
 .leo-cd-tf{font-size:8px;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.35)}
@@ -4697,7 +4695,6 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
     <div id="leo-kl-bar"></div>
     <div id="kl-hover-card" onmouseenter="clearTimeout(_klhHideTimer)" onmouseleave="klhHide()"></div>
     <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
-      <div id="leo-live-price" style="font-family:var(--mono);font-size:13px;color:var(--gold);letter-spacing:0.05em">—</div>
       <span id="ptg-override-badge">⚠ gate overridden</span>
       <button id="ptg-run-check" onclick="ptgOpen()">✓ Run check</button>
       <button id="leo-refresh" onclick="leoRefreshCharts(this)" style="font-family:var(--mono);font-size:8px;color:rgba(255,255,255,0.4);background:transparent;border:1px solid rgba(255,255,255,0.15);border-radius:4px;padding:3px 9px;cursor:pointer">↻ Refresh</button>
@@ -10214,7 +10211,6 @@ var _leoSymbol      = 'CAPITALCOM:XAUUSD';
 var _leoLiveTimer   = null;
 var _leoCdTimer     = null;
 var _leoInited      = false;
-var GOLD_API_KEY    = '89f21e6349d46d45035b74592a8076ad030c2a812d21ab57c0c30596e2514ecf';
 
 // Symbol map: short name → TradingView symbol string
 var LEO_SYMBOL_MAP = {
@@ -10469,21 +10465,6 @@ function leoUpdateCountdowns() {
   });
 }
 
-// ── LIVE PRICE (gold-api) ─────────────────────────────
-async function leoFetchLivePrice() {
-  try {
-    var res = await fetch('https://api.gold-api.com/price/XAU', { headers:{'x-api-key': GOLD_API_KEY} });
-    if (!res.ok) return;
-    var data = await res.json();
-    var price = data.price;
-    if (!price) return;
-    var el = document.getElementById('leo-live-price');
-    if (el) {
-      el.textContent = '● ' + parseFloat(price).toFixed(2);
-      el.classList.add('live');
-    }
-  } catch(e) {}
-}
 
 // ── OPEN / CLOSE ──────────────────────────────────────
 function openLiveExec() {
@@ -10510,8 +10491,6 @@ function openLiveExec() {
     _leoInited = true;
     leoRenderCustomTabs();
     leoLoadIframes();
-    leoFetchLivePrice();
-    _leoLiveTimer = setInterval(leoFetchLivePrice, 3000);
     leoUpdateCountdowns();
     _leoCdTimer = setInterval(leoUpdateCountdowns, 1000);
   }
