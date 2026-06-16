@@ -10375,18 +10375,8 @@ function leoRestoreIndicatorBtn() {
 }
 
 function _leoGetStudies() {
-  var emas = [
-    {"id":"MAExp@tv-basicstudies","inputs":{"length":9},"styles":{"Plot.color":"#a855f7","Plot.linewidth":1}},
-    {"id":"MAExp@tv-basicstudies","inputs":{"length":20},"styles":{"Plot.color":"#f0bc4e","Plot.linewidth":1}},
-    {"id":"MAExp@tv-basicstudies","inputs":{"length":50},"styles":{"Plot.color":"#6aa3f5","Plot.linewidth":1}},
-    {"id":"MAExp@tv-basicstudies","inputs":{"length":200},"styles":{"Plot.color":"#ffffff","Plot.linewidth":2}}
-  ];
-  var ind = {
-    ao:     {"id":"STD;Awesome_Oscillator"},
-    rsi:    {"id":"STD;RSI"},
-    stoch:  {"id":"STD;Stochastic"}
-  };
-  return _leoIndicator === 'volume' ? emas : [ind[_leoIndicator]].concat(emas);
+  var ind = { ao: 'STD;Awesome_Oscillator', rsi: 'STD;RSI', stoch: 'STD;Stochastic' };
+  return [ind[_leoIndicator] || 'STD;Awesome_Oscillator'];
 }
 
 function _leoHideVolume() { return _leoIndicator !== 'volume'; }
@@ -12023,19 +12013,7 @@ function initTVChart() {
     hide_top_toolbar: false, hide_legend: true,
     allow_symbol_change: false, save_image: false,
     hide_side_toolbar: true,
-    studies: [
-      // NOTE: the widget appears to silently cap how many auto-loaded studies
-      // it will render (AO vanished once total count pushed past ~4-5).
-      // Re-adding EMA 9 & 20 brings us back to 6 total — if AO or MACD
-      // disappear again, trim this back to the 4-study set (MACD, AO,
-      // EMA50, SMA200) that's confirmed to work reliably.
-      'STD;MACD',
-      'STD;Awesome_Oscillator',
-      { id: 'MAExp@tv-basicstudies', inputs: { length: 9 } },
-      { id: 'MAExp@tv-basicstudies', inputs: { length: 20 } },
-      { id: 'MAExp@tv-basicstudies', inputs: { length: 50 } },
-      { id: 'MASimple@tv-basicstudies', inputs: { length: 200 } }
-    ],
+    studies: ['STD;MACD','STD;Awesome_Oscillator'],
     support_host: 'https://www.tradingview.com'
   });
   container.appendChild(script);
