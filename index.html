@@ -8309,23 +8309,17 @@ async function loadYesterdaySession() {
       } catch(e) { window._inRestore = false; console.warn('[loadYesterday] analysis error:', e.message); }
     }
 
-    // Load EOD notes — DB first, localStorage fallback
-    var _eodQ1 = summ && summ.did_well      ? summ.did_well      : '';
-    var _eodQ2 = summ && summ.to_correct    ? summ.to_correct    : '';
-    var _eodQ3 = summ && summ.tomorrow_goal ? summ.tomorrow_goal : '';
+    // Load EOD notes — DB only (no localStorage fallback to avoid showing stale/unsaved drafts)
+    var _eodQ1    = summ && summ.did_well       ? summ.did_well      : '';
+    var _eodQ2    = summ && summ.to_correct     ? summ.to_correct    : '';
+    var _eodQ3    = summ && summ.tomorrow_goal  ? summ.tomorrow_goal : '';
     var _eodRules = summ && summ.rules_followed ? summ.rules_followed : '';
-    try {
-      var _yEod = JSON.parse(localStorage.getItem('td_eod_' + yISO) || '{}');
-      if (!_eodQ1 && _yEod.q1) _eodQ1 = _yEod.q1;
-      if (!_eodQ2 && _yEod.q2) _eodQ2 = _yEod.q2;
-      if (!_eodQ3 && _yEod.q3) _eodQ3 = _yEod.q3;
-    } catch(e) {}
     var q1 = document.getElementById('reflection-well');
     var q2 = document.getElementById('reflection-improve');
     var q3 = document.getElementById('reflection-tomorrow');
-    if (q1 && _eodQ1) q1.value = _eodQ1;
-    if (q2 && _eodQ2) q2.value = _eodQ2;
-    if (q3 && _eodQ3) q3.value = _eodQ3;
+    if (q1) q1.value = _eodQ1;
+    if (q2) q2.value = _eodQ2;
+    if (q3) q3.value = _eodQ3;
     if (_eodRules) {
       document.querySelectorAll('#rules-btn-group .tgl').forEach(function(b) {
         if (b.dataset.val === _eodRules) b.click();
