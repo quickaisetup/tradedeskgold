@@ -6306,9 +6306,10 @@ function toggleBias(tf, val, btn) {
     // Deselect this one
     currentBias.splice(idx, 1);
   } else {
-    // Bull+bear mutually exclusive; neutral combines freely with either
-    if (val === 'bull') currentBias = currentBias.filter(function(v){ return v !== 'bear'; });
-    if (val === 'bear') currentBias = currentBias.filter(function(v){ return v !== 'bull'; });
+    // All three are mutually exclusive: selecting any one clears the others
+    if (val === 'bull')    currentBias = currentBias.filter(function(v){ return v !== 'bear' && v !== 'neutral'; });
+    if (val === 'bear')    currentBias = currentBias.filter(function(v){ return v !== 'bull' && v !== 'neutral'; });
+    if (val === 'neutral') currentBias = currentBias.filter(function(v){ return v !== 'bull' && v !== 'bear'; });
     currentBias.push(val);
   }
 
@@ -7994,6 +7995,7 @@ async function saveAll(dateISOOverride) {
     score: score,
     notes_1M: getNotes('1M'), notes_1W: getNotes('1W'), notes_D: getNotes('D'),
     notes_4H: getNotes('4H'), notes_1H: getNotes('1H'),
+    ao_div_1W: getInd('1W', 'AO'),
     ao_div_4H: getInd('4H', 'AO'), ao_div_1H: getInd('1H', 'AO'),
     macd_4H: getInd('4H', 'MACD'), macd_1H: getInd('1H', 'MACD'),
     ew_4H: (document.getElementById('ew-4H') && document.getElementById('ew-4H').checked) ? (document.getElementById('ew-4H-note') ? document.getElementById('ew-4H-note').value || 'Yes' : 'Yes') : '',
@@ -8117,6 +8119,7 @@ async function saveMorningAnalysis(silent) {
     newsImpact: (document.querySelector('.news-impact-btn.sel, [data-impact].sel')||{}).dataset ? (document.querySelector('.news-impact-btn.sel, [data-impact].sel')).dataset.impact || '' : '',
     notes_1M: getNotes('1M'), notes_1W: getNotes('1W'), notes_D: getNotes('D'),
     notes_4H: getNotes('4H'), notes_1H: getNotes('1H'),
+    ao_div_1W: getInd('1W','AO'),
     ao_div_4H: getInd('4H','AO'), ao_div_1H: getInd('1H','AO'),
     macd_4H: getInd('4H','MACD'), macd_1H: getInd('1H','MACD'),
     levelsJson: JSON.stringify(levels || []),
@@ -15480,6 +15483,7 @@ function tdlPatchApp() {
             trend: tr ? tr.split('+') : []
           };
         });
+        if (payload.ao_div_1W)  _tfStateObj['1W'].ao   = payload.ao_div_1W;
         if (payload.ao_div_4H)  _tfStateObj['4H'].ao   = payload.ao_div_4H;
         if (payload.ao_div_1H)  _tfStateObj['1H'].ao   = payload.ao_div_1H;
         if (payload.macd_4H)    _tfStateObj['4H'].macd = payload.macd_4H;
@@ -15494,6 +15498,7 @@ function tdlPatchApp() {
           pivot_state:  payload.pivot || '',
           london_bias:  payload.londonBias || '',
           market_dir:   payload.marketDirection || '',
+          trading_mode: payload.trading_mode || payload.tradingMode || '',
           news_notes:   payload.newsNotes || '',
           high_impact:  !!(payload.newsImpact === 'high' || payload.highImpact),
           score:        parseFloat(payload.score) || 0,
