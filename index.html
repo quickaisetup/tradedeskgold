@@ -14246,7 +14246,12 @@ function wtShowStep() {
   if (target) {
     target.classList.add(s.section ? 'wt-section-active' : 'wt-active');
     var scrollTarget = (s.scrollToId && document.getElementById(s.scrollToId)) || target;
-    setTimeout(function(){ scrollTarget.scrollIntoView({behavior:'smooth',block:'start'}); }, 100);
+    setTimeout(function(){
+      var NAV_H = 52;
+      var rect = scrollTarget.getBoundingClientRect();
+      var absTop = rect.top + window.scrollY;
+      window.scrollTo({ top: Math.max(0, absTop - NAV_H - 8), behavior: 'smooth' });
+    }, 100);
   }
   var total = _wtSteps.length;
   document.getElementById('wt-step').textContent  = 'Step ' + (_wtStep+1) + ' / ' + total;
