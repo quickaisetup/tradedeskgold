@@ -14069,14 +14069,14 @@ function renderRulesList() {
 
 // ── ANALYSIS WALKTHROUGH ──────────────────────────────
 var _wtSteps = [
-  { id:'gate-items',        label:'Morning Routine',         hint:'Tick off each pre-trade item — FTMO status, economic calendar', section:true,  nextLabel:'All checked ›'                                 },
+  { id:'gate-items',        label:'Morning Routine',         hint:'Tick off each pre-trade item — FTMO status, economic calendar', section:true,  nextLabel:'All checked ›',   scrollToId:'gate'           },
   { id:'econ-body',         label:'Economic Calendar',       hint:'Check for high-impact events today — set the impact level',     section:true,  nextLabel:'News checked ›'                                },
   { id:'td-instr-tabs',     label:'Select Instrument',       hint:'Choose the instrument you\'re analysing today — Gold, DXY or add another', section:true, nextLabel:'Instrument set ›' },
-  { id:'tfc-1M', label:'1M — Monthly',        hint:'Set the big picture bias & trend direction',   section:false, tfKey:'1M', tvTF:'M',   hasMacd:false },
-  { id:'tfc-1W', label:'1W — Weekly',         hint:'Weekly bias, trend & AO reading',              section:false, tfKey:'1W', tvTF:'W',   hasMacd:false },
-  { id:'tfc-D',  label:'Daily',               hint:'Daily bias, trend & AO',                       section:false, tfKey:'D',  tvTF:'D',   hasMacd:false },
-  { id:'tfc-4H', label:'4H — Key Timeframe',  hint:'Bias, AO, MACD & Elliott wave count',          section:false, tfKey:'4H', tvTF:'240', hasMacd:true  },
-  { id:'tfc-1H', label:'1H — Entry Timeframe',hint:'Bias, AO, MACD & entry zone setup',            section:false, tfKey:'1H', tvTF:'60',  hasMacd:true  },
+  { id:'tfc-1M', label:'1M — Monthly',        hint:'Set the big picture bias & trend direction',   section:false, tfKey:'1M', tvTF:'M',   hasMacd:false, scrollToId:'tv-chart-wrap' },
+  { id:'tfc-1W', label:'1W — Weekly',         hint:'Weekly bias, trend & AO reading',              section:false, tfKey:'1W', tvTF:'W',   hasMacd:false, scrollToId:'tv-chart-wrap' },
+  { id:'tfc-D',  label:'Daily',               hint:'Daily bias, trend & AO',                       section:false, tfKey:'D',  tvTF:'D',   hasMacd:false, scrollToId:'tv-chart-wrap' },
+  { id:'tfc-4H', label:'4H — Key Timeframe',  hint:'Bias, AO, MACD & Elliott wave count',          section:false, tfKey:'4H', tvTF:'240', hasMacd:true,  scrollToId:'tv-chart-wrap' },
+  { id:'tfc-1H', label:'1H — Entry Timeframe',hint:'Bias, AO, MACD & entry zone setup',            section:false, tfKey:'1H', tvTF:'60',  hasMacd:true,  scrollToId:'tv-chart-wrap' },
   { id:'direction-row',     label:'Today\'s Direction',      hint:'Is price moving up, down, or ranging today?',                   section:true                                                             },
   { id:'pivot-row',         label:'Daily Pivot Point',       hint:'Is price above, below, or at the daily pivot?',                 section:true                                                             },
   { id:'london-row',        label:'London Open Direction',   hint:'How did London session open?',                                  section:true                                                             },
@@ -14245,7 +14245,8 @@ function wtShowStep() {
   var target = document.getElementById(s.id);
   if (target) {
     target.classList.add(s.section ? 'wt-section-active' : 'wt-active');
-    setTimeout(function(){ target.scrollIntoView({behavior:'smooth',block:'start'}); }, 100);
+    var scrollTarget = (s.scrollToId && document.getElementById(s.scrollToId)) || target;
+    setTimeout(function(){ scrollTarget.scrollIntoView({behavior:'smooth',block:'start'}); }, 100);
   }
   var total = _wtSteps.length;
   document.getElementById('wt-step').textContent  = 'Step ' + (_wtStep+1) + ' / ' + total;
