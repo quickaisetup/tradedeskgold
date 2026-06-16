@@ -969,6 +969,21 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 #wt-next:hover{background:rgba(240,188,78,0.26);border-color:var(--gold)}
 #wt-skip{background:transparent;border:1px solid rgba(255,255,255,0.08);border-radius:8px;color:rgba(255,255,255,0.22);font-family:var(--mono);font-size:9px;cursor:pointer;padding:9px 12px;text-transform:uppercase;letter-spacing:0.08em;transition:all 0.15s}
 #wt-skip:hover{color:rgba(255,255,255,0.5);border-color:rgba(255,255,255,0.2)}
+/* TF wizard pane */
+.wt-wiz-sub{font-size:10px;color:rgba(255,255,255,0.38);margin-bottom:10px;line-height:1.5}
+.wt-wiz-group{margin-bottom:10px}
+.wt-wiz-lbl{font-family:var(--mono);font-size:8px;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:5px}
+.wt-wiz-row{display:flex;flex-wrap:wrap;gap:6px}
+.wt-wiz-btn{font-family:var(--mono);font-size:10px;letter-spacing:0.06em;padding:7px 12px;border-radius:7px;cursor:pointer;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.55);transition:all 0.15s}
+.wt-wiz-btn:hover{border-color:rgba(255,255,255,0.3);color:#fff;background:rgba(255,255,255,0.08)}
+.wt-wiz-btn.wt-wiz-bull{border-color:rgba(78,214,138,0.3);color:rgba(78,214,138,0.7)}
+.wt-wiz-btn.wt-wiz-bull:hover{border-color:var(--green);color:var(--green);background:rgba(78,214,138,0.1)}
+.wt-wiz-btn.wt-wiz-bear{border-color:rgba(240,96,96,0.3);color:rgba(240,96,96,0.7)}
+.wt-wiz-btn.wt-wiz-bear:hover{border-color:var(--red);color:var(--red);background:rgba(240,96,96,0.1)}
+.wt-wiz-btn.wt-wiz-neu{border-color:rgba(255,255,255,0.2);color:rgba(255,255,255,0.55)}
+.wt-wiz-btn.selected.wt-wiz-bull{background:rgba(78,214,138,0.18);border-color:var(--green);color:var(--green);box-shadow:0 0 10px rgba(78,214,138,0.2)}
+.wt-wiz-btn.selected.wt-wiz-bear{background:rgba(240,96,96,0.18);border-color:var(--red);color:var(--red);box-shadow:0 0 10px rgba(240,96,96,0.2)}
+.wt-wiz-btn.selected.wt-wiz-neu{background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.45);color:#fff}
 .tf-card.bull{border-color:var(--gnb);background:var(--gnd)}
 .tf-card.bear{border-color:var(--rb);background:var(--rd)}
 .tf-card.range{border-color:var(--gb);background:var(--gd)}
@@ -2938,14 +2953,17 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 
 <div id="wt-chip" style="display:none">
   <div id="wt-header">
-    <div id="wt-step">Step 1 / 9</div>
+    <div id="wt-step">Step 1 / 20</div>
     <span style="font-size:9px;color:rgba(240,188,78,0.45);letter-spacing:0.15em;text-transform:uppercase">Analysis Guide</span>
   </div>
-  <div id="wt-progress-wrap"><div id="wt-progress-bar" style="width:11%"></div></div>
-  <div>
-    <div id="wt-label">1M — Monthly</div>
-    <div id="wt-hint">Set bias & trend for the big picture</div>
+  <div id="wt-progress-wrap"><div id="wt-progress-bar" style="width:5%"></div></div>
+  <!-- Static pane (non-TF steps) -->
+  <div id="wt-static">
+    <div id="wt-label">Morning Routine</div>
+    <div id="wt-hint">Tick off each item</div>
   </div>
+  <!-- TF wizard pane (TF steps) -->
+  <div id="wt-tf-wizard" style="display:none"></div>
   <div id="wt-actions">
     <button id="wt-next" onclick="wtNext()">Done ›</button>
     <button id="wt-skip" onclick="wtSkip()">Skip</button>
@@ -14040,28 +14058,127 @@ function renderRulesList() {
 
 // ── ANALYSIS WALKTHROUGH ──────────────────────────────
 var _wtSteps = [
-  { id:'gate-items',        label:'Morning Routine',         hint:'Tick off each pre-trade item — FTMO status, economic calendar', section:true,  nextLabel:'All checked ›'                                 },
-  { id:'econ-body',         label:'Economic Calendar',       hint:'Check for high-impact events today — set the impact level',     section:true,  nextLabel:'News checked ›'                                },
-  { id:'td-instr-tabs',     label:'Select Instrument',       hint:'Choose the instrument you\'re analysing today — Gold, DXY or add another', section:true, nextLabel:'Instrument set ›' },
-  { id:'tfc-1M',            label:'1M — Monthly',           hint:'Set the big picture bias & trend direction',                    section:false                                                            },
-  { id:'tfc-1W',            label:'1W — Weekly',             hint:'Weekly bias, trend & AO reading',                               section:false                                                            },
-  { id:'tfc-D',             label:'Daily',                   hint:'Daily bias, trend & AO',                                        section:false                                                            },
-  { id:'tfc-4H',            label:'4H — Key Timeframe',      hint:'Bias, AO, MACD & Elliott wave count',                           section:false                                                            },
-  { id:'tfc-1H',            label:'1H — Entry Timeframe',    hint:'Bias, AO, MACD & entry zone setup',                             section:false                                                            },
-  { id:'direction-row',     label:'Today\'s Direction',      hint:'Is price moving up, down, or ranging today?',                   section:true                                                             },
-  { id:'pivot-row',         label:'Daily Pivot Point',       hint:'Is price above, below, or at the daily pivot?',                 section:true                                                             },
-  { id:'london-row',        label:'London Open Direction',   hint:'How did London session open?',                                  section:true                                                             },
-  { id:'trading-mode-btns', label:'Trading Mode',            hint:'Pick your execution mode for today\'s session',                 section:true                                                             },
-  { id:'score-dashboard',   label:'Your Analysis Score',     hint:'Review your bias score — this is your session edge',            section:true,  nextLabel:'Looks good ›'                                  },
-  { id:'levels',            label:'Key Levels',              hint:'Add the S/R levels, Fibs & round numbers you\'ll trade from',   section:true,  nextLabel:'Levels set ›'                                  },
-  { id:'ai-briefing-section',label:'AI Morning Briefing',   hint:'Your personalised AI briefing — read before entering trades',   section:true,  nextLabel:'Briefing read ›'                                },
-  { id:'live-exec-btn',     label:'Open Live Execution',     hint:'Your cockpit is ready. Open it to monitor charts & execute',    section:true,  nextLabel:'Open Live Exec ›', onNext:'openLiveExecAndPause' },
-  { id:'trade-forms',       label:'Log Your Trade',          hint:'Fill in direction, strategy, entry, SL, TP & confluence',        section:true,  nextLabel:'Trade logged ›'                                },
-  { id:'killswitch',        label:'Kill Switch',             hint:'Hit this when you are done trading for the day',                 section:true,  nextLabel:'Session closed ›'                              },
-  { id:'reflection',        label:'End of Day Reflection',   hint:'Answer the 3 questions honestly — takes 2 minutes',             section:true,  nextLabel:'Reflection done ›'                             },
-  { id:'save-eod-btn',      label:'Save Your Day',           hint:'Save to earn XP and keep your clean day streak alive',          section:true,  nextLabel:'💾 Save Day →',      onNext:'saveDay'          },
+  { id:'gate-items',         label:'Morning Routine',        hint:'Tick off each pre-trade item — FTMO status, economic calendar', section:true, nextLabel:'All checked ›' },
+  { id:'econ-body',          label:'Economic Calendar',      hint:'Check for high-impact events today — set the impact level',     section:true, nextLabel:'News checked ›' },
+  { id:'td-instr-tabs',      label:'Select Instrument',      hint:'Choose the instrument you\'re analysing today',                 section:true, nextLabel:'Instrument set ›' },
+  { id:'tfc-1M', label:'1M — Monthly',      tfKey:'1M',  tvTF:'M',   hasMacd:false, hint:'Big picture context — not traded directly' },
+  { id:'tfc-1W', label:'1W — Weekly',       tfKey:'1W',  tvTF:'W',   hasMacd:false, hint:'Weekly structure shapes the daily bias' },
+  { id:'tfc-D',  label:'Daily',             tfKey:'D',   tvTF:'D',   hasMacd:false, hint:'Daily bias is your primary trading direction' },
+  { id:'tfc-4H', label:'4H — Key TF',       tfKey:'4H',  tvTF:'240', hasMacd:true,  hint:'Key timeframe — trade in this direction' },
+  { id:'tfc-1H', label:'1H — Entry TF',     tfKey:'1H',  tvTF:'60',  hasMacd:true,  hint:'Entry timeframe — where you actually enter' },
+  { id:'direction-row',      label:'Today\'s Direction',     hint:'Is price moving up, down, or ranging today?',                  section:true },
+  { id:'pivot-row',          label:'Daily Pivot Point',      hint:'Is price above, below, or at the daily pivot?',                section:true },
+  { id:'london-row',         label:'London Open Direction',  hint:'How did London session open?',                                 section:true },
+  { id:'trading-mode-btns',  label:'Trading Mode',           hint:'Pick your execution mode for today\'s session',                section:true },
+  { id:'score-dashboard',    label:'Your Analysis Score',    hint:'Review your bias score — this is your session edge',           section:true, nextLabel:'Looks good ›' },
+  { id:'levels',             label:'Key Levels',             hint:'Add S/R levels, Fibs & round numbers you\'ll trade from',     section:true, nextLabel:'Levels set ›' },
+  { id:'ai-briefing-section',label:'AI Morning Briefing',   hint:'Your personalised briefing — read before entering trades',     section:true, nextLabel:'Briefing read ›' },
+  { id:'live-exec-btn',      label:'Open Live Execution',    hint:'Your cockpit is ready — open it to monitor & execute',        section:true, nextLabel:'Open Live Exec ›', onNext:'openLiveExecAndPause' },
+  { id:'trade-forms',        label:'Log Your Trade',         hint:'Fill in direction, strategy, entry, SL, TP & confluence',     section:true, nextLabel:'Trade logged ›' },
+  { id:'killswitch',         label:'Kill Switch',            hint:'Hit this when you are done trading for the day',              section:true, nextLabel:'Session closed ›' },
+  { id:'reflection',         label:'End of Day Reflection',  hint:'Answer the 3 questions honestly — takes 2 minutes',          section:true, nextLabel:'Reflection done ›' },
+  { id:'save-eod-btn',       label:'Save Your Day',          hint:'Save to earn XP and keep your clean day streak alive',        section:true, nextLabel:'💾 Save Day →', onNext:'saveDay' },
 ];
 var _wtStep = 0;
+
+// TF wizard: renders interactive bias/trend/AO/MACD buttons inside the chip
+function _wtRenderTFWizard(s) {
+  var tf = s.tfKey;
+  var hasMacd = s.hasMacd;
+  // Switch the chart to this TF
+  if (typeof setTVInterval === 'function') {
+    var tfBtn = document.querySelector('.tv-tf-btn[data-tf="' + s.tvTF + '"]');
+    setTVInterval(s.tvTF, tfBtn || null);
+  }
+  var aoLabels = [
+    { val:'bull',     label:'↑ Above zero',    cls:'bull'  },
+    { val:'bear',     label:'↓ Below zero',    cls:'bear'  },
+    { val:'bull-div', label:'Bull divergence ▲', cls:'bull' },
+    { val:'bear-div', label:'Bear divergence ▼', cls:'bear' },
+  ];
+  var macdLabels = [
+    { val:'macd-zero-bull', label:'0-line reject ▲', cls:'bull' },
+    { val:'macd-zero-bear', label:'0-line reject ▼', cls:'bear' },
+    { val:'bull-div',       label:'Cross ▲',          cls:'bull' },
+    { val:'bear-div',       label:'Cross ▼',          cls:'bear' },
+  ];
+  function mkGroup(title, items, clickFn) {
+    var btns = items.map(function(it) {
+      return '<button class="wt-wiz-btn wt-wiz-' + it.cls + '" data-val="' + it.val + '" onclick="' + clickFn + '(this,\'' + tf + '\',\'' + it.val + '\')">' + it.label + '</button>';
+    }).join('');
+    return '<div class="wt-wiz-group"><div class="wt-wiz-lbl">' + title + '</div><div class="wt-wiz-row">' + btns + '</div></div>';
+  }
+  var html = '<div class="wt-wiz-sub">' + s.hint + '</div>';
+  html += mkGroup('Bias', [
+    {val:'bull',    label:'Bullish',  cls:'bull'},
+    {val:'bear',    label:'Bearish',  cls:'bear'},
+    {val:'neutral', label:'Neutral',  cls:'neu'},
+  ], '_wtBiasClick');
+  html += mkGroup('Trend', [
+    {val:'up',      label:'Uptrend',   cls:'bull'},
+    {val:'down',    label:'Downtrend', cls:'bear'},
+    {val:'ranging', label:'Ranging',   cls:'neu'},
+  ], '_wtTrendClick');
+  html += mkGroup('AO Signal', aoLabels, '_wtAOClick');
+  if (hasMacd) html += mkGroup('MACD', macdLabels, '_wtMACDClick');
+  document.getElementById('wt-tf-wizard').innerHTML = html;
+  // Re-apply selections from current card state
+  _wtSyncWizardFromCard(tf, hasMacd);
+}
+
+function _wtSyncWizardFromCard(tf, hasMacd) {
+  // Sync bias
+  var biasSel = document.querySelector('#bias-' + tf + ' .bb.sel');
+  if (biasSel) {
+    var bv = biasSel.getAttribute('onclick').match(/'(bull|bear|neutral)'/);
+    if (bv) _wtMarkWiz('[data-val="' + bv[1] + '"]', '#wt-tf-wizard .wt-wiz-group:nth-child(2)');
+  }
+  // Sync trend
+  var trendSel = document.querySelector('#trend-' + tf + ' .bb.sel');
+  if (trendSel) {
+    var tv2 = trendSel.getAttribute('onclick').match(/'(up|down|ranging)'/);
+    if (tv2) _wtMarkWiz('[data-val="' + tv2[1] + '"]', '#wt-tf-wizard .wt-wiz-group:nth-child(3)');
+  }
+}
+
+function _wtMarkWiz(selector, scope) {
+  var el = document.querySelector(scope + ' ' + selector);
+  if (el) el.classList.add('selected');
+}
+
+window._wtBiasClick = function(btn, tf, val) {
+  _wtWizDeselect(btn);
+  var cardBtn = document.querySelector('#bias-' + tf + ' .bb[onclick*="\'' + val + '\'"]');
+  if (cardBtn) cardBtn.click();
+};
+
+window._wtTrendClick = function(btn, tf, val) {
+  _wtWizDeselect(btn);
+  var cardBtn = document.querySelector('#trend-' + tf + ' .bb[onclick*="\'' + val + '\'"]');
+  if (cardBtn) cardBtn.click();
+};
+
+window._wtAOClick = function(btn, tf, val) {
+  _wtWizToggle(btn);
+  var cardBtn = document.querySelector('#tfc-' + tf + ' .ind-row:first-child .ib[onclick*="\'' + val + '\'"]');
+  if (cardBtn) cardBtn.click();
+};
+
+window._wtMACDClick = function(btn, tf, val) {
+  _wtWizToggle(btn);
+  var cardBtn = document.querySelector('#tfc-' + tf + ' .ind-row:last-child .ib[onclick*="\'' + val + '\'"]');
+  if (cardBtn) cardBtn.click();
+};
+
+function _wtWizDeselect(clicked) {
+  var row = clicked.closest('.wt-wiz-row');
+  if (row) row.querySelectorAll('.wt-wiz-btn').forEach(function(b){ b.classList.remove('selected'); });
+  clicked.classList.add('selected');
+}
+
+function _wtWizToggle(clicked) {
+  clicked.classList.toggle('selected');
+}
 
 function wtStart() {
   if (!localStorage.getItem('td_walkthrough_pending')) return;
@@ -14077,29 +14194,41 @@ function wtShowStep() {
   });
   if (_wtStep >= _wtSteps.length) { wtDone(); return; }
   var s = _wtSteps[_wtStep];
+  var isTF = !!s.tfKey;
+
+  // Show/hide static vs wizard panes
+  var staticPane = document.getElementById('wt-static');
+  var wizPane    = document.getElementById('wt-tf-wizard');
+  if (staticPane) staticPane.style.display = isTF ? 'none' : 'block';
+  if (wizPane)    wizPane.style.display    = isTF ? 'block' : 'none';
+
   var target = document.getElementById(s.id);
   if (target) {
     target.classList.add(s.section ? 'wt-section-active' : 'wt-active');
-    setTimeout(function(){ target.scrollIntoView({behavior:'smooth',block:'center'}); }, 100);
+    setTimeout(function(){ target.scrollIntoView({behavior:'smooth', block:'center'}); }, 100);
   }
-  // Dynamic hint for score step
-  var hint = s.hint;
-  if (s.id === 'score-dashboard') {
-    var scoreEl = document.getElementById('score-num');
-    var scoreVal = scoreEl ? scoreEl.textContent.trim() : '0';
-    hint = 'Your current score is ' + scoreVal + ' — review your bias reading before continuing';
+
+  if (isTF) {
+    _wtRenderTFWizard(s);
+    chip.style.width = '420px';
+  } else {
+    chip.style.width = '360px';
+    // Dynamic score hint
+    var hint = s.hint;
+    if (s.id === 'score-dashboard') {
+      var scoreEl = document.getElementById('score-num');
+      hint = 'Your current score is ' + (scoreEl ? scoreEl.textContent.trim() : '0') + ' — this is your session edge';
+    }
+    document.getElementById('wt-label').textContent = s.label;
+    document.getElementById('wt-hint').textContent  = hint;
   }
+
   var total = _wtSteps.length;
-  document.getElementById('wt-step').textContent  = 'Step ' + (_wtStep+1) + ' / ' + total;
-  document.getElementById('wt-label').textContent = s.label;
-  document.getElementById('wt-hint').textContent  = hint;
-  document.getElementById('wt-next').textContent  = s.nextLabel || 'Done ›';
+  document.getElementById('wt-step').textContent = 'Step ' + (_wtStep+1) + ' / ' + total;
+  document.getElementById('wt-next').textContent = s.nextLabel || 'Done ›';
   var bar = document.getElementById('wt-progress-bar');
   if (bar) bar.style.width = Math.round(((_wtStep+1)/total)*100) + '%';
-  // onShow hook
-  if (s.onShow === 'loadBriefing' && typeof loadBriefing === 'function') {
-    setTimeout(function(){ loadBriefing(false); }, 400);
-  }
+
   chip.style.display = 'flex';
   chip.style.animation = 'none';
   void chip.offsetWidth;
@@ -14109,8 +14238,7 @@ function wtShowStep() {
 window.wtNext = function() {
   var s = _wtSteps[_wtStep];
   if (s && s.onNext === 'openLiveExecAndPause') {
-    // Open live exec and hide chip — leoQuickLogTrade will resume from trade step
-    _wtStep++; // advance to trade-forms step index
+    _wtStep++;
     var chip = document.getElementById('wt-chip');
     if (chip) chip.style.display = 'none';
     if (typeof openLiveExec === 'function') setTimeout(openLiveExec, 200);
