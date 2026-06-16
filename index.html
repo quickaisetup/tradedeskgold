@@ -6610,6 +6610,7 @@ function setInd(btn, dir) {
   }
   updateVerdictAuto();
   _saveTFStateLocal();
+  if (!window._inRestore) { var _sc3=parseFloat((document.getElementById('score-num')||{}).textContent)||0; if(window.scheduleMorningAutosave) scheduleMorningAutosave(_sc3||0.001); }
 }
 function colorTFCard(tf) {
   var card = document.getElementById('tfc-' + tf);
@@ -14211,6 +14212,8 @@ window._wtSubClick = function(btn, key, tf, val) {
   if (key === 'ao')    cardBtn = document.querySelector('#tfc-'   + tf + ' .ind-row:first-child .ib[onclick*="\'' + val + '\'"]');
   if (key === 'macd')  cardBtn = document.querySelector('#tfc-'   + tf + ' .ind-row:last-child .ib[onclick*="\'' + val + '\'"]');
   if (cardBtn) cardBtn.click();
+  // Immediate Supabase save — don't wait for the 2s debounce
+  setTimeout(function() { if (window.saveMorningAnalysis) saveMorningAnalysis(true); }, 400);
   setTimeout(_wtSubAdvance, 320);
 };
 
