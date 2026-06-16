@@ -13978,15 +13978,19 @@ function renderRulesList() {
 
 // ── ANALYSIS WALKTHROUGH ──────────────────────────────
 var _wtSteps = [
-  { id:'tfc-1M',         label:'1M — Monthly',          hint:'Set the big picture bias & trend direction',    section:false },
-  { id:'tfc-1W',         label:'1W — Weekly',            hint:'Weekly bias, trend & AO reading',               section:false },
-  { id:'tfc-D',          label:'Daily',                  hint:'Daily bias, trend & AO',                        section:false },
-  { id:'tfc-4H',         label:'4H — Key Timeframe',     hint:'Bias, AO, MACD & Elliott wave count',           section:false },
-  { id:'tfc-1H',         label:'1H — Entry Timeframe',   hint:'Bias, AO, MACD & entry zone setup',             section:false },
-  { id:'direction-row',  label:'Today\'s Direction',     hint:'Is price moving up, down, or ranging today?',   section:true  },
-  { id:'pivot-row',      label:'Daily Pivot Point',      hint:'Is price above, below, or at the daily pivot?', section:true  },
-  { id:'london-row',     label:'London Open Direction',  hint:'How did London session open?',                  section:true  },
-  { id:'trading-mode-btns', label:'Trading Mode',        hint:'Pick your execution mode for today\'s session', section:true  },
+  { id:'tfc-1M',            label:'1M — Monthly',           hint:'Set the big picture bias & trend direction',                    section:false },
+  { id:'tfc-1W',            label:'1W — Weekly',             hint:'Weekly bias, trend & AO reading',                               section:false },
+  { id:'tfc-D',             label:'Daily',                   hint:'Daily bias, trend & AO',                                        section:false },
+  { id:'tfc-4H',            label:'4H — Key Timeframe',      hint:'Bias, AO, MACD & Elliott wave count',                           section:false },
+  { id:'tfc-1H',            label:'1H — Entry Timeframe',    hint:'Bias, AO, MACD & entry zone setup',                             section:false },
+  { id:'direction-row',     label:'Today\'s Direction',      hint:'Is price moving up, down, or ranging today?',                   section:true  },
+  { id:'pivot-row',         label:'Daily Pivot Point',       hint:'Is price above, below, or at the daily pivot?',                 section:true  },
+  { id:'london-row',        label:'London Open Direction',   hint:'How did London session open?',                                  section:true  },
+  { id:'trading-mode-btns', label:'Trading Mode',            hint:'Pick your execution mode for today\'s session',                 section:true  },
+  { id:'score-dashboard',   label:'Your Analysis Score',     hint:'Review your bias score — this is your session edge',            section:true,  nextLabel:'Looks good ›'                                  },
+  { id:'levels',            label:'Key Levels',              hint:'Add the S/R levels, Fibs & round numbers you\'ll trade from',   section:true,  nextLabel:'Levels set ›'                                  },
+  { id:'ai-briefing-section',label:'AI Morning Briefing',   hint:'Your personalised AI briefing — read before entering trades',   section:true,  nextLabel:'Briefing read ›', onShow:'loadBriefing'      },
+  { id:'live-exec-btn',     label:'Open Live Execution',     hint:'Your cockpit is ready. Open it to monitor charts & execute',    section:true,  nextLabel:'Open Live Exec ›', onNext:'openLiveExec'     },
 ];
 var _wtStep = 0;
 
@@ -14009,12 +14013,24 @@ function wtShowStep() {
     target.classList.add(s.section ? 'wt-section-active' : 'wt-active');
     setTimeout(function(){ target.scrollIntoView({behavior:'smooth',block:'center'}); }, 100);
   }
+  // Dynamic hint for score step
+  var hint = s.hint;
+  if (s.id === 'score-dashboard') {
+    var scoreEl = document.getElementById('score-num');
+    var scoreVal = scoreEl ? scoreEl.textContent.trim() : '0';
+    hint = 'Your current score is ' + scoreVal + ' — review your bias reading before continuing';
+  }
   var total = _wtSteps.length;
   document.getElementById('wt-step').textContent  = 'Step ' + (_wtStep+1) + ' / ' + total;
   document.getElementById('wt-label').textContent = s.label;
-  document.getElementById('wt-hint').textContent  = s.hint;
+  document.getElementById('wt-hint').textContent  = hint;
+  document.getElementById('wt-next').textContent  = s.nextLabel || 'Done ›';
   var bar = document.getElementById('wt-progress-bar');
   if (bar) bar.style.width = Math.round(((_wtStep+1)/total)*100) + '%';
+  // onShow hook
+  if (s.onShow === 'loadBriefing' && typeof loadBriefing === 'function') {
+    setTimeout(function(){ loadBriefing(false); }, 400);
+  }
   chip.style.display = 'flex';
   chip.style.animation = 'none';
   void chip.offsetWidth;
@@ -14022,6 +14038,13 @@ function wtShowStep() {
 }
 
 window.wtNext = function() {
+  var s = _wtSteps[_wtStep];
+  // onNext hook before advancing
+  if (s && s.onNext === 'openLiveExec' && typeof openLiveExec === 'function') {
+    wtDone();
+    setTimeout(openLiveExec, 200);
+    return;
+  }
   _wtStep++;
   if (_wtStep >= _wtSteps.length) { wtDone(); } else { wtShowStep(); }
 };
