@@ -6344,10 +6344,9 @@ function toggleBias(tf, val, btn) {
     // Deselect this one
     currentBias.splice(idx, 1);
   } else {
-    // All three are mutually exclusive: selecting any one clears the others
-    if (val === 'bull')    currentBias = currentBias.filter(function(v){ return v !== 'bear' && v !== 'neutral'; });
-    if (val === 'bear')    currentBias = currentBias.filter(function(v){ return v !== 'bull' && v !== 'neutral'; });
-    if (val === 'neutral') currentBias = currentBias.filter(function(v){ return v !== 'bull' && v !== 'bear'; });
+    // Bull/Bear are mutually exclusive; Neutral can combine with either
+    if (val === 'bull') currentBias = currentBias.filter(function(v){ return v !== 'bear'; });
+    if (val === 'bear') currentBias = currentBias.filter(function(v){ return v !== 'bull'; });
     currentBias.push(val);
   }
 
