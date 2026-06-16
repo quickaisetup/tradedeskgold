@@ -14247,14 +14247,11 @@ function wtShowStep() {
   var target = document.getElementById(s.id);
   if (target) {
     target.classList.add(s.section ? 'wt-section-active' : 'wt-active');
-    // For TF steps scroll to show the chart header (td-instr-tabs), offset for fixed 52px bar
+    // For TF steps: scroll so chart + TF cards are both visible
     if (isTF) {
       setTimeout(function(){
-        var instrTabs = document.getElementById('td-instr-tabs');
-        if (instrTabs) {
-          var y = instrTabs.getBoundingClientRect().top + window.scrollY - 60;
-          window.scrollTo({top: y, behavior: 'smooth'});
-        }
+        var firstCard = document.getElementById('tfc-1M');
+        if (firstCard) firstCard.scrollIntoView({behavior:'smooth', block:'end'});
       }, 100);
     } else {
       setTimeout(function(){ target.scrollIntoView({behavior:'smooth', block:'center'}); }, 100);
