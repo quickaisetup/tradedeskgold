@@ -11013,16 +11013,6 @@ function ptgCombinedUnlock() {
   var backBtn = document.getElementById('leo-back-btn');
   if (backBtn) backBtn.style.display = '';
   if (obShouldShow()) obOpen();
-  // Only start walkthrough on first PTG completion of the day (not on re-opens from live exec)
-  var _wtKey = 'td_wt_done_' + _tdTodayBKK();
-  if (!localStorage.getItem(_wtKey)) {
-    localStorage.setItem(_wtKey, '1');
-    var analysisEl = document.getElementById('analysis');
-    if (analysisEl) setTimeout(function(){ analysisEl.scrollIntoView({behavior:'smooth',block:'start'}); }, 200);
-    localStorage.setItem('td_walkthrough_pending', '1');
-    _wtStep = 0;
-    setTimeout(wtShowStep, 600);
-  }
 }
 function ptgUnlock() { ptgCombinedUnlock(); }
 
@@ -13982,15 +13972,17 @@ function renderRulesList() {
 
 // ── ANALYSIS WALKTHROUGH ──────────────────────────────
 var _wtSteps = [
-  { id:'tfc-1M',            label:'1M — Monthly',           hint:'Set the big picture bias & trend direction',                    section:false },
-  { id:'tfc-1W',            label:'1W — Weekly',             hint:'Weekly bias, trend & AO reading',                               section:false },
-  { id:'tfc-D',             label:'Daily',                   hint:'Daily bias, trend & AO',                                        section:false },
-  { id:'tfc-4H',            label:'4H — Key Timeframe',      hint:'Bias, AO, MACD & Elliott wave count',                           section:false },
-  { id:'tfc-1H',            label:'1H — Entry Timeframe',    hint:'Bias, AO, MACD & entry zone setup',                             section:false },
-  { id:'direction-row',     label:'Today\'s Direction',      hint:'Is price moving up, down, or ranging today?',                   section:true  },
-  { id:'pivot-row',         label:'Daily Pivot Point',       hint:'Is price above, below, or at the daily pivot?',                 section:true  },
-  { id:'london-row',        label:'London Open Direction',   hint:'How did London session open?',                                  section:true  },
-  { id:'trading-mode-btns', label:'Trading Mode',            hint:'Pick your execution mode for today\'s session',                 section:true  },
+  { id:'gate-items',        label:'Morning Routine',         hint:'Tick off each pre-trade item — FTMO status, economic calendar', section:true,  nextLabel:'All checked ›'                                 },
+  { id:'econ-body',         label:'Economic Calendar',       hint:'Check for high-impact events today — set the impact level',     section:true,  nextLabel:'News checked ›'                                },
+  { id:'tfc-1M',            label:'1M — Monthly',           hint:'Set the big picture bias & trend direction',                    section:false                                                            },
+  { id:'tfc-1W',            label:'1W — Weekly',             hint:'Weekly bias, trend & AO reading',                               section:false                                                            },
+  { id:'tfc-D',             label:'Daily',                   hint:'Daily bias, trend & AO',                                        section:false                                                            },
+  { id:'tfc-4H',            label:'4H — Key Timeframe',      hint:'Bias, AO, MACD & Elliott wave count',                           section:false                                                            },
+  { id:'tfc-1H',            label:'1H — Entry Timeframe',    hint:'Bias, AO, MACD & entry zone setup',                             section:false                                                            },
+  { id:'direction-row',     label:'Today\'s Direction',      hint:'Is price moving up, down, or ranging today?',                   section:true                                                             },
+  { id:'pivot-row',         label:'Daily Pivot Point',       hint:'Is price above, below, or at the daily pivot?',                 section:true                                                             },
+  { id:'london-row',        label:'London Open Direction',   hint:'How did London session open?',                                  section:true                                                             },
+  { id:'trading-mode-btns', label:'Trading Mode',            hint:'Pick your execution mode for today\'s session',                 section:true                                                             },
   { id:'score-dashboard',   label:'Your Analysis Score',     hint:'Review your bias score — this is your session edge',            section:true,  nextLabel:'Looks good ›'                                  },
   { id:'levels',            label:'Key Levels',              hint:'Add the S/R levels, Fibs & round numbers you\'ll trade from',   section:true,  nextLabel:'Levels set ›'                                  },
   { id:'ai-briefing-section',label:'AI Morning Briefing',   hint:'Your personalised AI briefing — read before entering trades',   section:true,  nextLabel:'Briefing read ›'                                },
