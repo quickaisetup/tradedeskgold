@@ -969,27 +969,6 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 #wt-next:hover{background:rgba(240,188,78,0.26);border-color:var(--gold)}
 #wt-skip{background:transparent;border:1px solid rgba(255,255,255,0.08);border-radius:8px;color:rgba(255,255,255,0.22);font-family:var(--mono);font-size:9px;cursor:pointer;padding:9px 12px;text-transform:uppercase;letter-spacing:0.08em;transition:all 0.15s}
 #wt-skip:hover{color:rgba(255,255,255,0.5);border-color:rgba(255,255,255,0.2)}
-#wt-exit{display:block;width:100%;background:transparent;border:none;color:rgba(255,255,255,0.18);font-family:var(--mono);font-size:9px;cursor:pointer;padding:6px 0 2px;text-align:center;letter-spacing:0.08em;transition:color 0.15s}
-#wt-exit:hover{color:rgba(255,255,255,0.45)}
-/* TF wizard pane */
-@keyframes wtSubIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-.wt-wiz-sub-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
-.wt-wiz-tf-name{font-family:var(--display);font-size:15px;font-weight:700;color:#fff;letter-spacing:0.04em}
-.wt-wiz-sub-count{font-family:var(--mono);font-size:9px;color:rgba(240,188,78,0.5);letter-spacing:0.12em}
-.wt-wiz-question{font-family:var(--mono);font-size:12px;color:rgba(255,255,255,0.75);margin-bottom:14px;line-height:1.5}
-.wt-wiz-row{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px}
-.wt-wiz-btn{font-family:var(--mono);font-size:10px;letter-spacing:0.05em;padding:9px 14px;border-radius:8px;cursor:pointer;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.5);transition:all 0.15s}
-.wt-wiz-btn:hover{border-color:rgba(255,255,255,0.3);color:#fff;background:rgba(255,255,255,0.09)}
-.wt-wiz-btn.wt-wiz-bull{border-color:rgba(78,214,138,0.28);color:rgba(78,214,138,0.65)}
-.wt-wiz-btn.wt-wiz-bull:hover{border-color:var(--green);color:var(--green);background:rgba(78,214,138,0.1)}
-.wt-wiz-btn.wt-wiz-bear{border-color:rgba(240,96,96,0.28);color:rgba(240,96,96,0.65)}
-.wt-wiz-btn.wt-wiz-bear:hover{border-color:var(--red);color:var(--red);background:rgba(240,96,96,0.1)}
-.wt-wiz-btn.wt-wiz-neu{border-color:rgba(255,255,255,0.18);color:rgba(255,255,255,0.5)}
-.wt-wiz-btn.selected.wt-wiz-bull{background:rgba(78,214,138,0.16);border-color:var(--green);color:var(--green);box-shadow:0 0 12px rgba(78,214,138,0.18)}
-.wt-wiz-btn.selected.wt-wiz-bear{background:rgba(240,96,96,0.16);border-color:var(--red);color:var(--red);box-shadow:0 0 12px rgba(240,96,96,0.18)}
-.wt-wiz-btn.selected.wt-wiz-neu{background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.4);color:#fff}
-.wt-wiz-skip-q{display:block;width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);border-radius:8px;font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.55);cursor:pointer;padding:10px 14px;letter-spacing:0.06em;text-align:center;transition:all 0.15s;margin-top:4px}
-.wt-wiz-skip-q:hover{background:rgba(255,255,255,0.11);border-color:rgba(255,255,255,0.3);color:#fff}
 .tf-card.bull{border-color:var(--gnb);background:var(--gnd)}
 .tf-card.bear{border-color:var(--rb);background:var(--rd)}
 .tf-card.range{border-color:var(--gb);background:var(--gd)}
@@ -1046,7 +1025,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 .tv-tf-btn:hover{color:var(--text);border-color:rgba(255,255,255,0.3)}
 .tv-tf-btn.sel{border-color:var(--gold);background:rgba(240,188,78,0.2);color:var(--gold);font-weight:700;box-shadow:0 0 6px rgba(240,188,78,0.25)}
 /* Instrument tabs (top-down analysis) — bigger & bolder than regular toggle buttons */
-#td-instr-tabs{gap:8px;scroll-margin-top:64px}
+#td-instr-tabs{gap:8px}
 #td-instr-tabs .tgl{font-size:12px;letter-spacing:0.08em;padding:9px 20px;border-radius:7px;border-width:1.5px;font-weight:600}
 #td-instr-tabs .tgl.sel{box-shadow:0 0 14px rgba(240,188,78,0.4);transform:translateY(-1px)}
 #td-instr-tabs .tgl[data-role="add-instr"]{font-weight:500;border-style:dashed}
@@ -2959,22 +2938,18 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 
 <div id="wt-chip" style="display:none">
   <div id="wt-header">
-    <div id="wt-step">Step 1 / 20</div>
+    <div id="wt-step">Step 1 / 9</div>
     <span style="font-size:9px;color:rgba(240,188,78,0.45);letter-spacing:0.15em;text-transform:uppercase">Analysis Guide</span>
   </div>
-  <div id="wt-progress-wrap"><div id="wt-progress-bar" style="width:5%"></div></div>
-  <!-- Static pane (non-TF steps) -->
-  <div id="wt-static">
-    <div id="wt-label">Morning Routine</div>
-    <div id="wt-hint">Tick off each item</div>
+  <div id="wt-progress-wrap"><div id="wt-progress-bar" style="width:11%"></div></div>
+  <div>
+    <div id="wt-label">1M — Monthly</div>
+    <div id="wt-hint">Set bias & trend for the big picture</div>
   </div>
-  <!-- TF wizard pane (TF steps) -->
-  <div id="wt-tf-wizard" style="display:none"></div>
   <div id="wt-actions">
     <button id="wt-next" onclick="wtNext()">Done ›</button>
     <button id="wt-skip" onclick="wtSkip()">Skip</button>
   </div>
-  <button id="wt-exit" onclick="wtExitGuide()" title="Exit guide">✕ Exit guide</button>
 </div>
 
 <div id="rules-modal-overlay" onclick="if(event.target===this)closeRulesModal()">
@@ -6493,7 +6468,7 @@ function toggleBias(tf, val, btn) {
   _saveTFStateLocal();
   // Don't auto-save during restore — only save from real user clicks
   // Debounced save via scheduleMorningAutosave (cancels previous timer)
-  if (!window._inRestore && window._saveTFButton) _saveTFButton();
+  if (!window._inRestore) { var _sc=parseFloat((document.getElementById('score-num')||{}).textContent)||0; if(window.scheduleMorningAutosave) scheduleMorningAutosave(_sc||0.001); }
 }
 
 function setTFBias(tf, val, btn) { toggleBias(tf, val, btn); }
@@ -6522,7 +6497,7 @@ function toggleTrend(tf, val, btn) {
   }
   updateVerdictAuto();
   _saveTFStateLocal();
-  if (!window._inRestore && window._saveTFButton) _saveTFButton();
+  if (!window._inRestore) { var _sc2=parseFloat((document.getElementById('score-num')||{}).textContent)||0; if(window.scheduleMorningAutosave) scheduleMorningAutosave(_sc2||0.001); }
 }
 
 var pivotState = null;
@@ -6668,7 +6643,6 @@ function setLondonBias(val, btn) {
   updateVerdictAuto();
   updateVerdictAuto();
   _saveTFStateLocal();
-  if (!window._inRestore && window._saveTFButton) _saveTFButton();
 }
 
 function updateVerdictAuto() {
@@ -6881,20 +6855,6 @@ window.scheduleNotesSave = function() {
   window._notesSaveTimer = setTimeout(function() {
     if (typeof saveMorningAnalysis === 'function') saveMorningAnalysis(true);
   }, 1500);
-};
-
-// Immediate save for button clicks (bias, trend, AO, MACD) — 100ms debounce so
-// rapid programmatic clicks from the wizard batch into one write, but a real user
-// click always hits Supabase within a fraction of a second.
-window._saveTFButton = function() {
-  if (window._inRestore) return;
-  if (typeof _tdActiveInstrument !== 'undefined' && _tdActiveInstrument !== 'Gold') return;
-  if (!localStorage.getItem('td_user_id')) return;
-  window._lastUserActivity = Date.now();
-  if (window._tfBtnSaveTimer) clearTimeout(window._tfBtnSaveTimer);
-  window._tfBtnSaveTimer = setTimeout(function() {
-    if (typeof saveMorningAnalysis === 'function') saveMorningAnalysis(true);
-  }, 100);
 };
 
 window.scheduleMorningAutosave = function(score) {
@@ -10375,8 +10335,18 @@ function leoRestoreIndicatorBtn() {
 }
 
 function _leoGetStudies() {
-  var ind = { ao: 'STD;Awesome_Oscillator', rsi: 'STD;RSI', stoch: 'STD;Stochastic' };
-  return [ind[_leoIndicator] || 'STD;Awesome_Oscillator'];
+  var emas = [
+    {"id":"MAExp@tv-basicstudies","inputs":{"length":9},"styles":{"Plot.color":"#a855f7","Plot.linewidth":1}},
+    {"id":"MAExp@tv-basicstudies","inputs":{"length":20},"styles":{"Plot.color":"#f0bc4e","Plot.linewidth":1}},
+    {"id":"MAExp@tv-basicstudies","inputs":{"length":50},"styles":{"Plot.color":"#6aa3f5","Plot.linewidth":1}},
+    {"id":"MAExp@tv-basicstudies","inputs":{"length":200},"styles":{"Plot.color":"#ffffff","Plot.linewidth":2}}
+  ];
+  var ind = {
+    ao:     {"id":"STD;Awesome_Oscillator"},
+    rsi:    {"id":"STD;RSI"},
+    stoch:  {"id":"STD;Stochastic"}
+  };
+  return _leoIndicator === 'volume' ? emas : [ind[_leoIndicator]].concat(emas);
 }
 
 function _leoHideVolume() { return _leoIndicator !== 'volume'; }
@@ -11956,6 +11926,7 @@ document.addEventListener('DOMContentLoaded', async function() {
   if (window.loadRules) loadRules();
   renderAccountsPanel();
 
+  initTVChart();
   setTimeout(function(){ setTVInterval('240'); }, 200);
   loadFFCalendar();  // loadBriefing() is called by tdlOnAuth after login, not on cold load
   updateBottomHUD();
@@ -12012,7 +11983,19 @@ function initTVChart() {
     hide_top_toolbar: false, hide_legend: true,
     allow_symbol_change: false, save_image: false,
     hide_side_toolbar: true,
-    studies: ['STD;MACD','STD;Awesome_Oscillator'],
+    studies: [
+      // NOTE: the widget appears to silently cap how many auto-loaded studies
+      // it will render (AO vanished once total count pushed past ~4-5).
+      // Re-adding EMA 9 & 20 brings us back to 6 total — if AO or MACD
+      // disappear again, trim this back to the 4-study set (MACD, AO,
+      // EMA50, SMA200) that's confirmed to work reliably.
+      'STD;MACD',
+      'STD;Awesome_Oscillator',
+      { id: 'MAExp@tv-basicstudies', inputs: { length: 9 } },
+      { id: 'MAExp@tv-basicstudies', inputs: { length: 20 } },
+      { id: 'MAExp@tv-basicstudies', inputs: { length: 50 } },
+      { id: 'MASimple@tv-basicstudies', inputs: { length: 200 } }
+    ],
     support_host: 'https://www.tradingview.com'
   });
   container.appendChild(script);
@@ -12030,12 +12013,10 @@ function setTVInterval(interval, btn) {
   document.querySelectorAll('#tv-tf-switch .tv-tf-btn').forEach(function(b){ b.classList.remove('sel'); });
   var activeBtn = btn || document.querySelector('#tv-tf-switch .tv-tf-btn[data-tf="' + interval + '"]');
   if (activeBtn) activeBtn.classList.add('sel');
-  // update TF card dots
   document.querySelectorAll('.tf-chart-dot').forEach(function(d){ d.classList.remove('active'); });
   var activeDot = document.querySelector('.tf-chart-dot[data-tf-dot="' + interval + '"]');
   if (activeDot) activeDot.classList.add('active');
-  // Only recreate the chart when the interval actually changed.
-  // Debounce so rapid walkthrough TF switches (or startup) batch into one widget.
+  // Skip reinit when interval unchanged and chart already exists — prevents orphaned iframes
   if (!intervalChanged && document.querySelector('#tv-chart-wrap .tradingview-widget-container')) return;
   if (_tvInitDebounceTimer) clearTimeout(_tvInitDebounceTimer);
   _tvInitDebounceTimer = setTimeout(initTVChart, 500);
@@ -14063,179 +14044,28 @@ function renderRulesList() {
 
 // ── ANALYSIS WALKTHROUGH ──────────────────────────────
 var _wtSteps = [
-  { id:'gate-items',         label:'Morning Routine',        hint:'Tick off each pre-trade item — FTMO status, economic calendar', section:true, nextLabel:'All checked ›' },
-  { id:'econ-body',          label:'Economic Calendar',      hint:'Check for high-impact events today — set the impact level',     section:true, nextLabel:'News checked ›' },
-  { id:'td-instr-tabs',      label:'Select Instrument',      hint:'Choose the instrument you\'re analysing today',                 section:true, nextLabel:'Instrument set ›' },
-  { id:'tfc-1M', label:'1M — Monthly',      tfKey:'1M',  tvTF:'M',   hasMacd:false, hint:'Big picture context — not traded directly' },
-  { id:'tfc-1W', label:'1W — Weekly',       tfKey:'1W',  tvTF:'W',   hasMacd:false, hint:'Weekly structure shapes the daily bias' },
-  { id:'tfc-D',  label:'Daily',             tfKey:'D',   tvTF:'D',   hasMacd:false, hint:'Daily bias is your primary trading direction' },
-  { id:'tfc-4H', label:'4H — Key TF',       tfKey:'4H',  tvTF:'240', hasMacd:true,  hint:'Key timeframe — trade in this direction' },
-  { id:'tfc-1H', label:'1H — Entry TF',     tfKey:'1H',  tvTF:'60',  hasMacd:true,  hint:'Entry timeframe — where you actually enter' },
-  { id:'direction-row',      label:'Today\'s Direction',     hint:'Is price moving up, down, or ranging today?',                  section:true },
-  { id:'pivot-row',          label:'Daily Pivot Point',      hint:'Is price above, below, or at the daily pivot?',                section:true },
-  { id:'london-row',         label:'London Open Direction',  hint:'How did London session open?',                                 section:true },
-  { id:'trading-mode-btns',  label:'Trading Mode',           hint:'Pick your execution mode for today\'s session',                section:true },
-  { id:'score-dashboard',    label:'Your Analysis Score',    hint:'Review your bias score — this is your session edge',           section:true, nextLabel:'Looks good ›' },
-  { id:'levels',             label:'Key Levels',             hint:'Add S/R levels, Fibs & round numbers you\'ll trade from',     section:true, nextLabel:'Levels set ›' },
-  { id:'ai-briefing-section',label:'AI Morning Briefing',   hint:'Your personalised briefing — read before entering trades',     section:true, nextLabel:'Briefing read ›' },
-  { id:'live-exec-btn',      label:'Open Live Execution',    hint:'Your cockpit is ready — open it to monitor & execute',        section:true, nextLabel:'Open Live Exec ›', onNext:'openLiveExecAndPause' },
-  { id:'trade-forms',        label:'Log Your Trade',         hint:'Fill in direction, strategy, entry, SL, TP & confluence',     section:true, nextLabel:'Trade logged ›' },
-  { id:'killswitch',         label:'Kill Switch',            hint:'Hit this when you are done trading for the day',              section:true, nextLabel:'Session closed ›' },
-  { id:'reflection',         label:'End of Day Reflection',  hint:'Answer the 3 questions honestly — takes 2 minutes',          section:true, nextLabel:'Reflection done ›' },
-  { id:'save-eod-btn',       label:'Save Your Day',          hint:'Save to earn XP and keep your clean day streak alive',        section:true, nextLabel:'💾 Save Day →', onNext:'saveDay' },
+  { id:'gate-items',        label:'Morning Routine',         hint:'Tick off each pre-trade item — FTMO status, economic calendar', section:true,  nextLabel:'All checked ›'                                 },
+  { id:'econ-body',         label:'Economic Calendar',       hint:'Check for high-impact events today — set the impact level',     section:true,  nextLabel:'News checked ›'                                },
+  { id:'td-instr-tabs',     label:'Select Instrument',       hint:'Choose the instrument you\'re analysing today — Gold, DXY or add another', section:true, nextLabel:'Instrument set ›' },
+  { id:'tfc-1M',            label:'1M — Monthly',           hint:'Set the big picture bias & trend direction',                    section:false                                                            },
+  { id:'tfc-1W',            label:'1W — Weekly',             hint:'Weekly bias, trend & AO reading',                               section:false                                                            },
+  { id:'tfc-D',             label:'Daily',                   hint:'Daily bias, trend & AO',                                        section:false                                                            },
+  { id:'tfc-4H',            label:'4H — Key Timeframe',      hint:'Bias, AO, MACD & Elliott wave count',                           section:false                                                            },
+  { id:'tfc-1H',            label:'1H — Entry Timeframe',    hint:'Bias, AO, MACD & entry zone setup',                             section:false                                                            },
+  { id:'direction-row',     label:'Today\'s Direction',      hint:'Is price moving up, down, or ranging today?',                   section:true                                                             },
+  { id:'pivot-row',         label:'Daily Pivot Point',       hint:'Is price above, below, or at the daily pivot?',                 section:true                                                             },
+  { id:'london-row',        label:'London Open Direction',   hint:'How did London session open?',                                  section:true                                                             },
+  { id:'trading-mode-btns', label:'Trading Mode',            hint:'Pick your execution mode for today\'s session',                 section:true                                                             },
+  { id:'score-dashboard',   label:'Your Analysis Score',     hint:'Review your bias score — this is your session edge',            section:true,  nextLabel:'Looks good ›'                                  },
+  { id:'levels',            label:'Key Levels',              hint:'Add the S/R levels, Fibs & round numbers you\'ll trade from',   section:true,  nextLabel:'Levels set ›'                                  },
+  { id:'ai-briefing-section',label:'AI Morning Briefing',   hint:'Your personalised AI briefing — read before entering trades',   section:true,  nextLabel:'Briefing read ›'                                },
+  { id:'live-exec-btn',     label:'Open Live Execution',     hint:'Your cockpit is ready. Open it to monitor charts & execute',    section:true,  nextLabel:'Open Live Exec ›', onNext:'openLiveExecAndPause' },
+  { id:'trade-forms',       label:'Log Your Trade',          hint:'Fill in direction, strategy, entry, SL, TP & confluence',        section:true,  nextLabel:'Trade logged ›'                                },
+  { id:'killswitch',        label:'Kill Switch',             hint:'Hit this when you are done trading for the day',                 section:true,  nextLabel:'Session closed ›'                              },
+  { id:'reflection',        label:'End of Day Reflection',   hint:'Answer the 3 questions honestly — takes 2 minutes',             section:true,  nextLabel:'Reflection done ›'                             },
+  { id:'save-eod-btn',      label:'Save Your Day',           hint:'Save to earn XP and keep your clean day streak alive',          section:true,  nextLabel:'💾 Save Day →',      onNext:'saveDay'          },
 ];
 var _wtStep = 0;
-var _wtSubStep = 0;
-
-function _wtSaveProgress() {
-  var key = 'td_wt_progress_' + _tdTodayBKK();
-  localStorage.setItem(key, JSON.stringify({step: _wtStep, sub: _wtSubStep}));
-}
-function _wtLoadProgress() {
-  var key = 'td_wt_progress_' + _tdTodayBKK();
-  try { return JSON.parse(localStorage.getItem(key)) || null; } catch(e) { return null; }
-}
-function _wtClearProgress() {
-  localStorage.removeItem('td_wt_progress_' + _tdTodayBKK());
-}
-
-// TF wizard — one question at a time
-
-var _wtSubDefs = {
-  bias: {
-    q: 'How does the chart look?',
-    items: [
-      {val:'bull',    label:'Bullish',  cls:'bull'},
-      {val:'bear',    label:'Bearish',  cls:'bear'},
-      {val:'neutral', label:'Neutral',  cls:'neu'},
-    ],
-    skippable: false,
-  },
-  trend: {
-    q: 'What is the trend?',
-    items: [
-      {val:'up',      label:'Uptrend',    cls:'bull'},
-      {val:'down',    label:'Downtrend',  cls:'bear'},
-      {val:'ranging', label:'Ranging',    cls:'neu'},
-    ],
-    skippable: false,
-  },
-  ao: {
-    q: 'Anything on the Awesome Oscillator?',
-    items: [
-      {val:'bull',     label:'↑ Just went above zero', cls:'bull'},
-      {val:'bear',     label:'↓ Just went below zero', cls:'bear'},
-      {val:'bull-div', label:'Bullish divergence ▲',   cls:'bull'},
-      {val:'bear-div', label:'Bearish divergence ▼',   cls:'bear'},
-    ],
-    skippable: true,
-  },
-  macd: {
-    q: 'Anything on the MACD?',
-    items: [
-      {val:'macd-zero-bull', label:'↑ Just crossed above zero', cls:'bull'},
-      {val:'macd-zero-bear', label:'↓ Just crossed below zero', cls:'bear'},
-      {val:'bull-div',       label:'Signal line cross up ▲',    cls:'bull'},
-      {val:'bear-div',       label:'Signal line cross down ▼',  cls:'bear'},
-    ],
-    skippable: true,
-  },
-};
-
-function _wtGetSubKeys(s) {
-  var keys = ['bias','trend','ao'];
-  if (s.hasMacd) keys.push('macd');
-  return keys;
-}
-
-function _wtRenderTFWizard(s) {
-  // Update TF button/dot UI only — do NOT recreate the TradingView chart.
-  // Recreating the chart for each TF causes orphaned iframes that leak memory.
-  if (s.tvTF) {
-    document.querySelectorAll('#tv-tf-switch .tv-tf-btn').forEach(function(b){ b.classList.remove('sel'); });
-    var activeBtn = document.querySelector('#tv-tf-switch .tv-tf-btn[data-tf="' + s.tvTF + '"]');
-    if (activeBtn) activeBtn.classList.add('sel');
-    document.querySelectorAll('.tf-chart-dot').forEach(function(d){ d.classList.remove('active'); });
-    var activeDot = document.querySelector('.tf-chart-dot[data-tf-dot="' + s.tvTF + '"]');
-    if (activeDot) activeDot.classList.add('active');
-  }
-  _wtRenderSubStep(s);
-}
-
-function _wtRenderSubStep(s) {
-  var keys = _wtGetSubKeys(s);
-  if (_wtSubStep >= keys.length) { wtNext(); return; }
-  var key  = keys[_wtSubStep];
-  var def  = _wtSubDefs[key];
-  var tf   = s.tfKey;
-  var total = keys.length;
-
-  // Sub-step counter line
-  var html = '<div class="wt-wiz-sub-header">'
-    + '<span class="wt-wiz-tf-name">' + s.label + '</span>'
-    + '<span class="wt-wiz-sub-count">' + (_wtSubStep+1) + ' / ' + total + '</span>'
-    + '</div>';
-  html += '<div class="wt-wiz-question">' + def.q + '</div>';
-  html += '<div class="wt-wiz-row">';
-  def.items.forEach(function(it) {
-    html += '<button class="wt-wiz-btn wt-wiz-' + it.cls + '" data-val="' + it.val
-      + '" onclick="_wtSubClick(this,\'' + key + '\',\'' + tf + '\',\'' + it.val + '\')">'
-      + it.label + '</button>';
-  });
-  html += '</div>';
-  if (def.skippable) {
-    html += '<button class="wt-wiz-skip-q" onclick="_wtSubSkip()">I don\'t see anything — continue</button>';
-  }
-
-  var el = document.getElementById('wt-tf-wizard');
-  el.innerHTML = html;
-  el.style.animation = 'none'; void el.offsetWidth;
-  el.style.animation = 'wtSubIn 0.22s ease both';
-
-  // Hide the main Done/Skip buttons during TF sub-steps; sub-step controls are inline
-  document.getElementById('wt-actions').style.display = 'none';
-}
-
-window._wtSubClick = function(btn, key, tf, val) {
-  // Visual select
-  btn.closest('.wt-wiz-row').querySelectorAll('.wt-wiz-btn').forEach(function(b){ b.classList.remove('selected'); });
-  btn.classList.add('selected');
-  // Fire card button
-  var cardBtn = null;
-  if (key === 'bias')  cardBtn = document.querySelector('#bias-'  + tf + ' .bb[onclick*="\'' + val + '\'"]');
-  if (key === 'trend') cardBtn = document.querySelector('#trend-' + tf + ' .bb[onclick*="\'' + val + '\'"]');
-  if (key === 'ao')    cardBtn = document.querySelector('#tfc-'   + tf + ' .ind-row:first-child .ib[onclick*="\'' + val + '\'"]');
-  if (key === 'macd')  cardBtn = document.querySelector('#tfc-'   + tf + ' .ind-row:last-child .ib[onclick*="\'' + val + '\'"]');
-  if (cardBtn) cardBtn.click();
-  // Save progress immediately to the NEXT state so refresh always resumes correctly
-  var keys = _wtGetSubKeys(_wtSteps[_wtStep]);
-  var nextSub = _wtSubStep + 1;
-  var saveKey = 'td_wt_progress_' + _tdTodayBKK();
-  if (nextSub >= keys.length) {
-    localStorage.setItem(saveKey, JSON.stringify({step: _wtStep + 1, sub: 0}));
-  } else {
-    localStorage.setItem(saveKey, JSON.stringify({step: _wtStep, sub: nextSub}));
-  }
-  // Auto-advance after short delay
-  setTimeout(_wtSubAdvance, 320);
-};
-
-window._wtSubSkip = function() { _wtSubAdvance(); };
-
-function _wtSubAdvance() {
-  var s = _wtSteps[_wtStep];
-  var keys = _wtGetSubKeys(s);
-  _wtSubStep++;
-  if (_wtSubStep >= keys.length) {
-    _wtSubStep = 0;
-    document.getElementById('wt-actions').style.display = 'flex';
-    _wtStep++;
-    if (_wtStep >= _wtSteps.length) { wtDone(); } else { wtShowStep(); }
-  } else {
-    _wtSaveProgress();
-    _wtRenderSubStep(s);
-  }
-}
 
 function wtStart() {
   if (!localStorage.getItem('td_walkthrough_pending')) return;
@@ -14251,50 +14081,29 @@ function wtShowStep() {
   });
   if (_wtStep >= _wtSteps.length) { wtDone(); return; }
   var s = _wtSteps[_wtStep];
-  var isTF = !!s.tfKey;
-
-  // Show/hide static vs wizard panes
-  var staticPane = document.getElementById('wt-static');
-  var wizPane    = document.getElementById('wt-tf-wizard');
-  if (staticPane) staticPane.style.display = isTF ? 'none' : 'block';
-  if (wizPane)    wizPane.style.display    = isTF ? 'block' : 'none';
-
   var target = document.getElementById(s.id);
   if (target) {
     target.classList.add(s.section ? 'wt-section-active' : 'wt-active');
-    // For TF steps: scroll so chart + TF cards are both visible
-    if (isTF) {
-      setTimeout(function(){
-        var firstCard = document.getElementById('tfc-1M');
-        if (firstCard) firstCard.scrollIntoView({behavior:'smooth', block:'end'});
-      }, 100);
-    } else {
-      setTimeout(function(){ target.scrollIntoView({behavior:'smooth', block:'center'}); }, 100);
-    }
+    setTimeout(function(){ target.scrollIntoView({behavior:'smooth',block:'center'}); }, 100);
   }
-
-  if (isTF) {
-    _wtRenderTFWizard(s);
-    chip.style.width = '420px';
-  } else {
-    chip.style.width = '360px';
-    // Dynamic score hint
-    var hint = s.hint;
-    if (s.id === 'score-dashboard') {
-      var scoreEl = document.getElementById('score-num');
-      hint = 'Your current score is ' + (scoreEl ? scoreEl.textContent.trim() : '0') + ' — this is your session edge';
-    }
-    document.getElementById('wt-label').textContent = s.label;
-    document.getElementById('wt-hint').textContent  = hint;
+  // Dynamic hint for score step
+  var hint = s.hint;
+  if (s.id === 'score-dashboard') {
+    var scoreEl = document.getElementById('score-num');
+    var scoreVal = scoreEl ? scoreEl.textContent.trim() : '0';
+    hint = 'Your current score is ' + scoreVal + ' — review your bias reading before continuing';
   }
-
   var total = _wtSteps.length;
-  document.getElementById('wt-step').textContent = 'Step ' + (_wtStep+1) + ' / ' + total;
-  document.getElementById('wt-next').textContent = s.nextLabel || 'Done ›';
+  document.getElementById('wt-step').textContent  = 'Step ' + (_wtStep+1) + ' / ' + total;
+  document.getElementById('wt-label').textContent = s.label;
+  document.getElementById('wt-hint').textContent  = hint;
+  document.getElementById('wt-next').textContent  = s.nextLabel || 'Done ›';
   var bar = document.getElementById('wt-progress-bar');
   if (bar) bar.style.width = Math.round(((_wtStep+1)/total)*100) + '%';
-
-  _wtSaveProgress();
+  // onShow hook
+  if (s.onShow === 'loadBriefing' && typeof loadBriefing === 'function') {
+    setTimeout(function(){ loadBriefing(false); }, 400);
+  }
   chip.style.display = 'flex';
   chip.style.animation = 'none';
   void chip.offsetWidth;
@@ -14304,7 +14113,8 @@ function wtShowStep() {
 window.wtNext = function() {
   var s = _wtSteps[_wtStep];
   if (s && s.onNext === 'openLiveExecAndPause') {
-    _wtStep++;
+    // Open live exec and hide chip — leoQuickLogTrade will resume from trade step
+    _wtStep++; // advance to trade-forms step index
     var chip = document.getElementById('wt-chip');
     if (chip) chip.style.display = 'none';
     if (typeof openLiveExec === 'function') setTimeout(openLiveExec, 200);
@@ -14321,28 +14131,14 @@ window.wtNext = function() {
 
 window.wtSkip = wtDone;
 
-// Called when user clicks "Exit Guide" mid-session.
-// Hides the chip but keeps td_walkthrough_pending so the splash shows again on refresh.
-function wtExitGuide() {
-  document.querySelectorAll('.wt-active,.wt-section-active').forEach(function(el){
-    el.classList.remove('wt-active','wt-section-active');
-  });
-  var chip = document.getElementById('wt-chip');
-  if (chip) chip.style.display = 'none';
-}
-
-// Called only when the guide is fully completed or user skips from splash.
-// Removes the pending flag so the splash doesn't re-appear today.
 function wtDone() {
   localStorage.removeItem('td_walkthrough_pending');
-  _wtClearProgress();
   document.querySelectorAll('.wt-active,.wt-section-active').forEach(function(el){
     el.classList.remove('wt-active','wt-section-active');
   });
   var chip = document.getElementById('wt-chip');
   if (chip) chip.style.display = 'none';
 }
-window.wtExitGuide = wtExitGuide;
 
 window.wtRestart = function() {
   localStorage.setItem('td_walkthrough_pending', '1');
@@ -14353,14 +14149,7 @@ window.wtRestart = function() {
 function sessionSplashStart() {
   sessionSplashDismiss();
   localStorage.setItem('td_walkthrough_pending', '1');
-  var saved = _wtLoadProgress();
-  if (saved && saved.step > 0) {
-    _wtStep = saved.step;
-    _wtSubStep = saved.sub || 0;
-  } else {
-    _wtStep = 0;
-    _wtSubStep = 0;
-  }
+  _wtStep = 0;
   setTimeout(wtShowStep, 400);
 }
 function sessionSplashDismiss() {
@@ -14372,21 +14161,11 @@ window.sessionSplashDismiss = sessionSplashDismiss;
 
 document.addEventListener('DOMContentLoaded', function() {
   if (localStorage.getItem('td_walkthrough_pending')) {
-    var splash    = document.getElementById('session-splash');
-    var titleEl   = document.getElementById('session-splash-title');
-    var subEl     = document.getElementById('session-splash-sub');
-    var btnEl     = document.getElementById('session-splash-btn');
-    var dateEl    = document.getElementById('session-splash-date');
+    var splash = document.getElementById('session-splash');
+    var dateEl = document.getElementById('session-splash-date');
     if (dateEl) {
       var d = new Date();
       dateEl.textContent = d.toLocaleDateString('en-GB', {weekday:'long',day:'numeric',month:'long',year:'numeric',timeZone:'Asia/Bangkok'});
-    }
-    var saved = _wtLoadProgress();
-    if (saved && saved.step > 0) {
-      var s = _wtSteps[saved.step];
-      if (titleEl) titleEl.textContent = 'Continue your session';
-      if (subEl)   subEl.textContent   = 'Pick up where you left off — ' + (s ? s.label : 'Step ' + (saved.step + 1));
-      if (btnEl)   btnEl.textContent   = '▶ Continue Day';
     }
     if (splash) setTimeout(function(){ splash.classList.add('show'); }, 600);
   }
@@ -14814,12 +14593,9 @@ window.autoRestoreToday = async function(source) {
 
     // New day = clean slate. Only restore if today's row exists in Supabase.
 
-    // Nothing saved anywhere in Supabase — try localStorage fallback before giving up
+    // Nothing saved anywhere — clean slate
     if (!morning && !trades.length && !summ) {
-      if (window._restoreTFStateLocal) {
-        var _lsRestored = window._restoreTFStateLocal();
-        if (_lsRestored) console.log('[restore] No Supabase data — restored from localStorage');
-      }
+      console.log('[restore] No data for today — clean slate');
       return;
     }
     console.log('[restore] Restoring today:', {morning:!!morning, trades:trades.length, summ:!!summ});
@@ -14901,11 +14677,16 @@ window.autoRestoreToday = async function(source) {
         window._inRestore = true;
       }
 
-      // TF notes — stored inside tf_state JSON (no separate columns)
-      ['1M','1W','D','4H','1H'].forEach(function(tfKey) {
-        var v = (tf[tfKey] && tf[tfKey].notes) || morning['notes_' + tfKey.replace('1M','1M').replace('1W','1W').replace('D','D').replace('4H','4H').replace('1H','1H')] || '';
+      // TF notes
+      var noteMap = {
+        '1M': morning.notes_1M, '1W': morning.notes_1W,
+        'D':  morning.notes_D,  '4H': morning.notes_4H, '1H': morning.notes_1H
+      };
+      Object.keys(noteMap).forEach(function(tf) {
+        var v = noteMap[tf];
         if (!v) return;
-        var el = document.getElementById('tfn-' + tfKey) || document.getElementById('tfc-notes-' + tfKey);
+        // Notes textarea IDs: tfn-1M or tfc-notes-1M
+        var el = document.getElementById('tfn-' + tf) || document.getElementById('tfc-notes-' + tf);
         if (el) el.value = v;
       });
 
@@ -16006,7 +15787,7 @@ function tdlPatchApp() {
         if (payload.macd_1H)    _tfStateObj['1H'].macd = payload.macd_1H;
         if (payload.ew_4H)      _tfStateObj['4H'].ew   = payload.ew_4H;
         if (payload.ew_1H)      _tfStateObj['1H'].ew   = payload.ew_1H;
-        // Store TF notes inside tf_state JSON — no separate columns needed
+        // Store TF notes inside tf_state JSON — the notes_1H/4H/D/1W/1M columns don't exist in the schema
         ['1M','1W','D','4H','1H'].forEach(function(tf) {
           var n = payload['notes_' + tf];
           if (n) _tfStateObj[tf].notes = n;
@@ -16063,18 +15844,9 @@ function tdlPatchApp() {
   localStorage.setItem('sheets-status', 'Supabase');
 
   // ── OVERRIDE renderStreak to use Supabase directly ────
-  var _streakInFlight = false;
-  var _streakDebounceTimer = null;
   window.renderStreak = async function() {
-    // Debounce: if called again within 1s, defer and let the later call win
-    if (_streakInFlight) {
-      clearTimeout(_streakDebounceTimer);
-      _streakDebounceTimer = setTimeout(function(){ window.renderStreak(); }, 1000);
-      return;
-    }
     var uid = _userId || localStorage.getItem('td_user_id');
     if (!uid) { console.log('[supabase] renderStreak: no uid'); return; }
-    _streakInFlight = true;
     var rpName = document.getElementById('rp-rank-name');
     if (rpName) rpName.textContent = 'SYNCING...';
     try {
@@ -16087,9 +15859,10 @@ function tdlPatchApp() {
         var rn = 'DEGENERATE';
         try { var re = document.getElementById('rp-rank-name'); if (re && re.textContent !== 'SYNCING...') rn = re.textContent.trim(); } catch(e) {}
         updatePALFromRows(sessions, rn);
+        setTimeout(function(){ updatePALFromRows(sessions, rn); }, 400);
+        setTimeout(function(){ updatePALFromRows(sessions, rn); }, 900);
       }
     } catch(e) { console.warn('[supabase] renderStreak error:', e.message); }
-    finally { _streakInFlight = false; }
   };
 
   console.log('[supabase] App patched — renderStreak now uses Supabase directly');
