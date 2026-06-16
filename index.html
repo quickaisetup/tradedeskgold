@@ -6421,20 +6421,33 @@ function toggleEW(tf, cb) {
 }
 
 function setInd(btn, dir) {
+  var row = btn.closest('.ind-row');
+  var indName = row ? (row.querySelector('.ind-lbl') || {}).textContent || '' : '';
+  var isMacd = indName.trim() === 'MACD';
   var wasSelected = btn.classList.contains('sel');
-  // Clear all buttons in group
-  btn.closest('.ind-btns').querySelectorAll('.ib').forEach(function(b) {
-    b.className = 'ib'; b.style.color = ''; b.style.borderColor = '';
-  });
-  // During restore always select; during user interaction toggle off if already selected
-  if (!wasSelected || window._inRestore) {
-    btn.classList.add('sel');
-    var c = {
-      'bull': 'var(--green)', 'bear': 'var(--red)',
-      'bull-div': 'var(--green)', 'bear-div': 'var(--red)',
-      'macd-zero-bull': 'var(--green)', 'macd-zero-bear': 'var(--red)'
-    };
-    if (c[dir]) { btn.style.color = c[dir]; btn.style.borderColor = c[dir]; }
+  var c = {
+    'bull': 'var(--green)', 'bear': 'var(--red)',
+    'bull-div': 'var(--green)', 'bear-div': 'var(--red)',
+    'macd-zero-bull': 'var(--green)', 'macd-zero-bear': 'var(--red)',
+    'macd-cross-bull': 'var(--green)', 'macd-cross-bear': 'var(--red)'
+  };
+  if (isMacd) {
+    // MACD: multi-select — toggle this button independently
+    if (wasSelected && !window._inRestore) {
+      btn.classList.remove('sel'); btn.style.color = ''; btn.style.borderColor = '';
+    } else {
+      btn.classList.add('sel');
+      if (c[dir]) { btn.style.color = c[dir]; btn.style.borderColor = c[dir]; }
+    }
+  } else {
+    // AO: single-select — clear group first, then select
+    btn.closest('.ind-btns').querySelectorAll('.ib').forEach(function(b) {
+      b.className = 'ib'; b.style.color = ''; b.style.borderColor = '';
+    });
+    if (!wasSelected || window._inRestore) {
+      btn.classList.add('sel');
+      if (c[dir]) { btn.style.color = c[dir]; btn.style.borderColor = c[dir]; }
+    }
   }
   updateVerdictAuto();
   _saveTFStateLocal();
@@ -6509,8 +6522,10 @@ function updateVerdictAuto() {
     for (var i = 0; i < rows.length; i++) {
       var lbl = rows[i].querySelector('.ind-lbl');
       if (lbl && lbl.textContent === indName) {
-        var sel = rows[i].querySelector('.ib.sel');
-        return sel ? (sel.getAttribute('title') || sel.textContent.trim()) : null;
+        var sels = rows[i].querySelectorAll('.ib.sel');
+        if (!sels.length) return null;
+        var vals = Array.prototype.map.call(sels, function(b){ return b.getAttribute('title') || b.textContent.trim(); });
+        return vals.join('+');
       }
     }
     return null;
@@ -6601,18 +6616,18 @@ function updateVerdictAuto() {
   else if (ao1 === 'Bear divergence') { score -= 1.5; bearSignals.push({ label: '1H AO BD▼', pts: '-1.5' }); }
 
   // ── 4H MACD ───────────────────────────────────────────
-  var m4 = getInd('4H', 'MACD');
-  if (m4 === 'Zero line reject bullish') { score += 0.75; bullSignals.push({ label: '4H MACD 0↩▲', pts: '+0.75' }); }
-  else if (m4 === 'Zero line reject bearish') { score -= 0.75; bearSignals.push({ label: '4H MACD 0↩▼', pts: '-0.75' }); }
-  else if (m4 === 'Cross up') { score += 1.5; bullSignals.push({ label: '4H MACD Cross▲', pts: '+1.5' }); }
-  else if (m4 === 'Cross down') { score -= 1.5; bearSignals.push({ label: '4H MACD Cross▼', pts: '-1.5' }); }
+  var m4 = getInd('4H', 'MACD'); var m4vals = m4 ? m4.split('+') : [];
+  if (m4vals.indexOf('Zero line reject bullish') > -1) { score += 0.75; bullSignals.push({ label: '4H MACD 0↩▲', pts: '+0.75' }); }
+  if (m4vals.indexOf('Zero line reject bearish') > -1) { score -= 0.75; bearSignals.push({ label: '4H MACD 0↩▼', pts: '-0.75' }); }
+  if (m4vals.indexOf('Cross up') > -1) { score += 1.5; bullSignals.push({ label: '4H MACD Cross▲', pts: '+1.5' }); }
+  if (m4vals.indexOf('Cross down') > -1) { score -= 1.5; bearSignals.push({ label: '4H MACD Cross▼', pts: '-1.5' }); }
 
   // ── 1H MACD ───────────────────────────────────────────
-  var m1 = getInd('1H', 'MACD');
-  if (m1 === 'Zero line reject bullish') { score += 0.5; bullSignals.push({ label: '1H MACD 0↩▲', pts: '+0.5' }); }
-  else if (m1 === 'Zero line reject bearish') { score -= 0.5; bearSignals.push({ label: '1H MACD 0↩▼', pts: '-0.5' }); }
-  else if (m1 === 'Cross up') { score += 1; bullSignals.push({ label: '1H MACD Cross▲', pts: '+1' }); }
-  else if (m1 === 'Cross down') { score -= 1; bearSignals.push({ label: '1H MACD Cross▼', pts: '-1' }); }
+  var m1 = getInd('1H', 'MACD'); var m1vals = m1 ? m1.split('+') : [];
+  if (m1vals.indexOf('Zero line reject bullish') > -1) { score += 0.5; bullSignals.push({ label: '1H MACD 0↩▲', pts: '+0.5' }); }
+  if (m1vals.indexOf('Zero line reject bearish') > -1) { score -= 0.5; bearSignals.push({ label: '1H MACD 0↩▼', pts: '-0.5' }); }
+  if (m1vals.indexOf('Cross up') > -1) { score += 1; bullSignals.push({ label: '1H MACD Cross▲', pts: '+1' }); }
+  if (m1vals.indexOf('Cross down') > -1) { score -= 1; bearSignals.push({ label: '1H MACD Cross▼', pts: '-1' }); }
 
   // ── LONDON OPEN ±0.5 ──────────────────────────────────
   if (londonBiasState === 'bull') { score += 0.5; bullSignals.push({ label: 'London open ↑', pts: '+0.5' }); }
@@ -7925,8 +7940,9 @@ async function saveAll(dateISOOverride) {
     for (var i = 0; i < rows.length; i++) {
       var lbl = rows[i].querySelector('.ind-lbl');
       if (lbl && lbl.textContent === indName) {
-        var sel = rows[i].querySelector('.ib.sel');
-        return sel ? (sel.title || sel.textContent.trim()) : '';
+        var sels = rows[i].querySelectorAll('.ib.sel');
+        if (!sels.length) return '';
+        return Array.prototype.map.call(sels, function(b){ return b.title || b.textContent.trim(); }).join('+');
       }
     }
     return '';
@@ -8089,7 +8105,7 @@ async function saveMorningAnalysis(silent) {
   function getInd(tf, name) {
     var card = document.getElementById('tfc-'+tf); if (!card) return null;
     var rows = card.querySelectorAll('.ind-row');
-    for (var i=0;i<rows.length;i++) { var lbl=rows[i].querySelector('.ind-lbl'); if(lbl&&lbl.textContent===name){var sel=rows[i].querySelector('.ib.sel');return sel?(sel.getAttribute('title')||sel.textContent.trim()):null;} }
+    for (var i=0;i<rows.length;i++) { var lbl=rows[i].querySelector('.ind-lbl'); if(lbl&&lbl.textContent===name){ var sels=rows[i].querySelectorAll('.ib.sel'); if(!sels.length) return null; return Array.prototype.map.call(sels,function(b){return b.getAttribute('title')||b.textContent.trim();}).join('+'); } }
     return null;
   }
   var pivotStr = pivotState === 'bull' ? 'Above' : pivotState === 'bear' ? 'Below' : pivotState === 'neu' ? 'At' : '';
@@ -14362,9 +14378,11 @@ window.autoRestoreToday = async function(source) {
               if (!lbl) return;
               var stored = lbl.textContent.trim() === 'AO' ? s.ao : lbl.textContent.trim() === 'MACD' ? s.macd : null;
               if (!stored) return;
+              var storedVals = stored.split('+').map(function(v){ return v.trim().toLowerCase(); });
               row.querySelectorAll('.ib').forEach(function(btn) {
-                if ((btn.getAttribute('title') || '').toLowerCase() === stored.toLowerCase()) {
-                  if (window.setInd) setInd(btn, btn.getAttribute('onclick').match(/setInd\(this,\s*'([^']+)'/)?.[1] || '');
+                if (storedVals.indexOf((btn.getAttribute('title') || '').toLowerCase()) > -1) {
+                  var dirM = (btn.getAttribute('onclick') || '').match(/setInd\(this,\s*'([^']+)'/);
+                  if (window.setInd) setInd(btn, dirM ? dirM[1] : '');
                 }
               });
             });
