@@ -12044,16 +12044,9 @@ function setTVInterval(interval, btn) {
   document.querySelectorAll('.tf-chart-dot').forEach(function(d){ d.classList.remove('active'); });
   var activeDot = document.querySelector('.tf-chart-dot[data-tf-dot="' + interval + '"]');
   if (activeDot) activeDot.classList.add('active');
-  // Change chart interval via postMessage — safe, no iframe recreation
-  var iframe = document.querySelector('#tv-chart-wrap iframe');
-  if (iframe && iframe.contentWindow) {
-    try {
-      iframe.contentWindow.postMessage(
-        JSON.stringify({ name: 'set-symbol', data: { symbol: 'XAUUSD', interval: interval } }),
-        '*'
-      );
-    } catch(e) {}
-  }
+  // Rebuild chart with new interval — safe because we clear the old iframe first
+  _tvChartCreated = false;
+  initTVChart();
 }
 // called from TF card dots — scrolls chart into view on mobile
 function setTVIntervalFromCard(interval, e) {
