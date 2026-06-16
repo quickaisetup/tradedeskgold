@@ -14084,9 +14084,21 @@ var _wtSteps = [
   { id:'save-eod-btn',       label:'Save Your Day',          hint:'Save to earn XP and keep your clean day streak alive',        section:true, nextLabel:'💾 Save Day →', onNext:'saveDay' },
 ];
 var _wtStep = 0;
+var _wtSubStep = 0;
+
+function _wtSaveProgress() {
+  var key = 'td_wt_progress_' + _tdTodayBKK();
+  localStorage.setItem(key, JSON.stringify({step: _wtStep, sub: _wtSubStep}));
+}
+function _wtLoadProgress() {
+  var key = 'td_wt_progress_' + _tdTodayBKK();
+  try { return JSON.parse(localStorage.getItem(key)) || null; } catch(e) { return null; }
+}
+function _wtClearProgress() {
+  localStorage.removeItem('td_wt_progress_' + _tdTodayBKK());
+}
 
 // TF wizard — one question at a time
-var _wtSubStep = 0;
 
 var _wtSubDefs = {
   bias: {
@@ -14200,12 +14212,12 @@ function _wtSubAdvance() {
   var keys = _wtGetSubKeys(s);
   _wtSubStep++;
   if (_wtSubStep >= keys.length) {
-    // All sub-steps done — advance to next main step
     _wtSubStep = 0;
     document.getElementById('wt-actions').style.display = 'flex';
     _wtStep++;
     if (_wtStep >= _wtSteps.length) { wtDone(); } else { wtShowStep(); }
   } else {
+    _wtSaveProgress();
     _wtRenderSubStep(s);
   }
 }
@@ -14270,6 +14282,7 @@ function wtShowStep() {
   var bar = document.getElementById('wt-progress-bar');
   if (bar) bar.style.width = Math.round(((_wtStep+1)/total)*100) + '%';
 
+  _wtSaveProgress();
   chip.style.display = 'flex';
   chip.style.animation = 'none';
   void chip.offsetWidth;
@@ -14298,6 +14311,7 @@ window.wtSkip = wtDone;
 
 function wtDone() {
   localStorage.removeItem('td_walkthrough_pending');
+  _wtClearProgress();
   document.querySelectorAll('.wt-active,.wt-section-active').forEach(function(el){
     el.classList.remove('wt-active','wt-section-active');
   });
@@ -14314,7 +14328,14 @@ window.wtRestart = function() {
 function sessionSplashStart() {
   sessionSplashDismiss();
   localStorage.setItem('td_walkthrough_pending', '1');
-  _wtStep = 0;
+  var saved = _wtLoadProgress();
+  if (saved && saved.step > 0) {
+    _wtStep = saved.step;
+    _wtSubStep = saved.sub || 0;
+  } else {
+    _wtStep = 0;
+    _wtSubStep = 0;
+  }
   setTimeout(wtShowStep, 400);
 }
 function sessionSplashDismiss() {
@@ -14326,11 +14347,21 @@ window.sessionSplashDismiss = sessionSplashDismiss;
 
 document.addEventListener('DOMContentLoaded', function() {
   if (localStorage.getItem('td_walkthrough_pending')) {
-    var splash = document.getElementById('session-splash');
-    var dateEl = document.getElementById('session-splash-date');
+    var splash    = document.getElementById('session-splash');
+    var titleEl   = document.getElementById('session-splash-title');
+    var subEl     = document.getElementById('session-splash-sub');
+    var btnEl     = document.getElementById('session-splash-btn');
+    var dateEl    = document.getElementById('session-splash-date');
     if (dateEl) {
       var d = new Date();
       dateEl.textContent = d.toLocaleDateString('en-GB', {weekday:'long',day:'numeric',month:'long',year:'numeric',timeZone:'Asia/Bangkok'});
+    }
+    var saved = _wtLoadProgress();
+    if (saved && saved.step > 0) {
+      var s = _wtSteps[saved.step];
+      if (titleEl) titleEl.textContent = 'Continue your session';
+      if (subEl)   subEl.textContent   = 'Pick up where you left off — ' + (s ? s.label : 'Step ' + (saved.step + 1));
+      if (btnEl)   btnEl.textContent   = '▶ Continue Day';
     }
     if (splash) setTimeout(function(){ splash.classList.add('show'); }, 600);
   }
