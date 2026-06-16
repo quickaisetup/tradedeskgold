@@ -11956,7 +11956,6 @@ document.addEventListener('DOMContentLoaded', async function() {
   if (window.loadRules) loadRules();
   renderAccountsPanel();
 
-  initTVChart();
   setTimeout(function(){ setTVInterval('240'); }, 200);
   loadFFCalendar();  // loadBriefing() is called by tdlOnAuth after login, not on cold load
   updateBottomHUD();
@@ -12023,8 +12022,10 @@ var TF_MAP   = {'M':'M','W':'W','D':'D','240':'240','60':'60','1':'1','5':'5','1
 var TF_LABEL = {'M':'1M','W':'1W','D':'1D','240':'4H','60':'1H','1':'1m','5':'5m','15':'15m'};
 var TF_CARD  = {'M':'tfc-1M','W':'tfc-1W','D':'tfc-D','240':'tfc-4H','60':'tfc-1H'};
 
+var _tvInitDebounceTimer = null;
 function setTVInterval(interval, btn) {
   interval = TF_MAP[interval] || interval;
+  var intervalChanged = (interval !== _tvInterval);
   _tvInterval = interval;
   document.querySelectorAll('#tv-tf-switch .tv-tf-btn').forEach(function(b){ b.classList.remove('sel'); });
   var activeBtn = btn || document.querySelector('#tv-tf-switch .tv-tf-btn[data-tf="' + interval + '"]');
@@ -12033,7 +12034,11 @@ function setTVInterval(interval, btn) {
   document.querySelectorAll('.tf-chart-dot').forEach(function(d){ d.classList.remove('active'); });
   var activeDot = document.querySelector('.tf-chart-dot[data-tf-dot="' + interval + '"]');
   if (activeDot) activeDot.classList.add('active');
-  initTVChart();
+  // Only recreate the chart when the interval actually changed.
+  // Debounce so rapid walkthrough TF switches (or startup) batch into one widget.
+  if (!intervalChanged && document.querySelector('#tv-chart-wrap .tradingview-widget-container')) return;
+  if (_tvInitDebounceTimer) clearTimeout(_tvInitDebounceTimer);
+  _tvInitDebounceTimer = setTimeout(initTVChart, 500);
 }
 // called from TF card dots — scrolls chart into view on mobile
 function setTVIntervalFromCard(interval, e) {
