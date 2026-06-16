@@ -6112,6 +6112,19 @@ function _tdSaveAnalysisTickers(list) {
 function _tdTodayBKK() {
   return new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
 }
+
+// Clear live-execution watermarks when a new Bangkok day begins
+(function() {
+  var today = _tdTodayBKK();
+  var lastOpen = localStorage.getItem('td_last_open_date');
+  if (lastOpen !== today) {
+    Object.keys(localStorage).forEach(function(k) {
+      if (k.startsWith('wm_')) localStorage.removeItem(k);
+    });
+    localStorage.setItem('td_last_open_date', today);
+  }
+})();
+
 function _tdSnapKey(instrument) {
   return 'td_topdown_snap_' + _tdTodayBKK() + '_' + instrument;
 }
@@ -14285,25 +14298,7 @@ window.autoRestoreToday = async function(source) {
     var trades  = tradeRes.data || [];
     var summ    = summRes.data;
 
-    // If today has no morning row but there's a recent one with analysis, use it
-    // (covers cross-device sync where desktop saved June 12 and mobile opens June 15)
-    // Only carry over 1M/1W (context TFs) — D/4H/1H are intraday and reset each new day.
-    var latestMorning = latestMorRes.data;
-    if (!morning && latestMorning) {
-      var latestTf = {};
-      try { latestTf = JSON.parse(latestMorning.tf_state || '{}'); } catch(e){}
-      var latestHasData = Object.keys(latestTf).some(function(k){ return (latestTf[k].bias||[]).length || (latestTf[k].trend||[]).length; });
-      if (latestHasData) {
-        // Strip intraday TFs — only keep 1M and 1W as daily context
-        var contextOnly = {};
-        ['1M','1W'].forEach(function(k){ if (latestTf[k]) contextOnly[k] = latestTf[k]; });
-        var contextHasData = Object.keys(contextOnly).some(function(k){ return (contextOnly[k].bias||[]).length || (contextOnly[k].trend||[]).length; });
-        if (contextHasData) {
-          morning = Object.assign({}, latestMorning, { tf_state: JSON.stringify(contextOnly) });
-          console.log('[restore] New day: carrying over 1M/1W context from', latestMorning.date);
-        }
-      }
-    }
+    // New day = clean slate. Only restore if today's row exists in Supabase.
 
     // Nothing saved anywhere — clean slate
     if (!morning && !trades.length && !summ) {
