@@ -3845,6 +3845,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
         <span id="morning-save-status" style="font-family:var(--mono);font-size:9px;color:var(--text3);margin-left:8px"></span>
         <button id="save-morning-btn" onclick="saveMorningAnalysis()" style="margin-left:auto;display:none;background:transparent;border:1px solid rgba(240,188,78,0.3);border-radius:5px;color:var(--gold);font-family:var(--mono);font-size:8px;letter-spacing:0.08em;padding:4px 10px;cursor:pointer;text-transform:uppercase;flex-shrink:0"
           onmouseover="this.style.background='rgba(240,188,78,0.1)'" onmouseout="this.style.background='transparent'">↑ Save analysis</button>
+        <button onclick="wtRestart()" title="Step-by-step analysis guide" style="margin-left:6px;background:transparent;border:1px solid rgba(240,188,78,0.22);border-radius:5px;color:rgba(240,188,78,0.55);font-family:var(--mono);font-size:8px;letter-spacing:0.08em;padding:4px 10px;cursor:pointer;text-transform:uppercase;flex-shrink:0"
+          onmouseover="this.style.borderColor='rgba(240,188,78,0.5)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='rgba(240,188,78,0.22)';this.style.color='rgba(240,188,78,0.55)'">▶ Guide</button>
         <button onclick="clearMorningAnalysis()" title="Reset all bias/trend for a fresh start" style="margin-left:6px;background:transparent;border:1px solid rgba(255,255,255,0.1);border-radius:5px;color:var(--text3);font-family:var(--mono);font-size:8px;letter-spacing:0.08em;padding:4px 10px;cursor:pointer;text-transform:uppercase;flex-shrink:0"
           onmouseover="this.style.borderColor='rgba(240,80,80,0.4)';this.style.color='#f06060'" onmouseout="this.style.borderColor='rgba(255,255,255,0.1)';this.style.color='var(--text3)'">✕ New day</button>
       </div>
@@ -14017,6 +14019,12 @@ function wtDone() {
   var chip = document.getElementById('wt-chip');
   if (chip) chip.style.display = 'none';
 }
+
+window.wtRestart = function() {
+  localStorage.setItem('td_walkthrough_pending', '1');
+  _wtStep = 0;
+  wtShowStep();
+};
 
 document.addEventListener('DOMContentLoaded', function() {
   if (localStorage.getItem('td_walkthrough_pending')) {
