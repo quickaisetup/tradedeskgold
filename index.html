@@ -2843,21 +2843,22 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
     <button id="nd-rules-edit-btn" onclick="openRulesModal()">✎ Edit rules</button>
   </div>
 
-  <!-- Rules Edit Modal -->
-  <div id="rules-modal-overlay" onclick="if(event.target===this)closeRulesModal()">
-    <div id="rules-modal">
-      <div class="rules-modal-title">My Trading Rules</div>
-      <div id="rules-edit-list"></div>
-      <button onclick="addRuleRow()" style="background:transparent;border:1px dashed rgba(255,255,255,0.15);border-radius:6px;color:var(--text3);font-family:var(--mono);font-size:9px;letter-spacing:0.1em;padding:6px 12px;cursor:pointer;width:100%;margin-top:4px;margin-bottom:20px">+ Add rule</button>
-      <div style="display:flex;gap:10px;justify-content:flex-end">
-        <button onclick="closeRulesModal()" style="background:transparent;border:1px solid var(--border);border-radius:6px;color:var(--text3);font-family:var(--mono);font-size:9px;letter-spacing:0.1em;padding:8px 18px;cursor:pointer">Cancel</button>
-        <button onclick="saveRules()" id="rules-save-btn" style="background:rgba(240,96,96,0.15);border:1px solid rgba(240,96,96,0.4);border-radius:6px;color:var(--red);font-family:var(--mono);font-size:9px;letter-spacing:0.1em;padding:8px 18px;cursor:pointer;text-transform:uppercase">Save rules</button>
-      </div>
-      <div id="rules-save-status" style="font-family:var(--mono);font-size:9px;text-align:right;margin-top:8px;min-height:14px"></div>
-    </div>
-  </div>
 </div>
 <div id="news-drawer-tab" onclick="ndTogglePin()"><span>GOLD NEWS</span></div>
+
+<!-- Rules Edit Modal (outside news drawer to avoid stacking context) -->
+<div id="rules-modal-overlay" onclick="if(event.target===this)closeRulesModal()">
+  <div id="rules-modal">
+    <div class="rules-modal-title">My Trading Rules</div>
+    <div id="rules-edit-list"></div>
+    <button onclick="addRuleRow()" style="background:transparent;border:1px dashed rgba(255,255,255,0.15);border-radius:6px;color:var(--text3);font-family:var(--mono);font-size:9px;letter-spacing:0.1em;padding:6px 12px;cursor:pointer;width:100%;margin-top:4px;margin-bottom:20px">+ Add rule</button>
+    <div style="display:flex;gap:10px;justify-content:flex-end">
+      <button onclick="closeRulesModal()" style="background:transparent;border:1px solid var(--border);border-radius:6px;color:var(--text3);font-family:var(--mono);font-size:9px;letter-spacing:0.1em;padding:8px 18px;cursor:pointer">Cancel</button>
+      <button onclick="saveRules()" id="rules-save-btn" style="background:rgba(240,96,96,0.15);border:1px solid rgba(240,96,96,0.4);border-radius:6px;color:var(--red);font-family:var(--mono);font-size:9px;letter-spacing:0.1em;padding:8px 18px;cursor:pointer;text-transform:uppercase">Save rules</button>
+    </div>
+    <div id="rules-save-status" style="font-family:var(--mono);font-size:9px;text-align:right;margin-top:8px;min-height:14px"></div>
+  </div>
+</div>
 
 <!-- SIDEBAR HOVER TRIGGER -->
 <div class="sidebar-hover-trigger" onmouseenter="document.querySelector('.sidebar').style.left='0'" onmouseleave="document.querySelector('.sidebar').style.left=''"></div>
