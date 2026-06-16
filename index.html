@@ -1745,7 +1745,28 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 #rp-rank-text{display:flex;flex-direction:column;align-items:center;width:100%}
 #rp-rank-roman{font-size:8.5px;letter-spacing:0.33em;text-transform:uppercase;color:rgba(255,255,255,0.39);margin-bottom:3px}
 #rp-rank-name{font-family:var(--display);font-size:23px;letter-spacing:0.07em;line-height:1;color:#fff;transition:color .5s,text-shadow .5s}
-#rp-rank-quote{font-size:9px;color:rgba(255,255,255,0.37);font-style:italic;margin-top:5px;line-height:1.38;padding:0 8px}
+#rp-rank-quote{display:none}
+/* ── RANK SPEECH BUBBLE ── */
+#rp-rank-bubble{
+  position:absolute;top:-2px;left:50%;transform:translateX(-50%) translateY(-100%) scale(0.7);
+  background:#111318;border:1px solid rgba(255,255,255,0.18);border-radius:10px;
+  padding:8px 13px;font-family:var(--mono);font-size:10px;font-style:italic;
+  color:rgba(255,255,255,0.85);white-space:nowrap;pointer-events:none;
+  opacity:0;transition:opacity 0.35s ease,transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+  box-shadow:0 6px 24px rgba(0,0,0,0.6);z-index:10;
+}
+#rp-rank-bubble::after{
+  content:'';position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);
+  border-left:6px solid transparent;border-right:6px solid transparent;
+  border-top:6px solid #111318;
+}
+#rp-rank-bubble::before{
+  content:'';position:absolute;bottom:-7px;left:50%;transform:translateX(-50%);
+  border-left:6px solid transparent;border-right:6px solid transparent;
+  border-top:6px solid rgba(255,255,255,0.18);
+}
+#rp-rank-bubble.show{opacity:1;transform:translateX(-50%) translateY(-100%) scale(1)}
+@keyframes bubbleFadeOut{from{opacity:1}to{opacity:0;transform:translateX(-50%) translateY(-110%) scale(0.92)}}
 #rp-rank-hero-actions{display:flex;align-items:center;gap:6px;margin-top:10px}
 #rp-all-ranks-btn{font-size:7px;letter-spacing:0.1em;text-transform:uppercase;background:transparent;border:1px solid rgba(240,188,78,0.22);border-radius:20px;color:rgba(240,188,78,0.55);padding:3px 10px;cursor:pointer;transition:all .2s;white-space:nowrap;font-family:var(--mono)}
 #rp-all-ranks-btn:hover{background:rgba(240,188,78,0.1);color:#f0bc4e;border-color:rgba(240,188,78,0.6)}
@@ -4194,6 +4215,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 
   <!-- RANK — horizontal compact -->
   <div id="rp-rank-hero">
+    <div id="rp-rank-bubble"></div>
     <svg id="rp-rank-svg" viewBox="0 0 72 90" fill="none" xmlns="http://www.w3.org/2000/svg"></svg>
     <div id="rp-rank-text">
       <div id="rp-rank-roman">Rank I</div>
@@ -9788,6 +9810,19 @@ function updateRightPanelRank(streak, rank, palR, clean, total, pct) {
   if (rpRoman) { rpRoman.textContent = 'Rank ' + rank.roman; rpRoman.style.color = rank.color + '70'; }
   if (rpName)  { rpName.textContent = rank.name; rpName.style.color = rank.color; rpName.style.textShadow = '0 0 20px '+rank.color+'50'; }
   if (rpQuote) { rpQuote.textContent = rank.quote; rpQuote.style.color = rank.color + '55'; }
+  // Speech bubble — show quote on load, fade out after 3.5s
+  var bubble = document.getElementById('rp-rank-bubble');
+  if (bubble && rank.quote) {
+    bubble.textContent = rank.quote;
+    bubble.style.borderColor = rank.color + '55';
+    bubble.style.color = rank.color;
+    clearTimeout(window._bubbleTimer);
+    setTimeout(function() { bubble.classList.add('show'); }, 400);
+    window._bubbleTimer = setTimeout(function() {
+      bubble.style.animation = 'bubbleFadeOut 0.6s ease forwards';
+      setTimeout(function() { bubble.classList.remove('show'); bubble.style.animation = ''; }, 600);
+    }, 4000);
+  }
 
   var rpStreak = document.getElementById('rp-streak-num');
   if (rpStreak) { rpStreak.textContent = streak || 0; rpStreak.style.color = rank.color; }
