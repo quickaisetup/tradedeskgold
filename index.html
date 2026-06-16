@@ -6493,7 +6493,7 @@ function toggleBias(tf, val, btn) {
   _saveTFStateLocal();
   // Don't auto-save during restore — only save from real user clicks
   // Debounced save via scheduleMorningAutosave (cancels previous timer)
-  if (!window._inRestore) { var _sc=parseFloat((document.getElementById('score-num')||{}).textContent)||0; if(window.scheduleMorningAutosave) scheduleMorningAutosave(_sc||0.001); }
+  if (!window._inRestore && window._saveTFButton) _saveTFButton();
 }
 
 function setTFBias(tf, val, btn) { toggleBias(tf, val, btn); }
@@ -6522,7 +6522,7 @@ function toggleTrend(tf, val, btn) {
   }
   updateVerdictAuto();
   _saveTFStateLocal();
-  if (!window._inRestore) { var _sc2=parseFloat((document.getElementById('score-num')||{}).textContent)||0; if(window.scheduleMorningAutosave) scheduleMorningAutosave(_sc2||0.001); }
+  if (!window._inRestore && window._saveTFButton) _saveTFButton();
 }
 
 var pivotState = null;
@@ -6668,6 +6668,7 @@ function setLondonBias(val, btn) {
   updateVerdictAuto();
   updateVerdictAuto();
   _saveTFStateLocal();
+  if (!window._inRestore && window._saveTFButton) _saveTFButton();
 }
 
 function updateVerdictAuto() {
@@ -6880,6 +6881,20 @@ window.scheduleNotesSave = function() {
   window._notesSaveTimer = setTimeout(function() {
     if (typeof saveMorningAnalysis === 'function') saveMorningAnalysis(true);
   }, 1500);
+};
+
+// Immediate save for button clicks (bias, trend, AO, MACD) — 100ms debounce so
+// rapid programmatic clicks from the wizard batch into one write, but a real user
+// click always hits Supabase within a fraction of a second.
+window._saveTFButton = function() {
+  if (window._inRestore) return;
+  if (typeof _tdActiveInstrument !== 'undefined' && _tdActiveInstrument !== 'Gold') return;
+  if (!localStorage.getItem('td_user_id')) return;
+  window._lastUserActivity = Date.now();
+  if (window._tfBtnSaveTimer) clearTimeout(window._tfBtnSaveTimer);
+  window._tfBtnSaveTimer = setTimeout(function() {
+    if (typeof saveMorningAnalysis === 'function') saveMorningAnalysis(true);
+  }, 100);
 };
 
 window.scheduleMorningAutosave = function(score) {
