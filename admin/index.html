@@ -919,16 +919,23 @@ function buildTraderStats(trader) {
   var monday = isoMonday();
   var monthStart = isoMonthStart();
 
-  // Build a date→usd map preferring daily_summaries.usd_pnl
+  // Build a date→usd map: raw trades take priority (same logic as main app sbFetchSessions).
+  // If trades exist for a date, use their sum. Otherwise fall back to daily_summaries.usd_pnl.
+  // Today always uses raw trades (summary may not exist yet).
   var dateUsd = {};
   mySums.forEach(function(s) {
-    if (s.usd_pnl != null && s.usd_pnl !== '') {
+    if (byDate[s.date] && byDate[s.date].totalTrades > 0) {
+      // Trades exist for this date — use their computed USD (matches main app behaviour)
+      dateUsd[s.date] = Math.round(byDate[s.date].totalUsd || 0);
+    } else if (s.usd_pnl != null && s.usd_pnl !== '') {
       dateUsd[s.date] = parseFloat(s.usd_pnl) || 0;
-    } else if (byDate[s.date]) {
-      dateUsd[s.date] = byDate[s.date].totalUsd || 0;
     }
   });
-  // Today: always from live trades (summary may not exist yet)
+  // Include trade-only dates (no daily_summary row yet)
+  Object.keys(byDate).forEach(function(d) {
+    if (dateUsd[d] == null) dateUsd[d] = Math.round(byDate[d].totalUsd || 0);
+  });
+  // Today: always raw trades
   var todayUsd = Math.round(myTrades.filter(function(t){ return t.date===today; }).reduce(function(s,t){ return s+tradeUsd(t); },0));
   dateUsd[today] = todayUsd;
 
