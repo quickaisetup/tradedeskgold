@@ -14091,7 +14091,7 @@ var _wtSteps = [
   { id:'trade-forms',       label:'Log Your Trade',          hint:'Fill in direction, strategy, entry, SL, TP & confluence',        section:true,  nextLabel:'Trade logged ›'                                },
   { id:'killswitch',        label:'Kill Switch',             hint:'Hit this when you are done trading for the day',                 section:true,  nextLabel:'Session closed ›', scrollToId:'killswitch', scrollOffset:-250 },
   { id:'reflection',        label:'End of Day Reflection',   hint:'Answer the 3 questions honestly — takes 2 minutes',             section:true,  nextLabel:'Reflection done ›'                             },
-  { id:'save-eod-btn',      label:'Save Your Day',           hint:'Save to earn XP and keep your clean day streak alive',          section:true,  nextLabel:'💾 Save Day →',      onNext:'saveDay'          },
+  { id:'rules-btn-group',   label:'Save Your Day',           hint:'Did you follow your rules today? Select one — then save to earn XP and keep your streak alive', section:true, nextLabel:'💾 Save Day →', onNext:'saveDay', scrollToId:'rules-btn-group', scrollOffset:-250 },
 ];
 var _wtStep = 0;
 var _wtSubStep = 0;
