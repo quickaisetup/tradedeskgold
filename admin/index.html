@@ -933,8 +933,15 @@ function buildTraderStats(trader) {
   dateUsd[today] = todayUsd;
 
   // Weekly: Mon → today using authoritative dateUsd map
-  var wUsd = Object.keys(dateUsd).filter(function(d){ return d>=monday && d<=today; }).reduce(function(s,d){ return s+(dateUsd[d]||0); },0);
+  var weekDates = Object.keys(dateUsd).filter(function(d){ return d>=monday && d<=today; });
+  var wUsd = weekDates.reduce(function(s,d){ return s+(dateUsd[d]||0); },0);
   wUsd = Math.round(wUsd);
+  if (trader.id === _admUser.id) {
+    console.log('[admin weekly diag] monday:', monday, 'today:', today);
+    console.log('[admin weekly diag] dateUsd breakdown:', JSON.stringify(dateUsd));
+    console.log('[admin weekly diag] weekDates:', weekDates, 'wUsd:', wUsd);
+    console.log('[admin weekly diag] todayUsd (raw trades):', todayUsd, 'numTradesToday:', myTrades.filter(function(t){return t.date===today;}).length);
+  }
 
   // Month: sum of all sessions this calendar month (using authoritative USD)
   var monthDates = Object.keys(dateUsd).filter(function(d){ return d>=monthStart && d<=today; });
