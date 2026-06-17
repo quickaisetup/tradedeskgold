@@ -6104,7 +6104,7 @@ function _saveTFStateLocal() {
   // (see _tdSaveAnalysisSnapshot) so they never overwrite Gold's saved data.
   if (typeof _tdActiveInstrument !== 'undefined' && _tdActiveInstrument !== 'Gold') return;
   try {
-    var today = new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
+    var today = _tdTodayBKK();
     // Market direction — find selected button
     var mdEl = document.querySelector('#market-direction .bb.sel-bull, #market-direction .bb.sel-bear, #market-direction .bb.sel-range');
     var mdOnclick = mdEl ? (mdEl.getAttribute('onclick')||'') : '';
@@ -6141,7 +6141,7 @@ function _saveTFStateLocal() {
 function _restoreTFStateLocal() {
   if (typeof _tdActiveInstrument !== 'undefined' && _tdActiveInstrument !== 'Gold') return false;
   try {
-    var today = new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
+    var today = _tdTodayBKK();
     var saved = localStorage.getItem('td_tfstate_' + today);
     if (!saved) return false;
     var data = JSON.parse(saved);
@@ -6267,7 +6267,18 @@ function _tdSaveAnalysisTickers(list) {
   try { localStorage.setItem(TD_ANALYSIS_TICKERS_KEY, JSON.stringify(list)); } catch(e) {}
 }
 function _tdTodayBKK() {
-  return new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
+  // Trading day rolls over 30 min after NY close (05:30 AM Bangkok = 22:30 UTC).
+  // Before 05:30 AM Bangkok we are still in the previous session.
+  var now = new Date();
+  var bkkStr = now.toLocaleString('sv-SE', {timeZone:'Asia/Bangkok'}); // "YYYY-MM-DD HH:MM:SS"
+  var timePart = (bkkStr.split(' ')[1] || '00:00:00').slice(0, 5); // "HH:MM"
+  var datePart = bkkStr.split(' ')[0]; // "YYYY-MM-DD"
+  if (timePart < '05:30') {
+    // Still previous trading session — return yesterday's date
+    var prev = new Date(now.getTime() - 86400000);
+    return prev.toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
+  }
+  return datePart;
 }
 
 // On a new Bangkok day: clear stale tf_state + watermarks so the slate is truly clean
