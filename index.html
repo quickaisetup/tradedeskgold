@@ -8075,6 +8075,8 @@ async function saveTrade(id) {
   } else {
     if (typeof renderAccountsPanel === 'function') renderAccountsPanel();
   }
+  // Refresh PAL cache so weekly/monthly totals include trades saved for past dates
+  setTimeout(function(){ if (typeof renderStreak === 'function') renderStreak(); }, 1200);
   // Collapse to summary card after short delay so user sees confirmation
   setTimeout(function() { if (typeof collapseTradeToCard === 'function') collapseTradeToCard(id); }, 600);
   // Only show "done" popup for genuinely new trades (not updates of existing records)
