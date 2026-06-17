@@ -10646,6 +10646,7 @@ function openLiveExec() {
   if (!overlay) return;
   overlay.classList.add('show');
   clearInterval(_leoNudgeInterval);
+  setTimeout(_leoShowNudge, 8000);
   _leoNudgeInterval = setInterval(_leoShowNudge, 15 * 60 * 1000);
 
   // Sync header from bias state
