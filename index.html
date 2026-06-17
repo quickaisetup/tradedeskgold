@@ -4613,6 +4613,11 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 <!-- LIVE EXECUTION OVERLAY -->
 <div id="live-exec-overlay">
 
+  <!-- TRADE LOG NUDGE BUBBLE -->
+  <div id="leo-nudge" style="display:none;position:absolute;bottom:28px;left:50%;transform:translateX(-50%);z-index:300;background:rgba(240,188,78,0.12);border:1px solid rgba(240,188,78,0.55);border-radius:12px;padding:10px 20px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);pointer-events:none;text-align:center;white-space:nowrap;box-shadow:0 0 24px rgba(240,188,78,0.2)">
+    <div style="font-family:var(--mono);font-size:11px;color:var(--gold);letter-spacing:0.08em;font-weight:700">📋 Took a trade? Log &amp; journal it ASAP</div>
+  </div>
+
   <!-- ONBOARDING TUTORIAL -->
   <div id="leo-onboard" style="display:none;position:absolute;inset:0;z-index:200;background:rgba(4,5,7,0.97);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);flex-direction:column;align-items:center;justify-content:center;padding:24px">
 
@@ -10640,6 +10645,8 @@ function openLiveExec() {
   var overlay = document.getElementById('live-exec-overlay');
   if (!overlay) return;
   overlay.classList.add('show');
+  clearInterval(_leoNudgeInterval);
+  _leoNudgeInterval = setInterval(_leoShowNudge, 15 * 60 * 1000);
 
   // Sync header from bias state
   var vtMain  = document.getElementById('vt-main');
@@ -10825,10 +10832,29 @@ window.leoQuickLogTrade = function() {
   }
 };
 
+var _leoNudgeInterval = null;
+var _leoNudgeTimeout  = null;
+function _leoShowNudge() {
+  var el = document.getElementById('leo-nudge');
+  if (!el) return;
+  el.style.display = 'block';
+  el.style.opacity = '0';
+  el.style.transition = 'opacity 0.4s';
+  setTimeout(function(){ el.style.opacity = '1'; }, 20);
+  clearTimeout(_leoNudgeTimeout);
+  _leoNudgeTimeout = setTimeout(function(){
+    el.style.opacity = '0';
+    setTimeout(function(){ el.style.display = 'none'; }, 400);
+  }, 5000);
+}
 function closeLiveExec() {
   var overlay = document.getElementById('live-exec-overlay');
   if (overlay) overlay.classList.remove('show');
   document.removeEventListener('keydown', _leoEscClose);
+  clearInterval(_leoNudgeInterval); _leoNudgeInterval = null;
+  clearTimeout(_leoNudgeTimeout);
+  var el = document.getElementById('leo-nudge');
+  if (el) { el.style.display = 'none'; el.style.opacity = '0'; }
 }
 function _leoEscClose(e) { if (e.key === 'Escape') closeLiveExec(); }
 
