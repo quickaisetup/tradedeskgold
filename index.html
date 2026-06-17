@@ -8453,84 +8453,104 @@ async function loadYesterdaySession() {
       if (trades.length) window._restoreTradesFromDB(trades);
     }
 
-    // Load morning analysis (bias, trend, pivot, etc.) — click the actual buttons
-    if (morning && morning.tf_state) {
+    // Load morning analysis — full restore (same path as today's restore)
+    if (morning) {
       try {
         window._inRestore = true;
-        var tf = JSON.parse(morning.tf_state || '{}');
-        Object.keys(tf).forEach(function(tfKey) {
-          var s = tf[tfKey];
-          if (!s) return;
-          (s.bias||[]).forEach(function(val) {
-            document.querySelectorAll('#bias-'+tfKey+' .bb').forEach(function(btn) {
-              var m = (btn.getAttribute('onclick')||'').match(/toggleBias\('[^']+',\s*'([^']+)'/);
-              if (m && m[1]===val) btn.click();
-            });
+        var tf = {};
+        try { tf = JSON.parse(morning.tf_state || '{}'); } catch(e) {}
+        var tfHasData = tf && Object.keys(tf).some(function(k){ return (tf[k].bias||[]).length || (tf[k].trend||[]).length; });
+
+        if (tfHasData) {
+          // Full restore from DB tf_state: bias, trend, AO, MACD
+          ['1M','1W','D','4H','1H'].forEach(function(tfKey) {
+            var s = tf[tfKey];
+            if (!s) return;
+            var biasArr = s.bias || [];
+            var biasEl = document.getElementById('bias-' + tfKey);
+            if (biasEl && biasArr.length) {
+              biasEl.querySelectorAll('.bb').forEach(function(btn) {
+                var m = (btn.getAttribute('onclick')||'').match(/toggleBias\('[^']+',\s*'([^']+)'/);
+                if (m && biasArr.indexOf(m[1]) > -1 && window.toggleBias) toggleBias(tfKey, m[1], btn);
+              });
+            }
+            var trendArr = s.trend || [];
+            var trendEl = document.getElementById('trend-' + tfKey);
+            if (trendEl && trendArr.length) {
+              trendEl.querySelectorAll('.bb').forEach(function(btn) {
+                var m = (btn.getAttribute('onclick')||'').match(/toggleTrend\('[^']+',\s*'([^']+)'/);
+                if (m && trendArr.indexOf(m[1]) > -1 && window.toggleTrend) toggleTrend(tfKey, m[1], btn);
+              });
+            }
+            if (s.ao || s.macd) {
+              var card = document.getElementById('tfc-' + tfKey);
+              if (card) card.querySelectorAll('.ind-row').forEach(function(row) {
+                var lbl = row.querySelector('.ind-lbl');
+                if (!lbl) return;
+                var stored = lbl.textContent.trim() === 'AO' ? s.ao : lbl.textContent.trim() === 'MACD' ? s.macd : null;
+                if (!stored) return;
+                var storedVals = stored.split('+').map(function(v){ return v.trim().toLowerCase(); });
+                row.querySelectorAll('.ib').forEach(function(btn) {
+                  if (storedVals.indexOf((btn.getAttribute('title')||'').toLowerCase()) > -1) {
+                    var dirM = (btn.getAttribute('onclick')||'').match(/setInd\(this,\s*'([^']+)'/);
+                    if (window.setInd) setInd(btn, dirM ? dirM[1] : '');
+                  }
+                });
+              });
+            }
           });
-          (s.trend||[]).forEach(function(val) {
-            document.querySelectorAll('#trend-'+tfKey+' .bb').forEach(function(btn) {
-              var m = (btn.getAttribute('onclick')||'').match(/toggleTrend\('[^']+',\s*'([^']+)'/);
-              if (m && m[1]===val) btn.click();
-            });
+        } else {
+          // Fallback: restore from yesterday's localStorage snapshot
+          var yLocal = {};
+          try { yLocal = JSON.parse(localStorage.getItem('td_tfstate_'+yISO)||'{}'); } catch(e) {}
+          if (yLocal.tf && window._restoreTFStateLocal) {
+            // Temporarily swap the key so _restoreTFStateLocal reads yesterday's data
+            var _origKey = localStorage.getItem('td_tfstate_' + _tdTodayBKK());
+            localStorage.setItem('td_tfstate_' + _tdTodayBKK(), JSON.stringify(yLocal));
+            window._restoreTFStateLocal();
+            if (_origKey) localStorage.setItem('td_tfstate_' + _tdTodayBKK(), _origKey);
+            else localStorage.removeItem('td_tfstate_' + _tdTodayBKK());
+          }
+        }
+
+        // Market direction
+        if (morning.market_dir) {
+          document.querySelectorAll('#market-direction .bb').forEach(function(btn) {
+            if (btn.textContent.trim() === morning.market_dir) btn.click();
           });
-        });
+        }
         // Pivot
         if (morning.pivot_state) {
           var pivMap = {'Above':'bull','Below':'bear','At':'neu'};
           var pv = pivMap[morning.pivot_state];
           if (pv) document.querySelectorAll('#pivot-btns .bb').forEach(function(btn) {
             var oc = btn.getAttribute('onclick')||'';
-            if (oc.indexOf("'"+pv+"'")>-1) btn.click();
-          });
-        }
-        // Market direction — try DB text match, then localStorage onclick match
-        if (morning.market_dir) {
-          document.querySelectorAll('#market-direction .bb').forEach(function(btn) {
-            if (btn.textContent.trim()===morning.market_dir) btn.click();
+            if (oc.indexOf("'"+pv+"'") > -1) btn.click();
           });
         }
         // London bias
         if (morning.london_bias) {
           document.querySelectorAll('[onclick^="setLondonBias"]').forEach(function(btn) {
             var m = (btn.getAttribute('onclick')||'').match(/setLondonBias\('([^']+)'/);
-            if (m && m[1]===morning.london_bias) btn.click();
+            if (m && m[1] === morning.london_bias) btn.click();
           });
         }
-        // Fallback: use yesterday's localStorage for market dir / london / trading mode
-        try {
-          var yLocal = JSON.parse(localStorage.getItem('td_tfstate_'+yISO)||'{}');
-          if (yLocal.marketDir) {
-            document.querySelectorAll('#market-direction .bb').forEach(function(btn) {
-              if (btn.getAttribute('onclick')===yLocal.marketDir) btn.click();
-            });
-          }
-          if (yLocal.londonBias) {
-            document.querySelectorAll('[onclick^="setLondonBias"]').forEach(function(btn) {
-              if (btn.getAttribute('onclick')===yLocal.londonBias) btn.click();
-            });
-          }
-          if (yLocal.tradingMode) {
-            document.querySelectorAll('#trading-mode-btns .tgl').forEach(function(btn) {
-              if (btn.textContent.trim()===yLocal.tradingMode) btn.click();
-            });
-          }
-          if (yLocal.pivot && yLocal.pivot !== 'null') {
-            var pivMap2 = {bull:'bull',bear:'bear',neu:'neu'};
-            document.querySelectorAll('#pivot-btns .bb').forEach(function(btn) {
-              var oc = btn.getAttribute('onclick')||'';
-              if (oc.indexOf("'"+yLocal.pivot+"'")>-1 && !btn.classList.contains('sel-bull') && !btn.classList.contains('sel-bear') && !btn.classList.contains('sel-range')) btn.click();
-            });
-          }
-        } catch(e) {}
-        // Notes
-        ['1M','1W','D','4H','1H'].forEach(function(tf) {
-          var v = morning['notes_'+tf];
-          var el = document.getElementById('tfn-'+tf)||document.getElementById('tfc-notes-'+tf);
+        // Trading mode
+        if (morning.trading_mode) {
+          document.querySelectorAll('#trading-mode-btns .tgl').forEach(function(btn) {
+            if (btn.textContent.trim() === morning.trading_mode) btn.click();
+          });
+        }
+        // TF notes
+        ['1M','1W','D','4H','1H'].forEach(function(tfKey) {
+          var v = (tf[tfKey] && tf[tfKey].notes) || morning['notes_'+tfKey];
+          var el = document.getElementById('tfn-'+tfKey) || document.getElementById('tfc-notes-'+tfKey);
           if (el && v) el.value = v;
         });
-        if (morning.news_notes) { var nn=document.getElementById('news-notes'); if(nn) nn.value=morning.news_notes; }
-        window._inRestore = false;
+        if (morning.news_notes) { var nn = document.getElementById('news-notes'); if (nn) nn.value = morning.news_notes; }
+
         setTimeout(function(){ window._inRestore = true; if(window.updateVerdictAuto) updateVerdictAuto(); window._inRestore = false; }, 200);
+        window._inRestore = false;
       } catch(e) { window._inRestore = false; console.warn('[loadYesterday] analysis error:', e.message); }
     }
 
