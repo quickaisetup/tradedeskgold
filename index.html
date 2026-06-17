@@ -7660,6 +7660,64 @@ function setTradeType(id, val, btn) {
     if (t) t.account = 'B'; // Alex trades always on B
   }
 }
+var _TD_DEFAULT_STRATEGIES = ['0.764 Fib','0.382 Fib','Full Fib','Momentum','1H Divergence','Bottoming tail','Topping tail'];
+function _tdGetStrategies() {
+  try { var s = JSON.parse(localStorage.getItem('td_strategies')); if (Array.isArray(s) && s.length) return s; } catch(e) {}
+  return _TD_DEFAULT_STRATEGIES.slice();
+}
+function _tdSaveStrategies(arr) {
+  localStorage.setItem('td_strategies', JSON.stringify(arr));
+}
+function buildStrategyButtons(id) {
+  var strats = _tdGetStrategies();
+  var btns = strats.map(function(s) {
+    var safe = s.replace(/'/g, "\\'");
+    return '<button class="tgl" onclick="setStrategy(' + id + ',\'' + safe + '\',this)">' + s + '</button>';
+  });
+  btns.push('<button class="tgl" onclick="setStrategy(' + id + ',\'other\',this)" id="strat-other-btn-' + id + '">Other</button>');
+  return btns.join('');
+}
+function _tdRefreshStrategyButtons() {
+  document.querySelectorAll('[id^="strat-wrap-"]').forEach(function(wrap) {
+    var id = parseInt(wrap.id.replace('strat-wrap-', ''));
+    var t = state.trades.find(function(t) { return t.id === id; });
+    var currentSetup = t ? t.setup : null;
+    wrap.innerHTML = buildStrategyButtons(id);
+    if (currentSetup) {
+      var btn = Array.from(wrap.querySelectorAll('.tgl')).find(function(b) { return b.textContent.trim() === currentSetup; });
+      if (btn) btn.classList.add('sel');
+    }
+  });
+}
+window._tdOpenStrategyEditor = function(id) {
+  var existing = document.getElementById('strat-editor-' + id);
+  if (existing) { existing.remove(); return; }
+  var strats = _tdGetStrategies();
+  var el = document.createElement('div');
+  el.id = 'strat-editor-' + id;
+  el.style.cssText = 'background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;margin-top:6px';
+  function render() {
+    var s2 = _tdGetStrategies();
+    el.innerHTML =
+      '<div style="font-family:var(--mono);font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3);margin-bottom:8px">Edit strategies</div>' +
+      '<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px">' +
+        s2.map(function(s, i) {
+          return '<span style="display:inline-flex;align-items:center;gap:4px;background:var(--bg4);border:1px solid var(--border2);border-radius:5px;padding:3px 8px;font-family:var(--mono);font-size:10px;color:var(--text2)">' +
+            s +
+            '<span onclick="(function(){var a=_tdGetStrategies();a.splice('+i+',1);_tdSaveStrategies(a);_tdRefreshStrategyButtons();window._tdOpenStrategyEditor('+id+');window._tdOpenStrategyEditor('+id+');})()" style="cursor:pointer;color:var(--text3);margin-left:2px;font-size:11px;line-height:1">×</span>' +
+          '</span>';
+        }).join('') +
+      '</div>' +
+      '<div style="display:flex;gap:6px">' +
+        '<input id="strat-new-'+id+'" type="text" placeholder="Add strategy..." style="flex:1;background:var(--bg4);border:1px solid var(--border2);border-radius:5px;color:var(--text);font-family:var(--mono);font-size:11px;padding:5px 8px">' +
+        '<button onclick="(function(){var v=document.getElementById(\'strat-new-'+id+'\').value.trim();if(!v)return;var a=_tdGetStrategies();a.push(v);_tdSaveStrategies(a);_tdRefreshStrategyButtons();window._tdOpenStrategyEditor('+id+');window._tdOpenStrategyEditor('+id+');})()" style="font-family:var(--mono);font-size:10px;padding:5px 10px;background:var(--bg4);border:1px solid var(--border2);border-radius:5px;color:var(--text2);cursor:pointer">Add</button>' +
+        '<button onclick="document.getElementById(\'strat-editor-'+id+'\').remove()" style="font-family:var(--mono);font-size:10px;padding:5px 10px;background:var(--bg4);border:1px solid rgba(78,214,138,0.4);border-radius:5px;color:var(--green);cursor:pointer">Done</button>' +
+      '</div>';
+  }
+  render();
+  var wrap = document.getElementById('strat-wrap-' + id);
+  if (wrap && wrap.parentNode) wrap.parentNode.insertBefore(el, wrap.nextSibling);
+};
 function setStrategy(id, val, btn) {
   const t = state.trades.find(function(t) { return t.id === id; });
   if (t) t.setup = val;
@@ -7805,16 +7863,12 @@ function buildTradeForm(id) {
     '<div class="form-field"><label>Direction</label><div class="toggle-group"><button class="tgl" onclick="setTV(' + id + ',\'direction\',\'Long\',this)">Long</button><button class="tgl" onclick="setTV(' + id + ',\'direction\',\'Short\',this)">Short</button></div></div>' +
     '<div class="form-field"><label>Risk %</label><div class="toggle-group"><button class="tgl" onclick="setTV(' + id + ',\'riskPct\',\'0.25\',this)">0.25%</button><button class="tgl" onclick="setTV(' + id + ',\'riskPct\',\'0.5\',this)">0.5%</button><button class="tgl" onclick="setTV(' + id + ',\'riskPct\',\'1.0\',this)">1.0%</button></div></div>' +
     '</div>' +
-    '<div class="form-field" style="margin-bottom:12px"><label>Strategy</label>' +
-    '<div class="toggle-group" style="margin-bottom:5px">' +
-    '<button class="tgl" onclick="setStrategy(' + id + ',\'0.764 Fib\',this)">0.764 Fib</button>' +
-    '<button class="tgl" onclick="setStrategy(' + id + ',\'0.382 Fib\',this)">0.382 Fib</button>' +
-    '<button class="tgl" onclick="setStrategy(' + id + ',\'Full Fib\',this)">Full Fib</button>' +
-    '<button class="tgl" onclick="setStrategy(' + id + ',\'Momentum\',this)">Momentum</button>' +
-    '<button class="tgl" onclick="setStrategy(' + id + ',\'1H Divergence\',this)">1H Div</button>' +
-    '<button class="tgl" onclick="setStrategy(' + id + ',\'Bottoming tail\',this)">Bot tail</button>' +
-    '<button class="tgl" onclick="setStrategy(' + id + ',\'Topping tail\',this)">Top tail</button>' +
-    '<button class="tgl" onclick="setStrategy(' + id + ',\'other\',this)" id="strat-other-btn-' + id + '">Other</button>' +
+    '<div class="form-field" style="margin-bottom:12px">' +
+    '<label style="display:flex;align-items:center;justify-content:space-between">Strategy ' +
+    '<span onclick="window._tdOpenStrategyEditor(' + id + ')" style="font-family:var(--mono);font-size:8px;letter-spacing:0.1em;color:var(--text3);cursor:pointer;border:1px solid var(--border2);border-radius:4px;padding:2px 7px">✎ Edit</span>' +
+    '</label>' +
+    '<div class="toggle-group" id="strat-wrap-' + id + '" style="margin-bottom:5px">' +
+    buildStrategyButtons(id) +
     '</div>' +
     '<input type="text" id="strat-other-' + id + '" placeholder="Describe strategy..." style="display:none;width:100%;background:var(--bg4);border:1px solid var(--border2);border-radius:5px;color:var(--text);font-family:var(--mono);font-size:11px;padding:6px 9px" onchange="setTF2(' + id + ',\'setup\',this.value)">' +
     '</div>' +
