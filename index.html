@@ -14342,6 +14342,27 @@ window._wtSubClick = function(btn, key, tf, val) {
   } else {
     localStorage.setItem('td_wt_progress_' + _tdTodayBKK(), JSON.stringify({step:_wtStep, sub:nextSub}));
   }
+  // Clear existing selection for this field so clicking always sets, never toggles off
+  if (key === 'bias') {
+    if (window.tfState && window.tfState[tf]) window.tfState[tf].bias = [];
+    document.querySelectorAll('#bias-' + tf + ' .bb').forEach(function(b){
+      b.classList.remove('sel','sel-bull','sel-bear','sel-range');
+      b.style.color = ''; b.style.borderColor = ''; b.style.background = '';
+    });
+  }
+  if (key === 'trend') {
+    if (window.tfState && window.tfState[tf]) window.tfState[tf].trend = [];
+    document.querySelectorAll('#trend-' + tf + ' .bb').forEach(function(b){
+      b.classList.remove('sel','sel-bull','sel-bear','sel-range');
+      b.style.color = ''; b.style.borderColor = ''; b.style.background = '';
+    });
+  }
+  if (key === 'ao') {
+    document.querySelectorAll('#tfc-' + tf + ' .ind-row:first-child .ib').forEach(function(b){ b.classList.remove('sel'); });
+  }
+  if (key === 'macd') {
+    document.querySelectorAll('#tfc-' + tf + ' .ind-row:last-child .ib').forEach(function(b){ b.classList.remove('sel'); });
+  }
   // Fire the corresponding card button
   var cardBtn = null;
   if (key === 'bias')  cardBtn = document.querySelector('#bias-'  + tf + ' .bb[onclick*="\'' + val + '\'"]');
