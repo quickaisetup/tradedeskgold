@@ -5734,6 +5734,16 @@ window._restoreTradesFromLocal = function() {
 
 window._restoreTradesFromDB = function(trades) {
   if (!trades || !trades.length) return;
+  // Don't wipe an in-progress trade the user is actively filling in
+  var hasActiveUnsaved = state.trades.some(function(t) {
+    if (t.saved || t._sbId) return false;
+    // Consider it "active" if any meaningful field has been touched
+    return !!(t.direction || t.setup || t.entry || t.result || t.rAchieved || t.notes || (t.confluence && t.confluence.length));
+  });
+  if (hasActiveUnsaved) {
+    console.log('[restore] Skipping trade restore — user has an unsaved trade in progress');
+    return;
+  }
   // Remove any unsaved placeholder trades before restoring
   state.trades.slice().forEach(function(t){ if (!t.saved && !t._sbId) removeTrade(t.id); });
   // Build set of already-loaded Supabase IDs to avoid duplicating existing trades
