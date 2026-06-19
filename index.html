@@ -10784,8 +10784,8 @@ function openLiveExec() {
   leoCalc();
   document.addEventListener('keydown', _leoEscClose);
 
-  // Pre-trade gate always comes first; onboarding shows after it (first time only)
-  ptgOpen();
+  // Show charts first, then pre-trade gate after a short delay so user can review charts
+  setTimeout(ptgOpen, 1200);
 }
 
 // ── ONBOARDING ────────────────────────────────────────────
