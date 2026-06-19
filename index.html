@@ -5883,7 +5883,7 @@ let tradeCount = 0;
 let levels = []; window.levels = levels;
 let levelCount = 0;
 let biasOverride = null;
-let tradingMode = '';
+let tradingMode = [];
 
 // ── DATE / SESSION ────────────────────────────────────
 function initDate() {
@@ -6141,7 +6141,7 @@ function _saveTFStateLocal() {
       tf: tfState,
       marketDir: mdOnclick,
       londonBias: lbOnclick,
-      tradingMode: tradingMode || '',
+      tradingMode: tradingMode.join(','),
       pivot: pivotState || '',
       inds: inds
     }));
@@ -6195,8 +6195,9 @@ function _restoreTFStateLocal() {
 
     // Trading mode
     if (data.tradingMode) {
+      var tmModes = data.tradingMode.split(',').map(function(s){ return s.trim(); }).filter(Boolean);
       document.querySelectorAll('#trading-mode-btns .tgl').forEach(function(btn) {
-        if (btn.textContent.trim() === data.tradingMode) btn.click();
+        if (tmModes.indexOf(btn.textContent.trim()) > -1) btn.click();
       });
     }
 
@@ -6363,7 +6364,7 @@ function _tdCaptureAnalysisSnapshot() {
   function getNotes(tf){ var el = document.getElementById('tfn-'+tf) || document.getElementById('tfc-notes-'+tf); return el ? el.value : ''; }
   var md = document.querySelector('#market-direction .bb.sel-bull, #market-direction .bb.sel-bear, #market-direction .bb.sel-range');
   var lb = document.querySelector('[onclick^="setLondonBias"].sel, [onclick^="setLondonBias"].sel-bull, [onclick^="setLondonBias"].sel-bear, [onclick^="setLondonBias"].sel-range');
-  var tm = document.querySelector('#trading-mode-btns .tgl.sel');
+  var tmSels = Array.from(document.querySelectorAll('#trading-mode-btns .tgl.sel'));
   var tfs = {};
   ['1M','1W','D','4H','1H'].forEach(function(tf){ tfs[tf] = { bias: getBias(tf), trend: getTrend(tf) }; });
   var notes = {};
@@ -6372,7 +6373,7 @@ function _tdCaptureAnalysisSnapshot() {
     tf: tfs, notes: notes,
     marketDir: md ? md.textContent.trim() : '',
     londonBias: lb ? lb.textContent.trim() : '',
-    tradingMode: tm ? tm.textContent.trim() : '',
+    tradingMode: tmSels.map(function(b){ return b.textContent.trim(); }).join(','),
     pivot: pivotState || ''
   };
 }
@@ -6418,7 +6419,7 @@ function _tdClearAnalysisDOM() {
     b.classList.remove('sel','sel-bull','sel-bear','sel-range');
   });
   document.querySelectorAll('#tfc-4H .ib, #tfc-1H .ib').forEach(function(b){ b.classList.remove('sel'); });
-  pivotState = null; londonBiasState = null; tradingMode = '';
+  pivotState = null; londonBiasState = null; tradingMode = [];
   if (typeof updateVerdictAuto === 'function') updateVerdictAuto();
 }
 
@@ -6435,7 +6436,7 @@ function _tdRestoreAnalysisSnapshot(instrument) {
   });
   if (snap.marketDir)  document.querySelectorAll('#market-direction .bb').forEach(function(b){ if (b.textContent.trim() === snap.marketDir) b.click(); });
   if (snap.londonBias) document.querySelectorAll('[onclick^="setLondonBias"]').forEach(function(b){ if (b.textContent.trim() === snap.londonBias) b.click(); });
-  if (snap.tradingMode)document.querySelectorAll('#trading-mode-btns .tgl').forEach(function(b){ if (b.textContent.trim() === snap.tradingMode) b.click(); });
+  if (snap.tradingMode) { var _smModes = snap.tradingMode.split(',').map(function(s){ return s.trim(); }).filter(Boolean); document.querySelectorAll('#trading-mode-btns .tgl').forEach(function(b){ if (_smModes.indexOf(b.textContent.trim()) > -1) b.click(); }); }
   if (snap.pivot) {
     var pivMap = { 'Above':'bull', 'Below':'bear', 'At':'neu' };
     var pv = pivMap[snap.pivot];
@@ -6961,11 +6962,12 @@ function clearBiasOverride() {
 }
 
 function setTradingMode(btn, val) {
-  tradingMode = val;
-  document.querySelectorAll('#trading-mode-btns .tgl').forEach(b => b.classList.remove('sel'));
-  btn.classList.add('sel');
+  var idx = tradingMode.indexOf(val);
+  if (idx > -1) { tradingMode.splice(idx, 1); btn.classList.remove('sel'); }
+  else { tradingMode.push(val); btn.classList.add('sel'); }
   const disp = document.getElementById('trading-mode-display');
-  if (disp) { disp.textContent = val; disp.style.color = 'var(--text)'; }
+  var label = tradingMode.join(' + ');
+  if (disp) { disp.textContent = label; disp.style.color = tradingMode.length ? 'var(--text)' : 'var(--text3)'; }
   updateStickyBiasBar();
   updateBottomHUD();
   _saveTFStateLocal();
@@ -7018,10 +7020,12 @@ function tmAddMode(val) {
   container.appendChild(b);
 }
 function tmRemoveMode(btn) {
-  if (tradingMode === (btn.childNodes[0] && btn.childNodes[0].textContent || btn.textContent.replace('×','').trim())) {
-    tradingMode = '';
+  var val = (btn.childNodes[0] && btn.childNodes[0].textContent || btn.textContent.replace('×','').trim());
+  var idx = tradingMode.indexOf(val);
+  if (idx > -1) {
+    tradingMode.splice(idx, 1);
     var disp = document.getElementById('trading-mode-display');
-    if (disp) { disp.textContent = ''; }
+    if (disp) { disp.textContent = tradingMode.join(' + '); }
   }
   btn.remove();
 }
@@ -8229,7 +8233,7 @@ async function saveAll(dateISOOverride) {
 
   // Trading mode
   var tradingModeEl = document.getElementById('trading-mode-display');
-  var tradingModeVal = tradingModeEl ? tradingModeEl.textContent : tradingMode;
+  var tradingModeVal = tradingModeEl ? tradingModeEl.textContent : tradingMode.join(',');
 
   // Pivot
   var pivotStr = pivotState === 'bull' ? 'Above' : pivotState === 'bear' ? 'Below' : pivotState === 'neu' ? 'At' : '';
@@ -8376,7 +8380,7 @@ async function saveMorningAnalysis(silent) {
     londonBias: londonBiasState || '',
     pivotRaw: pivotState || '',
     overall_bias: verdictEl ? verdictEl.textContent : '',
-    trading_mode: tradingMode || '',
+    trading_mode: tradingMode.join(','),
     score: score,
     bias_1M: getBias('1M').join ? getBias('1M').join('+') : getBias('1M'),
     bias_1W: getBias('1W').join ? getBias('1W').join('+') : getBias('1W'),
@@ -8547,8 +8551,9 @@ async function loadYesterdaySession() {
         }
         // Trading mode
         if (morning.trading_mode) {
+          var _dbModes = morning.trading_mode.split(',').map(function(s){ return s.trim(); }).filter(Boolean);
           document.querySelectorAll('#trading-mode-btns .tgl').forEach(function(btn) {
-            if (btn.textContent.trim() === morning.trading_mode) btn.click();
+            if (_dbModes.indexOf(btn.textContent.trim()) > -1) btn.click();
           });
         }
         // TF notes
@@ -9883,7 +9888,7 @@ function updateStickyBiasBar() {
     else { dirText='↔ Range'; dirBorder='var(--gb)'; dirTxtColor='var(--gold)'; }
   }
   el = document.getElementById('sbb-dir'); if (el) { el.textContent=dirText; el.style.borderColor=dirBorder; el.style.color=dirTxtColor; }
-  el = document.getElementById('sbb-mode'); if (el) el.textContent = tradingMode || '—';
+  el = document.getElementById('sbb-mode'); if (el) el.textContent = tradingMode.length ? tradingMode.join(' + ') : '—';
   el = document.getElementById('sbb-session');
   if (el) {
     var sess=getSession();
@@ -9964,8 +9969,8 @@ function updateRightPanel() {
   // ── Mode badge in gauge ──
   var gaugeMode = document.getElementById('rp-gauge-mode');
   if (gaugeMode) {
-    gaugeMode.textContent = tradingMode || '— no mode —';
-    if (tradingMode) {
+    gaugeMode.textContent = tradingMode.length ? tradingMode.join(' + ') : '— no mode —';
+    if (tradingMode.length) {
       gaugeMode.style.color = arcColor; gaugeMode.style.borderColor = arcColor + '60'; gaugeMode.style.background = arcColor + '12';
     } else {
       gaugeMode.style.color = 'rgba(255,255,255,0.3)'; gaugeMode.style.borderColor = 'rgba(255,255,255,0.1)'; gaugeMode.style.background = 'transparent';
@@ -10002,7 +10007,7 @@ function updateRightPanel() {
   if (rpDir) { rpDir.textContent = dirText; rpDir.style.color = dirColor; }
 
   var rpMode = document.getElementById('rp-mode');
-  if (rpMode) { rpMode.textContent = tradingMode || '— no mode —'; rpMode.style.color = tradingMode ? '#f0bc4e' : 'rgba(255,255,255,0.3)'; }
+  if (rpMode) { rpMode.textContent = tradingMode.length ? tradingMode.join(' + ') : '— no mode —'; rpMode.style.color = tradingMode.length ? '#f0bc4e' : 'rgba(255,255,255,0.3)'; }
 
   var sess = getSession();
   var sessColor = { London:'#6aa3f5', 'New York':'#f0bc4e', Asia:'#4ed68a', Closed:'rgba(255,255,255,0.3)' }[sess] || 'rgba(255,255,255,0.3)';
@@ -10759,7 +10764,7 @@ function openLiveExec() {
   var leoD = document.getElementById('leo-dir');
   if (leoB) { leoB.textContent = vtMain ? vtMain.textContent : '—'; leoB.style.color = vtMain ? vtMain.style.color : '#fff'; }
   if (leoS) { leoS.textContent = scoreEl ? scoreEl.textContent : '0'; leoS.style.color = vtMain ? vtMain.style.color : '#fff'; }
-  if (leoM) leoM.textContent = tradingMode || '— no mode —';
+  if (leoM) leoM.textContent = tradingMode.length ? tradingMode.join(' + ') : '— no mode —';
   var md = document.querySelector('#market-direction .bb.sel');
   if (leoD) leoD.textContent = md ? md.textContent.trim() : '—';
 
@@ -13927,7 +13932,7 @@ window.loadEdgePanel = async function(forceAI) {
     var mdText = mdEl ? mdEl.textContent.trim() : 'unset';
     var londonText = (typeof londonBiasState !== 'undefined' && londonBiasState) ? londonBiasState : 'unset';
     var pivotText  = (typeof pivotState !== 'undefined' && pivotState) ? pivotState : 'unset';
-    var modeText   = (typeof tradingMode !== 'undefined' && tradingMode) ? tradingMode : 'unset';
+    var modeText   = (typeof tradingMode !== 'undefined' && tradingMode.length) ? tradingMode.join(' + ') : 'unset';
     // Today's news events
     var newsCtx = 'none';
     try {
@@ -15093,16 +15098,16 @@ window.autoRestoreToday = async function(source) {
       }
 
       // Trading mode
-      var _tmVal = morning.trading_mode || '';
-      if (!_tmVal && _lsSnap.tradingMode) _tmVal = _lsSnap.tradingMode;
+      var _tmVal = morning.trading_mode || (_lsSnap.tradingMode || '');
       if (_tmVal) {
-        window.tradingMode = _tmVal;
+        var _tmModes = _tmVal.split(',').map(function(s){ return s.trim(); }).filter(Boolean);
+        window.tradingMode = _tmModes;
         document.querySelectorAll('#trading-mode-btns .tgl').forEach(function(btn) {
           btn.classList.remove('sel');
-          if (btn.textContent.trim() === _tmVal) btn.classList.add('sel');
+          if (_tmModes.indexOf(btn.textContent.trim()) > -1) btn.classList.add('sel');
         });
         var modeDisp = document.getElementById('trading-mode-display');
-        if (modeDisp) modeDisp.textContent = _tmVal;
+        if (modeDisp) modeDisp.textContent = _tmModes.join(' + ');
       }
 
       // News notes
