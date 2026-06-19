@@ -5885,7 +5885,16 @@ function initExplainers() {
 }
 document.addEventListener('DOMContentLoaded', initExplainers);
 document.addEventListener('DOMContentLoaded', function() {
-  try { renderAnalysisInstrumentTabs(); _tdUpdateGaugeInstrBadge(); } catch(e) {}
+  try {
+    renderAnalysisInstrumentTabs();
+    // Restore last active instrument tab
+    var savedInstr = localStorage.getItem('td_active_instrument');
+    if (savedInstr && savedInstr !== 'Gold') {
+      var instrBtn = _tdFindInstrTabBtn(savedInstr);
+      if (instrBtn) switchAnalysisInstrument(savedInstr, instrBtn);
+    }
+    _tdUpdateGaugeInstrBadge();
+  } catch(e) {}
 });
 document.addEventListener('DOMContentLoaded', function() {
   if (localStorage.getItem('td_is_admin') === '1') {
@@ -6494,6 +6503,7 @@ function switchAnalysisInstrument(name, btn) {
   if (name === _tdActiveInstrument) return;
   _tdSaveAnalysisSnapshot(_tdActiveInstrument);
   _tdActiveInstrument = name;
+  try { localStorage.setItem('td_active_instrument', name); } catch(e) {}
   document.querySelectorAll('#td-instr-tabs .tgl').forEach(function(b){ b.classList.remove('sel'); });
   var activeBtn = btn || _tdFindInstrTabBtn(name);
   if (activeBtn) activeBtn.classList.add('sel');
@@ -6501,6 +6511,15 @@ function switchAnalysisInstrument(name, btn) {
   _tdRestoreAnalysisSnapshot(name);
   if (typeof initTVChart === 'function') initTVChart(true);
   _tdUpdateGaugeInstrBadge();
+  // Sync level cards to the active instrument
+  var lvlSym = (name === 'Gold') ? 'XAUUSD' : name;
+  if (typeof _lvlInstrument !== 'undefined') {
+    _lvlInstrument = lvlSym;
+    var badge = document.getElementById('lvl-form-instr');
+    if (badge) badge.textContent = lvlSym;
+    if (typeof lvlRenderAll === 'function') lvlRenderAll();
+    if (typeof leoRenderKLBar === 'function') leoRenderKLBar();
+  }
 }
 
 function toggleBias(tf, val, btn) {
@@ -6587,6 +6606,7 @@ function setPivot(val, btn) {
   updateVerdictAuto();
   updateVerdictAuto();
   _saveTFStateLocal();
+  if (typeof saveMorningAnalysis === 'function') saveMorningAnalysis(true);
 }
 function toggleMarketDir(val, btn) {
   const btns = document.querySelectorAll('#market-direction .bb');
