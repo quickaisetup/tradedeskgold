@@ -6125,10 +6125,11 @@ const tfState = {};
 
 // Save full analysis state to localStorage keyed by today's date
 function _saveTFStateLocal() {
-  // Only Gold drives the day's main saved analysis (Supabase + this localStorage
-  // snapshot). Other instrument tabs use their own separate snapshot keys
-  // (see _tdSaveAnalysisSnapshot) so they never overwrite Gold's saved data.
-  if (typeof _tdActiveInstrument !== 'undefined' && _tdActiveInstrument !== 'Gold') return;
+  // Non-Gold instruments save their own snapshot instead of touching Gold's state.
+  if (typeof _tdActiveInstrument !== 'undefined' && _tdActiveInstrument !== 'Gold') {
+    _tdSaveAnalysisSnapshot(_tdActiveInstrument);
+    return;
+  }
   try {
     var today = _tdTodayBKK();
     // Market direction — find selected button
