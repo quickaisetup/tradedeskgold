@@ -9345,6 +9345,7 @@ function setStreakUI(streak, clean, total, pct, sortedRows, allRows) {
     {rank:'SUPER SAIYAN',pal:3},{rank:'ELITE',pal:5},{rank:'LEGENDARY',pal:8},{rank:'GOD MODE',pal:12}
   ];
   var palEntry = PAL_BY_RANK_REF.find(function(p){return p.rank===rank.name;}) || PAL_BY_RANK_REF[0];
+  window._liveStreakDays = streak; // cache for leaderboard patch
   updateStickyRank(streak, rank, palEntry.pal);
   updateRankWidget(streak, rank, palEntry.pal, clean, total, pct);
 
@@ -15387,7 +15388,8 @@ function lbCardHtml(row, rank, isMe) {
   var rank1Cls = rank === 1 ? ' rank1' : '';
   var score = row.streak_score || 0;
   var tier = lbTierFor(score);
-  var tierTag = '<span class="lb-tag" style="color:' + tier.color + ';background:' + tier.color + '1f;border-color:' + tier.color + '40">' + tier.name + '</span>';
+  var tierIsDegen = tier.name === 'Degen';
+  var tierTag = '<span class="lb-tag" style="color:' + tier.color + ';background:' + tier.color + (tierIsDegen ? '12' : '28') + ';border-color:' + tier.color + (tierIsDegen ? '30' : '70') + (tierIsDegen ? '' : ';box-shadow:0 0 6px ' + tier.color + '50;font-weight:700') + '">' + tier.name + '</span>';
   var meTag = isMe ? '<span class="lb-tag green">You</span>' : '';
   var yest = lbFmtUsd(row.yesterday_pnl);
   var week = lbFmtUsd(row.week_pnl);
@@ -15412,6 +15414,8 @@ function renderLeaderboard(rows) {
   var patchedRows = rows.map(function(r) {
     if (r.user_id !== _userId) return r;
     var live = Object.assign({}, r);
+    // Patch streak with live-calculated value so rank tag is accurate
+    if (typeof window._liveStreakDays === 'number') live.streak_score = window._liveStreakDays;
     var dbToday  = Number(r.yesterday_pnl) || 0;
     var dbWeek   = Number(r.week_pnl)      || 0;
 
