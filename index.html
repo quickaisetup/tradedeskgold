@@ -954,76 +954,95 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 /* ── RANK CARD (shareable) ──────────────────────────────── */
 #splash-rank-card{
   width:360px;
-  background:linear-gradient(160deg,rgba(18,20,26,0.98) 0%,rgba(8,10,14,0.98) 100%);
-  border:1px solid var(--splash-rank-clr,rgba(255,255,255,0.12));
-  border-radius:20px;
+  background:linear-gradient(175deg,rgba(16,18,24,0.99) 0%,rgba(6,8,12,0.99) 100%);
+  border:1px solid var(--splash-rank-clr,rgba(255,255,255,0.1));
+  border-radius:24px;
   display:flex;flex-direction:column;align-items:center;
   text-align:center;overflow:hidden;position:relative;
   box-shadow:0 0 0 1px rgba(255,255,255,0.03),
-             0 0 60px var(--splash-rank-glow,rgba(255,255,255,0.04)),
-             0 0 120px var(--splash-rank-glow,rgba(255,255,255,0.02)),
-             0 32px 80px rgba(0,0,0,0.8);
+             0 0 80px var(--splash-rank-glow,rgba(255,255,255,0.03)),
+             0 40px 100px rgba(0,0,0,0.9);
   transition:box-shadow 0.8s ease,border-color 0.8s ease}
-#splash-rank-card::before{content:'';position:absolute;top:0;left:0;right:0;height:180px;
-  background:radial-gradient(ellipse 80% 100% at 50% 0%, var(--splash-rank-glow,rgba(255,255,255,0.06)) 0%, transparent 100%);
-  pointer-events:none}
+/* inner top glow */
+#splash-rank-card::before{content:'';position:absolute;top:0;left:0;right:0;height:220px;
+  background:radial-gradient(ellipse 90% 100% at 50% -10%, var(--splash-rank-glow,rgba(255,255,255,0.05)) 0%, transparent 100%);
+  pointer-events:none;z-index:0}
 #splash-rank-card.hidden{display:none}
 #splash-rank-card.loaded{
   border-color:var(--splash-rank-clr);
   box-shadow:0 0 0 1px rgba(255,255,255,0.04),
-             0 0 60px var(--splash-rank-glow),
-             0 0 120px var(--splash-rank-glow),
-             0 32px 80px rgba(0,0,0,0.8)}
+             0 0 80px var(--splash-rank-glow),
+             0 40px 100px rgba(0,0,0,0.9)}
 
-/* top strip: date + share btn */
+/* top bar */
 #splash-card-topbar{display:flex;align-items:center;justify-content:space-between;
-  width:100%;padding:14px 18px 0;box-sizing:border-box}
-#splash-card-date{font-family:var(--mono);font-size:8.5px;letter-spacing:0.2em;
-  text-transform:uppercase;color:rgba(255,255,255,0.2)}
-#splash-share-btn{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);
-  border-radius:8px;padding:5px 10px;font-size:12px;cursor:pointer;
-  color:rgba(255,255,255,0.4);transition:all 0.15s;font-family:var(--mono);font-size:9px;
-  letter-spacing:0.1em;text-transform:uppercase}
-#splash-share-btn:hover{background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.7)}
+  width:100%;padding:14px 16px 0;box-sizing:border-box;position:relative;z-index:1}
+#splash-card-date{font-family:var(--mono);font-size:8px;letter-spacing:0.22em;
+  text-transform:uppercase;color:rgba(255,255,255,0.18)}
+#splash-share-btn{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);
+  border-radius:8px;padding:5px 12px;cursor:pointer;
+  color:rgba(255,255,255,0.35);transition:all 0.15s;font-family:var(--mono);font-size:8px;
+  letter-spacing:0.12em;text-transform:uppercase}
+#splash-share-btn:hover{background:rgba(255,255,255,0.09);color:rgba(255,255,255,0.75);border-color:rgba(255,255,255,0.2)}
 #splash-share-btn:active{transform:scale(0.95)}
 
-/* rank SVG area */
-#splash-rank-svg-wrap{margin:20px 0 6px;position:relative;display:flex;align-items:center;justify-content:center}
-#splash-rank-svg-wrap::before{content:'';position:absolute;width:140px;height:140px;border-radius:50%;
-  background:radial-gradient(circle,var(--splash-rank-glow,rgba(255,255,255,0.05)) 0%,transparent 70%);
-  transform:scale(1.4)}
+/* avatar */
+#splash-avatar-wrap{position:relative;z-index:1;margin:18px 0 0}
+#splash-avatar{width:80px;height:80px;border-radius:50%;overflow:hidden;
+  border:2px solid var(--splash-rank-clr,rgba(255,255,255,0.15));
+  box-shadow:0 0 0 4px rgba(0,0,0,0.4), 0 0 24px var(--splash-rank-glow,rgba(255,255,255,0.1));
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--display);font-size:28px;font-weight:700;color:#fff;
+  background:rgba(40,44,52,1);transition:border-color 0.6s,box-shadow 0.6s;
+  position:relative}
+#splash-avatar img{width:100%;height:100%;object-fit:cover;display:block}
+/* rank-change badge on avatar */
+#splash-rank-change-badge{position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);
+  white-space:nowrap;font-family:var(--display);font-size:9px;letter-spacing:0.12em;
+  padding:3px 10px;border-radius:100px;font-weight:700;display:none;
+  animation:rankBadgePop 0.5s cubic-bezier(0.34,1.56,0.64,1) both}
+#splash-rank-change-badge.up{background:#4ed68a;color:#062014;display:block}
+#splash-rank-change-badge.down{background:#f06060;color:#200606;display:block}
+@keyframes rankBadgePop{from{opacity:0;transform:translateX(-50%) scale(0.5)}to{opacity:1;transform:translateX(-50%) scale(1)}}
 
-/* identity */
-#splash-card-username{font-family:var(--mono);font-size:11px;letter-spacing:0.18em;
-  color:rgba(255,255,255,0.35);text-transform:uppercase;margin-bottom:12px}
+/* username */
+#splash-card-username{font-family:var(--mono);font-size:10px;letter-spacing:0.18em;
+  color:rgba(255,255,255,0.3);text-transform:uppercase;margin:16px 0 0;position:relative;z-index:1}
 
-/* streak hero */
-#splash-streak-hero{display:flex;flex-direction:column;align-items:center;margin-bottom:10px}
-#splash-streak-num{font-family:var(--display);font-size:88px;letter-spacing:-0.01em;line-height:0.85;font-weight:700}
-#splash-streak-label{font-family:var(--mono);font-size:9px;letter-spacing:0.28em;
-  text-transform:uppercase;color:rgba(255,255,255,0.28);margin-top:8px}
+/* RANK NAME — the big hero */
+#splash-rank-name-big{font-family:var(--display);font-size:52px;letter-spacing:0.06em;
+  font-weight:700;line-height:1;margin:12px 0 4px;position:relative;z-index:1;
+  text-shadow:0 0 60px var(--splash-rank-glow,transparent)}
 
-/* rank name chip */
-#splash-rank-name-chip{display:inline-flex;align-items:center;gap:6px;
-  padding:5px 16px;border-radius:100px;border:1px solid var(--splash-rank-clr,rgba(255,255,255,0.15));
-  font-family:var(--display);font-size:13px;letter-spacing:0.12em;font-weight:700;
-  background:var(--splash-rank-glow,rgba(255,255,255,0.04));
-  margin-bottom:8px;transition:all 0.6s ease}
+/* streak row under rank */
+#splash-streak-row{display:flex;align-items:baseline;gap:6px;margin-bottom:10px;position:relative;z-index:1}
+#splash-streak-num{font-family:var(--display);font-size:40px;letter-spacing:0.02em;font-weight:700;line-height:1}
+#splash-streak-label{font-family:var(--mono);font-size:9px;letter-spacing:0.22em;
+  text-transform:uppercase;color:rgba(255,255,255,0.3)}
 
 /* rank quote */
-#splash-rank-quote{font-family:var(--mono);font-size:9px;letter-spacing:0.06em;
-  color:rgba(255,255,255,0.3);line-height:1.6;padding:0 28px;margin-bottom:18px;
-  font-style:italic}
+#splash-rank-quote{font-family:var(--mono);font-size:9px;letter-spacing:0.05em;
+  color:rgba(255,255,255,0.28);line-height:1.65;padding:0 30px;margin-bottom:16px;
+  font-style:italic;position:relative;z-index:1}
 
-/* progress section */
-#splash-bar-section{width:100%;padding:0 20px;box-sizing:border-box;margin-bottom:16px}
-#splash-next-callout{font-family:var(--mono);font-size:9px;letter-spacing:0.1em;
-  color:rgba(255,255,255,0.35);margin-bottom:8px;display:flex;align-items:center;justify-content:center;gap:6px}
+/* rank-change banner (full-width, shows on up/down) */
+#splash-rank-event{display:none;width:100%;padding:10px 20px;box-sizing:border-box;
+  margin-bottom:2px;position:relative;z-index:1}
+#splash-rank-event.show{display:block}
+#splash-rank-event-inner{border-radius:10px;padding:10px 16px;display:flex;flex-direction:column;gap:3px}
+#splash-rank-event-inner.up{background:rgba(78,214,138,0.08);border:1px solid rgba(78,214,138,0.25)}
+#splash-rank-event-inner.down{background:rgba(240,96,96,0.08);border:1px solid rgba(240,96,96,0.2)}
+#splash-rank-event-title{font-family:var(--display);font-size:15px;letter-spacing:0.1em;font-weight:700}
+#splash-rank-event-sub{font-family:var(--mono);font-size:8px;letter-spacing:0.12em;color:rgba(255,255,255,0.4);text-transform:uppercase}
+
+/* progress bar */
+#splash-bar-section{width:100%;padding:0 20px;box-sizing:border-box;margin-bottom:14px;position:relative;z-index:1}
+#splash-next-callout{font-family:var(--mono);font-size:8.5px;letter-spacing:0.1em;
+  color:rgba(255,255,255,0.3);margin-bottom:8px;display:flex;align-items:center;justify-content:center;gap:5px}
 #splash-next-callout strong{font-weight:700}
 #splash-rank-bar-wrap{height:5px;background:rgba(255,255,255,0.06);border-radius:3px;
   overflow:visible;width:100%;position:relative}
-#splash-rank-bar{height:100%;border-radius:3px;position:relative;
-  transition:width 1.4s cubic-bezier(.22,1,.36,1)}
+#splash-rank-bar{height:100%;border-radius:3px;position:relative;transition:width 1.4s cubic-bezier(.22,1,.36,1)}
 #splash-rank-bar::after{content:'';position:absolute;right:-1px;top:50%;transform:translateY(-50%);
   width:9px;height:9px;border-radius:50%;background:inherit;
   box-shadow:0 0 10px 3px var(--splash-rank-glow,rgba(255,255,255,0.3))}
@@ -1033,21 +1052,21 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 
 /* stats row */
 .splash-pnl-row{display:grid;grid-template-columns:1fr 1px 1fr 1px 1fr;
-  width:100%;border-top:1px solid rgba(255,255,255,0.05);padding:14px 0 0}
-.splash-pnl-divider{width:1px;background:rgba(255,255,255,0.05);height:100%;align-self:stretch}
+  width:100%;border-top:1px solid rgba(255,255,255,0.05);padding:14px 0 0;position:relative;z-index:1}
+.splash-pnl-divider{width:1px;background:rgba(255,255,255,0.05)}
 .splash-pnl-cell{display:flex;flex-direction:column;align-items:center;gap:4px;padding:0 8px}
-.splash-pnl-val{font-family:var(--display);font-size:16px;letter-spacing:0.03em;line-height:1}
-.splash-pnl-lbl{font-family:var(--mono);font-size:7px;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.22)}
+.splash-pnl-val{font-family:var(--display);font-size:15px;letter-spacing:0.03em;line-height:1}
+.splash-pnl-lbl{font-family:var(--mono);font-size:7px;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.2)}
 
 /* branding strip */
-#splash-card-brand{width:100%;padding:12px 20px 16px;box-sizing:border-box;
+#splash-card-brand{width:100%;padding:11px 20px 15px;box-sizing:border-box;
   display:flex;align-items:center;justify-content:center;gap:8px;
-  border-top:1px solid rgba(255,255,255,0.04);margin-top:14px}
-#splash-card-brand-text{font-family:var(--display);font-size:10px;letter-spacing:0.28em;
-  text-transform:uppercase;color:var(--splash-rank-clr,rgba(255,255,255,0.15));
-  opacity:0.6;transition:color 0.8s ease}
-#splash-card-brand-dot{width:3px;height:3px;border-radius:50%;
+  border-top:1px solid rgba(255,255,255,0.04);margin-top:14px;position:relative;z-index:1}
+.splash-brand-dot{width:3px;height:3px;border-radius:50%;
   background:var(--splash-rank-clr,rgba(255,255,255,0.2));opacity:0.4}
+#splash-card-brand-text{font-family:var(--display);font-size:9.5px;letter-spacing:0.3em;
+  text-transform:uppercase;color:var(--splash-rank-clr,rgba(255,255,255,0.12));
+  opacity:0.55;transition:color 0.8s ease}
 
 #wt-chip{position:fixed;bottom:40px;left:50%;transform:translateX(-50%);z-index:9999;
   background:#0c0e13;border:1px solid rgba(240,188,78,0.45);border-radius:16px;
@@ -3055,16 +3074,18 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
         <div id="splash-card-date"></div>
         <button id="splash-share-btn" onclick="splashShare()">↑ Share</button>
       </div>
-      <div id="splash-rank-svg-wrap">
-        <svg id="splash-rank-svg" width="120" height="135" viewBox="0 0 72 90" fill="none"></svg>
+      <div id="splash-avatar-wrap">
+        <div id="splash-avatar"></div>
+        <div id="splash-rank-change-badge"></div>
       </div>
       <div id="splash-card-username"></div>
-      <div id="splash-streak-hero">
+      <div id="splash-rank-name-big">—</div>
+      <div id="splash-streak-row">
         <div id="splash-streak-num">—</div>
         <div id="splash-streak-label">Day Streak</div>
       </div>
-      <div id="splash-rank-name-chip">—</div>
       <div id="splash-rank-quote"></div>
+      <div id="splash-rank-event"><div id="splash-rank-event-inner"><div id="splash-rank-event-title"></div><div id="splash-rank-event-sub"></div></div></div>
       <div id="splash-bar-section">
         <div id="splash-next-callout"></div>
         <div id="splash-rank-bar-wrap"><div id="splash-rank-bar" style="width:0%"></div></div>
@@ -3075,24 +3096,24 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
       </div>
       <div class="splash-pnl-row">
         <div class="splash-pnl-cell">
-          <div id="splash-pnl-today" class="splash-pnl-val" style="color:rgba(255,255,255,0.25)">—</div>
+          <div id="splash-pnl-today" class="splash-pnl-val" style="color:rgba(255,255,255,0.2)">—</div>
           <div class="splash-pnl-lbl">Today P&amp;L</div>
         </div>
         <div class="splash-pnl-divider"></div>
         <div class="splash-pnl-cell">
-          <div id="splash-pnl-week" class="splash-pnl-val" style="color:rgba(255,255,255,0.25)">—</div>
+          <div id="splash-pnl-week" class="splash-pnl-val" style="color:rgba(255,255,255,0.2)">—</div>
           <div class="splash-pnl-lbl">This Week</div>
         </div>
         <div class="splash-pnl-divider"></div>
         <div class="splash-pnl-cell">
-          <div id="splash-win-rate" class="splash-pnl-val" style="color:rgba(255,255,255,0.25)">—</div>
+          <div id="splash-win-rate" class="splash-pnl-val" style="color:rgba(255,255,255,0.2)">—</div>
           <div class="splash-pnl-lbl">Win Rate</div>
         </div>
       </div>
       <div id="splash-card-brand">
-        <div id="splash-card-brand-dot"></div>
+        <div class="splash-brand-dot"></div>
         <div id="splash-card-brand-text">TRADEDESK GOLD</div>
-        <div id="splash-card-brand-dot"></div>
+        <div class="splash-brand-dot"></div>
       </div>
     </div>
     <button id="session-splash-btn" onclick="sessionSplashStart()">▶ Start Session</button>
@@ -14705,55 +14726,82 @@ function splashRankUpdate(streak, rank, todayPnl, weekPnl, winRate) {
   var card = document.getElementById('splash-rank-card');
   if (!card) return;
 
-  // Use full getRankDefs if available (has quotes), else fallback
   var rankDefs = typeof getRankDefs === 'function' ? getRankDefs() : null;
-  var tiers = typeof LB_TIERS !== 'undefined' ? LB_TIERS : [
-    {min:0,name:'Degen',color:'#707880'},{min:3,name:'Gambler',color:'#cd7f32'},
-    {min:7,name:'Ninja',color:'#c0c8d8'},{min:14,name:'S.Saiyan',color:'#f0bc4e'},
-    {min:21,name:'Elite',color:'#4ed68a'},{min:30,name:'Legend',color:'#a8d8f0'},
-    {min:60,name:'God Mode',color:'#00e5ff'}
-  ];
   var score = Number(streak) || 0;
   var curIdx = 0;
-  for (var i = 0; i < tiers.length; i++) { if (score >= tiers[i].min) curIdx = i; }
-  var cur = tiers[curIdx];
-  var next = tiers[curIdx + 1] || null;
-  var hex = cur.color;
+  if (rankDefs) {
+    for (var i = 0; i < rankDefs.length; i++) { if (score >= rankDefs[i].min && score <= rankDefs[i].max) { curIdx = i; break; } }
+  } else {
+    var fb = [{min:0},{min:3},{min:7},{min:14},{min:21},{min:30},{min:60}];
+    for (var i = 0; i < fb.length; i++) { if (score >= fb[i].min) curIdx = i; }
+  }
+  var fullRank  = rankDefs ? rankDefs[curIdx] : null;
+  var nextRank  = rankDefs ? rankDefs[curIdx + 1] : null;
+  var hex       = fullRank ? fullRank.color : '#cd7f32';
+  var rankName  = fullRank ? fullRank.name : 'GAMBLER';
 
-  // Full rank def for quote + SVG
-  var fullRank = rankDefs ? rankDefs[curIdx] : null;
-
-  // Drive background glow and card glow via CSS vars
+  // CSS vars — drive glow everywhere
   var splash = document.getElementById('session-splash');
-  if (splash) splash.style.setProperty('--splash-bg-glow', hex + '14');
-  card.style.setProperty('--splash-rank-clr', hex + '99');
-  card.style.setProperty('--splash-rank-glow', hex + '18');
+  if (splash) splash.style.setProperty('--splash-bg-glow', hex + '12');
+  card.style.setProperty('--splash-rank-clr', hex + '90');
+  card.style.setProperty('--splash-rank-glow', hex + '16');
 
   // Date
   var dateEl = document.getElementById('splash-card-date');
   if (dateEl) dateEl.textContent = new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',timeZone:'Asia/Bangkok'});
 
-  // Rank SVG
-  var svgEl = document.getElementById('splash-rank-svg');
-  if (svgEl && typeof getRankSVG === 'function' && fullRank) {
-    svgEl.innerHTML = getRankSVG(fullRank.rankIdx);
+  // Avatar: profile pic or initials
+  var avatarEl = document.getElementById('splash-avatar');
+  if (avatarEl) {
+    var avatarUrl = localStorage.getItem('td_avatar_url');
+    var uname = localStorage.getItem('td_username') || localStorage.getItem('td_firstname') || '';
+    if (avatarUrl) {
+      avatarEl.innerHTML = '<img src="' + avatarUrl + '" alt="" style="width:100%;height:100%;object-fit:cover;display:block">';
+    } else {
+      var initials = uname ? uname.slice(0,2).toUpperCase() : '?';
+      avatarEl.textContent = initials;
+    }
+    avatarEl.style.borderColor = hex + '99';
+    avatarEl.style.boxShadow = '0 0 0 4px rgba(0,0,0,0.5), 0 0 28px ' + hex + '30';
   }
+
+  // Rank-change detection
+  var lastIdx = parseInt(localStorage.getItem('td_last_rank_idx') || '-1', 10);
+  var badge   = document.getElementById('splash-rank-change-badge');
+  var eventEl = document.getElementById('splash-rank-event');
+  var evInner = document.getElementById('splash-rank-event-inner');
+  var evTitle = document.getElementById('splash-rank-event-title');
+  var evSub   = document.getElementById('splash-rank-event-sub');
+  if (lastIdx !== -1 && lastIdx !== curIdx && badge && eventEl) {
+    var isUp = curIdx > lastIdx;
+    if (badge) {
+      badge.textContent = isUp ? '▲ RANKED UP' : '▼ RANKED DOWN';
+      badge.className   = isUp ? 'up' : 'down';
+    }
+    if (evTitle) evTitle.textContent = isUp ? '▲ RANK UP — ' + rankName : '▼ RANK DOWN — ' + rankName;
+    if (evTitle) evTitle.style.color = isUp ? '#4ed68a' : '#f06060';
+    if (evSub)   evSub.textContent   = isUp ? 'You leveled up. Screenshot this.' : 'Rebuild the streak. You\'ve done it before.';
+    if (evInner) { evInner.className = isUp ? 'up' : 'down'; }
+    if (eventEl) eventEl.classList.add('show');
+  } else {
+    if (badge)   badge.className = '';
+    if (eventEl) eventEl.classList.remove('show');
+  }
+  // Save rank for next session comparison (only after data is real)
+  if (score > 0) localStorage.setItem('td_last_rank_idx', curIdx);
 
   // Username
   var uEl = document.getElementById('splash-card-username');
-  if (uEl) {
-    var uname = localStorage.getItem('td_username') || localStorage.getItem('td_firstname') || '';
-    uEl.textContent = uname ? '@' + uname : '';
-    uEl.style.display = uname ? 'block' : 'none';
-  }
+  var unameStr = localStorage.getItem('td_username') || localStorage.getItem('td_firstname') || '';
+  if (uEl) { uEl.textContent = unameStr ? '@' + unameStr : ''; uEl.style.display = unameStr ? 'block' : 'none'; }
 
-  // Streak hero
+  // Rank name BIG
+  var rnEl = document.getElementById('splash-rank-name-big');
+  if (rnEl) { rnEl.textContent = rankName; rnEl.style.color = hex; rnEl.style.textShadow = '0 0 80px ' + hex + '40'; }
+
+  // Streak
   var streakEl = document.getElementById('splash-streak-num');
-  if (streakEl) { streakEl.textContent = score; streakEl.style.color = hex; streakEl.style.textShadow = '0 0 40px ' + hex + '55'; }
-
-  // Rank chip
-  var chipEl = document.getElementById('splash-rank-name-chip');
-  if (chipEl) { chipEl.textContent = (fullRank ? fullRank.name : cur.name); chipEl.style.color = hex; }
+  if (streakEl) { streakEl.textContent = score; streakEl.style.color = hex; }
 
   // Quote
   var quoteEl = document.getElementById('splash-rank-quote');
@@ -14765,46 +14813,37 @@ function splashRankUpdate(streak, rank, todayPnl, weekPnl, winRate) {
   var toEl    = document.getElementById('splash-bar-to');
   var callout = document.getElementById('splash-next-callout');
   var targetPct;
-  if (next) {
-    var from = cur.min, to = next.min;
+  if (nextRank) {
+    var from = fullRank.min, to = nextRank.min;
     targetPct = Math.min(100, Math.round(((score - from) / (to - from)) * 100));
     var daysLeft = to - score;
-    if (barEl) barEl.style.background = 'linear-gradient(90deg,' + hex + 'cc,' + next.color + 'cc)';
+    if (barEl) barEl.style.background = 'linear-gradient(90deg,' + hex + 'bb,' + nextRank.color + 'bb)';
     if (fromEl) fromEl.textContent = from + 'd';
     if (toEl)   toEl.textContent   = to + 'd';
     if (callout) callout.innerHTML =
-      '<strong style="color:' + next.color + '">' + (rankDefs ? rankDefs[curIdx+1].name : next.name) + '</strong>' +
-      '<span style="color:rgba(255,255,255,0.3)"> · ' + daysLeft + ' day' + (daysLeft===1?'':'s') + ' away</span>';
+      '<strong style="color:' + nextRank.color + '">' + nextRank.name + '</strong>' +
+      '<span> · ' + daysLeft + ' day' + (daysLeft===1?'':'s') + ' away</span>';
   } else {
     targetPct = 100;
     if (barEl) barEl.style.background = hex;
-    if (fromEl) fromEl.textContent = cur.min + 'd';
+    if (fromEl) fromEl.textContent = (fullRank ? fullRank.min : 60) + 'd';
     if (toEl)   toEl.textContent   = '∞';
-    if (callout) callout.innerHTML = '<strong style="color:' + hex + '">Max Rank Achieved</strong>';
+    if (callout) callout.innerHTML  = '<strong style="color:' + hex + '">MAX RANK</strong>';
   }
   if (barEl) {
     barEl.style.transition = 'none'; barEl.style.width = '0%';
-    setTimeout(function(){ barEl.style.transition = 'width 1.4s cubic-bezier(.22,1,.36,1)'; barEl.style.width = targetPct + '%'; }, 150);
+    setTimeout(function(){ barEl.style.transition = 'width 1.4s cubic-bezier(.22,1,.36,1)'; barEl.style.width = targetPct + '%'; }, 160);
   }
 
   // P&L stats
-  var fmt = function(v) {
-    if (v === undefined || v === null) return null;
-    var n = Number(v) || 0;
-    return (n >= 0 ? '+' : '') + n.toLocaleString('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0});
-  };
-  var clr = function(v) { return (Number(v)||0) < 0 ? '#f06060' : '#4ed68a'; };
-  var tdEl = document.getElementById('splash-pnl-today');
-  var wkEl = document.getElementById('splash-pnl-week');
-  var wrEl = document.getElementById('splash-win-rate');
-  var fmtToday = fmt(todayPnl);
-  if (tdEl) { if (fmtToday !== null) { tdEl.textContent = fmtToday; tdEl.style.color = clr(todayPnl); tdEl.style.fontSize = ''; } else { tdEl.textContent = '—'; tdEl.style.color = 'rgba(255,255,255,0.18)'; } }
-  var fmtWeek = fmt(weekPnl);
-  if (wkEl) { if (fmtWeek !== null) { wkEl.textContent = fmtWeek; wkEl.style.color = clr(weekPnl); } else { wkEl.textContent = '—'; wkEl.style.color = 'rgba(255,255,255,0.18)'; } }
-  if (wrEl) {
-    if (winRate !== undefined && winRate !== null) { wrEl.textContent = Math.round(winRate)+'%'; wrEl.style.color = (Number(winRate)||0)>=50?'#4ed68a':'#f06060'; }
-    else { wrEl.textContent = '—'; wrEl.style.color = 'rgba(255,255,255,0.18)'; }
-  }
+  var fmt = function(v) { if (v==null) return null; var n=Number(v)||0; return (n>=0?'+':'')+n.toLocaleString('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}); };
+  var clr = function(v) { return (Number(v)||0)<0?'#f06060':'#4ed68a'; };
+  var tdEl=document.getElementById('splash-pnl-today'), wkEl=document.getElementById('splash-pnl-week'), wrEl=document.getElementById('splash-win-rate');
+  var ft=fmt(todayPnl);
+  if (tdEl) { if(ft!==null){tdEl.textContent=ft;tdEl.style.color=clr(todayPnl);}else{tdEl.textContent='—';tdEl.style.color='rgba(255,255,255,0.18)';} }
+  var fw=fmt(weekPnl);
+  if (wkEl) { if(fw!==null){wkEl.textContent=fw;wkEl.style.color=clr(weekPnl);}else{wkEl.textContent='—';wkEl.style.color='rgba(255,255,255,0.18)';} }
+  if (wrEl) { if(winRate!=null){wrEl.textContent=Math.round(winRate)+'%';wrEl.style.color=(Number(winRate)||0)>=50?'#4ed68a':'#f06060';}else{wrEl.textContent='—';wrEl.style.color='rgba(255,255,255,0.18)';} }
 
   card.classList.remove('hidden');
   setTimeout(function(){ card.classList.add('loaded'); }, 80);
