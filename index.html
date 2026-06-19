@@ -15742,10 +15742,14 @@ window.stripeUpgrade = async function() {
     var { data: { user } } = await sb.auth.getUser();
     if (!user) { alert('Please sign in first.'); return; }
 
+    var { data: { session: sbSession } } = await sb.auth.getSession();
     var res = await fetch('/api/create-checkout', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId: user.id, email: user.email })
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + (sbSession && sbSession.access_token)
+      },
+      body: JSON.stringify({})
     });
     var data = await res.json();
     if (data.url) {
