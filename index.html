@@ -948,6 +948,24 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
   font-size:10px;color:rgba(255,255,255,0.2);cursor:pointer;letter-spacing:0.1em;
   text-transform:uppercase;padding:4px 0;transition:color 0.15s}
 #session-splash-skip:hover{color:rgba(255,255,255,0.45)}
+#splash-rank-card{width:340px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);
+  border-radius:16px;padding:20px 24px;display:flex;flex-direction:column;gap:14px;text-align:left}
+#splash-rank-card.hidden{display:none}
+.splash-rank-row{display:flex;align-items:center;justify-content:space-between}
+.splash-rank-badge{font-family:var(--display);font-size:22px;letter-spacing:0.08em;font-weight:700}
+.splash-streak-num{font-family:var(--display);font-size:38px;letter-spacing:0.04em;color:#fff;line-height:1}
+.splash-streak-label{font-family:var(--mono);font-size:9px;letter-spacing:0.18em;text-transform:uppercase;
+  color:rgba(255,255,255,0.3);margin-top:2px}
+.splash-next-rank{font-family:var(--mono);font-size:9px;letter-spacing:0.12em;color:rgba(255,255,255,0.35)}
+.splash-next-rank strong{color:rgba(255,255,255,0.65);font-weight:600}
+#splash-rank-bar-wrap{height:5px;background:rgba(255,255,255,0.07);border-radius:3px;overflow:hidden;width:100%}
+#splash-rank-bar{height:100%;border-radius:3px;transition:width 1s cubic-bezier(.22,1,.36,1)}
+.splash-rank-milestones{display:flex;justify-content:space-between;font-family:var(--mono);
+  font-size:8px;letter-spacing:0.1em;color:rgba(255,255,255,0.2);margin-top:2px}
+.splash-pnl-row{display:flex;gap:20px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.06)}
+.splash-pnl-cell{display:flex;flex-direction:column;gap:3px}
+.splash-pnl-val{font-family:var(--display);font-size:16px;letter-spacing:0.04em}
+.splash-pnl-lbl{font-family:var(--mono);font-size:8px;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.3)}
 
 #wt-chip{position:fixed;bottom:40px;left:50%;transform:translateX(-50%);z-index:9999;
   background:#0c0e13;border:1px solid rgba(240,188,78,0.45);border-radius:16px;
@@ -2950,6 +2968,40 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
     <div id="session-splash-date"></div>
     <div id="session-splash-title">Ready to trade?</div>
     <div id="session-splash-sub">Follow the guide — morning routine to live execution.</div>
+    <div id="splash-rank-card" class="hidden">
+      <div class="splash-rank-row">
+        <div>
+          <div id="splash-rank-badge" class="splash-rank-badge">—</div>
+          <div class="splash-streak-label">Current Rank</div>
+        </div>
+        <div style="text-align:right">
+          <div id="splash-streak-num" class="splash-streak-num">—</div>
+          <div class="splash-streak-label">Day Streak</div>
+        </div>
+      </div>
+      <div>
+        <div id="splash-rank-bar-wrap"><div id="splash-rank-bar" style="width:0%"></div></div>
+        <div class="splash-rank-milestones">
+          <span id="splash-bar-from">0d</span>
+          <span id="splash-next-label" class="splash-next-rank"></span>
+          <span id="splash-bar-to">—d</span>
+        </div>
+      </div>
+      <div id="splash-pnl-row" class="splash-pnl-row" style="display:none">
+        <div class="splash-pnl-cell">
+          <div id="splash-pnl-today" class="splash-pnl-val">—</div>
+          <div class="splash-pnl-lbl">Today P&L</div>
+        </div>
+        <div class="splash-pnl-cell">
+          <div id="splash-pnl-week" class="splash-pnl-val">—</div>
+          <div class="splash-pnl-lbl">This Week</div>
+        </div>
+        <div class="splash-pnl-cell" style="margin-left:auto;text-align:right">
+          <div id="splash-win-rate" class="splash-pnl-val">—</div>
+          <div class="splash-pnl-lbl">Win Rate</div>
+        </div>
+      </div>
+    </div>
     <button id="session-splash-btn" onclick="sessionSplashStart()">▶ Start Session</button>
     <button id="session-splash-skip" onclick="sessionSplashDismiss()">Skip guide</button>
   </div>
@@ -5446,6 +5498,7 @@ function renderAccountsPanel() {
 
   // ── 2. WEEKLY / MONTHLY (USD primary, R secondary) ──────────
   var _todayUsd = todayPnl.hasTrades ? todayPnl.total : null;
+  window._liveTodayUsd = _todayUsd;
   // Best source: DB daily_summaries week total (exact USD) + today's live trades.
   // _myDbWeekPnl is set when the leaderboard RPC loads — it sums usd_pnl from
   // daily_summaries Mon-yesterday. Adding today's live P&L gives the full week.
@@ -7183,6 +7236,7 @@ function lvlRenderCard(lvl) {
     // ── Header ──
     '<div style="display:flex;align-items:center;gap:6px;margin-bottom:10px">' +
       '<span style="font-family:var(--display);font-size:12px;letter-spacing:0.1em;color:' + clr + '">' + (isLong ? '▲ LONG' : '▼ SHORT') + '</span>' +
+      '<span style="font-family:var(--mono);font-size:7px;letter-spacing:0.1em;padding:1px 7px;border-radius:3px;border:1px solid rgba(255,255,255,0.12);color:var(--text3);background:rgba(255,255,255,0.04)">' + (lvl.instrument || 'XAUUSD') + '</span>' +
       (lvl.confidence ? '<span style="font-family:var(--mono);font-size:7px;padding:1px 7px;border-radius:3px;border:1px solid ' + br + ';color:' + clr + '">' + (confLbls[lvl.confidence]||'') + '</span>' : '') +
       (rr ? '<span style="font-family:var(--mono);font-size:9px;font-weight:700;padding:2px 8px;border-radius:4px;border:1px solid ' + rrBdr + ';background:' + rrBg + ';color:' + rrClr + '">' + rr + '</span>' : '') +
       '<button onclick="removeLevel(' + lvl.id + ')" style="margin-left:auto;font-family:var(--mono);font-size:11px;font-weight:700;color:rgba(240,96,96,0.55);background:rgba(240,96,96,0.08);border:1px solid rgba(240,96,96,0.25);border-radius:6px;width:28px;height:28px;cursor:pointer;transition:all 0.15s;line-height:1;display:flex;align-items:center;justify-content:center" onmouseover="this.style.background=\'rgba(240,96,96,0.22)\';this.style.borderColor=\'rgba(240,96,96,0.6)\';this.style.color=\'#f06060\'" onmouseout="this.style.background=\'rgba(240,96,96,0.08)\';this.style.borderColor=\'rgba(240,96,96,0.25)\';this.style.color=\'rgba(240,96,96,0.55)\'">✕</button>' +
@@ -9369,6 +9423,11 @@ function setStreakUI(streak, clean, total, pct, sortedRows, allRows) {
   window._liveStreakDays = streak; // cache for leaderboard patch
   updateStickyRank(streak, rank, palEntry.pal);
   updateRankWidget(streak, rank, palEntry.pal, clean, total, pct);
+  // Update splash rank card if still visible
+  if (typeof splashRankUpdate === 'function') {
+    var _splashWk = window._myDbWeekPnl != null ? window._myDbWeekPnl : undefined;
+    splashRankUpdate(streak, rank, window._liveTodayUsd, _splashWk, pct);
+  }
 
   var num = document.getElementById('s-num');
   if (num) {
@@ -14548,6 +14607,63 @@ function sessionSplashDismiss() {
 }
 window.sessionSplashStart  = sessionSplashStart;
 window.sessionSplashDismiss = sessionSplashDismiss;
+
+function splashRankUpdate(streak, rank, todayPnl, weekPnl, winRate) {
+  var card = document.getElementById('splash-rank-card');
+  if (!card) return;
+  var tiers = typeof LB_TIERS !== 'undefined' ? LB_TIERS : [
+    {min:0,name:'Degen',color:'#707880'},{min:3,name:'Gambler',color:'#cd7f32'},
+    {min:7,name:'Ninja',color:'#c0c8d8'},{min:14,name:'S.Saiyan',color:'#f0bc4e'},
+    {min:21,name:'Elite',color:'#4ed68a'},{min:30,name:'Legend',color:'#a8d8f0'},
+    {min:60,name:'God Mode',color:'#00e5ff'}
+  ];
+  var score = Number(streak) || 0;
+  var curIdx = 0;
+  for (var i = 0; i < tiers.length; i++) { if (score >= tiers[i].min) curIdx = i; }
+  var cur = tiers[curIdx];
+  var next = tiers[curIdx + 1] || null;
+
+  var badgeEl = document.getElementById('splash-rank-badge');
+  var streakEl = document.getElementById('splash-streak-num');
+  var barEl = document.getElementById('splash-rank-bar');
+  var fromEl = document.getElementById('splash-bar-from');
+  var toEl = document.getElementById('splash-bar-to');
+  var nextLbl = document.getElementById('splash-next-label');
+
+  if (badgeEl) { badgeEl.textContent = cur.name; badgeEl.style.color = cur.color; }
+  if (streakEl) { streakEl.textContent = score; streakEl.style.color = cur.color; }
+
+  if (next) {
+    var from = cur.min, to = next.min;
+    var pct = Math.min(100, Math.round(((score - from) / (to - from)) * 100));
+    if (barEl) { barEl.style.width = pct + '%'; barEl.style.background = 'linear-gradient(90deg,' + cur.color + ',' + next.color + ')'; }
+    if (fromEl) fromEl.textContent = from + 'd';
+    if (toEl) toEl.textContent = to + 'd';
+    if (nextLbl) { var daysLeft = to - score; nextLbl.innerHTML = '<strong style="color:' + next.color + '">' + next.name + '</strong> in ' + daysLeft + ' day' + (daysLeft===1?'':'s'); }
+  } else {
+    if (barEl) { barEl.style.width = '100%'; barEl.style.background = cur.color; }
+    if (fromEl) fromEl.textContent = cur.min + 'd';
+    if (toEl) toEl.textContent = '∞';
+    if (nextLbl) nextLbl.innerHTML = '<strong style="color:' + cur.color + '">MAX RANK</strong>';
+  }
+
+  // P&L row
+  if (todayPnl !== undefined || weekPnl !== undefined) {
+    var pnlRow = document.getElementById('splash-pnl-row');
+    if (pnlRow) pnlRow.style.display = 'flex';
+    var fmt = function(v) { if (v===undefined||v===null) return '—'; var n=Number(v)||0; return (n>=0?'+':'')+n.toLocaleString('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}); };
+    var clr = function(v) { return (Number(v)||0)<0?'#f06060':'#4ed68a'; };
+    var td = document.getElementById('splash-pnl-today'); if (td) { td.textContent=fmt(todayPnl); td.style.color=clr(todayPnl); }
+    var wk = document.getElementById('splash-pnl-week'); if (wk) { wk.textContent=fmt(weekPnl); wk.style.color=clr(weekPnl); }
+    var wr = document.getElementById('splash-win-rate');
+    if (wr) { wr.textContent = winRate !== undefined ? Math.round(winRate)+'%' : '—'; wr.style.color = (Number(winRate)||0)>=50?'#4ed68a':'rgba(255,255,255,0.5)'; }
+  }
+
+  card.classList.remove('hidden');
+  // Animate bar in after render
+  if (barEl) { var w = barEl.style.width; barEl.style.width='0%'; setTimeout(function(){ barEl.style.width=w; }, 80); }
+}
+window.splashRankUpdate = splashRankUpdate;
 
 document.addEventListener('DOMContentLoaded', function() {
   if (localStorage.getItem('td_walkthrough_pending')) {
