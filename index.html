@@ -3156,6 +3156,22 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
       <div id="prof-err" style="display:none;font-family:var(--mono);font-size:10px;color:var(--red);background:var(--rd);border:1px solid var(--rb);border-radius:6px;padding:8px 12px;margin-bottom:12px"></div>
       <div id="prof-ok" style="display:none;font-family:var(--mono);font-size:10px;color:var(--green);background:var(--gnd);border:1px solid var(--gnb);border-radius:6px;padding:8px 12px;margin-bottom:12px"></div>
 
+      <!-- Section: Subscription -->
+      <div style="height:1px;background:var(--border);margin-bottom:20px"></div>
+      <div style="font-family:var(--mono);font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--text3);margin-bottom:12px">Subscription</div>
+      <div id="stripe-status-wrap" style="background:rgba(255,255,255,0.03);border:1px solid var(--border2);border-radius:10px;padding:16px;margin-bottom:4px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div>
+            <div style="font-family:var(--display);font-size:16px;letter-spacing:0.06em;color:var(--text)">TradeDesk Pro</div>
+            <div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:3px" id="stripe-status-label">Checking…</div>
+          </div>
+          <div id="stripe-status-badge" style="font-family:var(--mono);font-size:9px;letter-spacing:0.1em;padding:4px 10px;border-radius:20px;border:1px solid rgba(255,255,255,0.1);color:var(--text3)">—</div>
+        </div>
+        <button id="stripe-action-btn" onclick="stripeUpgrade()" style="width:100%;padding:11px;background:linear-gradient(135deg,rgba(240,188,78,0.18),rgba(240,188,78,0.08));border:1px solid rgba(240,188,78,0.5);border-radius:8px;color:var(--gold);font-family:var(--display);font-size:13px;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:all 0.2s" onmouseover="this.style.background='linear-gradient(135deg,rgba(240,188,78,0.3),rgba(240,188,78,0.15))';this.style.borderColor='rgba(240,188,78,0.9)'" onmouseout="this.style.background='linear-gradient(135deg,rgba(240,188,78,0.18),rgba(240,188,78,0.08))';this.style.borderColor='rgba(240,188,78,0.5)'">
+          Upgrade to Pro
+        </button>
+      </div>
+
     </div><!-- end scroll body -->
 
     <!-- Footer: save button -->
@@ -15664,6 +15680,9 @@ window.openProfileModal = async function() {
   var okEl  = document.getElementById('prof-ok');
   if (errEl) errEl.style.display = 'none';
   if (okEl)  okEl.style.display  = 'none';
+
+  // Load subscription status
+  stripeLoadStatus();
   var passEl  = document.getElementById('prof-newpass');
   var pass2El = document.getElementById('prof-newpass2');
   if (passEl)  passEl.value  = '';
@@ -15677,6 +15696,67 @@ window.closeProfileModal = function() {
   drawer.style.transform = 'translateX(100%)';
   document.body.style.overflow = '';
   setTimeout(function() { if (modal) modal.style.display = 'none'; }, 300);
+};
+
+// ── STRIPE ────────────────────────────────────────────
+async function stripeLoadStatus() {
+  var labelEl = document.getElementById('stripe-status-label');
+  var badgeEl = document.getElementById('stripe-status-badge');
+  var actionBtn = document.getElementById('stripe-action-btn');
+  if (!labelEl) return;
+
+  try {
+    var sb = getSB();
+    var { data: { user } } = await sb.auth.getUser();
+    if (!user) {
+      labelEl.textContent = 'Sign in to manage subscription';
+      if (badgeEl) { badgeEl.textContent = '—'; }
+      return;
+    }
+    var { data: profile } = await sb.from('profiles').select('subscription_status').eq('id', user.id).single();
+    var status = profile && profile.subscription_status;
+
+    if (status === 'active' || status === 'trialing') {
+      labelEl.textContent = 'Your subscription is active';
+      if (badgeEl) { badgeEl.textContent = 'ACTIVE'; badgeEl.style.color = 'var(--green)'; badgeEl.style.borderColor = 'rgba(78,214,138,0.4)'; badgeEl.style.background = 'rgba(78,214,138,0.08)'; }
+      if (actionBtn) { actionBtn.textContent = 'Manage Subscription'; actionBtn.style.background = 'rgba(255,255,255,0.04)'; actionBtn.style.borderColor = 'rgba(255,255,255,0.12)'; actionBtn.style.color = 'var(--text2)'; }
+    } else if (status === 'past_due') {
+      labelEl.textContent = 'Payment past due — please update your card';
+      if (badgeEl) { badgeEl.textContent = 'PAST DUE'; badgeEl.style.color = 'var(--red)'; badgeEl.style.borderColor = 'rgba(240,96,96,0.4)'; badgeEl.style.background = 'rgba(240,96,96,0.08)'; }
+      if (actionBtn) { actionBtn.textContent = 'Fix Payment'; actionBtn.style.color = 'var(--red)'; actionBtn.style.borderColor = 'rgba(240,96,96,0.5)'; actionBtn.style.background = 'rgba(240,96,96,0.1)'; }
+    } else {
+      labelEl.textContent = 'Get full access — all features included';
+      if (badgeEl) { badgeEl.textContent = 'FREE'; badgeEl.style.color = 'var(--text3)'; badgeEl.style.borderColor = 'rgba(255,255,255,0.1)'; badgeEl.style.background = 'transparent'; }
+      if (actionBtn) { actionBtn.textContent = 'Upgrade to Pro'; }
+    }
+  } catch(e) {
+    if (labelEl) labelEl.textContent = 'Could not load subscription status';
+  }
+}
+
+window.stripeUpgrade = async function() {
+  var btn = document.getElementById('stripe-action-btn');
+  if (btn) { btn.textContent = 'Loading…'; btn.disabled = true; }
+  try {
+    var sb = getSB();
+    var { data: { user } } = await sb.auth.getUser();
+    if (!user) { alert('Please sign in first.'); return; }
+
+    var res = await fetch('/api/create-checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId: user.id, email: user.email })
+    });
+    var data = await res.json();
+    if (data.url) {
+      window.location.href = data.url;
+    } else {
+      throw new Error(data.error || 'No checkout URL returned');
+    }
+  } catch(e) {
+    alert('Could not start checkout: ' + e.message);
+    if (btn) { btn.textContent = 'Upgrade to Pro'; btn.disabled = false; }
+  }
 };
 
 window.profUpdatePreview = function() {
@@ -16802,6 +16882,21 @@ document.addEventListener('DOMContentLoaded', function() {
   var rn = document.getElementById('rp-rank-name');
   if (rn) { var obs = new MutationObserver(mobProfileSync); obs.observe(rn, {childList:true,subtree:true,characterData:true}); }
 });
+
+// Handle Stripe redirect back to app
+(function() {
+  var params = new URLSearchParams(window.location.search);
+  if (params.get('subscribed') === '1') {
+    history.replaceState(null, '', window.location.pathname);
+    // Give webhook a moment, then open profile to show active status
+    setTimeout(function() {
+      if (typeof window.openProfileModal === 'function') window.openProfileModal();
+    }, 1500);
+  }
+  if (params.get('canceled') === '1') {
+    history.replaceState(null, '', window.location.pathname);
+  }
+})();
 </script>
 
 <!-- ═══════════════════════════════════════════════════
