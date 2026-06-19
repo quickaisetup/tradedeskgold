@@ -6498,7 +6498,7 @@ function switchAnalysisInstrument(name, btn) {
   if (activeBtn) activeBtn.classList.add('sel');
   _tdClearAnalysisDOM();
   _tdRestoreAnalysisSnapshot(name);
-  if (typeof initTVChart === 'function') initTVChart();
+  if (typeof initTVChart === 'function') initTVChart(true);
   _tdUpdateGaugeInstrBadge();
 }
 
@@ -12133,10 +12133,15 @@ function _tdChartTitleFor(name) {
 }
 
 var _tvChartCreated = false;
-function initTVChart() {
-  // Guard: create the TradingView widget only once per page load.
-  // Recreating it on every TF switch leaves orphaned iframes in memory → OOM.
-  if (_tvChartCreated) return;
+var _tvChartInstrument = null;
+function initTVChart(forceInstrument) {
+  // Guard: create the TradingView widget only once per page load UNLESS the
+  // instrument has changed (tab switch) — in that case force a full rebuild.
+  var currentInstr = typeof _tdActiveInstrument !== 'undefined' ? _tdActiveInstrument : 'Gold';
+  if (_tvChartCreated && !forceInstrument && _tvChartInstrument === currentInstr) return;
+  if (_tvChartCreated && _tvChartInstrument === currentInstr && !forceInstrument) return;
+  _tvChartCreated = true;
+  _tvChartInstrument = currentInstr;
   _tvChartCreated = true;
   var wrap = document.getElementById('tv-chart-wrap');
   if (!wrap) return;
