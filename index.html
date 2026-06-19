@@ -15587,21 +15587,7 @@ async function tdlOnAuth(user) {
       }
       if (typeof subscribeTradeAlerts === 'function') subscribeTradeAlerts();
 
-      // Periodic analysis sync — re-fetches from Supabase every 90s so mobile
-      // automatically picks up analysis done on desktop without a manual refresh.
-      if (!window._analysisSyncTimer) {
-        window._analysisSyncTimer = setInterval(function() {
-          if (window.autoRestoreToday && document.visibilityState !== 'hidden') {
-            autoRestoreToday('timer');
-          }
-        }, 90000);
-        // Also re-sync immediately when the tab/app becomes visible (e.g. switching from desktop → mobile)
-        document.addEventListener('visibilitychange', function() {
-          if (document.visibilityState === 'visible' && window.autoRestoreToday) {
-            setTimeout(function(){ autoRestoreToday('visibilitychange'); }, 300);
-          }
-        });
-      }
+      // Analysis sync runs on page load only — no polling interval.
 
       console.log('[td] App re-init done');
     } catch(e) { console.warn('[td] Re-init error:', e.message); }
