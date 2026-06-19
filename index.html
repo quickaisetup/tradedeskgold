@@ -948,24 +948,38 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
   font-size:10px;color:rgba(255,255,255,0.2);cursor:pointer;letter-spacing:0.1em;
   text-transform:uppercase;padding:4px 0;transition:color 0.15s}
 #session-splash-skip:hover{color:rgba(255,255,255,0.45)}
-#splash-rank-card{width:340px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);
-  border-radius:16px;padding:20px 24px;display:flex;flex-direction:column;gap:14px;text-align:left}
+#splash-rank-card{width:360px;background:rgba(10,12,16,0.9);border:1px solid var(--splash-rank-clr,rgba(255,255,255,0.1));
+  border-radius:18px;padding:22px 24px 18px;display:flex;flex-direction:column;gap:0;text-align:left;
+  box-shadow:0 0 0 1px rgba(255,255,255,0.03), 0 0 40px var(--splash-rank-glow,rgba(255,255,255,0.03)), 0 20px 60px rgba(0,0,0,0.7);
+  transition:box-shadow 0.6s ease,border-color 0.6s ease}
 #splash-rank-card.hidden{display:none}
-.splash-rank-row{display:flex;align-items:center;justify-content:space-between}
-.splash-rank-badge{font-family:var(--display);font-size:22px;letter-spacing:0.08em;font-weight:700}
-.splash-streak-num{font-family:var(--display);font-size:38px;letter-spacing:0.04em;color:#fff;line-height:1}
-.splash-streak-label{font-family:var(--mono);font-size:9px;letter-spacing:0.18em;text-transform:uppercase;
-  color:rgba(255,255,255,0.3);margin-top:2px}
-.splash-next-rank{font-family:var(--mono);font-size:9px;letter-spacing:0.12em;color:rgba(255,255,255,0.35)}
-.splash-next-rank strong{color:rgba(255,255,255,0.65);font-weight:600}
-#splash-rank-bar-wrap{height:5px;background:rgba(255,255,255,0.07);border-radius:3px;overflow:hidden;width:100%}
-#splash-rank-bar{height:100%;border-radius:3px;transition:width 1s cubic-bezier(.22,1,.36,1)}
+#splash-rank-card.loaded{border-color:var(--splash-rank-clr);box-shadow:0 0 0 1px rgba(255,255,255,0.03), 0 0 40px var(--splash-rank-glow), 0 20px 60px rgba(0,0,0,0.7)}
+.splash-hero{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px}
+.splash-rank-badge{font-family:var(--display);font-size:28px;letter-spacing:0.08em;font-weight:700;line-height:1}
+.splash-rank-subbadge{font-family:var(--mono);font-size:8px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.28);margin-top:5px}
+.splash-streak-block{text-align:right}
+.splash-streak-num{font-family:var(--display);font-size:52px;letter-spacing:0.02em;line-height:0.9;font-weight:700}
+.splash-streak-label{font-family:var(--mono);font-size:8px;letter-spacing:0.2em;text-transform:uppercase;
+  color:rgba(255,255,255,0.28);margin-top:6px;text-align:right}
+#splash-motivation{font-family:var(--mono);font-size:10px;letter-spacing:0.06em;color:rgba(255,255,255,0.38);
+  line-height:1.55;margin-bottom:16px;min-height:16px}
+.splash-bar-section{margin-bottom:10px}
+#splash-next-callout{font-family:var(--display);font-size:13px;letter-spacing:0.06em;margin-bottom:8px}
+#splash-next-callout span{font-family:var(--mono);font-size:9px;letter-spacing:0.12em;color:rgba(255,255,255,0.4);margin-left:6px;font-weight:400}
+#splash-rank-bar-wrap{height:6px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:visible;width:100%;position:relative}
+#splash-rank-bar{height:100%;border-radius:4px;transition:width 1.2s cubic-bezier(.22,1,.36,1);position:relative}
+#splash-rank-bar::after{content:'';position:absolute;right:0;top:50%;transform:translateY(-50%);
+  width:10px;height:10px;border-radius:50%;background:inherit;
+  box-shadow:0 0 8px 3px var(--splash-rank-glow,rgba(255,255,255,0.3));transition:opacity 0.6s}
 .splash-rank-milestones{display:flex;justify-content:space-between;font-family:var(--mono);
-  font-size:8px;letter-spacing:0.1em;color:rgba(255,255,255,0.2);margin-top:2px}
-.splash-pnl-row{display:flex;gap:20px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.06)}
-.splash-pnl-cell{display:flex;flex-direction:column;gap:3px}
-.splash-pnl-val{font-family:var(--display);font-size:16px;letter-spacing:0.04em}
-.splash-pnl-lbl{font-family:var(--mono);font-size:8px;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.3)}
+  font-size:8px;letter-spacing:0.1em;color:rgba(255,255,255,0.18);margin-top:5px}
+.splash-pnl-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;padding-top:14px;
+  border-top:1px solid rgba(255,255,255,0.05);margin-top:4px}
+.splash-pnl-cell{display:flex;flex-direction:column;gap:4px;padding:0 4px}
+.splash-pnl-cell:nth-child(2){border-left:1px solid rgba(255,255,255,0.05);padding-left:16px}
+.splash-pnl-cell:nth-child(3){border-left:1px solid rgba(255,255,255,0.05);padding-left:16px;text-align:right;align-items:flex-end}
+.splash-pnl-val{font-family:var(--display);font-size:17px;letter-spacing:0.03em;line-height:1}
+.splash-pnl-lbl{font-family:var(--mono);font-size:7.5px;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.25)}
 
 #wt-chip{position:fixed;bottom:40px;left:50%;transform:translateX(-50%);z-index:9999;
   background:#0c0e13;border:1px solid rgba(240,188,78,0.45);border-radius:16px;
@@ -2969,35 +2983,36 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
     <div id="session-splash-title">Ready to trade?</div>
     <div id="session-splash-sub">Follow the guide — morning routine to live execution.</div>
     <div id="splash-rank-card" class="hidden">
-      <div class="splash-rank-row">
+      <div class="splash-hero">
         <div>
           <div id="splash-rank-badge" class="splash-rank-badge">—</div>
-          <div class="splash-streak-label">Current Rank</div>
+          <div class="splash-rank-subbadge">Current Rank</div>
         </div>
-        <div style="text-align:right">
+        <div class="splash-streak-block">
           <div id="splash-streak-num" class="splash-streak-num">—</div>
           <div class="splash-streak-label">Day Streak</div>
         </div>
       </div>
-      <div>
+      <div id="splash-motivation"></div>
+      <div class="splash-bar-section">
+        <div id="splash-next-callout"></div>
         <div id="splash-rank-bar-wrap"><div id="splash-rank-bar" style="width:0%"></div></div>
         <div class="splash-rank-milestones">
           <span id="splash-bar-from">0d</span>
-          <span id="splash-next-label" class="splash-next-rank"></span>
           <span id="splash-bar-to">—d</span>
         </div>
       </div>
-      <div id="splash-pnl-row" class="splash-pnl-row" style="display:none">
+      <div class="splash-pnl-row">
         <div class="splash-pnl-cell">
-          <div id="splash-pnl-today" class="splash-pnl-val">—</div>
-          <div class="splash-pnl-lbl">Today P&L</div>
+          <div id="splash-pnl-today" class="splash-pnl-val" style="color:rgba(255,255,255,0.25)">—</div>
+          <div class="splash-pnl-lbl">Today P&amp;L</div>
         </div>
         <div class="splash-pnl-cell">
-          <div id="splash-pnl-week" class="splash-pnl-val">—</div>
+          <div id="splash-pnl-week" class="splash-pnl-val" style="color:rgba(255,255,255,0.25)">—</div>
           <div class="splash-pnl-lbl">This Week</div>
         </div>
-        <div class="splash-pnl-cell" style="margin-left:auto;text-align:right">
-          <div id="splash-win-rate" class="splash-pnl-val">—</div>
+        <div class="splash-pnl-cell">
+          <div id="splash-win-rate" class="splash-pnl-val" style="color:rgba(255,255,255,0.25)">—</div>
           <div class="splash-pnl-lbl">Win Rate</div>
         </div>
       </div>
@@ -14623,45 +14638,94 @@ function splashRankUpdate(streak, rank, todayPnl, weekPnl, winRate) {
   var cur = tiers[curIdx];
   var next = tiers[curIdx + 1] || null;
 
-  var badgeEl = document.getElementById('splash-rank-badge');
+  // CSS custom props drive the glow color everywhere
+  var hex = cur.color;
+  card.style.setProperty('--splash-rank-clr', hex + 'aa');
+  card.style.setProperty('--splash-rank-glow', hex + '22');
+
+  var badgeEl  = document.getElementById('splash-rank-badge');
   var streakEl = document.getElementById('splash-streak-num');
-  var barEl = document.getElementById('splash-rank-bar');
-  var fromEl = document.getElementById('splash-bar-from');
-  var toEl = document.getElementById('splash-bar-to');
-  var nextLbl = document.getElementById('splash-next-label');
+  var barEl    = document.getElementById('splash-rank-bar');
+  var fromEl   = document.getElementById('splash-bar-from');
+  var toEl     = document.getElementById('splash-bar-to');
+  var callout  = document.getElementById('splash-next-callout');
+  var motiv    = document.getElementById('splash-motivation');
 
-  if (badgeEl) { badgeEl.textContent = cur.name; badgeEl.style.color = cur.color; }
-  if (streakEl) { streakEl.textContent = score; streakEl.style.color = cur.color; }
+  if (badgeEl)  { badgeEl.textContent = cur.name; badgeEl.style.color = hex; }
+  if (streakEl) { streakEl.textContent = score; streakEl.style.color = hex; }
 
+  // Progress bar
+  var targetPct;
   if (next) {
     var from = cur.min, to = next.min;
-    var pct = Math.min(100, Math.round(((score - from) / (to - from)) * 100));
-    if (barEl) { barEl.style.width = pct + '%'; barEl.style.background = 'linear-gradient(90deg,' + cur.color + ',' + next.color + ')'; }
+    targetPct = Math.min(100, Math.round(((score - from) / (to - from)) * 100));
+    var daysLeft = to - score;
+    if (barEl) { barEl.style.background = 'linear-gradient(90deg,' + hex + ',' + next.color + ')'; }
     if (fromEl) fromEl.textContent = from + 'd';
-    if (toEl) toEl.textContent = to + 'd';
-    if (nextLbl) { var daysLeft = to - score; nextLbl.innerHTML = '<strong style="color:' + next.color + '">' + next.name + '</strong> in ' + daysLeft + ' day' + (daysLeft===1?'':'s'); }
+    if (toEl)   toEl.textContent   = to + 'd';
+    if (callout) callout.innerHTML =
+      '<span style="color:' + next.color + '">' + next.name + '</span>' +
+      '<span>' + daysLeft + ' day' + (daysLeft===1?'':' s') + ' away</span>';
   } else {
-    if (barEl) { barEl.style.width = '100%'; barEl.style.background = cur.color; }
+    targetPct = 100;
+    if (barEl) barEl.style.background = hex;
     if (fromEl) fromEl.textContent = cur.min + 'd';
-    if (toEl) toEl.textContent = '∞';
-    if (nextLbl) nextLbl.innerHTML = '<strong style="color:' + cur.color + '">MAX RANK</strong>';
+    if (toEl)   toEl.textContent   = '∞';
+    if (callout) callout.innerHTML = '<span style="color:' + hex + '">Max Rank Achieved</span>';
+  }
+
+  // Motivational one-liner
+  var msgs = {
+    'Degen':    'Everyone starts somewhere. Log 3 sessions to rank up.',
+    'Gambler':  'Good start. One more week and you\'re a Ninja.',
+    'Ninja':    'Consistency is your edge. Keep the streak alive.',
+    'S.Saiyan': 'Three weeks strong. Most traders quit before here.',
+    'Elite':    'Top tier. You\'re building a real process.',
+    'Legend':   'Two months clean. This is what discipline looks like.',
+    'God Mode': 'Untouchable. The streak speaks for itself.'
+  };
+  if (motiv) motiv.textContent = msgs[cur.name] || '';
+
+  // Animate bar in
+  if (barEl) {
+    barEl.style.transition = 'none';
+    barEl.style.width = '0%';
+    setTimeout(function() {
+      barEl.style.transition = 'width 1.2s cubic-bezier(.22,1,.36,1)';
+      barEl.style.width = targetPct + '%';
+    }, 120);
   }
 
   // P&L row
-  if (todayPnl !== undefined || weekPnl !== undefined) {
-    var pnlRow = document.getElementById('splash-pnl-row');
-    if (pnlRow) pnlRow.style.display = 'flex';
-    var fmt = function(v) { if (v===undefined||v===null) return '—'; var n=Number(v)||0; return (n>=0?'+':'')+n.toLocaleString('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}); };
-    var clr = function(v) { return (Number(v)||0)<0?'#f06060':'#4ed68a'; };
-    var td = document.getElementById('splash-pnl-today'); if (td) { td.textContent=fmt(todayPnl); td.style.color=clr(todayPnl); }
-    var wk = document.getElementById('splash-pnl-week'); if (wk) { wk.textContent=fmt(weekPnl); wk.style.color=clr(weekPnl); }
-    var wr = document.getElementById('splash-win-rate');
-    if (wr) { wr.textContent = winRate !== undefined ? Math.round(winRate)+'%' : '—'; wr.style.color = (Number(winRate)||0)>=50?'#4ed68a':'rgba(255,255,255,0.5)'; }
+  var fmt = function(v) {
+    if (v === undefined || v === null) return null;
+    var n = Number(v) || 0;
+    return (n >= 0 ? '+' : '') + n.toLocaleString('en-US', {style:'currency',currency:'USD',maximumFractionDigits:0});
+  };
+  var clr = function(v) { return (Number(v)||0) < 0 ? '#f06060' : '#4ed68a'; };
+
+  var tdEl = document.getElementById('splash-pnl-today');
+  var wkEl = document.getElementById('splash-pnl-week');
+  var wrEl = document.getElementById('splash-win-rate');
+  var fmtToday = fmt(todayPnl);
+  if (tdEl) {
+    if (fmtToday !== null) { tdEl.textContent = fmtToday; tdEl.style.color = clr(todayPnl); }
+    else                   { tdEl.textContent = 'No trades'; tdEl.style.color = 'rgba(255,255,255,0.2)'; tdEl.style.fontSize = '11px'; }
+  }
+  var fmtWeek = fmt(weekPnl);
+  if (wkEl) {
+    if (fmtWeek !== null) { wkEl.textContent = fmtWeek; wkEl.style.color = clr(weekPnl); }
+    else                  { wkEl.textContent = '—'; wkEl.style.color = 'rgba(255,255,255,0.2)'; }
+  }
+  if (wrEl) {
+    if (winRate !== undefined && winRate !== null) {
+      wrEl.textContent = Math.round(winRate) + '%';
+      wrEl.style.color = (Number(winRate)||0) >= 50 ? '#4ed68a' : '#f06060';
+    } else { wrEl.textContent = '—'; wrEl.style.color = 'rgba(255,255,255,0.2)'; }
   }
 
   card.classList.remove('hidden');
-  // Animate bar in after render
-  if (barEl) { var w = barEl.style.width; barEl.style.width='0%'; setTimeout(function(){ barEl.style.width=w; }, 80); }
+  setTimeout(function() { card.classList.add('loaded'); }, 60);
 }
 window.splashRankUpdate = splashRankUpdate;
 
