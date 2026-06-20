@@ -12394,6 +12394,17 @@ function updatePALFromRows(rows, rankName) {
   renderAccountsPanel();
   // Re-patch leaderboard with fresh weekly total whenever PAL updates
   if (window._lbLastRows && window._lbLastRows.length && window.renderLeaderboard) window.renderLeaderboard(window._lbLastRows);
+  // Re-patch splash rank card week P&L with now-accurate value
+  (function() {
+    var wkEl = document.getElementById('src-pnl-week');
+    if (!wkEl) return;
+    var todayExtra = (typeof calcTodayPnl === 'function' && calcTodayPnl().hasTrades) ? calcTodayPnl().total : 0;
+    var freshWeek = _weeklyUsdAccurate != null ? _weeklyUsdAccurate + todayExtra : null;
+    if (freshWeek == null) return;
+    var n = Number(freshWeek);
+    wkEl.textContent = (n >= 0 ? '+' : '') + n.toLocaleString('en-US', {style:'currency',currency:'USD',maximumFractionDigits:0});
+    wkEl.style.color = n < 0 ? '#f06060' : '#4ed68a';
+  })();
 }
 
 
