@@ -1751,6 +1751,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 #leo-ind-tooltip,#leo-calc-tooltip{display:none;position:fixed;z-index:9999;background:#1a1d27;border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:12px 14px;width:270px;pointer-events:none;box-shadow:0 8px 32px rgba(0,0,0,0.5);font-family:var(--mono)}
 .leotip-title{font-size:11px;font-weight:700;color:#e0e0e0;margin-bottom:7px;letter-spacing:0.05em}
 .leotip-body{font-size:11px;color:#a0a4b8;line-height:1.6}
+.leotip-off-note{margin-top:9px;padding-top:8px;border-top:1px solid rgba(240,188,78,0.18);font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.35);letter-spacing:0.04em}
+.leotip-off-note b{color:rgba(240,188,78,0.7);font-weight:600}
 #leo-ema-legend{display:flex;align-items:center;gap:10px;padding:0 14px;border-left:1px solid rgba(255,255,255,0.08);flex-shrink:0}
 .leo-ema-item{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:0.04em}
 #leo-price-right{margin-left:auto;display:flex;align-items:center;gap:10px;padding:0 14px;border-left:1px solid rgba(255,255,255,0.08);flex-shrink:0}
@@ -2879,6 +2881,13 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
       <div id="ps-pct">0%</div>
       <div id="ps-done-count">0 of 8 steps</div>
     </div>
+    <!-- Hide Tips toggle -->
+    <button id="tips-toggle-topbar" onclick="tdToggleTips()" title="Toggle explainer tips"
+      style="display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:20px;padding:4px 10px;cursor:pointer;transition:all .18s;flex-shrink:0"
+      onmouseover="this.style.background='rgba(255,255,255,0.12)'" onmouseout="this.style.background='rgba(255,255,255,0.06)'">
+      <span id="tips-toggle-icon" style="font-size:12px;line-height:1">💡</span>
+      <span id="tips-toggle-lbl" style="font-family:var(--mono);font-size:7px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.5)">TIPS ON</span>
+    </button>
     <!-- Theme toggle — always visible in header -->
     <button id="theme-toggle-topbar" onclick="tdToggleTheme()" title="Toggle light / dark mode"
       style="display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:20px;padding:4px 10px;cursor:pointer;transition:all .18s;flex-shrink:0"
@@ -5915,8 +5924,42 @@ function dismissExplainer(id) {
 function initExplainers() {
   try {
     var d = JSON.parse(localStorage.getItem('td_dismissed') || '{}');
-    document.querySelectorAll('.td-explainer').forEach(function(el) { if (d[el.id]) el.style.display = 'none'; });
+    var hidden = localStorage.getItem('td_hide_explainers') === '1';
+    document.querySelectorAll('.td-explainer').forEach(function(el) {
+      if (d[el.id] || hidden) { el.style.display = 'none'; return; }
+      var body = el.querySelector('.td-explainer-body');
+      if (body && !body.querySelector('.td-explainer-tip-note')) {
+        var note = document.createElement('div');
+        note.className = 'td-explainer-tip-note';
+        note.style.cssText = 'margin-top:8px;padding-top:7px;border-top:1px solid rgba(240,188,78,0.15);display:flex;align-items:center;gap:8px;flex-wrap:wrap';
+        note.innerHTML = '<span style="font-size:10px;color:rgba(255,255,255,0.4);font-family:var(--mono)">Switch off all tips:</span>'
+          + '<button onclick="tdToggleTips()" style="display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:20px;padding:3px 9px;cursor:pointer;font-family:var(--mono);font-size:9px;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.5)" onmouseover="this.style.background=\'rgba(255,255,255,0.12)\'" onmouseout="this.style.background=\'rgba(255,255,255,0.06)\'">'
+          + '<span>💡</span><span>TIPS ON</span></button>'
+          + '<span style="font-size:9px;color:rgba(255,255,255,0.25);font-family:var(--mono)">(also top-right ↗)</span>';
+        body.appendChild(note);
+      }
+    });
+    _tdUpdateTipsBtn();
   } catch(e) {}
+}
+function _tdUpdateTipsBtn() {
+  var hidden = localStorage.getItem('td_hide_explainers') === '1';
+  var icon = document.getElementById('tips-toggle-icon');
+  var lbl  = document.getElementById('tips-toggle-lbl');
+  if (icon) icon.textContent = hidden ? '🚫' : '💡';
+  if (lbl)  lbl.textContent  = hidden ? 'TIPS OFF' : 'TIPS ON';
+}
+function tdToggleTips() {
+  var hidden = localStorage.getItem('td_hide_explainers') === '1';
+  if (hidden) {
+    localStorage.removeItem('td_hide_explainers');
+    var d = JSON.parse(localStorage.getItem('td_dismissed') || '{}');
+    document.querySelectorAll('.td-explainer').forEach(function(el) { if (!d[el.id]) el.style.display = ''; });
+  } else {
+    localStorage.setItem('td_hide_explainers', '1');
+    document.querySelectorAll('.td-explainer').forEach(function(el) { el.style.display = 'none'; });
+  }
+  _tdUpdateTipsBtn();
 }
 document.addEventListener('DOMContentLoaded', initExplainers);
 document.addEventListener('DOMContentLoaded', function() {
@@ -6353,8 +6396,8 @@ function _tdTodayBKK() {
       if (k.startsWith('wm_') || k.startsWith('td_tfstate_')) localStorage.removeItem(k);
     });
     localStorage.setItem('td_last_open_date', today);
-    localStorage.setItem('td_walkthrough_pending', '1');
   }
+  localStorage.setItem('td_walkthrough_pending', '1');
 })();
 
 function _tdSnapKey(instrument) {
@@ -14678,22 +14721,20 @@ window.sessionSplashStart  = sessionSplashStart;
 window.sessionSplashDismiss = sessionSplashDismiss;
 
 document.addEventListener('DOMContentLoaded', function() {
-  if (localStorage.getItem('td_walkthrough_pending')) {
-    var splash  = document.getElementById('session-splash');
-    var titleEl = document.getElementById('session-splash-title');
-    var subEl   = document.getElementById('session-splash-sub');
-    var btnEl   = document.getElementById('session-splash-btn');
-    var dateEl  = document.getElementById('session-splash-date');
-    if (dateEl) dateEl.textContent = new Date().toLocaleDateString('en-GB', {weekday:'long',day:'numeric',month:'long',year:'numeric',timeZone:'Asia/Bangkok'});
-    var saved = _wtLoadProgress();
-    if (saved && saved.step > 0) {
-      var s = _wtSteps[saved.step];
-      if (titleEl) titleEl.textContent = 'Continue your session';
-      if (subEl)   subEl.textContent   = 'Pick up where you left off — ' + (s ? s.label : 'Step ' + (saved.step + 1));
-      if (btnEl)   btnEl.textContent   = '▶ Continue Day';
-    }
-    if (splash) setTimeout(function(){ splash.classList.add('show'); }, 600);
+  var splash  = document.getElementById('session-splash');
+  var titleEl = document.getElementById('session-splash-title');
+  var subEl   = document.getElementById('session-splash-sub');
+  var btnEl   = document.getElementById('session-splash-btn');
+  var dateEl  = document.getElementById('session-splash-date');
+  if (dateEl) dateEl.textContent = new Date().toLocaleDateString('en-GB', {weekday:'long',day:'numeric',month:'long',year:'numeric',timeZone:'Asia/Bangkok'});
+  var saved = _wtLoadProgress();
+  if (saved && saved.step > 0) {
+    var s = _wtSteps[saved.step];
+    if (titleEl) titleEl.textContent = 'Continue your session';
+    if (subEl)   subEl.textContent   = 'Pick up where you left off — ' + (s ? s.label : 'Step ' + (saved.step + 1));
+    if (btnEl)   btnEl.textContent   = '▶ Continue Day';
   }
+  if (splash) setTimeout(function(){ splash.classList.add('show'); }, 600);
 });
 // ─────────────────────────────────────────────────────
 
@@ -17559,15 +17600,16 @@ window.fwFinish = fwFinish;
 <div id="leo-ind-tooltip">
   <div class="leotip-title">💡 Did you know?</div>
   <div class="leotip-body">You can switch the indicator shown below each chart — <b>AO</b>, <b>RSI</b>, <b>Stoch</b>, or <b>Volume</b> — using the buttons in the upper right corner of this panel.</div>
+  <div class="leotip-off-note">⚙ Switch off tips: <b>top-right corner → 💡 TIPS ON</b></div>
 </div>
 
 <div id="leo-calc-tooltip">
   <div class="leotip-title">📐 Position Calculator</div>
   <div class="leotip-body">
     Enter your <b>Entry</b>, <b>Stop Loss</b> and <b>Take Profit</b> prices.<br><br>
-    The calculator automatically works out your <b>lot size</b> based on your account size and risk %, and shows your <b>R:R ratio</b>.<br><br>
-    Aim for at least <b>1:2 R:R</b> before taking a trade.
+    The calculator automatically works out your <b>lot size</b> based on your account size and risk %, and shows your <b>R:R ratio</b>.
   </div>
+  <div class="leotip-off-note">⚙ Switch off tips: <b>top-right corner → 💡 TIPS ON</b></div>
 </div>
 
 <div id="leo-wm-tooltip">
@@ -17580,6 +17622,7 @@ window.fwFinish = fwFinish;
     <br><br>
     Before and during a trade, set bias every few minutes — it helps you notice when the market starts to turn.
   </div>
+  <div class="leotip-off-note">⚙ Switch off tips: <b>top-right corner → 💡 TIPS ON</b></div>
 </div>
 
 <div id="leo-cd-tooltip">
@@ -17590,6 +17633,7 @@ window.fwFinish = fwFinish;
     <div class="cdt-badge cdt-badge-red"><div class="cdt-badge-dot" style="background:#f06060"></div>Red · 70%+</div>
   </div>
   <div class="cdt-desc">Color shows how much of the candle has elapsed. Red means it's closing soon — act or wait for the next one.</div>
+  <div class="leotip-off-note">⚙ Switch off tips: <b>top-right corner → 💡 TIPS ON</b></div>
 </div>
 </body>
 </html>
