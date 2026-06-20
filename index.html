@@ -1803,6 +1803,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 .leo-ind-btn{font-family:var(--mono);font-size:8px;letter-spacing:0.1em;text-transform:uppercase;padding:2px 8px;height:20px;border-radius:3px;border:1px solid rgba(255,255,255,0.12);background:transparent;color:rgba(255,255,255,0.35);cursor:pointer;transition:all .15s}
 .leo-ind-btn:hover:not(.active){color:rgba(255,255,255,0.7);border-color:rgba(255,255,255,0.25)}
 .leo-ind-btn.active{color:var(--gold);border-color:rgba(240,188,78,0.5);background:rgba(240,188,78,0.08)}
+.leo-ind-hover-strip{position:absolute;bottom:0;left:0;right:0;height:22%;z-index:10;cursor:default}
 .leo-tips-toggle{display:flex;align-items:center;gap:7px;cursor:pointer;user-select:none}
 .leo-tips-track{display:inline-flex;align-items:center;width:34px;height:18px;border-radius:9px;background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.15);transition:background .2s,border-color .2s;position:relative;flex-shrink:0}
 .leo-tips-track.on{background:rgba(78,214,138,0.85);border-color:#4ed68a;box-shadow:0 0 8px rgba(78,214,138,0.5)}
@@ -5100,26 +5101,32 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
     <div class="leo-tv-cell" id="leo-tv-D">
       <div class="leo-tv-cell-wm" onclick="cycleWmTrend(this)"><div>1D</div><div class="wm-bias-label"></div></div>
       <div class="leo-tv-cell-cd cd-green" id="leo-cd-D"><div class="cd-tf">1D</div><div class="cd-time">—</div></div>
+      <div class="leo-ind-hover-strip"></div>
     </div>
     <div class="leo-tv-cell" id="leo-tv-4H">
       <div class="leo-tv-cell-wm" onclick="cycleWmTrend(this)"><div>4H</div><div class="wm-bias-label"></div></div>
       <div class="leo-tv-cell-cd cd-green" id="leo-cd-4H"><div class="cd-tf">4H</div><div class="cd-time">—</div></div>
+      <div class="leo-ind-hover-strip"></div>
     </div>
     <div class="leo-tv-cell" id="leo-tv-1H">
       <div class="leo-tv-cell-wm" onclick="cycleWmTrend(this)"><div>1H</div><div class="wm-bias-label"></div></div>
       <div class="leo-tv-cell-cd cd-green" id="leo-cd-1H"><div class="cd-tf">1H</div><div class="cd-time">—</div></div>
+      <div class="leo-ind-hover-strip"></div>
     </div>
     <div class="leo-tv-cell" id="leo-tv-15m">
       <div class="leo-tv-cell-wm" onclick="cycleWmTrend(this)"><div>15</div><div class="wm-bias-label"></div></div>
       <div class="leo-tv-cell-cd cd-green" id="leo-cd-15m"><div class="cd-tf">15m</div><div class="cd-time">—</div></div>
+      <div class="leo-ind-hover-strip"></div>
     </div>
     <div class="leo-tv-cell" id="leo-tv-5m">
       <div class="leo-tv-cell-wm" onclick="cycleWmTrend(this)"><div>5</div><div class="wm-bias-label"></div></div>
       <div class="leo-tv-cell-cd cd-green" id="leo-cd-5m"><div class="cd-tf">5m</div><div class="cd-time">—</div></div>
+      <div class="leo-ind-hover-strip"></div>
     </div>
     <div class="leo-tv-cell" id="leo-tv-1m">
       <div class="leo-tv-cell-wm" onclick="cycleWmTrend(this)"><div>1</div><div class="wm-bias-label"></div></div>
       <div class="leo-tv-cell-cd cd-green" id="leo-cd-1m"><div class="cd-tf">1m</div><div class="cd-time">—</div></div>
+      <div class="leo-ind-hover-strip"></div>
     </div>
   </div>
   <!-- Back to main app button -->
@@ -10703,6 +10710,39 @@ function leoRestoreIndicatorBtn() {
   if (track) track.classList.toggle('on', _leoTipsOn);
   _leoBind('leo-ind-toggle', 'leo-ind-tooltip', 270, 80);
   _leoBind('leo-calc-bar',   'leo-calc-tooltip', 270, 160);
+  // Bind indicator hover strips (bottom of each chart) to the same tooltip
+  var indTip = document.getElementById('leo-ind-tooltip');
+  if (indTip) {
+    indTip.style.pointerEvents = 'auto';
+    document.querySelectorAll('.leo-ind-hover-strip').forEach(function(strip) {
+      strip.addEventListener('mouseenter', function(e) {
+        if (!_leoTipsOn) return;
+        var h = indTip.offsetHeight || 200, w = indTip.offsetWidth || 280;
+        var x = e.clientX < window.innerWidth / 2 ? e.clientX + 14 : e.clientX - w - 14;
+        var y = Math.max(4, e.clientY - h - 14);
+        indTip.style.left = x + 'px'; indTip.style.top = y + 'px';
+        indTip.style.display = 'block';
+      });
+      strip.addEventListener('mousemove', function(e) {
+        if (!_leoTipsOn || indTip.style.display === 'none') return;
+        var h = indTip.offsetHeight || 200, w = indTip.offsetWidth || 280;
+        var x = e.clientX < window.innerWidth / 2 ? e.clientX + 14 : e.clientX - w - 14;
+        var y = Math.max(4, e.clientY - h - 14);
+        indTip.style.left = x + 'px'; indTip.style.top = y + 'px';
+      });
+      strip.addEventListener('mouseleave', function(e) {
+        // Only hide if not moving to the tooltip itself
+        var rel = e.relatedTarget;
+        if (rel && (rel === indTip || indTip.contains(rel))) return;
+        indTip.style.display = 'none';
+      });
+    });
+    indTip.addEventListener('mouseleave', function(e) {
+      var rel = e.relatedTarget;
+      if (rel && rel.classList && rel.classList.contains('leo-ind-hover-strip')) return;
+      indTip.style.display = 'none';
+    });
+  }
 }
 
 function _leoGetStudies() {
@@ -17822,8 +17862,14 @@ window.fwFinish = fwFinish;
 </script>
 
 <div id="leo-ind-tooltip">
-  <div class="leotip-title">💡 Did you know?</div>
-  <div class="leotip-body">You can switch the indicator shown below each chart — <b>AO</b>, <b>RSI</b>, <b>Stoch</b>, or <b>Volume</b> — using the buttons in the upper right corner of this panel.</div>
+  <div class="leotip-title">📊 Change indicator</div>
+  <div class="leotip-body">Switch the indicator below each chart — change it in the <b>top-right corner</b>:</div>
+  <div style="display:flex;gap:5px;margin-top:8px;flex-wrap:wrap">
+    <button class="leo-ind-btn" onclick="leoSetIndicator('ao',this);document.getElementById('leo-ind-tooltip').style.display='none'" id="leo-ind-tip-ao">AO</button>
+    <button class="leo-ind-btn" onclick="leoSetIndicator('volume',this);document.getElementById('leo-ind-tooltip').style.display='none'" id="leo-ind-tip-volume">Volume</button>
+    <button class="leo-ind-btn" onclick="leoSetIndicator('rsi',this);document.getElementById('leo-ind-tooltip').style.display='none'" id="leo-ind-tip-rsi">RSI</button>
+    <button class="leo-ind-btn" onclick="leoSetIndicator('stoch',this);document.getElementById('leo-ind-tooltip').style.display='none'" id="leo-ind-tip-stoch">Stoch</button>
+  </div>
   <div class="leotip-off-note"><label class="leo-tips-toggle" onclick="leoToggleTips()" style="cursor:pointer"><span class="leo-tips-track leo-tips-track-copy"><span class="leo-tips-knob"></span></span><span class="leo-tips-label">EXPLAINER POPUPS</span></label><span class="leotip-off-text">— switch off these popups top-right ↗</span></div>
 </div>
 
