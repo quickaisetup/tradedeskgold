@@ -10914,25 +10914,29 @@ function leoLoadWidget(tfId, sym, interval) {
     hide_volume: true, allow_symbol_change: false, save_image: false,
     studies: indStr ? [indStr] : []
   };
+  // loaded_callback in cfg is the correct ready hook for the free tv.js widget
+  cfg.loaded_callback = '__LOADED_CB__';
+  var cfgJson = JSON.stringify(cfg).replace('"__LOADED_CB__"',
+    'function(){' +
+    'pm("loaded_callback fired");' +
+    'try{var c=w.chart();' +
+    'pm("chart ok typeof createStudy="+typeof c.createStudy);' +
+    'c.createStudy("Moving Average Exponential",false,false,[9],{"Plot.color":"#a855f7","Plot.linewidth":2});' +
+    'c.createStudy("Moving Average Exponential",false,false,[20],{"Plot.color":"#f0bc4e","Plot.linewidth":2});' +
+    'c.createStudy("Moving Average Exponential",false,false,[50],{"Plot.color":"#6aa3f5","Plot.linewidth":2});' +
+    'c.createStudy("Moving Average",false,false,[200],{"Plot.color":"rgba(255,255,255,0.7)","Plot.linewidth":2});' +
+    'pm("createStudy done");' +
+    '}catch(e2){pm("err: "+e2);}' +
+    '}'
+  )
   var emaScript =
     'function pm(msg){try{window.parent.postMessage({_leoDbg:msg},"*");}catch(x){}}' +
+    'var w;' +
     'window.addEventListener("load",function(){' +
     '  pm("tv load fired");' +
     '  try{' +
-    '    var w=new TradingView.widget(' + JSON.stringify(cfg) + ');' +
+    '    w=new TradingView.widget(' + cfgJson + ');' +
     '    pm("widget created");' +
-    '    w.onChartReady(function(){' +
-    '      pm("chartReady fired");' +
-    '      try{' +
-    '        var c=w.chart();' +
-    '        pm("chart() ok, typeof createStudy="+typeof c.createStudy);' +
-    '        c.createStudy("Moving Average Exponential",false,false,[9],{"Plot.color":"#a855f7","Plot.linewidth":2});' +
-    '        c.createStudy("Moving Average Exponential",false,false,[20],{"Plot.color":"#f0bc4e","Plot.linewidth":2});' +
-    '        c.createStudy("Moving Average Exponential",false,false,[50],{"Plot.color":"#6aa3f5","Plot.linewidth":2});' +
-    '        c.createStudy("Moving Average",false,false,[200],{"Plot.color":"rgba(255,255,255,0.7)","Plot.linewidth":2});' +
-    '        pm("createStudy calls done");' +
-    '      }catch(e2){pm("createStudy err: "+e2);}' +
-    '    });' +
     '  }catch(e){pm("widget err: "+e);}' +
     '});';
   var ihtml = '<!DOCTYPE html><html><head><meta charset="UTF-8">' +
