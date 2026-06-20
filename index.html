@@ -11087,18 +11087,28 @@ function _leoSyncHeader() {
   if (!header) return;
   var s = parseFloat(scoreEl ? scoreEl.textContent.replace('+','') : '0') || 0;
   var t = Math.max(-1, Math.min(1, s / 10));
-  var bg, border;
+  function lerpC2(base, target, f) { return Math.round(base + (target - base) * f); }
+  var bg, border, f, r, g, b;
   if (t > 0.05) {
-    var a = Math.min(0.22, 0.06 + t * 0.16), ab = Math.min(0.5, 0.15 + t * 0.35);
-    bg = 'rgba(78,214,138,'+a+')'; border = 'rgba(78,214,138,'+ab+')';
+    f = Math.min(1, t);
+    r = lerpC2(8, 25, f); g = lerpC2(9, 70, f); b = lerpC2(11, 35, f);
+    bg = 'rgb(' + r + ',' + g + ',' + b + ')';
+    border = 'rgba(78,214,138,' + Math.min(0.8, 0.2 + f * 0.6) + ')';
   } else if (t < -0.05) {
-    var a = Math.min(0.22, 0.06 + Math.abs(t)*0.16), ab = Math.min(0.5, 0.15 + Math.abs(t)*0.35);
-    bg = 'rgba(240,96,96,'+a+')'; border = 'rgba(240,96,96,'+ab+')';
+    f = Math.min(1, Math.abs(t));
+    r = lerpC2(8, 80, f); g = lerpC2(9, 12, f); b = lerpC2(11, 12, f);
+    bg = 'rgb(' + r + ',' + g + ',' + b + ')';
+    border = 'rgba(240,96,96,' + Math.min(0.8, 0.2 + f * 0.6) + ')';
   } else {
-    bg = 'rgba(240,188,78,0.18)'; border = 'rgba(240,188,78,0.45)';
+    bg = 'rgb(18,16,10)';
+    border = 'rgba(240,188,78,0.45)';
   }
   header.style.background = bg;
   header.style.borderBottomColor = border;
+  ['leo-kl-bar','leo-sym-ema-bar','leo-calc-bar','leo-ltf-trend-bar'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.style.background = bg;
+  });
 }
 
 // ── CUSTOM TICKER TABS — user can add any TradingView symbol ──
