@@ -5283,6 +5283,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
       <div style="width:1px;height:16px;background:rgba(255,255,255,0.1)"></div>
       <div id="leo-mode" style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.25)">— no mode —</div>
       <div id="leo-dir" style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.25)">—</div>
+      <div style="width:1px;height:16px;background:rgba(255,255,255,0.1)"></div>
+      <button id="leo-reanalyse" onclick="leoReanalyse()" style="display:flex;align-items:center;gap:5px;background:transparent;border:1px solid rgba(240,188,78,0.25);border-radius:5px;padding:3px 9px;cursor:pointer;font-family:var(--mono);font-size:8px;letter-spacing:0.06em;color:rgba(240,188,78,0.6);transition:all 0.15s;white-space:nowrap" onmouseover="this.style.borderColor='rgba(240,188,78,0.5)';this.style.color='#f0bc4e'" onmouseout="this.style.borderColor='rgba(240,188,78,0.25)';this.style.color='rgba(240,188,78,0.6)'">↻ Reanalyse <span id="leo-analysis-age" style="color:rgba(255,255,255,0.25)"></span></button>
     </div>
     <div id="leo-kl-bar"></div>
     <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
@@ -8902,6 +8904,8 @@ async function saveMorningAnalysis(silent) {
     var _saveOk = await postToSheets(morningPayload);
     if (_saveOk === false) throw new Error('Database save rejected — check browser console');
     window._morningSaved = true;
+    window._lastAnalysisTs = Date.now();
+    localStorage.setItem('td_last_analysis_ts', String(Date.now()));
     if (window.cbUpdateGate) cbUpdateGate();
     var t = now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
     if (silent) {
@@ -11385,6 +11389,9 @@ function openLiveExec() {
   var overlay = document.getElementById('live-exec-overlay');
   if (!overlay) return;
   overlay.classList.add('show');
+  _leoUpdateAnalysisAge();
+  clearInterval(_leoAgeTimer);
+  _leoAgeTimer = setInterval(_leoUpdateAnalysisAge, 30000);
   clearInterval(_leoNudgeInterval);
   var wtChip = document.getElementById('wt-chip');
   if (wtChip) wtChip.style.display = 'none';
@@ -11598,6 +11605,28 @@ window.eodOpenQuestions  = eodOpenQuestions;
 window.eodSetRules       = eodSetRules;
 window.eodQuestionsDismiss = eodQuestionsDismiss;
 window.eodQuestionsSave  = eodQuestionsSave;
+
+// ── REANALYSE BUTTON ──────────────────────────────────────
+window._lastAnalysisTs = parseInt(localStorage.getItem('td_last_analysis_ts')) || 0;
+var _leoAgeTimer = null;
+function _leoUpdateAnalysisAge() {
+  var el = document.getElementById('leo-analysis-age');
+  if (!el) return;
+  var ts = window._lastAnalysisTs;
+  if (!ts) { el.textContent = 'never'; return; }
+  var mins = Math.floor((Date.now() - ts) / 60000);
+  if (mins < 1) el.textContent = 'just now';
+  else if (mins < 60) el.textContent = mins + 'm ago';
+  else el.textContent = Math.floor(mins / 60) + 'h ' + (mins % 60) + 'm ago';
+}
+function leoReanalyse() {
+  closeLiveExec();
+  setTimeout(function() {
+    var section = document.getElementById('analysis');
+    if (section) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 300);
+}
+window.leoReanalyse = leoReanalyse;
 
 // ── ONBOARDING ────────────────────────────────────────────
 var _obStep = 0;
