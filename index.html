@@ -10760,18 +10760,9 @@ function leoRestoreIndicatorBtn() {
 }
 
 function _leoGetStudies() {
-  var emas = [
-    {"id":"MAExp@tv-basicstudies","inputs":{"length":9},"styles":{"Plot.color":"#a855f7","Plot.linewidth":1}},
-    {"id":"MAExp@tv-basicstudies","inputs":{"length":20},"styles":{"Plot.color":"#f0bc4e","Plot.linewidth":1}},
-    {"id":"MAExp@tv-basicstudies","inputs":{"length":50},"styles":{"Plot.color":"#6aa3f5","Plot.linewidth":1}},
-    {"id":"MAExp@tv-basicstudies","inputs":{"length":200},"styles":{"Plot.color":"#ffffff","Plot.linewidth":2}}
-  ];
-  var ind = {
-    ao:     {"id":"STD;Awesome_Oscillator"},
-    rsi:    {"id":"STD;RSI"},
-    stoch:  {"id":"STD;Stochastic"}
-  };
-  return _leoIndicator === 'volume' ? emas : [ind[_leoIndicator]].concat(emas);
+  var emas = ['STD;EMA', 'STD;EMA', 'STD;EMA', 'STD;MA'];
+  var ind = { ao: 'STD;Awesome_Oscillator', rsi: 'STD;RSI', stoch: 'STD;Stochastic' };
+  return _leoIndicator === 'volume' ? emas : [ind[_leoIndicator] || 'STD;Awesome_Oscillator'].concat(emas);
 }
 
 function _leoHideVolume() { return _leoIndicator !== 'volume'; }
