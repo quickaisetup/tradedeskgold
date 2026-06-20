@@ -6324,8 +6324,10 @@ function dismissExplainer(id) {
 }
 function initExplainers() {
   try {
+    var visits = parseInt(localStorage.getItem('td_visit_count') || '0') + 1;
+    localStorage.setItem('td_visit_count', String(visits));
+    if (visits > 3 && localStorage.getItem('td_hide_explainers') === null) localStorage.setItem('td_hide_explainers', '1');
     var d = JSON.parse(localStorage.getItem('td_dismissed') || '{}');
-    if (localStorage.getItem('td_hide_explainers') === null) localStorage.setItem('td_hide_explainers', '1');
     var hidden = localStorage.getItem('td_hide_explainers') === '1';
     document.querySelectorAll('.td-explainer').forEach(function(el) {
       if (d[el.id] || hidden) { el.style.display = 'none'; return; }
