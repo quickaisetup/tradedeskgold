@@ -881,7 +881,11 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 .ltf-trend-btn.ltf-down{border-color:rgba(240,96,96,0.7);background:rgba(240,96,96,0.12);color:#f06060;font-weight:600}
 .ltf-trend-btn.ltf-ranging{border-color:rgba(240,188,78,0.7);background:rgba(240,188,78,0.1);color:#f0bc4e;font-weight:600}
 .ltf-sep{width:1px;height:16px;background:rgba(255,255,255,0.1);margin:0 4px}
-#leo-sym-ema-bar{display:flex;align-items:stretch;background:#0a0b0d;border-bottom:1px solid rgba(255,255,255,0.08);flex-shrink:0;height:34px;overflow:hidden}
+#leo-sym-ema-bar{display:flex;align-items:stretch;justify-content:space-between;background:#0a0b0d;border-bottom:1px solid rgba(255,255,255,0.08);flex-shrink:0;height:34px;overflow:hidden}
+#leo-ind-tabs{display:flex;align-items:center;padding:0 12px;gap:4px}
+.leo-ind-btn{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:0.08em;background:transparent;border:1px solid rgba(255,255,255,0.12);border-radius:4px;color:rgba(255,255,255,0.4);padding:3px 8px;cursor:pointer;transition:all 0.15s}
+.leo-ind-btn:hover{color:rgba(255,255,255,0.7);border-color:rgba(255,255,255,0.25)}
+.leo-ind-btn.active{color:#f0bc4e;border-color:rgba(240,188,78,0.5);background:rgba(240,188,78,0.08)}
 #leo-sym-tabs{display:flex;align-items:stretch;flex-shrink:0}
 .leo-sym-tab{font-family:var(--mono);font-size:9px;letter-spacing:0.12em;text-transform:uppercase;padding:0 13px;height:100%;display:flex;align-items:center;color:rgba(255,255,255,0.45);cursor:pointer;border:none;background:transparent;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap;border-right:1px solid rgba(255,255,255,0.07)}
 .leo-sym-tab.active{color:var(--gold);border-bottom-color:var(--gold);background:rgba(240,188,78,0.07)}
@@ -3211,6 +3215,13 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
       <button class="leo-sym-tab active" onclick="leoSetSymbol('XAUUSD',this)">XAUUSD</button>
       <button class="leo-sym-tab" onclick="leoSetSymbol('DXY',this)">DXY</button>
       <button class="leo-sym-tab" onclick="leoAddCustomTab()" title="Add a TradingView ticker (e.g. OANDA:EURUSD, NASDAQ:AAPL)" style="color:rgba(240,188,78,0.6)">+ Add</button>
+    </div>
+    <div id="leo-ind-tabs">
+      <span style="font-family:var(--mono);font-size:8px;color:rgba(255,255,255,0.3);letter-spacing:0.1em;text-transform:uppercase;padding-right:6px">INDICATOR</span>
+      <button class="leo-ind-btn active" onclick="leoSetIndicator('ao',this)">AO</button>
+      <button class="leo-ind-btn" onclick="leoSetIndicator('rsi',this)">RSI</button>
+      <button class="leo-ind-btn" onclick="leoSetIndicator('stoch',this)">STOCH</button>
+      <button class="leo-ind-btn" onclick="leoSetIndicator('volume',this)">VOLUME</button>
     </div>
   </div>
 
@@ -7785,6 +7796,26 @@ var LEO_TFS = [
 
 var LEO_TF_LABELS = {'1D':'1D','240':'4H','60':'1H','15':'15','5':'5','1':'1'};
 var _leoBlobUrls = {};
+var _leoIndicator = 'ao'; // ao | rsi | stoch | volume
+
+function _leoGetStudies() {
+  var emas = [
+    {"id":"MAExp@tv-basicstudies","inputs":{"length":9},"styles":{"Plot.color":"#a855f7","Plot.linewidth":1}},
+    {"id":"MAExp@tv-basicstudies","inputs":{"length":20},"styles":{"Plot.color":"#f0bc4e","Plot.linewidth":1}},
+    {"id":"MAExp@tv-basicstudies","inputs":{"length":50},"styles":{"Plot.color":"#6aa3f5","Plot.linewidth":1}},
+    {"id":"MAExp@tv-basicstudies","inputs":{"length":200},"styles":{"Plot.color":"#ffffff","Plot.linewidth":2}}
+  ];
+  var ind = { ao: 'STD;Awesome_Oscillator', rsi: 'STD;RSI', stoch: 'STD;Stochastic' };
+  if (_leoIndicator === 'volume') return emas;
+  return [ind[_leoIndicator] || 'STD;Awesome_Oscillator'].concat(emas);
+}
+
+function leoSetIndicator(ind, btn) {
+  _leoIndicator = ind;
+  document.querySelectorAll('.leo-ind-btn').forEach(function(b){ b.classList.remove('active'); });
+  if (btn) btn.classList.add('active');
+  leoLoadIframes();
+}
 
 function leoMakeWidgetHTML(sym, interval, tfLabel) {
   var cfg = JSON.stringify({
@@ -7801,13 +7832,8 @@ function leoMakeWidgetHTML(sym, interval, tfLabel) {
     allow_symbol_change: false,
     save_image: false,
     calendar: false,
-    hide_volume: false,
-    studies: [
-      {"id":"MAExp@tv-basicstudies","inputs":{"length":9},"styles":{"Plot.color":"#a855f7","Plot.linewidth":1}},
-      {"id":"MAExp@tv-basicstudies","inputs":{"length":20},"styles":{"Plot.color":"#f0bc4e","Plot.linewidth":1}},
-      {"id":"MAExp@tv-basicstudies","inputs":{"length":50},"styles":{"Plot.color":"#6aa3f5","Plot.linewidth":1}},
-      {"id":"MAExp@tv-basicstudies","inputs":{"length":200},"styles":{"Plot.color":"#ffffff","Plot.linewidth":2}}
-    ],
+    hide_volume: _leoIndicator !== 'volume',
+    studies: _leoGetStudies(),
     support_host: 'https://www.tradingview.com'
   });
   return '<!DOCTYPE html><html><head><meta charset="UTF-8">' +
