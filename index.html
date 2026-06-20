@@ -5631,6 +5631,7 @@ function renderAccountsPanel() {
   } else {
     _wU = _todayUsd !== null ? _todayUsd : null;
   }
+  window._liveWeekUsd = _wU; // expose for splash card
   var _mU = pal.monthlyUsd;
   var _wR = pal.weeklyR  ? Math.round((pal.weeklyR )*100)/100 : null;
   var _mR = pal.monthlyR ? Math.round((pal.monthlyR)*100)/100 : null;
@@ -9539,7 +9540,7 @@ function setStreakUI(streak, clean, total, pct, sortedRows, allRows) {
   updateRankWidget(streak, rank, palEntry.pal, clean, total, pct);
   // Update splash rank card if still visible
   if (typeof splashRankUpdate === 'function') {
-    var _splashWk = window._myDbWeekPnl != null ? window._myDbWeekPnl : undefined;
+    var _splashWk = window._liveWeekUsd != null ? window._liveWeekUsd : (window._myDbWeekPnl != null ? window._myDbWeekPnl : undefined);
     splashRankUpdate(streak, rank, window._liveTodayUsd, _splashWk, pct);
   }
 
