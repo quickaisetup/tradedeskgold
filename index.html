@@ -10839,7 +10839,7 @@ function leoLoadWidget(tfId, sym, interval) {
   var savedTrend = localStorage.getItem(wmKey) || (existingWm ? existingWm.dataset.trend : '') || '';
   var wm = document.createElement('div');
   wm.className = 'leo-tv-cell-wm';
-  wm.title = 'Click to set trend';
+  wm.title = '';
   wm.dataset.trend = savedTrend;
   wm.dataset.wmKey = wmKey;
   var wmTfSpan = document.createElement('div');
