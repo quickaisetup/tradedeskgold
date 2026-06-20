@@ -11007,8 +11007,17 @@ function leoRestoreIndicatorBtn() {
   if (track) track.classList.toggle('on', _leoTipsOn);
   _leoBind('leo-ind-toggle', 'leo-ind-tooltip', 270, 80);
   _leoBind('leo-calc-bar',   'leo-calc-tooltip', 270, 160);
-  _leoBind('leo-log-trade-btn', 'leo-log-tooltip', 270, 160);
   _leoBind('leo-sym-tabs',   'leo-sym-tooltip', 270, 140);
+  // Log trade button is inside calc bar — must hide calc tooltip on hover
+  var logBtn = document.getElementById('leo-log-trade-btn');
+  var logTip = document.getElementById('leo-log-tooltip');
+  var calcTip = document.getElementById('leo-calc-tooltip');
+  if (logBtn && logTip) {
+    function logPos(e){ var tw=logTip.offsetWidth||270, th=logTip.offsetHeight||160; var x=e.clientX<window.innerWidth/2?e.clientX+14:e.clientX-tw-14; var y=Math.max(4,e.clientY-th-14); logTip.style.left=x+'px';logTip.style.top=y+'px'; }
+    logBtn.addEventListener('mouseenter',function(e){e.stopPropagation();if(!_leoTipsOn)return;if(calcTip)calcTip.style.display='none';logTip.style.display='block';logPos(e);});
+    logBtn.addEventListener('mousemove',function(e){e.stopPropagation();if(_leoTipsOn)logPos(e);});
+    logBtn.addEventListener('mouseleave',function(e){logTip.style.display='none';});
+  }
   // Bind indicator hover strips (bottom of each chart) to the same tooltip
   var indTip = document.getElementById('leo-ind-tooltip');
   if (indTip) {
