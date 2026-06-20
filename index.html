@@ -11157,6 +11157,9 @@ function _leoShowNudge() {
   var el = document.getElementById('leo-nudge');
   var btn = document.getElementById('leo-log-trade-btn');
   if (!el || !btn) return;
+  // Don't show while the pre-trade gate is covering the charts
+  var gate = document.getElementById('ptg-gate');
+  if (gate && gate.classList.contains('show')) return;
   var overlay = document.getElementById('live-exec-overlay');
   var oRect = overlay ? overlay.getBoundingClientRect() : {left:0, top:0};
   var bRect = btn.getBoundingClientRect();
