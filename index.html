@@ -11565,6 +11565,8 @@ function eodSetRules(val, btn) {
   _eodRulesVal = val;
   document.querySelectorAll('.eod-rule-btn').forEach(function(b){ b.classList.remove('sel'); });
   if (btn) btn.classList.add('sel');
+  var xpPill = document.getElementById('eod-questions-xp-pill');
+  if (xpPill) xpPill.style.display = (val === 'Yes' || val === 'Mostly') ? '' : 'none';
 }
 function eodQuestionsDismiss() {
   var overlay = document.getElementById('eod-questions-overlay');
