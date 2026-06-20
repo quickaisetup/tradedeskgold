@@ -3,6 +3,10 @@
   "outputDirectory": ".",
   "cleanUrls": true,
   "trailingSlash": false,
+  "headers": [
+    { "source": "/(.*).html", "headers": [{ "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }] },
+    { "source": "/", "headers": [{ "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }] }
+  ],
   "rewrites": [
     { "source": "/admin", "destination": "/admin/index.html" },
     { "source": "/admin/", "destination": "/admin/index.html" }
