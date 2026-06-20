@@ -11213,7 +11213,8 @@ function openLiveExec() {
   var wtChip = document.getElementById('wt-chip');
   if (wtChip) wtChip.style.display = 'none';
 
-  // Ensure score is up to date before syncing header
+  // Ensure TF state is loaded and score is up to date before syncing header
+  if (typeof _restoreTFStateLocal === 'function') _restoreTFStateLocal();
   if (typeof updateVerdictAuto === 'function') updateVerdictAuto();
 
   // Sync header from bias state
