@@ -10903,42 +10903,30 @@ function leoLoadWidget(tfId, sym, interval) {
     el.addEventListener('mouseleave',function(){cdTip.style.display='none';});
   })(pill);
 
-  // tv.js: pass only the indicator string in config; add EMAs via createStudy() on ready
+  // embed-widget-advanced-chart.js: use string study IDs + studies_overrides for EMA lengths
   var indMap = { ao: 'STD;Awesome_Oscillator', rsi: 'STD;RSI', stoch: 'STD;Stochastic' };
   var indStr = (_leoIndicator !== 'volume') ? (indMap[_leoIndicator] || 'STD;Awesome_Oscillator') : null;
-  var cfg = {
-    container_id: 'tv', autosize: true, symbol: sym, interval: interval,
+  var studies = ['STD;EMA', 'STD;EMA', 'STD;EMA', 'STD;MA'];
+  if (indStr) studies.push(indStr);
+  var cfg = JSON.stringify({
+    autosize: true, symbol: sym, interval: interval,
     timezone: _tzIANA(), theme: 'dark', style: '1', locale: 'en',
-    toolbar_bg: '#060708', enable_publishing: false,
     hide_top_toolbar: true, hide_legend: true, hide_side_toolbar: true,
     hide_volume: true, allow_symbol_change: false, save_image: false,
-    studies: indStr ? [indStr] : []
-  };
-  var emaScript =
-    'function pm(msg){try{window.parent.postMessage({_leoDbg:msg},"*");}catch(x){}}' +
-    'function tryEma(n){' +
-    '  pm("tryEma "+n);' +
-    '  if(n>20){pm("gave up");return;}' +
-    '  try{' +
-    '    var c=w.chart();' +
-    '    pm("chart() typeof createStudy="+typeof c.createStudy);' +
-    '    if(typeof c.createStudy!=="function"){setTimeout(function(){tryEma(n+1);},1000);return;}' +
-    '    c.createStudy("Moving Average Exponential",false,false,[9],{"Plot.color":"#a855f7","Plot.linewidth":2});' +
-    '    c.createStudy("Moving Average Exponential",false,false,[20],{"Plot.color":"#f0bc4e","Plot.linewidth":2});' +
-    '    c.createStudy("Moving Average Exponential",false,false,[50],{"Plot.color":"#6aa3f5","Plot.linewidth":2});' +
-    '    c.createStudy("Moving Average",false,false,[200],{"Plot.color":"rgba(255,255,255,0.7)","Plot.linewidth":2});' +
-    '    pm("EMAs added");' +
-    '  }catch(e){pm("err "+n+": "+e);setTimeout(function(){tryEma(n+1);},1000);}' +
-    '}' +
-    'var w=new TradingView.widget(' + JSON.stringify(cfg) + ');' +
-    'pm("widget created");' +
-    'setTimeout(function(){tryEma(1);},2000);'
+    studies: studies,
+    studies_overrides: {
+      'moving average exponential.0.length': 9,
+      'moving average exponential.1.length': 20,
+      'moving average exponential.2.length': 50,
+      'moving average.0.length': 200
+    },
+    support_host: 'https://www.tradingview.com'
+  });
   var ihtml = '<!DOCTYPE html><html><head><meta charset="UTF-8">' +
-    '<style>*{margin:0;padding:0}html,body,#tv{width:100%;height:100%;overflow:hidden;background:#060708}</style>' +
-    '</head><body><div id="tv"></div>' +
-    '<script src="https://s3.tradingview.com/tv.js"><\/script>' +
-    '<script>' + emaScript + '<\/script>' +
-    '</body></html>';
+    '<style>*{margin:0;padding:0;box-sizing:border-box}html,body{width:100%;height:100%;overflow:hidden;background:#060708}.tradingview-widget-container,.tradingview-widget-container__widget{width:100%;height:100%}</style>' +
+    '</head><body><div class="tradingview-widget-container"><div class="tradingview-widget-container__widget"></div>' +
+    '<script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>' +
+    cfg + '<\/script></div></body></html>';
   var iframe = document.createElement('iframe');
   iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:none;background:#060708';
   iframe.scrolling = 'no';
