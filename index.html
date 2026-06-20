@@ -5073,7 +5073,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
   <div id="ptg-gate">
     <div id="ptg-inner" style="max-width:640px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
-        <div id="ptg-title" style="flex-shrink:0">Pre-Trade Check</div>
+        <div id="ptg-title" style="flex-shrink:0">Pre-Trade Check <span style="font-family:var(--mono);font-size:10px;color:rgba(240,188,78,0.45);letter-spacing:0.06em;font-weight:400">(Say it out loud!)</span></div>
         <button onclick="ptgEditOpen()" style="background:transparent;border:1px solid rgba(240,188,78,0.25);border-radius:4px;color:rgba(240,188,78,0.55);font-family:var(--mono);font-size:8px;letter-spacing:0.08em;padding:3px 9px;cursor:pointer;text-transform:uppercase;transition:all 0.15s" onmouseover="this.style.borderColor='rgba(240,188,78,0.6)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='rgba(240,188,78,0.25)';this.style.color='rgba(240,188,78,0.55)'">✎ Edit</button>
       </div>
 
@@ -5083,7 +5083,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
       <!-- Trading Rules (shown below if rules exist) -->
       <div id="rg-section" style="display:none;border-top:1px solid rgba(255,255,255,0.07);padding-top:20px;margin-top:20px">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-          <div style="font-family:var(--mono);font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3)">My Trading Rules</div>
+          <div style="font-family:var(--mono);font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3)">My Trading Rules <span style="color:rgba(240,188,78,0.45);font-size:9px;letter-spacing:0.06em;text-transform:none">(Say it out loud!)</span></div>
           <button onclick="openRulesModal()" style="background:transparent;border:1px solid rgba(240,188,78,0.25);border-radius:4px;color:rgba(240,188,78,0.55);font-family:var(--mono);font-size:8px;letter-spacing:0.08em;padding:3px 9px;cursor:pointer;text-transform:uppercase;transition:all 0.15s" onmouseover="this.style.borderColor='rgba(240,188,78,0.6)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='rgba(240,188,78,0.25)';this.style.color='rgba(240,188,78,0.55)'">✎ Edit</button>
         </div>
         <div id="rg-list" style="display:grid;grid-template-columns:1fr 1fr;gap:8px"></div>
@@ -11600,7 +11600,7 @@ function ptgOpen(forceInteractive) {
       var gold = q.gold ? ' ptg-item-gold' : '';
       return '<div class="ptg-item'+gold+'" id="ptg-item-'+i+'" onclick="ptgToggle('+i+')">' +
         '<div class="ptg-cb" id="ptg-cb-'+i+'"></div>' +
-        '<div class="ptg-label" style="flex:1"><div class="ptg-main">'+q.main+'</div><div style="font-size:9px;color:rgba(240,188,78,0.4);margin-top:3px;letter-spacing:0.08em;text-transform:uppercase">(Say it out loud!)</div></div>' +
+        '<div class="ptg-label" style="flex:1"><div class="ptg-main">'+q.main+'</div></div>' +
         '<div onclick="event.stopPropagation();ptgToggleUnsure('+i+')" id="ptg-unsure-'+i+'" style="flex-shrink:0;font-family:var(--mono);font-size:10px;padding:4px 10px;border-radius:6px;border:1px solid rgba(255,180,0,0.2);color:rgba(255,180,0,0.35);cursor:pointer;transition:all 0.18s;white-space:nowrap">Not sure</div>' +
       '</div>';
     }).join('');
@@ -11616,7 +11616,7 @@ function ptgOpen(forceInteractive) {
         var gold = _rGold(r) ? ' rg-item-gold' : '';
         return '<div class="rg-item'+gold+'" id="rg-item-'+i+'" onclick="rgToggle('+i+')">' +
           '<div class="rg-cb" id="rg-cb-'+i+'"></div>' +
-          '<div class="rg-text">'+_rText(r)+'<div style="font-size:9px;color:rgba(240,188,78,0.4);margin-top:3px;letter-spacing:0.08em;text-transform:uppercase">(Say it out loud!)</div></div>' +
+          '<div class="rg-text">'+_rText(r)+'</div>' +
         '</div>';
       }).join('');
     }
