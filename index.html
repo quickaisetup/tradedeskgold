@@ -11207,6 +11207,8 @@ function openLiveExec() {
   if (!overlay) return;
   overlay.classList.add('show');
   clearInterval(_leoNudgeInterval);
+  var wtChip = document.getElementById('wt-chip');
+  if (wtChip) wtChip.style.display = 'none';
 
   // Ensure score is up to date before syncing header
   if (typeof updateVerdictAuto === 'function') updateVerdictAuto();
