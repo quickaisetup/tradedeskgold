@@ -11197,9 +11197,9 @@ function leoSyncHeaderColor() {
   var scoreEl = document.getElementById('score-num');
   var score = scoreEl ? parseInt(scoreEl.textContent, 10) : 0;
   var bg, border;
-  if (score > 3)       { bg = 'rgba(78,214,138,0.10)';  border = 'rgba(78,214,138,0.28)'; }
-  else if (score < -3) { bg = 'rgba(240,96,96,0.10)';   border = 'rgba(240,96,96,0.28)'; }
-  else                 { bg = 'rgba(240,188,78,0.08)';   border = 'rgba(240,188,78,0.22)'; }
+  if (score > 3)       { bg = 'rgba(78,214,138,0.18)';  border = 'rgba(78,214,138,0.45)'; }
+  else if (score < -3) { bg = 'rgba(220,60,60,0.45)';   border = 'rgba(220,60,60,0.7)'; }
+  else                 { bg = 'rgba(240,188,78,0.14)';   border = 'rgba(240,188,78,0.35)'; }
   header.style.background = bg;
   header.style.borderBottomColor = border;
 }
