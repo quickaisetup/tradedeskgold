@@ -10770,10 +10770,15 @@ function leoRestoreIndicatorBtn() {
 }
 
 function _leoGetStudies() {
-  // TV's embed widget now crashes on object-format studies — string IDs only
-  var emas = ['MAExp@tv-basicstudies', 'MAExp@tv-basicstudies', 'MAExp@tv-basicstudies', 'MASimple@tv-basicstudies'];
+  var emas = [
+    {id:'MAExp@tv-basicstudies',inputs:{length:9}},
+    {id:'MAExp@tv-basicstudies',inputs:{length:20}},
+    {id:'MAExp@tv-basicstudies',inputs:{length:50}},
+    {id:'MASimple@tv-basicstudies',inputs:{length:200}}
+  ];
   var ind = { ao: 'STD;Awesome_Oscillator', rsi: 'STD;RSI', stoch: 'STD;Stochastic' };
-  return _leoIndicator === 'volume' ? emas : [ind[_leoIndicator] || 'STD;Awesome_Oscillator'].concat(emas);
+  if (_leoIndicator === 'volume') return emas;
+  return [ind[_leoIndicator] || 'STD;Awesome_Oscillator'].concat(emas);
 }
 
 function _leoHideVolume() { return _leoIndicator !== 'volume'; }
