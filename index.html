@@ -1720,6 +1720,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 
 /* ── LIVE EXECUTION OVERLAY — TradingView edition ── */
 #live-exec-overlay{display:none;position:fixed;inset:0;z-index:9998;background:#060708;flex-direction:column;overflow:hidden}
+#live-exec-overlay.show::after{content:'';position:fixed;inset:0;z-index:9997;pointer-events:none;box-shadow:inset 0 0 140px -40px var(--lh-glow2,transparent);transition:box-shadow 0.6s}
 #live-exec-overlay.show{display:flex}
 /* ── PRE-TRADE GATE ── */
 #ptg-gate{display:none;position:absolute;inset:0;z-index:50;background:#07080c;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;overflow-y:auto}
@@ -1882,7 +1883,9 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 .ltf-trend-btn.ltf-down{border-color:rgba(240,96,96,0.7);background:rgba(240,96,96,0.12);color:#f06060;font-weight:600}
 .ltf-trend-btn.ltf-ranging{border-color:rgba(240,188,78,0.7);background:rgba(240,188,78,0.1);color:#f0bc4e;font-weight:600}
 .ltf-sep{width:1px;height:16px;background:rgba(255,255,255,0.1);margin:0 4px}
-#leo-sym-ema-bar{display:flex;align-items:stretch;background:#0a0b0d;border-bottom:1px solid rgba(255,255,255,0.08);flex-shrink:0;height:34px;overflow:hidden}
+#leo-sym-ema-bar{display:flex;align-items:stretch;background:#0a0b0d;border-bottom:1px solid rgba(255,255,255,0.08);flex-shrink:0;height:34px;overflow:hidden;position:relative}
+#leo-sym-ema-bar::before,#leo-calc-bar::before{content:'';position:absolute;left:0;top:0;bottom:0;width:6px;z-index:5;background:var(--lh-bg,#08090b);pointer-events:none;transition:background 0.4s}
+#leo-calc-bar{position:relative}
 #leo-sym-tabs{display:flex;align-items:stretch;flex-shrink:0}
 .leo-sym-tab{font-family:var(--mono);font-size:9px;letter-spacing:0.12em;text-transform:uppercase;padding:0 13px;height:100%;display:flex;align-items:center;color:rgba(255,255,255,0.45);cursor:pointer;border:none;background:transparent;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap;border-right:1px solid rgba(255,255,255,0.07)}
 .leo-sym-tab.active{color:var(--gold);border-bottom-color:var(--gold);background:rgba(240,188,78,0.07)}
@@ -11089,22 +11092,25 @@ function _leoSyncHeader() {
   var leoB    = document.getElementById('leo-bias');
   var leoS    = document.getElementById('leo-score');
   var header  = document.getElementById('leo-header');
+  var overlay = document.getElementById('live-exec-overlay');
   if (!header) return;
   var s = parseFloat(scoreEl ? scoreEl.textContent.replace('+','') : '0') || 0;
   var t = Math.max(-1, Math.min(1, s / 10));
-  var stripeColor, glowColor, badgeColor, badgeBg, badgeBorder;
+  var stripeColor, glowColor, glow2Color, badgeColor, badgeBg, badgeBorder;
   if (t > 0.05) {
-    stripeColor = '#4ed68a'; glowColor = 'rgba(78,214,138,0.55)';
+    stripeColor = '#4ed68a'; glowColor = 'rgba(78,214,138,0.55)'; glow2Color = 'rgba(78,214,138,' + Math.min(0.35, 0.1 + Math.pow(t,0.6)*0.25) + ')';
     badgeColor = '#4ed68a'; badgeBg = 'rgba(78,214,138,0.12)'; badgeBorder = 'rgba(78,214,138,0.35)';
   } else if (t < -0.05) {
-    stripeColor = '#f06060'; glowColor = 'rgba(240,96,96,0.55)';
+    stripeColor = '#f06060'; glowColor = 'rgba(240,96,96,0.55)'; glow2Color = 'rgba(240,96,96,' + Math.min(0.35, 0.1 + Math.pow(Math.abs(t),0.6)*0.25) + ')';
     badgeColor = '#f06060'; badgeBg = 'rgba(240,96,96,0.12)'; badgeBorder = 'rgba(240,96,96,0.35)';
   } else {
-    stripeColor = '#f0bc4e'; glowColor = 'rgba(240,188,78,0.45)';
+    stripeColor = '#f0bc4e'; glowColor = 'rgba(240,188,78,0.45)'; glow2Color = 'rgba(240,188,78,0.12)';
     badgeColor = '#f0bc4e'; badgeBg = 'rgba(240,188,78,0.1)'; badgeBorder = 'rgba(240,188,78,0.3)';
   }
-  header.style.setProperty('--lh-bg', stripeColor);
-  header.style.setProperty('--lh-glow', glowColor);
+  var target = overlay || header;
+  target.style.setProperty('--lh-bg', stripeColor);
+  target.style.setProperty('--lh-glow', glowColor);
+  target.style.setProperty('--lh-glow2', glow2Color);
   if (leoB) {
     leoB.textContent = vtMain ? vtMain.textContent : '—';
     leoB.style.color = badgeColor;
