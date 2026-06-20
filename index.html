@@ -7921,11 +7921,45 @@ function leoRefreshCharts(btn) {
   }, LEO_TFS.length * 120 + 600);
 }
 
+function leoSyncHeader() {
+  var vtMain  = document.getElementById('vt-main');
+  var scoreEl = document.getElementById('score-num');
+  var leoB = document.getElementById('leo-bias');
+  var leoS = document.getElementById('leo-score');
+  var header = document.getElementById('leo-header');
+
+  var label = vtMain ? vtMain.textContent.trim() : '—';
+  var score = parseFloat(scoreEl ? scoreEl.textContent : '0') || 0;
+  var color, bgColor, borderColor;
+
+  if (score >= 2) {
+    color = '#4ed68a'; bgColor = 'rgba(78,214,138,0.10)'; borderColor = 'rgba(78,214,138,0.25)';
+  } else if (score <= -2) {
+    color = '#f06060'; bgColor = 'rgba(240,96,96,0.10)'; borderColor = 'rgba(240,96,96,0.25)';
+  } else {
+    color = '#f0bc4e'; bgColor = 'rgba(240,188,78,0.07)'; borderColor = 'rgba(240,188,78,0.2)';
+  }
+
+  if (leoB) { leoB.textContent = label; leoB.style.color = color; }
+  if (leoS) { leoS.textContent = score > 0 ? '+' + score : String(score); leoS.style.color = color; }
+  if (header) { header.style.background = bgColor; header.style.borderBottomColor = borderColor; }
+}
+
 function leoSetSymbol(sym, btn) {
   _leoSymbol = LEO_SYMBOL_MAP[sym] || sym;
   document.querySelectorAll('.leo-sym-tab').forEach(function(b){ b.classList.remove('active'); });
   if (btn) btn.classList.add('active');
   leoLoadIframes();
+  if (sym === 'XAUUSD') leoSyncHeader();
+  else {
+    // Non-gold instruments: clear score, show neutral
+    var leoB = document.getElementById('leo-bias');
+    var leoS = document.getElementById('leo-score');
+    var header = document.getElementById('leo-header');
+    if (leoB) { leoB.textContent = sym; leoB.style.color = '#aaa'; }
+    if (leoS) { leoS.textContent = '—'; leoS.style.color = '#aaa'; }
+    if (header) { header.style.background = '#08090b'; header.style.borderBottomColor = 'rgba(255,255,255,0.1)'; }
+  }
 }
 
 // ── CUSTOM TICKER TABS — user can add any TradingView symbol ──
@@ -8047,15 +8081,9 @@ function openLiveExec() {
   if (!overlay) return;
   overlay.classList.add('show');
 
-  // Sync header from bias state
-  var vtMain  = document.getElementById('vt-main');
-  var scoreEl = document.getElementById('score-num');
-  var leoB = document.getElementById('leo-bias');
-  var leoS = document.getElementById('leo-score');
+  leoSyncHeader();
   var leoM = document.getElementById('leo-mode');
   var leoD = document.getElementById('leo-dir');
-  if (leoB) { leoB.textContent = vtMain ? vtMain.textContent : '—'; leoB.style.color = vtMain ? vtMain.style.color : '#fff'; }
-  if (leoS) { leoS.textContent = scoreEl ? scoreEl.textContent : '0'; leoS.style.color = vtMain ? vtMain.style.color : '#fff'; }
   if (leoM) leoM.textContent = tradingMode || '— no mode —';
   var md = document.querySelector('#market-direction .bb.sel');
   if (leoD) leoD.textContent = md ? md.textContent.trim() : '—';
