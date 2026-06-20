@@ -10692,6 +10692,36 @@ function leoSetSymbol(sym, btn) {
   // Re-filter level cards and KL bar for this instrument
   lvlRenderAll();
   leoRenderKLBar();
+  // Restore this instrument's analysis snapshot so score/bias reflect the right instrument
+  if (typeof _tdRestoreAnalysisSnapshot === 'function') _tdRestoreAnalysisSnapshot(sym);
+  // Re-sync the header with the updated score
+  _leoSyncHeader();
+}
+
+function _leoSyncHeader() {
+  var vtMain  = document.getElementById('vt-main');
+  var scoreEl = document.getElementById('score-num');
+  var leoB    = document.getElementById('leo-bias');
+  var leoS    = document.getElementById('leo-score');
+  var header  = document.getElementById('leo-header');
+  var biasColor = vtMain ? vtMain.style.color : '#aaa';
+  if (leoB) { leoB.textContent = vtMain ? vtMain.textContent : '—'; leoB.style.color = biasColor; }
+  if (leoS) { leoS.textContent = scoreEl ? scoreEl.textContent : '0'; leoS.style.color = biasColor; }
+  if (!header) return;
+  var s = parseFloat(scoreEl ? scoreEl.textContent.replace('+','') : '0') || 0;
+  var t = Math.max(-1, Math.min(1, s / 10));
+  var bg, border;
+  if (t > 0.05) {
+    var a = Math.min(0.22, 0.06 + t * 0.16), ab = Math.min(0.5, 0.15 + t * 0.35);
+    bg = 'rgba(78,214,138,'+a+')'; border = 'rgba(78,214,138,'+ab+')';
+  } else if (t < -0.05) {
+    var a = Math.min(0.22, 0.06 + Math.abs(t)*0.16), ab = Math.min(0.5, 0.15 + Math.abs(t)*0.35);
+    bg = 'rgba(240,96,96,'+a+')'; border = 'rgba(240,96,96,'+ab+')';
+  } else {
+    bg = 'rgba(240,188,78,0.18)'; border = 'rgba(240,188,78,0.45)';
+  }
+  header.style.background = bg;
+  header.style.borderBottomColor = border;
 }
 
 // ── CUSTOM TICKER TABS — user can add any TradingView symbol ──
