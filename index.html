@@ -1805,7 +1805,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 #leo-header{display:flex;align-items:center;justify-content:space-between;padding:6px 14px 6px 22px;background:#0a0b0d;border-bottom:1px solid rgba(255,255,255,0.08);flex-shrink:0;height:42px;position:relative;isolation:isolate;z-index:1}
 #leo-header::before{content:'';position:absolute;left:0;top:0;bottom:0;width:6px;z-index:-1;background:var(--lh-bg,#08090b);pointer-events:none;box-shadow:0 0 18px 2px var(--lh-glow,transparent)}
 #leo-header>*{position:relative;z-index:1}
-#leo-header>div:not(#kl-hover-card),#leo-kl-bar{background:transparent!important}
+#leo-header>div,#leo-kl-bar{background:transparent!important}
 #leo-header .kl-pill-rich{background:transparent!important;border-color:rgba(255,255,255,0.18)!important}
 #ptg-override-badge,#ptg-run-check{background:transparent!important}
 #leo-bias{display:inline-flex;align-items:center;padding:3px 10px;border-radius:5px;font-weight:700!important}
@@ -5159,13 +5159,13 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
       <div id="leo-dir" style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.25)">—</div>
     </div>
     <div id="leo-kl-bar"></div>
-    <div id="kl-hover-card" onmouseenter="clearTimeout(_klhHideTimer)" onmouseleave="klhHide()"></div>
     <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
       <span id="ptg-override-badge">⚠ gate overridden</span>
       <button id="ptg-run-check" onclick="ptgOpen()">✓ Run check</button>
       <button id="leo-refresh" onclick="leoRefreshCharts(this)" style="font-family:var(--mono);font-size:8px;color:rgba(255,255,255,0.4);background:transparent;border:1px solid rgba(255,255,255,0.15);border-radius:4px;padding:3px 9px;cursor:pointer">↻ Refresh</button>
     </div>
   </div>
+  <div id="kl-hover-card" onmouseenter="clearTimeout(_klhHideTimer)" onmouseleave="klhHide()"></div>
   <div id="leo-ptg-warning" style="display:none;background:rgba(240,56,56,0.12);border-bottom:2px solid rgba(240,56,56,0.5);padding:10px 14px;font-family:var(--mono);flex-shrink:0;text-align:center;cursor:pointer" onclick="ptgOpen(true)">
     <div style="font-size:13px;font-weight:700;color:#f06060;letter-spacing:0.06em;margin-bottom:2px">⚠ YOU SKIPPED YOUR PRE-TRADE CHECKLIST</div>
     <div style="font-size:9px;color:rgba(240,96,96,0.6);letter-spacing:0.08em">Click here to complete it before trading</div>
