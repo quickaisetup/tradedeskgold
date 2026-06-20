@@ -11091,24 +11091,20 @@ function _leoSyncHeader() {
   var bg, border, f, r, g, b;
   if (t > 0.05) {
     f = Math.min(1, t);
-    r = lerpC2(8, 25, f); g = lerpC2(9, 70, f); b = lerpC2(11, 35, f);
+    r = lerpC2(8, 15, f); g = lerpC2(9, 100, f); b = lerpC2(11, 40, f);
     bg = 'rgb(' + r + ',' + g + ',' + b + ')';
-    border = 'rgba(78,214,138,' + Math.min(0.8, 0.2 + f * 0.6) + ')';
+    border = 'rgba(78,214,138,' + Math.min(0.9, 0.3 + f * 0.6) + ')';
   } else if (t < -0.05) {
     f = Math.min(1, Math.abs(t));
-    r = lerpC2(8, 80, f); g = lerpC2(9, 12, f); b = lerpC2(11, 12, f);
+    r = lerpC2(8, 120, f); g = lerpC2(9, 10, f); b = lerpC2(11, 10, f);
     bg = 'rgb(' + r + ',' + g + ',' + b + ')';
-    border = 'rgba(240,96,96,' + Math.min(0.8, 0.2 + f * 0.6) + ')';
+    border = 'rgba(240,96,96,' + Math.min(0.9, 0.3 + f * 0.6) + ')';
   } else {
-    bg = 'rgb(18,16,10)';
+    bg = 'rgb(30,25,8)';
     border = 'rgba(240,188,78,0.45)';
   }
   header.style.background = bg;
   header.style.borderBottomColor = border;
-  ['leo-kl-bar','leo-sym-ema-bar','leo-calc-bar','leo-ltf-trend-bar'].forEach(function(id) {
-    var el = document.getElementById(id);
-    if (el) el.style.background = bg;
-  });
 }
 
 // ── CUSTOM TICKER TABS — user can add any TradingView symbol ──
@@ -11254,24 +11250,20 @@ function openLiveExec() {
     var f, r, g, b;
     if (t > 0.05) {
       f = Math.min(1, t);
-      r = lerpC(8, 25, f); g = lerpC(9, 70, f); b = lerpC(11, 35, f);
+      r = lerpC(8, 15, f); g = lerpC(9, 100, f); b = lerpC(11, 40, f);
       bg = 'rgb(' + r + ',' + g + ',' + b + ')';
-      border = 'rgba(78,214,138,' + Math.min(0.8, 0.2 + f * 0.6) + ')';
+      border = 'rgba(78,214,138,' + Math.min(0.9, 0.3 + f * 0.6) + ')';
     } else if (t < -0.05) {
       f = Math.min(1, Math.abs(t));
-      r = lerpC(8, 80, f); g = lerpC(9, 12, f); b = lerpC(11, 12, f);
+      r = lerpC(8, 120, f); g = lerpC(9, 10, f); b = lerpC(11, 10, f);
       bg = 'rgb(' + r + ',' + g + ',' + b + ')';
-      border = 'rgba(240,96,96,' + Math.min(0.8, 0.2 + f * 0.6) + ')';
+      border = 'rgba(240,96,96,' + Math.min(0.9, 0.3 + f * 0.6) + ')';
     } else {
-      bg = 'rgb(18,16,10)';
+      bg = 'rgb(30,25,8)';
       border = 'rgba(240,188,78,0.45)';
     }
     header.style.background = bg;
     header.style.borderBottomColor = border;
-    ['leo-kl-bar','leo-sym-ema-bar','leo-calc-bar','leo-ltf-trend-bar'].forEach(function(id) {
-      var el = document.getElementById(id);
-      if (el) el.style.background = bg;
-    });
     var overlay = document.getElementById('live-exec-overlay');
     if (overlay) {
       var gc, edgeA;
