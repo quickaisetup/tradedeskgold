@@ -1801,12 +1801,13 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 #ptg-mantra{margin-top:28px;text-align:center;font-family:var(--display);font-size:11px;letter-spacing:0.28em;text-transform:uppercase;color:var(--gold);opacity:0.7;user-select:none}
 #ptg-run-check{font-family:var(--mono);font-size:8px;letter-spacing:0.1em;text-transform:uppercase;padding:3px 10px;border-radius:4px;border:1px solid rgba(240,188,78,0.25);background:rgba(240,188,78,0.07);color:rgba(240,188,78,0.55);cursor:pointer;transition:all 0.15s;white-space:nowrap}#ptg-run-check:hover{border-color:var(--gb);color:var(--gold);background:var(--gd)}
 #ptg-override-badge{display:none;font-family:var(--mono);font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(240,96,96,0.55);padding:2px 8px;border-radius:3px;border:1px solid rgba(240,96,96,0.2);background:rgba(240,96,96,0.06)}
-#leo-header{display:flex;align-items:center;justify-content:space-between;padding:6px 14px;background:#08090b;border-bottom:1px solid rgba(255,255,255,0.1);flex-shrink:0;height:42px}
+#leo-header{display:flex;align-items:center;justify-content:space-between;padding:6px 14px;background:transparent;border-bottom:1px solid rgba(255,255,255,0.1);flex-shrink:0;height:42px;position:relative;isolation:isolate;z-index:0}
+#leo-header::before{content:'';position:absolute;inset:0;z-index:-1;background:var(--lh-bg,#08090b);pointer-events:none}
+#leo-header>*{position:relative;z-index:1}
 #leo-header>div,#leo-kl-bar{background:transparent!important}
 #leo-header .kl-pill-rich{background:transparent!important;border-color:rgba(255,255,255,0.18)!important}
 #ptg-override-badge,#ptg-run-check{background:transparent!important}
 #leo-header *{background-image:none!important;box-shadow:none!important;filter:none!important;backdrop-filter:none!important;background:transparent!important;background-color:transparent!important}
-#leo-header{background-image:none!important;position:relative;isolation:isolate}
 #leo-title{font-family:var(--display);font-size:15px;letter-spacing:0.14em;color:#fff;display:flex;align-items:center;gap:10px}
 #leo-live-dot{width:8px;height:8px;border-radius:50%;background:#4ed68a;box-shadow:0 0 8px rgba(78,214,138,1);animation:livePulse 1.4s ease-in-out infinite;flex-shrink:0}
 #leo-refresh{
@@ -11108,7 +11109,7 @@ function _leoSyncHeader() {
     bg = 'rgb(70,58,15)';
     border = 'rgba(240,188,78,0.45)';
   }
-  header.style.background = bg;
+  header.style.setProperty('--lh-bg', bg);
   header.style.borderBottomColor = border;
 }
 
