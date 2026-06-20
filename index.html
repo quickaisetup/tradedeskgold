@@ -1017,17 +1017,17 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
   transition:border-color 0.6s,box-shadow 0.6s;position:relative}
 #src-avatar img{width:100%;height:100%;object-fit:cover;display:block}
 #src-hero-text{flex:1;min-width:0;text-align:left;position:relative;z-index:1}
-#src-username{font-family:var(--mono);font-size:9px;letter-spacing:0.18em;color:rgba(255,255,255,0.3);text-transform:uppercase;margin-bottom:4px}
+#src-username{font-family:var(--mono);font-size:10px;letter-spacing:0.18em;color:rgba(255,255,255,0.5);text-transform:uppercase;margin-bottom:4px}
 #src-rank-name{font-family:var(--display);font-size:38px;letter-spacing:0.06em;font-weight:700;line-height:0.95;
   text-shadow:0 0 50px var(--srg,transparent);transition:color 0.6s,text-shadow 0.6s}
-#src-rank-sub{font-family:var(--mono);font-size:9px;letter-spacing:0.14em;margin-top:6px;text-transform:uppercase;font-weight:600}
-#src-share-btn{position:absolute;top:14px;right:16px;background:rgba(255,255,255,0.06);
-  border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:5px 12px;cursor:pointer;
-  color:rgba(255,255,255,0.35);font-family:var(--mono);font-size:8px;letter-spacing:0.12em;
+#src-rank-sub{font-family:var(--mono);font-size:10px;letter-spacing:0.14em;margin-top:6px;text-transform:uppercase;font-weight:600;color:rgba(240,188,78,0.7)}
+#src-share-btn{position:absolute;top:14px;right:16px;background:rgba(255,255,255,0.08);
+  border:1px solid rgba(255,255,255,0.18);border-radius:8px;padding:5px 12px;cursor:pointer;
+  color:rgba(255,255,255,0.5);font-family:var(--mono);font-size:9px;letter-spacing:0.12em;
   text-transform:uppercase;transition:all 0.15s;z-index:2}
 #src-share-btn:hover{background:rgba(255,255,255,0.12);color:#fff;border-color:var(--src)}
 /* quote */
-#src-quote{font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.2);
+#src-quote{font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.35);
   letter-spacing:0.05em;line-height:1.6;padding:0 20px 14px;font-style:italic;text-align:center}
 /* stats: 3 col */
 #src-stats{display:grid;grid-template-columns:1fr 1fr 1fr;
@@ -1037,11 +1037,11 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 .src-stat:last-child{border-right:none}
 .src-stat-icon{font-size:13px;line-height:1;margin-bottom:1px}
 .src-stat-val{font-family:var(--display);font-size:28px;letter-spacing:0.01em;font-weight:700;line-height:1}
-.src-stat-lbl{font-family:var(--mono);font-size:7px;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.22);text-align:center;line-height:1.35}
+.src-stat-lbl{font-family:var(--mono);font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.4);text-align:center;line-height:1.35}
 /* XP progress bar — game style */
 #src-progress{padding:14px 20px 14px;position:relative;z-index:1}
 #src-progress-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px}
-#src-xp-label{font-family:var(--mono);font-size:8px;letter-spacing:0.14em;color:rgba(255,255,255,0.28);text-transform:uppercase}
+#src-xp-label{font-family:var(--mono);font-size:9px;letter-spacing:0.14em;color:rgba(255,255,255,0.45);text-transform:uppercase}
 #src-xp-next{font-family:var(--display);font-size:11px;letter-spacing:0.1em;font-weight:700}
 #src-bar-track{height:10px;background:rgba(255,255,255,0.05);border-radius:6px;border:1px solid rgba(255,255,255,0.06);overflow:hidden;position:relative}
 #src-bar-fill{height:100%;border-radius:5px;transition:width 1.6s cubic-bezier(.22,1,.36,1);
@@ -1052,20 +1052,20 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 .src-bar-pip{flex:1;border-right:1px solid rgba(0,0,0,0.3)}
 .src-bar-pip:last-child{border-right:none}
 #src-bar-labels{display:flex;justify-content:space-between;font-family:var(--mono);
-  font-size:7px;color:rgba(255,255,255,0.16);margin-top:5px}
-#src-xp-pct{font-family:var(--mono);font-size:7px;color:rgba(255,255,255,0.3);text-align:center;margin-top:2px}
+  font-size:8px;color:rgba(255,255,255,0.3);margin-top:5px}
+#src-xp-pct{font-family:var(--mono);font-size:8px;color:rgba(255,255,255,0.4);text-align:center;margin-top:2px}
 /* pnl strip */
 #src-pnl{display:grid;grid-template-columns:1fr 1px 1fr;
   border-top:1px solid rgba(255,255,255,0.06);position:relative;z-index:1}
 .src-pnl-div{background:rgba(255,255,255,0.06)}
 .src-pnl-cell{display:flex;flex-direction:column;align-items:center;padding:13px 8px;gap:4px}
 .src-pnl-val{font-family:var(--display);font-size:20px;letter-spacing:0.02em;line-height:1}
-.src-pnl-lbl{font-family:var(--mono);font-size:7px;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.2)}
+.src-pnl-lbl{font-family:var(--mono);font-size:8px;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.4)}
 /* brand */
 #src-brand{padding:10px 20px 13px;display:flex;align-items:center;justify-content:center;gap:8px;
   border-top:1px solid rgba(255,255,255,0.04)}
 .src-brand-dot{width:3px;height:3px;border-radius:50%;opacity:0.45}
-#src-brand-text{font-family:var(--display);font-size:9px;letter-spacing:0.32em;text-transform:uppercase;opacity:0.45}
+#src-brand-text{font-family:var(--display);font-size:9px;letter-spacing:0.32em;text-transform:uppercase;opacity:0.55}
 @keyframes rankBadgePop{from{opacity:0;transform:translateX(-50%) scale(0.5)}to{opacity:1;transform:translateX(-50%) scale(1)}}
 
 #wt-chip{position:fixed;bottom:40px;left:50%;transform:translateX(-50%);z-index:9999;
