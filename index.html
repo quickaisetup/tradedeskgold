@@ -1880,11 +1880,10 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 .leo-cd-sep{width:1px;height:12px;background:rgba(255,255,255,0.1);flex-shrink:0}
 
 /* 6-CHART GRID */
-#leo-ema-bar{display:flex;align-items:center;gap:10px;padding:5px 14px;background:#08090b;border-bottom:1px solid rgba(255,255,255,0.07);flex-shrink:0;flex-wrap:wrap}
-.leo-ema-dot{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:0.08em;color:rgba(255,255,255,0.6)}
-.leo-ema-dot::before{content:'';display:inline-block;width:22px;height:2px;border-radius:1px;background:currentColor;opacity:0.9}
-#leo-ema-bar-sep{color:rgba(255,255,255,0.2);font-size:11px}
-#leo-ema-bar-note{font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:0.03em}
+#leo-ema-bar{display:flex;align-items:center;gap:6px;padding:5px 14px;background:#08090b;border-bottom:1px solid rgba(255,255,255,0.07);flex-shrink:0;font-family:var(--mono);font-size:9px;letter-spacing:0.06em;color:rgba(255,255,255,0.4)}
+#leo-ema-bar-label{color:rgba(255,255,255,0.65);font-weight:700;letter-spacing:0.1em;margin-right:4px}
+#leo-ema-bar-sep{color:rgba(255,255,255,0.15);margin:0 6px}
+#leo-ema-bar-note{color:rgba(255,255,255,0.3)}
 #leo-charts-grid{display:grid;grid-template-columns:1fr 1fr 1fr;grid-template-rows:1fr 1fr;gap:2px;flex:1;min-height:0;background:#030405;padding:2px}
 .leo-tv-cell{position:relative;background:#060708;border:1px solid rgba(255,255,255,0.06);border-radius:4px;overflow:hidden;min-height:0;transition:border-color .2s}
 .leo-tv-cell:hover{border-color:rgba(255,255,255,0.15)}
@@ -5182,12 +5181,10 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 
   <!-- leo-trade-alert removed — global popup handles alerts -->
   <div id="leo-ema-bar">
-    <span class="leo-ema-dot" style="background:#a855f7">EMA 9</span>
-    <span class="leo-ema-dot" style="background:#f0bc4e">EMA 20</span>
-    <span class="leo-ema-dot" style="background:#6aa3f5">EMA 50</span>
-    <span class="leo-ema-dot" style="background:rgba(255,255,255,0.7)">MA 200</span>
-    <span id="leo-ema-bar-sep">·</span>
-    <span id="leo-ema-bar-note">Always-on across all timeframes — use them to read trend direction and dynamic support/resistance.</span>
+    <span id="leo-ema-bar-label">EMAs</span>
+    9 · 20 · 50 · 200
+    <span id="leo-ema-bar-sep">|</span>
+    <span id="leo-ema-bar-note">Always-on — use them to read trend direction and dynamic support/resistance.</span>
   </div>
 
   <div id="leo-charts-grid">
@@ -10891,21 +10888,17 @@ function leoLoadWidget(tfId, sym, interval) {
   (function(el){
     var cdTip = document.getElementById('leo-cd-tooltip');
     if (!cdTip) return;
-    function pos(e){ var h=cdTip.offsetHeight||180; var w=cdTip.offsetWidth||280; var x=e.clientX<window.innerWidth/2?e.clientX+14:e.clientX-w-14; var y=Math.max(4,e.clientY-h-14); cdTip.style.left=x+'px'; cdTip.style.top=y+'px'; }
+    function pos(e){ var h=cdTip.offsetHeight||200; var w=cdTip.offsetWidth||300; var x=e.clientX<window.innerWidth/2?e.clientX+14:e.clientX-w-14; var y=Math.max(4,e.clientY-h-14); cdTip.style.left=x+'px'; cdTip.style.top=y+'px'; }
     el.addEventListener('mouseenter',function(e){cdTip.style.display='block';pos(e);});
     el.addEventListener('mousemove',function(e){pos(e);});
     el.addEventListener('mouseleave',function(){cdTip.style.display='none';});
   })(pill);
 
-  // Each chart loads in its own iframe so TV widget scripts don't share global state
+  // Each chart in its own iframe (srcdoc keeps same origin so TV scripts load without CSP issues)
   var iframe = document.createElement('iframe');
   iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:none;background:#060708';
   iframe.setAttribute('scrolling', 'no');
-  var html = leoMakeWidgetHTML(sym, interval, tfId);
-  var blob = new Blob([html], { type: 'text/html' });
-  if (_leoBlobUrls[tfId]) URL.revokeObjectURL(_leoBlobUrls[tfId]);
-  _leoBlobUrls[tfId] = URL.createObjectURL(blob);
-  iframe.src = _leoBlobUrls[tfId];
+  iframe.srcdoc = leoMakeWidgetHTML(sym, interval, tfId);
   container.appendChild(iframe);
 }
 
