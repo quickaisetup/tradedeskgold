@@ -11095,17 +11095,17 @@ function _leoSyncHeader() {
   function lerpC2(base, target, f) { return Math.round(base + (target - base) * f); }
   var bg, border, f, r, g, b;
   if (t > 0.05) {
-    f = Math.min(1, t);
-    r = lerpC2(8, 15, f); g = lerpC2(9, 100, f); b = lerpC2(11, 40, f);
+    f = Math.min(1, Math.pow(t, 0.6));
+    r = lerpC2(20, 30, f); g = lerpC2(60, 190, f); b = lerpC2(35, 95, f);
     bg = 'rgb(' + r + ',' + g + ',' + b + ')';
-    border = 'rgba(78,214,138,' + Math.min(0.9, 0.3 + f * 0.6) + ')';
+    border = 'rgba(78,214,138,' + Math.min(0.9, 0.4 + f * 0.5) + ')';
   } else if (t < -0.05) {
-    f = Math.min(1, Math.abs(t));
-    r = lerpC2(8, 120, f); g = lerpC2(9, 10, f); b = lerpC2(11, 10, f);
+    f = Math.min(1, Math.pow(Math.abs(t), 0.6));
+    r = lerpC2(70, 200, f); g = lerpC2(20, 50, f); b = lerpC2(20, 50, f);
     bg = 'rgb(' + r + ',' + g + ',' + b + ')';
-    border = 'rgba(240,96,96,' + Math.min(0.9, 0.3 + f * 0.6) + ')';
+    border = 'rgba(240,96,96,' + Math.min(0.9, 0.4 + f * 0.5) + ')';
   } else {
-    bg = 'rgb(30,25,8)';
+    bg = 'rgb(70,58,15)';
     border = 'rgba(240,188,78,0.45)';
   }
   header.style.background = bg;
@@ -11232,62 +11232,13 @@ function openLiveExec() {
   if (typeof _restoreTFStateLocal === 'function') _restoreTFStateLocal();
   if (typeof updateVerdictAuto === 'function') updateVerdictAuto();
 
-  // Sync header from bias state
-  var vtMain  = document.getElementById('vt-main');
-  var scoreEl = document.getElementById('score-num');
-  var leoB = document.getElementById('leo-bias');
-  var leoS = document.getElementById('leo-score');
+  // Sync header from bias state (single source of truth — see _leoSyncHeader)
   var leoM = document.getElementById('leo-mode');
   var leoD = document.getElementById('leo-dir');
-  var biasColor = vtMain ? vtMain.style.color : '#aaa';
-  if (leoB) { leoB.textContent = vtMain ? vtMain.textContent : '—'; leoB.style.color = biasColor; }
-  if (leoS) { leoS.textContent = scoreEl ? scoreEl.textContent : '0'; leoS.style.color = biasColor; }
   if (leoM) leoM.textContent = tradingMode.length ? tradingMode.join(' + ') : '— no mode —';
   var md = document.querySelector('#market-direction .bb.sel');
   if (leoD) leoD.textContent = md ? md.textContent.trim() : '—';
-  // Color the header bar based on score
-  (function(){
-    var header = document.getElementById('leo-header');
-    if (!header) return;
-    var s = parseFloat(scoreEl ? scoreEl.textContent.replace('+','') : '0') || 0;
-    var maxScore = 10;
-    var t = Math.max(-1, Math.min(1, s / maxScore)); // -1 = full bear, +1 = full bull
-    var bg, border;
-    function lerpC(base, target, f) {
-      return Math.round(base + (target - base) * f);
-    }
-    var f, r, g, b;
-    if (t > 0.05) {
-      f = Math.min(1, t);
-      r = lerpC(8, 15, f); g = lerpC(9, 100, f); b = lerpC(11, 40, f);
-      bg = 'rgb(' + r + ',' + g + ',' + b + ')';
-      border = 'rgba(78,214,138,' + Math.min(0.9, 0.3 + f * 0.6) + ')';
-    } else if (t < -0.05) {
-      f = Math.min(1, Math.abs(t));
-      r = lerpC(8, 120, f); g = lerpC(9, 10, f); b = lerpC(11, 10, f);
-      bg = 'rgb(' + r + ',' + g + ',' + b + ')';
-      border = 'rgba(240,96,96,' + Math.min(0.9, 0.3 + f * 0.6) + ')';
-    } else {
-      bg = 'rgb(30,25,8)';
-      border = 'rgba(240,188,78,0.45)';
-    }
-    header.style.background = bg;
-    header.style.borderBottomColor = border;
-    var overlay = document.getElementById('live-exec-overlay');
-    if (overlay) {
-      var gc, edgeA;
-      if (t > 0.05) {
-        gc = '40,180,90';
-        edgeA = Math.min(0.45, 0.08 + t * 0.37);
-      } else if (t < -0.05) {
-        gc = '200,50,50';
-        edgeA = Math.min(0.45, 0.08 + Math.abs(t) * 0.37);
-      } else {
-        gc = '240,188,78'; edgeA = 0.04;
-      }
-      overlay.style.removeProperty('--leo-glow');
-    }
-  })();
+  _leoSyncHeader();
 
   if (window.leoRestoreIndicatorBtn) leoRestoreIndicatorBtn();
 
