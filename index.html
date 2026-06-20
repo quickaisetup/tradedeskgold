@@ -1919,11 +1919,16 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 #eod-nudge-close:hover{color:rgba(255,255,255,0.7)}
 #eod-card-slot{width:100%;display:flex;justify-content:center}
 #eod-card-slot #splash-rank-card{width:100%}
-#eod-nudge-cta{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;font-family:var(--display);font-size:14px;letter-spacing:0.04em;color:#0a0b0d;background:#f0bc4e;border:none;border-radius:10px;padding:15px 0;cursor:pointer;transition:all 0.15s}
-#eod-nudge-cta:hover{background:#ffd070;box-shadow:0 0 24px rgba(240,188,78,0.4)}
-#eod-nudge-xp-pill,#eod-questions-xp-pill{font-family:var(--mono);font-size:9px;font-weight:700;background:rgba(10,11,13,0.25);border-radius:5px;padding:2px 7px}
-#eod-nudge-later{width:100%;font-family:var(--mono);font-size:10px;letter-spacing:0.06em;color:rgba(255,255,255,0.4);background:transparent;border:1px solid rgba(255,255,255,0.14);border-radius:10px;padding:10px 0;cursor:pointer;transition:all 0.15s}
-#eod-nudge-later:hover{color:rgba(255,255,255,0.7);border-color:rgba(255,255,255,0.3)}
+#eod-card-slot{overflow:hidden;border-radius:18px}
+#eod-nudge-card{position:relative;width:100%;max-width:420px;display:flex;flex-direction:column;align-items:center;gap:0;text-align:center}
+#eod-nudge-hook{font-family:var(--display);font-size:22px;letter-spacing:0.02em;color:#fff;margin-bottom:6px}
+#eod-nudge-hook span{color:#f0bc4e}
+#eod-nudge-sub{font-family:var(--mono);font-size:11px;letter-spacing:0.04em;color:rgba(255,255,255,0.5);margin-bottom:28px;line-height:1.5}
+#eod-nudge-cta{position:relative;z-index:2;width:100%;display:flex;align-items:center;justify-content:center;gap:10px;font-family:var(--display);font-size:17px;letter-spacing:0.04em;color:#0a0b0d;background:linear-gradient(135deg,#f0bc4e,#ffd070);border:none;border-radius:14px;padding:20px 0;cursor:pointer;transition:all 0.18s;box-shadow:0 0 30px rgba(240,188,78,0.25)}
+#eod-nudge-cta:hover{background:linear-gradient(135deg,#ffd070,#ffe0a0);box-shadow:0 0 40px rgba(240,188,78,0.45);transform:scale(1.02)}
+#eod-nudge-xp-pill,#eod-questions-xp-pill{font-family:var(--mono);font-size:10px;font-weight:700;background:rgba(10,11,13,0.2);border-radius:6px;padding:3px 9px}
+#eod-nudge-later{position:relative;z-index:2;width:100%;font-family:var(--mono);font-size:10px;letter-spacing:0.06em;color:rgba(255,255,255,0.3);background:transparent;border:none;border-radius:10px;padding:14px 0;cursor:pointer;transition:all 0.15s}
+#eod-nudge-later:hover{color:rgba(255,255,255,0.55)}
 
 /* ── END-OF-DAY NOTES NUDGE (popup 2: actual review questions) ── */
 #eod-questions-overlay{display:none;position:fixed;inset:0;z-index:100021;background:rgba(4,5,7,0.94);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:24px;overflow-y:auto}
@@ -11303,8 +11308,7 @@ function openLiveExec() {
   // Show pre-trade gate first; charts load only after it's dismissed
   ptgOpen();
 
-  // TEMP: preview the end-of-day notes nudge right away (testing only)
-  setTimeout(eodNudgeOpen, 900);
+  // EOD nudge deferred until charts have loaded (triggered in ptg unlock/skip/override)
 }
 
 // ── END-OF-DAY NOTES NUDGE ──────────────────────────────
@@ -11324,9 +11328,24 @@ function eodNudgeOpen() {
   card.classList.remove('hidden');
   slot.appendChild(card);
 
-  var xpPill = document.getElementById('eod-nudge-xp-pill');
   var alreadyGranted = !!localStorage.getItem(_eodXpGrantedKey());
+  var xpPill = document.getElementById('eod-nudge-xp-pill');
   if (xpPill) xpPill.textContent = alreadyGranted ? '✓ done today' : '+1 XP';
+
+  var hook = document.getElementById('eod-nudge-hook');
+  if (hook) {
+    var streak = parseInt(localStorage.getItem('td_streak')) || 0;
+    var tiers = typeof getRankDefs === 'function' ? getRankDefs() : [];
+    var rank = tiers.find(function(r){ return streak >= r.min && streak <= r.max; }) || null;
+    if (rank && rank.nextMin < 999) {
+      var daysLeft = rank.nextMin - streak;
+      hook.innerHTML = 'Only <span>' + daysLeft + ' more XP</span> to ' + rank.nextName + '!';
+    } else if (rank && rank.nextMin >= 999) {
+      hook.innerHTML = 'You\'re <span>God Mode</span>. Keep the streak alive!';
+    } else {
+      hook.innerHTML = 'Earn <span>+1 XP</span> — save your day!';
+    }
+  }
 
   overlay.classList.add('show');
 }
@@ -11883,6 +11902,7 @@ function ptgSkip() {
   if (badge) badge.style.display = '';
   _leoInitCharts();
   if (obShouldShow()) obOpen();
+  setTimeout(eodNudgeOpen, 900);
 }
 function ptgCombinedUnlock() {
   _ptgLog({ type: 'pass', ts: new Date().toISOString(), answers: [] });
@@ -11933,6 +11953,7 @@ function ptgOverride() {
   var warn = document.getElementById('leo-ptg-warning');
   if (warn) warn.style.display = '';
   _leoInitCharts();
+  setTimeout(eodNudgeOpen, 900);
 }
 window.ptgMarkStopOut = ptgMarkStopOut;
 window.ptgCombinedUnlock = ptgCombinedUnlock;
@@ -18294,8 +18315,10 @@ window.fwFinish = fwFinish;
   <div id="eod-nudge-card">
     <button id="eod-nudge-close" onclick="eodNudgeDismiss()" title="Close">✕</button>
     <div id="eod-card-slot"></div>
-    <button id="eod-nudge-cta" onclick="eodOpenQuestions()">📝 End of Day Notes <span id="eod-nudge-xp-pill">+1 XP</span></button>
-    <button id="eod-nudge-later" onclick="eodNudgeDismiss()">Later</button>
+    <div id="eod-nudge-hook"></div>
+    <div id="eod-nudge-sub">Save your trading day — you can update notes later.</div>
+    <button id="eod-nudge-cta" onclick="eodOpenQuestions()">📝 Save My Day <span id="eod-nudge-xp-pill">+1 XP</span></button>
+    <button id="eod-nudge-later" onclick="eodNudgeDismiss()">Not now</button>
   </div>
 </div>
 
