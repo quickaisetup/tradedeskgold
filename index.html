@@ -11007,6 +11007,8 @@ function leoRestoreIndicatorBtn() {
   if (track) track.classList.toggle('on', _leoTipsOn);
   _leoBind('leo-ind-toggle', 'leo-ind-tooltip', 270, 80);
   _leoBind('leo-calc-bar',   'leo-calc-tooltip', 270, 160);
+  _leoBind('leo-log-trade-btn', 'leo-log-tooltip', 270, 160);
+  _leoBind('leo-sym-tabs',   'leo-sym-tooltip', 270, 140);
   // Bind indicator hover strips (bottom of each chart) to the same tooltip
   var indTip = document.getElementById('leo-ind-tooltip');
   if (indTip) {
@@ -18473,6 +18475,24 @@ window.fwFinish = fwFinish;
     <div class="cdt-badge cdt-badge-red"><div class="cdt-badge-dot" style="background:#f06060"></div>Red · 70%+</div>
   </div>
   <div class="cdt-desc">Color shows how much of the candle has elapsed. Red means it's closing soon — act or wait for the next one.</div>
+  <div class="leotip-off-note"><label class="leo-tips-toggle" onclick="leoToggleTips()" style="cursor:pointer"><span class="leo-tips-track leo-tips-track-copy"><span class="leo-tips-knob"></span></span><span class="leo-tips-label">EXPLAINER POPUPS</span></label><span class="leotip-off-text">— switch off these popups top-right ↗</span></div>
+</div>
+
+<div id="leo-log-tooltip" style="display:none;position:fixed;z-index:9999;background:#1a1d27;border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:12px 14px;width:270px;pointer-events:none;box-shadow:0 8px 32px rgba(0,0,0,0.5)">
+  <div class="leotip-title">📝 Log & Journal a Trade</div>
+  <div class="leotip-body">
+    Record your trade <b>right before or after entry</b> — don't batch them later.<br><br>
+    Fill in <b>setup, direction, entry/SL/TP, and mindset</b>. Be honest — "Revenge" and "FOMO" tags show up in your stats so you can spot patterns.
+  </div>
+  <div class="leotip-off-note"><label class="leo-tips-toggle" onclick="leoToggleTips()" style="cursor:pointer"><span class="leo-tips-track leo-tips-track-copy"><span class="leo-tips-knob"></span></span><span class="leo-tips-label">EXPLAINER POPUPS</span></label><span class="leotip-off-text">— switch off these popups top-right ↗</span></div>
+</div>
+
+<div id="leo-sym-tooltip" style="display:none;position:fixed;z-index:9999;background:#1a1d27;border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:12px 14px;width:270px;pointer-events:none;box-shadow:0 8px 32px rgba(0,0,0,0.5)">
+  <div class="leotip-title">📈 Instruments</div>
+  <div class="leotip-body">
+    Switch between instruments — all 6 charts, key levels, and the position calculator update instantly.<br><br>
+    Click <b>+ Add</b> to add any TradingView ticker (e.g. <b>OANDA:EURUSD</b>, <b>NASDAQ:AAPL</b>).
+  </div>
   <div class="leotip-off-note"><label class="leo-tips-toggle" onclick="leoToggleTips()" style="cursor:pointer"><span class="leo-tips-track leo-tips-track-copy"><span class="leo-tips-knob"></span></span><span class="leo-tips-label">EXPLAINER POPUPS</span></label><span class="leotip-off-text">— switch off these popups top-right ↗</span></div>
 </div>
 
