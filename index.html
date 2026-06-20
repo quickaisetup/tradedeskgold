@@ -5130,7 +5130,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
       <button id="leo-refresh" onclick="leoRefreshCharts(this)" style="font-family:var(--mono);font-size:8px;color:rgba(255,255,255,0.4);background:transparent;border:1px solid rgba(255,255,255,0.15);border-radius:4px;padding:3px 9px;cursor:pointer">↻ Refresh</button>
     </div>
   </div>
-  <div id="leo-ptg-warning" style="display:none;background:rgba(240,56,56,0.12);border-bottom:2px solid rgba(240,56,56,0.5);padding:10px 14px;font-family:var(--mono);flex-shrink:0;text-align:center;cursor:pointer" onclick="ptgOpen()">
+  <div id="leo-ptg-warning" style="display:none;background:rgba(240,56,56,0.12);border-bottom:2px solid rgba(240,56,56,0.5);padding:10px 14px;font-family:var(--mono);flex-shrink:0;text-align:center;cursor:pointer" onclick="ptgOpen(true)">
     <div style="font-size:13px;font-weight:700;color:#f06060;letter-spacing:0.06em;margin-bottom:2px">⚠ YOU SKIPPED YOUR PRE-TRADE CHECKLIST</div>
     <div style="font-size:9px;color:rgba(240,96,96,0.6);letter-spacing:0.08em">Click here to complete it before trading</div>
   </div>
@@ -11558,9 +11558,10 @@ function ptgShouldShow() {
 function ptgMarkStopOut() {
   localStorage.setItem('ptg_stopout_pending', '1');
 }
-function ptgOpen() {
+function ptgOpen(forceInteractive) {
   var badge = document.getElementById('ptg-override-badge');
   if (badge) badge.style.display = 'none';
+  if (forceInteractive) localStorage.removeItem(_ptgCompletedKey());
   var alreadyDone = !!localStorage.getItem(_ptgCompletedKey());
   var list = document.getElementById('ptg-list');
   var footer = document.getElementById('ptg-footer');
@@ -11599,7 +11600,7 @@ function ptgOpen() {
       var gold = q.gold ? ' ptg-item-gold' : '';
       return '<div class="ptg-item'+gold+'" id="ptg-item-'+i+'" onclick="ptgToggle('+i+')">' +
         '<div class="ptg-cb" id="ptg-cb-'+i+'"></div>' +
-        '<div class="ptg-label" style="flex:1"><div class="ptg-main">'+q.main+'</div></div>' +
+        '<div class="ptg-label" style="flex:1"><div class="ptg-main">'+q.main+'</div><div style="font-size:9px;color:rgba(240,188,78,0.4);margin-top:3px;letter-spacing:0.08em;text-transform:uppercase">(Say it out loud!)</div></div>' +
         '<div onclick="event.stopPropagation();ptgToggleUnsure('+i+')" id="ptg-unsure-'+i+'" style="flex-shrink:0;font-family:var(--mono);font-size:10px;padding:4px 10px;border-radius:6px;border:1px solid rgba(255,180,0,0.2);color:rgba(255,180,0,0.35);cursor:pointer;transition:all 0.18s;white-space:nowrap">Not sure</div>' +
       '</div>';
     }).join('');
@@ -11615,7 +11616,7 @@ function ptgOpen() {
         var gold = _rGold(r) ? ' rg-item-gold' : '';
         return '<div class="rg-item'+gold+'" id="rg-item-'+i+'" onclick="rgToggle('+i+')">' +
           '<div class="rg-cb" id="rg-cb-'+i+'"></div>' +
-          '<div class="rg-text">'+_rText(r)+'</div>' +
+          '<div class="rg-text">'+_rText(r)+'<div style="font-size:9px;color:rgba(240,188,78,0.4);margin-top:3px;letter-spacing:0.08em;text-transform:uppercase">(Say it out loud!)</div></div>' +
         '</div>';
       }).join('');
     }
