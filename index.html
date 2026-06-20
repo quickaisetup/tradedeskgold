@@ -11258,12 +11258,10 @@ function openLiveExec() {
     }
     header.style.background = bg;
     header.style.borderBottomColor = border;
-    var symBar = document.getElementById('leo-sym-ema-bar');
-    if (symBar) symBar.style.background = bg;
-    var calcBar = document.getElementById('leo-calc-bar');
-    if (calcBar) calcBar.style.background = bg;
-    var ltfBar = document.getElementById('leo-ltf-trend-bar');
-    if (ltfBar) ltfBar.style.background = bg;
+    ['leo-kl-bar','leo-sym-ema-bar','leo-calc-bar','leo-ltf-trend-bar'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) el.style.background = bg;
+    });
     var overlay = document.getElementById('live-exec-overlay');
     if (overlay) {
       var gc, edgeA;
