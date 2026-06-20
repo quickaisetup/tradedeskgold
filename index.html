@@ -1695,6 +1695,16 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
   transition:all 0.2s;backdrop-filter:blur(8px);display:flex;align-items:center;gap:10px;
 }
 #live-exec-btn:hover{background:linear-gradient(135deg,rgba(240,96,96,0.38) 0%,rgba(240,96,96,0.18) 100%);box-shadow:0 0 40px rgba(240,96,96,0.5),0 8px 32px rgba(0,0,0,0.7);border-color:rgba(240,96,96,1)}
+#live-exec-btn.wt-section-active{
+  transform:translateX(-50%) scale(1.5);
+  font-size:20px;padding:16px 52px;
+  background:linear-gradient(135deg,rgba(240,96,96,0.35) 0%,rgba(240,96,96,0.16) 100%);
+  border:2px solid rgba(240,96,96,0.95);
+  box-shadow:0 0 0 8px rgba(240,96,96,0.1),0 0 60px rgba(240,96,96,0.55),0 12px 48px rgba(0,0,0,0.8);
+  animation:liveExecPulseWT 1.6s ease-in-out infinite;z-index:20000}
+@keyframes liveExecPulseWT{
+  0%,100%{box-shadow:0 0 0 8px rgba(240,96,96,0.1),0 0 60px rgba(240,96,96,0.55),0 12px 48px rgba(0,0,0,0.8)}
+  50%{box-shadow:0 0 0 16px rgba(240,96,96,0.07),0 0 90px rgba(240,96,96,0.75),0 12px 48px rgba(0,0,0,0.8)}}
 #leo-back-btn{
   position:fixed;bottom:32px;left:50%;transform:translateX(-50%);
   z-index:9999;font-family:var(--display);font-size:17px;letter-spacing:0.12em;text-transform:uppercase;
@@ -14727,7 +14737,7 @@ var _wtSteps = [
   { id:'score-dashboard',   label:'Your Analysis Score',     hint:'Review your bias score — this is your session edge',            section:true,  nextLabel:'Looks good ›', scrollToId:'score-dashboard', scrollOffset:-60 },
   { id:'levels',            label:'Key Levels',              hint:'Add the S/R levels, Fibs & round numbers you\'ll trade from',   section:true,  nextLabel:'Levels set ›'                                  },
   { id:'ai-briefing-section',label:'AI Morning Briefing',   hint:'Your personalised AI briefing — read before entering trades',   section:true,  nextLabel:'Briefing read ›'                                },
-  { id:'live-exec-btn',     label:'Open Live Execution',     hint:'Your cockpit is ready. Open it to monitor charts & execute',    section:true,  nextLabel:'Open Live Exec ›', onNext:'openLiveExecAndPause' },
+  { id:'live-exec-btn',     label:'Open Live Execution',     hint:'Your cockpit is ready. Open it to monitor charts & execute',    section:true,  nextLabel:'Open Live Exec ›', onNext:'openLiveExecAndPause', scrollToId:'ai-briefing-section', scrollOffset:-120 },
   { id:'trade-forms',       label:'Log Your Trade',          hint:'Fill in direction, strategy, entry, SL, TP & confluence',        section:true,  nextLabel:'Trade logged ›'                                },
   { id:'killswitch',        label:'Kill Switch',             hint:'Hit this when you are done trading for the day',                 section:true,  nextLabel:'Session closed ›', scrollToId:'killswitch', scrollOffset:-250 },
   { id:'reflection',        label:'End of Day Reflection',   hint:'Answer the 3 questions honestly — takes 2 minutes',             section:true,  nextLabel:'Reflection done ›'                             },
