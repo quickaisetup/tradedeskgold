@@ -948,6 +948,69 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
   font-size:10px;color:rgba(255,255,255,0.2);cursor:pointer;letter-spacing:0.1em;
   text-transform:uppercase;padding:4px 0;transition:color 0.15s}
 #session-splash-skip:hover{color:rgba(255,255,255,0.45)}
+#session-splash-live{padding:10px 28px;font-family:var(--display);font-size:13px;
+  letter-spacing:0.12em;text-transform:uppercase;background:rgba(78,214,138,0.1);
+  border:1.5px solid rgba(78,214,138,0.5);border-radius:10px;color:#4ed68a;
+  cursor:pointer;display:flex;align-items:center;gap:8px;transition:all 0.2s}
+#session-splash-live:hover{background:rgba(78,214,138,0.18);border-color:rgba(78,214,138,0.75);transform:scale(1.03)}
+#session-splash-live .btn-dot{width:8px;height:8px;border-radius:50%;background:#4ed68a;animation:splashPulse 1.5s ease-in-out infinite}
+#splash-secondary-btns{display:flex;align-items:center;gap:20px;flex-wrap:wrap;justify-content:center;margin-top:-4px}
+/* rank card */
+#splash-rank-card{width:360px;background:linear-gradient(175deg,rgba(16,18,24,0.99) 0%,rgba(6,8,12,0.99) 100%);
+  border:1px solid var(--splash-rank-clr,rgba(255,255,255,0.1));border-radius:24px;
+  display:flex;flex-direction:column;align-items:center;text-align:center;overflow:hidden;position:relative;
+  box-shadow:0 0 0 1px rgba(255,255,255,0.03),0 0 80px var(--splash-rank-glow,rgba(255,255,255,0.03)),0 40px 100px rgba(0,0,0,0.9);
+  transition:box-shadow 0.8s ease,border-color 0.8s ease}
+#splash-rank-card::before{content:'';position:absolute;top:0;left:0;right:0;height:220px;
+  background:radial-gradient(ellipse 90% 100% at 50% -10%,var(--splash-rank-glow,rgba(255,255,255,0.05)) 0%,transparent 100%);
+  pointer-events:none;z-index:0}
+#splash-rank-card.hidden{display:none}
+#splash-rank-card.loaded{border-color:var(--splash-rank-clr);box-shadow:0 0 0 1px rgba(255,255,255,0.04),0 0 80px var(--splash-rank-glow),0 40px 100px rgba(0,0,0,0.9)}
+#splash-card-topbar{display:flex;align-items:center;justify-content:space-between;width:100%;padding:14px 16px 0;box-sizing:border-box;position:relative;z-index:1}
+#splash-card-date{font-family:var(--mono);font-size:8px;letter-spacing:0.22em;text-transform:uppercase;color:rgba(255,255,255,0.18)}
+#splash-share-btn{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:5px 12px;cursor:pointer;color:rgba(255,255,255,0.35);transition:all 0.15s;font-family:var(--mono);font-size:8px;letter-spacing:0.12em;text-transform:uppercase}
+#splash-share-btn:hover{background:rgba(255,255,255,0.09);color:rgba(255,255,255,0.75);border-color:rgba(255,255,255,0.2)}
+#splash-avatar-wrap{position:relative;z-index:1;margin:18px 0 0}
+#splash-avatar{width:80px;height:80px;border-radius:50%;overflow:hidden;border:2px solid var(--splash-rank-clr,rgba(255,255,255,0.15));
+  box-shadow:0 0 0 4px rgba(0,0,0,0.4),0 0 24px var(--splash-rank-glow,rgba(255,255,255,0.1));
+  display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:28px;font-weight:700;color:#fff;
+  background:rgba(40,44,52,1);transition:border-color 0.6s,box-shadow 0.6s;position:relative}
+#splash-avatar img{width:100%;height:100%;object-fit:cover;display:block}
+#splash-rank-change-badge{position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);
+  white-space:nowrap;font-family:var(--display);font-size:9px;letter-spacing:0.12em;
+  padding:3px 10px;border-radius:100px;font-weight:700;display:none;
+  animation:rankBadgePop 0.5s cubic-bezier(0.34,1.56,0.64,1) both}
+#splash-rank-change-badge.up{background:#4ed68a;color:#062014;display:block}
+#splash-rank-change-badge.down{background:#f06060;color:#200606;display:block}
+@keyframes rankBadgePop{from{opacity:0;transform:translateX(-50%) scale(0.5)}to{opacity:1;transform:translateX(-50%) scale(1)}}
+#splash-card-username{font-family:var(--mono);font-size:10px;letter-spacing:0.18em;color:rgba(255,255,255,0.3);text-transform:uppercase;margin:16px 0 0;position:relative;z-index:1}
+#splash-rank-name-big{font-family:var(--display);font-size:52px;letter-spacing:0.06em;font-weight:700;line-height:1;margin:12px 0 4px;position:relative;z-index:1;text-shadow:0 0 60px var(--splash-rank-glow,transparent)}
+#splash-streak-row{display:flex;align-items:baseline;gap:6px;margin-bottom:10px;position:relative;z-index:1}
+#splash-streak-num{font-family:var(--display);font-size:40px;letter-spacing:0.02em;font-weight:700;line-height:1}
+#splash-streak-label{font-family:var(--mono);font-size:9px;letter-spacing:0.22em;text-transform:uppercase;color:rgba(255,255,255,0.3)}
+#splash-rank-quote{font-family:var(--mono);font-size:9px;letter-spacing:0.05em;color:rgba(255,255,255,0.28);line-height:1.65;padding:0 30px;margin-bottom:16px;font-style:italic;position:relative;z-index:1}
+#splash-rank-event{display:none;width:100%;padding:10px 20px;box-sizing:border-box;margin-bottom:2px;position:relative;z-index:1}
+#splash-rank-event.show{display:block}
+#splash-rank-event-inner{border-radius:10px;padding:10px 16px;display:flex;flex-direction:column;gap:3px}
+#splash-rank-event-inner.up{background:rgba(78,214,138,0.08);border:1px solid rgba(78,214,138,0.25)}
+#splash-rank-event-inner.down{background:rgba(240,96,96,0.08);border:1px solid rgba(240,96,96,0.2)}
+#splash-rank-event-title{font-family:var(--display);font-size:15px;letter-spacing:0.1em;font-weight:700}
+#splash-rank-event-sub{font-family:var(--mono);font-size:8px;letter-spacing:0.12em;color:rgba(255,255,255,0.4);text-transform:uppercase}
+#splash-bar-section{width:100%;padding:0 20px;box-sizing:border-box;margin-bottom:14px;position:relative;z-index:1}
+#splash-next-callout{font-family:var(--mono);font-size:8.5px;letter-spacing:0.1em;color:rgba(255,255,255,0.3);margin-bottom:8px;display:flex;align-items:center;justify-content:center;gap:5px}
+#splash-next-callout strong{font-weight:700}
+#splash-rank-bar-wrap{height:5px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:visible;width:100%;position:relative}
+#splash-rank-bar{height:100%;border-radius:3px;position:relative;transition:width 1.4s cubic-bezier(.22,1,.36,1)}
+#splash-rank-bar::after{content:'';position:absolute;right:-1px;top:50%;transform:translateY(-50%);width:9px;height:9px;border-radius:50%;background:inherit;box-shadow:0 0 10px 3px var(--splash-rank-glow,rgba(255,255,255,0.3))}
+.splash-rank-milestones{display:flex;justify-content:space-between;font-family:var(--mono);font-size:7.5px;letter-spacing:0.1em;color:rgba(255,255,255,0.15);margin-top:5px}
+.splash-pnl-row{display:grid;grid-template-columns:1fr 1px 1fr 1px 1fr;width:100%;border-top:1px solid rgba(255,255,255,0.05);padding:14px 0 0;position:relative;z-index:1}
+.splash-pnl-divider{width:1px;background:rgba(255,255,255,0.05)}
+.splash-pnl-cell{display:flex;flex-direction:column;align-items:center;gap:4px;padding:0 8px}
+.splash-pnl-val{font-family:var(--display);font-size:15px;letter-spacing:0.03em;line-height:1}
+.splash-pnl-lbl{font-family:var(--mono);font-size:7px;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.2)}
+#splash-card-brand{width:100%;padding:11px 20px 15px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;gap:8px;border-top:1px solid rgba(255,255,255,0.04);margin-top:14px;position:relative;z-index:1}
+.splash-brand-dot{width:3px;height:3px;border-radius:50%;background:var(--splash-rank-clr,rgba(255,255,255,0.2));opacity:0.4}
+#splash-card-brand-text{font-family:var(--display);font-size:9.5px;letter-spacing:0.3em;text-transform:uppercase;color:var(--splash-rank-clr,rgba(255,255,255,0.12));opacity:0.55;transition:color 0.8s ease}
 
 #wt-chip{position:fixed;bottom:40px;left:50%;transform:translateX(-50%);z-index:9999;
   background:#0c0e13;border:1px solid rgba(240,188,78,0.45);border-radius:16px;
@@ -2987,8 +3050,58 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
     <div id="session-splash-date"></div>
     <div id="session-splash-title">Ready to trade?</div>
     <div id="session-splash-sub">Follow the guide — morning routine to live execution.</div>
+    <div id="splash-rank-card" class="hidden">
+      <div id="splash-card-topbar">
+        <div id="splash-card-date"></div>
+        <button id="splash-share-btn" onclick="splashShare()">↑ Share</button>
+      </div>
+      <div id="splash-avatar-wrap">
+        <div id="splash-avatar"></div>
+        <div id="splash-rank-change-badge"></div>
+      </div>
+      <div id="splash-card-username"></div>
+      <div id="splash-rank-name-big">—</div>
+      <div id="splash-streak-row">
+        <div id="splash-streak-num">—</div>
+        <div id="splash-streak-label">Day Streak</div>
+      </div>
+      <div id="splash-rank-quote"></div>
+      <div id="splash-rank-event"><div id="splash-rank-event-inner"><div id="splash-rank-event-title"></div><div id="splash-rank-event-sub"></div></div></div>
+      <div id="splash-bar-section">
+        <div id="splash-next-callout"></div>
+        <div id="splash-rank-bar-wrap"><div id="splash-rank-bar" style="width:0%"></div></div>
+        <div class="splash-rank-milestones">
+          <span id="splash-bar-from">0d</span>
+          <span id="splash-bar-to">—d</span>
+        </div>
+      </div>
+      <div class="splash-pnl-row">
+        <div class="splash-pnl-cell">
+          <div id="splash-pnl-today" class="splash-pnl-val" style="color:rgba(255,255,255,0.2)">—</div>
+          <div class="splash-pnl-lbl">Today P&amp;L</div>
+        </div>
+        <div class="splash-pnl-divider"></div>
+        <div class="splash-pnl-cell">
+          <div id="splash-pnl-week" class="splash-pnl-val" style="color:rgba(255,255,255,0.2)">—</div>
+          <div class="splash-pnl-lbl">This Week</div>
+        </div>
+        <div class="splash-pnl-divider"></div>
+        <div class="splash-pnl-cell">
+          <div id="splash-win-rate" class="splash-pnl-val" style="color:rgba(255,255,255,0.2)">—</div>
+          <div class="splash-pnl-lbl">Win Rate</div>
+        </div>
+      </div>
+      <div id="splash-card-brand">
+        <div class="splash-brand-dot"></div>
+        <div id="splash-card-brand-text">TRADEDESK GOLD</div>
+        <div class="splash-brand-dot"></div>
+      </div>
+    </div>
     <button id="session-splash-btn" onclick="sessionSplashStart()">▶ Start Session</button>
-    <button id="session-splash-skip" onclick="sessionSplashDismiss()">Skip guide</button>
+    <div id="splash-secondary-btns">
+      <button id="session-splash-live" onclick="sessionSplashDismiss();window._leoChartsEntered=true;if(typeof openLiveExec==='function')openLiveExec();"><div class="btn-dot"></div>Live Execution</button>
+      <button id="session-splash-skip" onclick="sessionSplashDismiss()">Skip guide</button>
+    </div>
   </div>
 </div>
 
@@ -14719,6 +14832,121 @@ function sessionSplashDismiss() {
 }
 window.sessionSplashStart  = sessionSplashStart;
 window.sessionSplashDismiss = sessionSplashDismiss;
+
+function splashRankUpdate(streak, rank, todayPnl, weekPnl, winRate) {
+  var card = document.getElementById('splash-rank-card');
+  if (!card) return;
+  var rankDefs = typeof getRankDefs === 'function' ? getRankDefs() : null;
+  var score = Number(streak) || 0;
+  var curIdx = 0;
+  if (rankDefs) {
+    for (var i = 0; i < rankDefs.length; i++) { if (score >= rankDefs[i].min && score <= rankDefs[i].max) { curIdx = i; break; } }
+  } else {
+    var fb = [{min:0},{min:3},{min:7},{min:14},{min:21},{min:30},{min:60}];
+    for (var i = 0; i < fb.length; i++) { if (score >= fb[i].min) curIdx = i; }
+  }
+  var fullRank = rankDefs ? rankDefs[curIdx] : null;
+  var nextRank = rankDefs ? rankDefs[curIdx + 1] : null;
+  var hex      = fullRank ? fullRank.color : '#cd7f32';
+  var rankName = fullRank ? fullRank.name : 'GAMBLER';
+  var splash = document.getElementById('session-splash');
+  if (splash) splash.style.setProperty('--splash-bg-glow', hex + '12');
+  card.style.setProperty('--splash-rank-clr', hex + '90');
+  card.style.setProperty('--splash-rank-glow', hex + '16');
+  var dateEl = document.getElementById('splash-card-date');
+  if (dateEl) dateEl.textContent = new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',timeZone:'Asia/Bangkok'});
+  var avatarEl = document.getElementById('splash-avatar');
+  if (avatarEl) {
+    var avatarUrl = localStorage.getItem('td_avatar_url');
+    var uname = localStorage.getItem('td_username') || localStorage.getItem('td_firstname') || '';
+    if (avatarUrl) {
+      avatarEl.innerHTML = '<img src="' + avatarUrl + '" alt="">';
+    } else {
+      avatarEl.textContent = uname ? uname.slice(0,2).toUpperCase() : '?';
+    }
+    avatarEl.style.borderColor = hex + '99';
+    avatarEl.style.boxShadow = '0 0 0 4px rgba(0,0,0,0.5), 0 0 28px ' + hex + '30';
+  }
+  var lastIdx = parseInt(localStorage.getItem('td_last_rank_idx') || '-1', 10);
+  var badge   = document.getElementById('splash-rank-change-badge');
+  var eventEl = document.getElementById('splash-rank-event');
+  var evInner = document.getElementById('splash-rank-event-inner');
+  var evTitle = document.getElementById('splash-rank-event-title');
+  var evSub   = document.getElementById('splash-rank-event-sub');
+  if (lastIdx !== -1 && lastIdx !== curIdx && badge && eventEl) {
+    var isUp = curIdx > lastIdx;
+    if (badge) { badge.textContent = isUp ? '▲ RANKED UP' : '▼ RANKED DOWN'; badge.className = isUp ? 'up' : 'down'; }
+    if (evTitle) { evTitle.textContent = isUp ? '▲ RANK UP — ' + rankName : '▼ RANK DOWN — ' + rankName; evTitle.style.color = isUp ? '#4ed68a' : '#f06060'; }
+    if (evSub)   evSub.textContent = isUp ? 'You leveled up. Screenshot this.' : 'Rebuild the streak. You\'ve done it before.';
+    if (evInner) evInner.className = isUp ? 'up' : 'down';
+    if (eventEl) eventEl.classList.add('show');
+  } else {
+    if (badge)   badge.className = '';
+    if (eventEl) eventEl.classList.remove('show');
+  }
+  if (score > 0) localStorage.setItem('td_last_rank_idx', curIdx);
+  var uEl = document.getElementById('splash-card-username');
+  var unameStr = localStorage.getItem('td_username') || localStorage.getItem('td_firstname') || '';
+  if (uEl) { uEl.textContent = unameStr ? '@' + unameStr : ''; uEl.style.display = unameStr ? 'block' : 'none'; }
+  var rnEl = document.getElementById('splash-rank-name-big');
+  if (rnEl) { rnEl.textContent = rankName; rnEl.style.color = hex; rnEl.style.textShadow = '0 0 80px ' + hex + '40'; }
+  var streakEl = document.getElementById('splash-streak-num');
+  if (streakEl) { streakEl.textContent = score; streakEl.style.color = hex; }
+  var quoteEl = document.getElementById('splash-rank-quote');
+  if (quoteEl) quoteEl.textContent = fullRank ? '"' + fullRank.quote + '"' : '';
+  var barEl   = document.getElementById('splash-rank-bar');
+  var fromEl  = document.getElementById('splash-bar-from');
+  var toEl    = document.getElementById('splash-bar-to');
+  var callout = document.getElementById('splash-next-callout');
+  var targetPct;
+  if (nextRank) {
+    var from = fullRank.min, to = nextRank.min;
+    targetPct = Math.min(100, Math.round(((score - from) / (to - from)) * 100));
+    var daysLeft = to - score;
+    if (barEl) barEl.style.background = 'linear-gradient(90deg,' + hex + 'bb,' + nextRank.color + 'bb)';
+    if (fromEl) fromEl.textContent = from + 'd';
+    if (toEl)   toEl.textContent   = to + 'd';
+    if (callout) callout.innerHTML = '<strong style="color:' + nextRank.color + '">' + nextRank.name + '</strong><span> · ' + daysLeft + ' day' + (daysLeft===1?'':'s') + ' away</span>';
+  } else {
+    targetPct = 100;
+    if (barEl) barEl.style.background = hex;
+    if (fromEl) fromEl.textContent = (fullRank ? fullRank.min : 60) + 'd';
+    if (toEl)   toEl.textContent   = '∞';
+    if (callout) callout.innerHTML  = '<strong style="color:' + hex + '">MAX RANK</strong>';
+  }
+  if (barEl) {
+    barEl.style.transition = 'none'; barEl.style.width = '0%';
+    setTimeout(function(){ barEl.style.transition = 'width 1.4s cubic-bezier(.22,1,.36,1)'; barEl.style.width = targetPct + '%'; }, 160);
+  }
+  var fmt = function(v) { if (v==null) return null; var n=Number(v)||0; return (n>=0?'+':'')+n.toLocaleString('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}); };
+  var clr = function(v) { return (Number(v)||0)<0?'#f06060':'#4ed68a'; };
+  var tdEl=document.getElementById('splash-pnl-today'), wkEl=document.getElementById('splash-pnl-week'), wrEl=document.getElementById('splash-win-rate');
+  var ft=fmt(todayPnl);
+  if (tdEl) { if(ft!==null){tdEl.textContent=ft;tdEl.style.color=clr(todayPnl);}else{tdEl.textContent='—';tdEl.style.color='rgba(255,255,255,0.18)';} }
+  var fw=fmt(weekPnl);
+  if (wkEl) { if(fw!==null){wkEl.textContent=fw;wkEl.style.color=clr(weekPnl);}else{wkEl.textContent='—';wkEl.style.color='rgba(255,255,255,0.18)';} }
+  if (wrEl) { if(winRate!=null){wrEl.textContent=Math.round(winRate)+'%';wrEl.style.color=(Number(winRate)||0)>=50?'#4ed68a':'#f06060';}else{wrEl.textContent='—';wrEl.style.color='rgba(255,255,255,0.18)';} }
+  card.classList.remove('hidden');
+  setTimeout(function(){ card.classList.add('loaded'); }, 80);
+}
+window.splashRankUpdate = splashRankUpdate;
+
+function splashShare() {
+  var streak = (document.getElementById('splash-streak-num') || {}).textContent || '?';
+  var wr     = (document.getElementById('splash-win-rate') || {}).textContent || '';
+  var uname  = localStorage.getItem('td_username') || '';
+  var rankName = (document.getElementById('splash-rank-name-big') || {}).textContent || '';
+  var text   = (uname ? '@' + uname + ' · ' : '') + streak + ' day streak · ' + rankName + (wr && wr!=='—' ? ' · ' + wr + ' win rate' : '') + '\n\ntradedeskgold.vercel.app';
+  if (navigator.share) {
+    navigator.share({ title: 'My TradeDesk rank', text: text }).catch(function(){});
+  } else if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(function(){
+      var btn = document.getElementById('splash-share-btn');
+      if (btn) { btn.textContent = '✓ Copied'; setTimeout(function(){ btn.textContent = '↑ Share'; }, 2000); }
+    });
+  }
+}
+window.splashShare = splashShare;
 
 document.addEventListener('DOMContentLoaded', function() {
   var splash  = document.getElementById('session-splash');
