@@ -11238,6 +11238,9 @@ function _leoShowNudge() {
   if (!el || !btn) return;
   // Don't show until user has passed the pre-trade gate at least once this session
   if (!window._leoChartsEntered) return;
+  // Don't show while the pre-trade checklist is open
+  var ptgGate = document.getElementById('ptg-gate');
+  if (ptgGate && ptgGate.classList.contains('show')) return;
   var overlay = document.getElementById('live-exec-overlay');
   var oRect = overlay ? overlay.getBoundingClientRect() : {left:0, top:0};
   var bRect = btn.getBoundingClientRect();
