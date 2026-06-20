@@ -11255,16 +11255,22 @@ function openLiveExec() {
     header.style.borderBottomColor = border;
     var overlay = document.getElementById('live-exec-overlay');
     if (overlay) {
-      var gc, ga;
+      var gc, ga, edgeA, bgA;
       if (t > 0.05) {
-        gc = '40,160,100'; ga = Math.min(0.12, t * 0.12);
+        gc = '40,180,90';
+        edgeA = Math.min(0.5, 0.1 + t * 0.4);
+        bgA = Math.min(0.06, t * 0.06);
       } else if (t < -0.05) {
-        gc = '180,60,60'; ga = Math.min(0.12, Math.abs(t) * 0.12);
+        gc = '200,50,50';
+        edgeA = Math.min(0.5, 0.1 + Math.abs(t) * 0.4);
+        bgA = Math.min(0.06, Math.abs(t) * 0.06);
       } else {
-        gc = '240,188,78'; ga = 0.03;
+        gc = '240,188,78'; edgeA = 0.05; bgA = 0.01;
       }
-      overlay.style.boxShadow = 'inset 0 0 120px rgba(' + gc + ',' + ga + '), inset 0 2px 0 ' + border;
-      overlay.style.borderTop = '2px solid ' + border;
+      overlay.style.boxShadow =
+        'inset 0 0 300px 60px rgba(' + gc + ',' + edgeA + '),' +
+        'inset 0 0 80px rgba(' + gc + ',' + (edgeA * 0.6) + ')';
+      overlay.style.background = 'linear-gradient(180deg, rgba(' + gc + ',' + (bgA * 2) + ') 0%, #060708 15%, #060708 85%, rgba(' + gc + ',' + bgA + ') 100%)';
     }
   })();
 
