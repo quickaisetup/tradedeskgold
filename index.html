@@ -1814,8 +1814,9 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 #leo-ind-tooltip,#leo-calc-tooltip{display:none;position:fixed;z-index:9999;background:#1a1d27;border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:12px 14px;width:270px;pointer-events:none;box-shadow:0 8px 32px rgba(0,0,0,0.5);font-family:var(--mono)}
 .leotip-title{font-size:11px;font-weight:700;color:#e0e0e0;margin-bottom:7px;letter-spacing:0.05em}
 .leotip-body{font-size:11px;color:#a0a4b8;line-height:1.6}
-.leotip-off-note{margin-top:9px;padding-top:8px;border-top:1px solid rgba(240,188,78,0.18);font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.35);letter-spacing:0.04em}
+.leotip-off-note{margin-top:9px;padding-top:8px;border-top:1px solid rgba(240,188,78,0.18);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .leotip-off-note b{color:rgba(240,188,78,0.7);font-weight:600}
+.leotip-off-text{font-family:var(--mono);font-size:8px;color:rgba(255,255,255,0.3);letter-spacing:0.03em}
 #leo-ema-legend{display:flex;align-items:center;gap:10px;padding:0 14px;border-left:1px solid rgba(255,255,255,0.08);flex-shrink:0}
 .leo-ema-item{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:0.04em}
 #leo-price-right{margin-left:auto;display:flex;align-items:center;gap:10px;padding:0 14px;border-left:1px solid rgba(255,255,255,0.08);flex-shrink:0}
@@ -6038,7 +6039,7 @@ function initExplainers() {
         var note = document.createElement('div');
         note.className = 'td-explainer-tip-note';
         note.style.cssText = 'margin-top:8px;padding-top:7px;border-top:1px solid rgba(240,188,78,0.15);display:flex;align-items:center;gap:8px;flex-wrap:wrap';
-        note.innerHTML = '<label class="leo-tips-toggle" onclick="leoToggleTips()" style="cursor:pointer"><span class="leo-tips-track leo-tips-track-copy"><span class="leo-tips-knob"></span></span><span class="leo-tips-label">EXPLAINER POPUPS</span></label>';
+        note.innerHTML = '<label class="leo-tips-toggle" onclick="leoToggleTips()" style="cursor:pointer"><span class="leo-tips-track leo-tips-track-copy"><span class="leo-tips-knob"></span></span><span class="leo-tips-label">EXPLAINER POPUPS</span></label><span class="leotip-off-text">— switch off these popups top-right ↗</span>';
         body.appendChild(note);
       }
     });
@@ -17823,7 +17824,7 @@ window.fwFinish = fwFinish;
 <div id="leo-ind-tooltip">
   <div class="leotip-title">💡 Did you know?</div>
   <div class="leotip-body">You can switch the indicator shown below each chart — <b>AO</b>, <b>RSI</b>, <b>Stoch</b>, or <b>Volume</b> — using the buttons in the upper right corner of this panel.</div>
-  <div class="leotip-off-note"><label class="leo-tips-toggle" onclick="leoToggleTips()" style="cursor:pointer"><span class="leo-tips-track leo-tips-track-copy"><span class="leo-tips-knob"></span></span><span class="leo-tips-label">EXPLAINER POPUPS</span></label></div>
+  <div class="leotip-off-note"><label class="leo-tips-toggle" onclick="leoToggleTips()" style="cursor:pointer"><span class="leo-tips-track leo-tips-track-copy"><span class="leo-tips-knob"></span></span><span class="leo-tips-label">EXPLAINER POPUPS</span></label><span class="leotip-off-text">— switch off these popups top-right ↗</span></div>
 </div>
 
 <div id="leo-calc-tooltip">
@@ -17832,7 +17833,7 @@ window.fwFinish = fwFinish;
     Enter your <b>Entry</b>, <b>Stop Loss</b> and <b>Take Profit</b> prices.<br><br>
     The calculator automatically works out your <b>lot size</b> based on your account size and risk %, and shows your <b>R:R ratio</b>.
   </div>
-  <div class="leotip-off-note"><label class="leo-tips-toggle" onclick="leoToggleTips()" style="cursor:pointer"><span class="leo-tips-track leo-tips-track-copy"><span class="leo-tips-knob"></span></span><span class="leo-tips-label">EXPLAINER POPUPS</span></label></div>
+  <div class="leotip-off-note"><label class="leo-tips-toggle" onclick="leoToggleTips()" style="cursor:pointer"><span class="leo-tips-track leo-tips-track-copy"><span class="leo-tips-knob"></span></span><span class="leo-tips-label">EXPLAINER POPUPS</span></label><span class="leotip-off-text">— switch off these popups top-right ↗</span></div>
 </div>
 
 <div id="leo-wm-tooltip">
@@ -17845,7 +17846,7 @@ window.fwFinish = fwFinish;
     <br><br>
     Before and during a trade, set bias every few minutes — it helps you notice when the market starts to turn.
   </div>
-  <div class="leotip-off-note"><label class="leo-tips-toggle" onclick="leoToggleTips()" style="cursor:pointer"><span class="leo-tips-track leo-tips-track-copy"><span class="leo-tips-knob"></span></span><span class="leo-tips-label">EXPLAINER POPUPS</span></label></div>
+  <div class="leotip-off-note"><label class="leo-tips-toggle" onclick="leoToggleTips()" style="cursor:pointer"><span class="leo-tips-track leo-tips-track-copy"><span class="leo-tips-knob"></span></span><span class="leo-tips-label">EXPLAINER POPUPS</span></label><span class="leotip-off-text">— switch off these popups top-right ↗</span></div>
 </div>
 
 <div id="leo-cd-tooltip">
@@ -17856,7 +17857,7 @@ window.fwFinish = fwFinish;
     <div class="cdt-badge cdt-badge-red"><div class="cdt-badge-dot" style="background:#f06060"></div>Red · 70%+</div>
   </div>
   <div class="cdt-desc">Color shows how much of the candle has elapsed. Red means it's closing soon — act or wait for the next one.</div>
-  <div class="leotip-off-note"><label class="leo-tips-toggle" onclick="leoToggleTips()" style="cursor:pointer"><span class="leo-tips-track leo-tips-track-copy"><span class="leo-tips-knob"></span></span><span class="leo-tips-label">EXPLAINER POPUPS</span></label></div>
+  <div class="leotip-off-note"><label class="leo-tips-toggle" onclick="leoToggleTips()" style="cursor:pointer"><span class="leo-tips-track leo-tips-track-copy"><span class="leo-tips-knob"></span></span><span class="leo-tips-label">EXPLAINER POPUPS</span></label><span class="leotip-off-text">— switch off these popups top-right ↗</span></div>
 </div>
 </body>
 </html>
