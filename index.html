@@ -10806,6 +10806,9 @@ function openLiveExec() {
   setTimeout(_leoShowNudge, 800);
   _leoNudgeInterval = setInterval(_leoShowNudge, 5 * 60 * 1000);
 
+  // Ensure score is up to date before syncing header
+  if (typeof updateVerdictAuto === 'function') updateVerdictAuto();
+
   // Sync header from bias state
   var vtMain  = document.getElementById('vt-main');
   var scoreEl = document.getElementById('score-num');
