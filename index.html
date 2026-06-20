@@ -10903,20 +10903,30 @@ function leoLoadWidget(tfId, sym, interval) {
     el.addEventListener('mouseleave',function(){cdTip.style.display='none';});
   })(pill);
 
-  // Use tv.js (full widget) in srcdoc iframe — supports EMA objects with custom lengths
+  // tv.js: pass only the indicator string in config; add EMAs via createStudy() on ready
+  var indMap = { ao: 'STD;Awesome_Oscillator', rsi: 'STD;RSI', stoch: 'STD;Stochastic' };
+  var indStr = (_leoIndicator !== 'volume') ? (indMap[_leoIndicator] || 'STD;Awesome_Oscillator') : null;
   var cfg = {
     container_id: 'tv', autosize: true, symbol: sym, interval: interval,
     timezone: _tzIANA(), theme: 'dark', style: '1', locale: 'en',
     toolbar_bg: '#060708', enable_publishing: false,
     hide_top_toolbar: true, hide_legend: true, hide_side_toolbar: true,
     hide_volume: true, allow_symbol_change: false, save_image: false,
-    studies: _leoGetStudies()
+    studies: indStr ? [indStr] : []
   };
+  var emaScript =
+    'w.onChartReady(function(){' +
+    '  var c=w.chart();' +
+    '  c.createStudy("Moving Average Exponential",false,false,[9],null,{"Plot.color":"#a855f7","Plot.linewidth":2});' +
+    '  c.createStudy("Moving Average Exponential",false,false,[20],null,{"Plot.color":"#f0bc4e","Plot.linewidth":2});' +
+    '  c.createStudy("Moving Average Exponential",false,false,[50],null,{"Plot.color":"#6aa3f5","Plot.linewidth":2});' +
+    '  c.createStudy("Moving Average",false,false,[200],null,{"Plot.color":"rgba(255,255,255,0.7)","Plot.linewidth":2});' +
+    '});';
   var ihtml = '<!DOCTYPE html><html><head><meta charset="UTF-8">' +
     '<style>*{margin:0;padding:0}html,body,#tv{width:100%;height:100%;overflow:hidden;background:#060708}</style>' +
     '</head><body><div id="tv"></div>' +
     '<script src="https://s3.tradingview.com/tv.js"><\/script>' +
-    '<script>window.onload=function(){new TradingView.widget(' + JSON.stringify(cfg) + ');}<\/script>' +
+    '<script>var w=new TradingView.widget(' + JSON.stringify(cfg) + ');' + emaScript + '<\/script>' +
     '</body></html>';
   var iframe = document.createElement('iframe');
   iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:none;background:#060708';
