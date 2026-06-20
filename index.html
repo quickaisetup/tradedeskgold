@@ -11561,22 +11561,21 @@ function eodOpenQuestions() {
   var overlay = document.getElementById('eod-questions-overlay');
   if (overlay) overlay.classList.add('show');
 
-  // Show mic hint once
-  if (!localStorage.getItem('td_eod_mic_hint_seen')) {
-    setTimeout(function() {
-      var firstWrap = document.querySelector('#eod-questions-card .voice-wrap');
-      var firstMic = firstWrap ? firstWrap.querySelector('.mic-btn') : null;
-      if (!firstWrap || !firstMic) return;
-      var hint = document.createElement('div');
-      hint.id = 'eod-mic-hint';
-      hint.innerHTML = '🎤 Use your voice to take notes — press here →';
-      hint.style.cssText = 'position:absolute;top:8px;right:48px;background:rgba(240,188,78,0.95);color:#0a0b0d;font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:0.03em;padding:6px 12px;border-radius:6px;white-space:nowrap;z-index:10;animation:eodFadeIn 0.3s ease;pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,0.4)';
-      firstWrap.appendChild(hint);
-      localStorage.setItem('td_eod_mic_hint_seen', '1');
-      setTimeout(function(){ if (hint.parentNode) hint.remove(); }, 4000);
-      firstMic.addEventListener('click', function(){ if (hint.parentNode) hint.remove(); }, { once: true });
-    }, 600);
-  }
+  // Show mic hint every time for a few seconds
+  setTimeout(function() {
+    var old = document.getElementById('eod-mic-hint');
+    if (old) old.remove();
+    var firstWrap = document.querySelector('#eod-questions-card .voice-wrap');
+    var firstMic = firstWrap ? firstWrap.querySelector('.mic-btn') : null;
+    if (!firstWrap || !firstMic) return;
+    var hint = document.createElement('div');
+    hint.id = 'eod-mic-hint';
+    hint.innerHTML = '🎤 Use your voice to take notes — press here →';
+    hint.style.cssText = 'position:absolute;top:8px;right:48px;background:rgba(240,188,78,0.95);color:#0a0b0d;font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:0.03em;padding:6px 12px;border-radius:6px;white-space:nowrap;z-index:10;animation:eodFadeIn 0.3s ease;pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,0.4);transition:opacity 0.3s';
+    firstWrap.appendChild(hint);
+    setTimeout(function(){ if (hint.parentNode) { hint.style.opacity = '0'; setTimeout(function(){ if (hint.parentNode) hint.remove(); }, 300); } }, 3500);
+    firstMic.addEventListener('click', function(){ if (hint.parentNode) hint.remove(); }, { once: true });
+  }, 600);
 }
 function eodSetRules(val, btn) {
   _eodRulesVal = val;
