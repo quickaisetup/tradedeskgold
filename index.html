@@ -11620,8 +11620,16 @@ function _leoUpdateAnalysisAge() {
 function leoReanalyse() {
   closeLiveExec();
   setTimeout(function() {
-    var section = document.getElementById('analysis');
-    if (section) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    var monthlyIdx = _wtSteps.findIndex(function(s){ return s.id === 'tfc-1M'; });
+    if (monthlyIdx >= 0) {
+      localStorage.setItem('td_walkthrough_pending', '1');
+      _wtStep = monthlyIdx;
+      _wtSubStep = 0;
+      wtShowStep();
+    } else {
+      var section = document.getElementById('analysis');
+      if (section) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   }, 300);
 }
 window.leoReanalyse = leoReanalyse;
