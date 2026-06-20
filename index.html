@@ -5129,8 +5129,9 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
       <button id="leo-refresh" onclick="leoRefreshCharts(this)" style="font-family:var(--mono);font-size:8px;color:rgba(255,255,255,0.4);background:transparent;border:1px solid rgba(255,255,255,0.15);border-radius:4px;padding:3px 9px;cursor:pointer">↻ Refresh</button>
     </div>
   </div>
-  <div id="leo-ptg-warning" style="display:none;background:rgba(255,180,0,0.08);border-bottom:1px solid rgba(255,180,0,0.25);padding:5px 14px;font-family:var(--mono);font-size:10px;color:#ffb400;letter-spacing:0.06em;flex-shrink:0;text-align:center">
-    ⚠ NOT SURE: <span id="leo-ptg-warning-items"></span>
+  <div id="leo-ptg-warning" style="display:none;background:rgba(240,56,56,0.12);border-bottom:2px solid rgba(240,56,56,0.5);padding:10px 14px;font-family:var(--mono);flex-shrink:0;text-align:center;cursor:pointer" onclick="ptgOpen()">
+    <div style="font-size:13px;font-weight:700;color:#f06060;letter-spacing:0.06em;margin-bottom:2px">⚠ YOU SKIPPED YOUR PRE-TRADE CHECKLIST</div>
+    <div style="font-size:9px;color:rgba(240,96,96,0.6);letter-spacing:0.08em">Click here to complete it before trading</div>
   </div>
 
   <div id="leo-sym-ema-bar">
@@ -11716,8 +11717,12 @@ function _leoInitCharts() {
 }
 function ptgSkip() {
   _ptgLog({ type: 'skip', ts: new Date().toISOString() });
-  localStorage.setItem(_ptgCompletedKey(), '1');
+  localStorage.setItem(_ptgCompletedKey(), 'skipped');
   document.getElementById('ptg-gate').classList.remove('show');
+  var warn = document.getElementById('leo-ptg-warning');
+  if (warn) warn.style.display = '';
+  var badge = document.getElementById('ptg-override-badge');
+  if (badge) badge.style.display = '';
   _leoInitCharts();
   if (obShouldShow()) obOpen();
 }
@@ -11767,6 +11772,8 @@ function ptgOverride() {
   document.getElementById('ptg-gate').classList.remove('show');
   var badge = document.getElementById('ptg-override-badge');
   if (badge) badge.style.display = '';
+  var warn = document.getElementById('leo-ptg-warning');
+  if (warn) warn.style.display = '';
   _leoInitCharts();
 }
 window.ptgMarkStopOut = ptgMarkStopOut;
