@@ -1926,8 +1926,12 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 #eod-next-rank-quote{font-family:var(--mono);font-size:10px;font-style:italic;color:rgba(255,255,255,0.35);letter-spacing:0.03em}
 #eod-nudge-hook{font-family:var(--display);font-size:20px;letter-spacing:0.02em;color:#fff;margin:18px 0 4px}
 #eod-nudge-hook span{color:#f0bc4e}
-#eod-nudge-income{font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.45);margin-bottom:6px}
-#eod-nudge-income span{color:var(--green,#4ed68a);font-weight:700}
+#eod-nudge-progress{width:100%;max-width:280px;margin:14px 0 4px;display:flex;flex-direction:column;align-items:center;gap:6px}
+#eod-nudge-progress-bar{width:100%;height:8px;background:rgba(255,255,255,0.08);border-radius:4px;overflow:hidden}
+#eod-nudge-progress-fill{height:100%;border-radius:4px;transition:width 0.6s ease}
+#eod-nudge-progress-label{font-family:var(--mono);font-size:9px;letter-spacing:0.06em;color:rgba(255,255,255,0.35)}
+#eod-nudge-income{font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.45);margin:10px 0 6px}
+#eod-nudge-income span{font-weight:700}
 #eod-nudge-sub{font-family:var(--mono);font-size:10px;letter-spacing:0.04em;color:rgba(255,255,255,0.3);margin-bottom:24px;line-height:1.5}
 #eod-nudge-cta{position:relative;z-index:2;width:100%;display:flex;align-items:center;justify-content:center;gap:10px;font-family:var(--display);font-size:18px;letter-spacing:0.04em;color:#0a0b0d;background:linear-gradient(135deg,#f0bc4e,#ffd070);border:none;border-radius:14px;padding:22px 0;cursor:pointer;transition:all 0.18s;box-shadow:0 0 30px rgba(240,188,78,0.25)}
 #eod-nudge-cta:hover{background:linear-gradient(135deg,#ffd070,#ffe0a0);box-shadow:0 0 40px rgba(240,188,78,0.45);transform:scale(1.02)}
@@ -11363,15 +11367,34 @@ function eodNudgeOpen() {
     }
   }
 
-  // Monthly income projection
+  // Progress bar
+  var fill = document.getElementById('eod-nudge-progress-fill');
+  var pLabel = document.getElementById('eod-nudge-progress-label');
+  if (fill && rank.nextMin < 999) {
+    var range = rank.nextMin - rank.min;
+    var progress = streak - rank.min;
+    var pct = Math.round((progress / range) * 100);
+    fill.style.width = pct + '%';
+    fill.style.background = 'linear-gradient(90deg,' + rank.color + ',' + nextRank.color + ')';
+    fill.style.boxShadow = '0 0 8px ' + nextRank.color + '40';
+    if (pLabel) pLabel.textContent = streak + ' / ' + rank.nextMin + ' days';
+  } else if (fill) {
+    fill.style.width = '100%';
+    fill.style.background = rank.color;
+    if (pLabel) pLabel.textContent = 'MAX RANK';
+  }
+
+  // Monthly income from rank definitions
   var incomeEl = document.getElementById('eod-nudge-income');
   if (incomeEl) {
-    var monthlyEl = document.getElementById('rp-monthly-val') || document.getElementById('s-monthly-val');
-    var monthlyR = monthlyEl ? monthlyEl.textContent.trim() : '';
-    if (monthlyR && monthlyR !== '—') {
-      incomeEl.innerHTML = 'Projected monthly: <span>' + monthlyR + '/mo</span>';
+    var palData = typeof PAL_BY_RANK !== 'undefined' ? PAL_BY_RANK : [];
+    var nextPal = palData.find(function(p){ return p.rank === nextRank.name; });
+    if (nextPal && nextPal.pal > 0) {
+      var weeklyR = nextPal.pal;
+      var monthlyR = Math.round(weeklyR * 4.2 * 10) / 10;
+      incomeEl.innerHTML = 'At ' + nextRank.name + ': <span style="color:' + nextRank.color + '">' + nextPal.desc + '</span> → <span style="color:var(--green,#4ed68a)">+' + monthlyR + 'R/mo</span>';
     } else {
-      incomeEl.innerHTML = 'Log your trades to unlock monthly projections';
+      incomeEl.innerHTML = '';
     }
   }
 
@@ -18348,6 +18371,10 @@ window.fwFinish = fwFinish;
       <div id="eod-next-rank-quote"></div>
     </div>
     <div id="eod-nudge-hook"></div>
+    <div id="eod-nudge-progress">
+      <div id="eod-nudge-progress-bar"><div id="eod-nudge-progress-fill"></div></div>
+      <div id="eod-nudge-progress-label"></div>
+    </div>
     <div id="eod-nudge-income"></div>
     <div id="eod-nudge-sub">You can always update your notes later.</div>
     <button id="eod-nudge-cta" onclick="eodOpenQuestions()">📝 Save My Day <span id="eod-nudge-xp-pill">+1 XP</span></button>
