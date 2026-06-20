@@ -11097,16 +11097,16 @@ function _leoSyncHeader() {
   var bg, border, f, r, g, b;
   if (t > 0.05) {
     f = Math.min(1, Math.pow(t, 0.6));
-    r = lerpC2(20, 30, f); g = lerpC2(60, 190, f); b = lerpC2(35, 95, f);
+    r = lerpC2(15, 55, f); g = lerpC2(45, 150, f); b = lerpC2(30, 96, f);
     bg = 'rgb(' + r + ',' + g + ',' + b + ')';
     border = 'rgba(78,214,138,' + Math.min(0.9, 0.4 + f * 0.5) + ')';
   } else if (t < -0.05) {
     f = Math.min(1, Math.pow(Math.abs(t), 0.6));
-    r = lerpC2(70, 200, f); g = lerpC2(20, 50, f); b = lerpC2(20, 50, f);
+    r = lerpC2(45, 170, f); g = lerpC2(15, 65, f); b = lerpC2(15, 65, f);
     bg = 'rgb(' + r + ',' + g + ',' + b + ')';
     border = 'rgba(240,96,96,' + Math.min(0.9, 0.4 + f * 0.5) + ')';
   } else {
-    bg = 'rgb(70,58,15)';
+    bg = 'rgb(60,48,16)';
     border = 'rgba(240,188,78,0.45)';
   }
   header.style.setProperty('--lh-bg', bg);
