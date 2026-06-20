@@ -1909,6 +1909,28 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 .leotip-off-note{margin-top:9px;padding-top:8px;border-top:1px solid rgba(240,188,78,0.18);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .leotip-off-note b{color:rgba(240,188,78,0.7);font-weight:600}
 .leotip-off-text{font-family:var(--mono);font-size:8px;color:rgba(255,255,255,0.3);letter-spacing:0.03em}
+
+/* ── END-OF-DAY NOTES NUDGE ── */
+#eod-nudge-overlay{display:none;position:fixed;inset:0;z-index:100020;background:rgba(4,5,7,0.92);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:24px}
+#eod-nudge-overlay.show{display:flex;animation:eodFadeIn 0.25s ease}
+@keyframes eodFadeIn{from{opacity:0}to{opacity:1}}
+#eod-nudge-card{position:relative;width:100%;max-width:420px;background:linear-gradient(160deg,#14130d,#0c0d10);border:1px solid rgba(240,188,78,0.3);border-radius:16px;padding:28px 26px 24px;box-shadow:0 24px 80px rgba(0,0,0,0.7),0 0 0 1px rgba(240,188,78,0.06)}
+#eod-nudge-close{position:absolute;top:14px;right:14px;background:transparent;border:none;color:rgba(255,255,255,0.3);font-size:15px;cursor:pointer;line-height:1;padding:4px}
+#eod-nudge-close:hover{color:rgba(255,255,255,0.6)}
+#eod-nudge-rank{display:flex;align-items:baseline;gap:10px;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,0.08)}
+#eod-nudge-rank-name{font-family:var(--display);font-size:20px;letter-spacing:0.05em;font-weight:700;color:#f0bc4e}
+#eod-nudge-rank-streak{font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.35);letter-spacing:0.04em}
+#eod-nudge-title{font-family:var(--display);font-size:19px;letter-spacing:0.02em;color:#fff;margin-bottom:8px}
+#eod-nudge-sub{font-family:var(--mono);font-size:11px;line-height:1.55;color:rgba(255,255,255,0.45);margin-bottom:16px}
+#eod-nudge-textarea{width:100%;min-height:90px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:#e0e0e0;font-family:var(--mono);font-size:12px;line-height:1.5;padding:12px;resize:vertical;outline:none;transition:border-color 0.15s}
+#eod-nudge-textarea:focus{border-color:rgba(240,188,78,0.4)}
+#eod-nudge-textarea::placeholder{color:rgba(255,255,255,0.22)}
+#eod-nudge-actions{display:flex;gap:10px;margin-top:16px}
+#eod-nudge-save{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;font-family:var(--display);font-size:13px;letter-spacing:0.04em;color:#0a0b0d;background:#f0bc4e;border:none;border-radius:9px;padding:13px 0;cursor:pointer;transition:all 0.15s}
+#eod-nudge-save:hover{background:#ffd070;box-shadow:0 0 20px rgba(240,188,78,0.35)}
+#eod-nudge-xp-pill{font-family:var(--mono);font-size:9px;font-weight:700;background:rgba(10,11,13,0.25);border-radius:5px;padding:2px 7px}
+#eod-nudge-later{font-family:var(--mono);font-size:10px;letter-spacing:0.06em;color:rgba(255,255,255,0.35);background:transparent;border:1px solid rgba(255,255,255,0.12);border-radius:9px;padding:0 18px;cursor:pointer;transition:all 0.15s}
+#eod-nudge-later:hover{color:rgba(255,255,255,0.6);border-color:rgba(255,255,255,0.25)}
 #leo-ema-legend{display:flex;align-items:center;gap:10px;padding:0 14px;border-left:1px solid rgba(255,255,255,0.08);flex-shrink:0}
 .leo-ema-item{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:0.04em}
 #leo-price-right{margin-left:auto;display:flex;align-items:center;gap:10px;padding:0 14px;border-left:1px solid rgba(255,255,255,0.08);flex-shrink:0}
@@ -11262,7 +11284,77 @@ function openLiveExec() {
 
   // Show pre-trade gate first; charts load only after it's dismissed
   ptgOpen();
+
+  // TEMP: preview the end-of-day notes nudge right away (testing only)
+  setTimeout(eodNudgeOpen, 900);
 }
+
+// ── END-OF-DAY NOTES NUDGE ──────────────────────────────
+function _eodNoteKey() {
+  var dateISO = typeof tdlTodayBKK === 'function' ? tdlTodayBKK() : new Date().toLocaleDateString('sv-SE');
+  return 'td_eod_quicknote_' + dateISO;
+}
+function _eodXpGrantedKey() {
+  var dateISO = typeof tdlTodayBKK === 'function' ? tdlTodayBKK() : new Date().toLocaleDateString('sv-SE');
+  return 'td_eod_xp_granted_' + dateISO;
+}
+function eodNudgeOpen() {
+  var overlay = document.getElementById('eod-nudge-overlay');
+  if (!overlay) return;
+
+  // Rank + streak (reuse cached live values — same source as the rank widget/splash)
+  var streak = (typeof window._liveStreakDays === 'number') ? window._liveStreakDays : 0;
+  var rankDefs = typeof getRankDefs === 'function' ? getRankDefs() : [];
+  var rank = rankDefs.find(function(r){ return streak >= r.min && streak <= r.max; }) || rankDefs[0];
+  var nameEl = document.getElementById('eod-nudge-rank-name');
+  var streakEl = document.getElementById('eod-nudge-rank-streak');
+  if (nameEl && rank) { nameEl.textContent = rank.name; nameEl.style.color = rank.color; }
+  if (streakEl) streakEl.textContent = streak + ' day streak';
+
+  // Restore any previously-typed quick note for today
+  var ta = document.getElementById('eod-nudge-textarea');
+  if (ta) ta.value = localStorage.getItem(_eodNoteKey()) || '';
+
+  // Reflect already-saved state on the button
+  var saveBtn = document.getElementById('eod-nudge-save');
+  var xpPill = document.getElementById('eod-nudge-xp-pill');
+  var alreadyGranted = !!localStorage.getItem(_eodXpGrantedKey());
+  if (xpPill) xpPill.textContent = alreadyGranted ? '✓ done' : '+1 XP';
+
+  overlay.classList.add('show');
+}
+function eodNudgeDismiss() {
+  var ta = document.getElementById('eod-nudge-textarea');
+  if (ta) localStorage.setItem(_eodNoteKey(), ta.value);
+  var overlay = document.getElementById('eod-nudge-overlay');
+  if (overlay) overlay.classList.remove('show');
+}
+function eodNudgeSave() {
+  var ta = document.getElementById('eod-nudge-textarea');
+  if (ta) localStorage.setItem(_eodNoteKey(), ta.value);
+
+  // Grant +1 XP once per day
+  if (!localStorage.getItem(_eodXpGrantedKey())) {
+    var totalXp = parseInt(localStorage.getItem('td_total_xp') || '0', 10) + 1;
+    localStorage.setItem('td_total_xp', String(totalXp));
+    localStorage.setItem(_eodXpGrantedKey(), '1');
+  }
+
+  var overlay = document.getElementById('eod-nudge-overlay');
+  if (overlay) overlay.classList.remove('show');
+
+  // Close live exec (if open) and jump to the full End of Day section
+  if (typeof closeLiveExec === 'function') closeLiveExec();
+  setTimeout(function() {
+    var section = document.getElementById('reflection');
+    if (section) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    var navItem = document.querySelector('.nav-item[href="#reflection"]');
+    if (navItem && typeof setActive === 'function') setActive(navItem);
+  }, 250);
+}
+window.eodNudgeOpen    = eodNudgeOpen;
+window.eodNudgeDismiss = eodNudgeDismiss;
+window.eodNudgeSave    = eodNudgeSave;
 
 // ── ONBOARDING ────────────────────────────────────────────
 var _obStep = 0;
@@ -18134,6 +18226,24 @@ window.fwFinish = fwFinish;
   </div>
   <div class="cdt-desc">Color shows how much of the candle has elapsed. Red means it's closing soon — act or wait for the next one.</div>
   <div class="leotip-off-note"><label class="leo-tips-toggle" onclick="leoToggleTips()" style="cursor:pointer"><span class="leo-tips-track leo-tips-track-copy"><span class="leo-tips-knob"></span></span><span class="leo-tips-label">EXPLAINER POPUPS</span></label><span class="leotip-off-text">— switch off these popups top-right ↗</span></div>
+</div>
+
+<!-- END-OF-DAY NOTES NUDGE -->
+<div id="eod-nudge-overlay">
+  <div id="eod-nudge-card">
+    <button id="eod-nudge-close" onclick="eodNudgeDismiss()" title="Close">✕</button>
+    <div id="eod-nudge-rank">
+      <div id="eod-nudge-rank-name">—</div>
+      <div id="eod-nudge-rank-streak">— day streak</div>
+    </div>
+    <div id="eod-nudge-title">📝 Leave your end-of-day notes</div>
+    <div id="eod-nudge-sub">Jot a quick note now — what worked, what to fix. You can come back and finish the full review anytime.</div>
+    <textarea id="eod-nudge-textarea" placeholder="e.g. Stuck to the plan on the 4H breakout, but sized up too early on the second trade..." oninput="localStorage.setItem(_eodNoteKey(), this.value)"></textarea>
+    <div id="eod-nudge-actions">
+      <button id="eod-nudge-save" onclick="eodNudgeSave()">✓ Save day <span id="eod-nudge-xp-pill">+1 XP</span></button>
+      <button id="eod-nudge-later" onclick="eodNudgeDismiss()">Later</button>
+    </div>
+  </div>
 </div>
 </body>
 </html>
