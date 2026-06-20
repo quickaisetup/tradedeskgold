@@ -11235,15 +11235,13 @@ function openLiveExec() {
     var t = Math.max(-1, Math.min(1, s / maxScore)); // -1 = full bear, +1 = full bull
     var bg, border;
     if (t > 0.05) {
-      // green — scale from subtle to full candle green
-      var a = Math.min(0.22, 0.06 + t * 0.16);
-      var ab = Math.min(0.5, 0.15 + t * 0.35);
+      var a = Math.min(0.55, 0.1 + t * 0.45);
+      var ab = Math.min(0.85, 0.2 + t * 0.65);
       bg = 'rgba(78,214,138,' + a + ')';
       border = 'rgba(78,214,138,' + ab + ')';
     } else if (t < -0.05) {
-      // red — scale from subtle to full candle red
-      var a = Math.min(0.22, 0.06 + Math.abs(t) * 0.16);
-      var ab = Math.min(0.5, 0.15 + Math.abs(t) * 0.35);
+      var a = Math.min(0.55, 0.1 + Math.abs(t) * 0.45);
+      var ab = Math.min(0.85, 0.2 + Math.abs(t) * 0.65);
       bg = 'rgba(240,96,96,' + a + ')';
       border = 'rgba(240,96,96,' + ab + ')';
     } else {
