@@ -11219,6 +11219,8 @@ function openLiveExec() {
   clearInterval(_leoNudgeInterval);
   var wtChip = document.getElementById('wt-chip');
   if (wtChip) wtChip.style.display = 'none';
+  var ps = document.getElementById('progress-strip');
+  if (ps) ps.style.display = 'none';
 
   // Ensure TF state is loaded and score is up to date before syncing header
   if (typeof _restoreTFStateLocal === 'function') _restoreTFStateLocal();
@@ -11471,6 +11473,8 @@ function _leoShowNudge() {
 function closeLiveExec() {
   var overlay = document.getElementById('live-exec-overlay');
   if (overlay) overlay.classList.remove('show');
+  var ps = document.getElementById('progress-strip');
+  if (ps) ps.style.display = '';
   document.removeEventListener('keydown', _leoEscClose);
   clearInterval(_leoNudgeInterval); _leoNudgeInterval = null;
   clearTimeout(_leoNudgeTimeout);
