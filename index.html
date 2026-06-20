@@ -10855,7 +10855,7 @@ function leoLoadWidget(tfId, sym, interval) {
   (function(el){
     var wmTip = document.getElementById('leo-wm-tooltip');
     if (!wmTip) return;
-    function pos(e){ var x=e.clientX+14,y=e.clientY+14; if(x+340>window.innerWidth)x=e.clientX-344; if(y+220>window.innerHeight)y=e.clientY-224; wmTip.style.left=x+'px'; wmTip.style.top=y+'px'; }
+    function pos(e){ var h=wmTip.offsetHeight||180; var x=e.clientX+14,y=e.clientY-h-14; if(x+340>window.innerWidth)x=e.clientX-344; if(y<4)y=e.clientY+14; wmTip.style.left=x+'px'; wmTip.style.top=y+'px'; }
     el.addEventListener('mouseenter',function(e){wmTip.style.display='block';pos(e);});
     el.addEventListener('mousemove',function(e){pos(e);});
     el.addEventListener('mouseleave',function(){wmTip.style.display='none';});
@@ -10878,7 +10878,7 @@ function leoLoadWidget(tfId, sym, interval) {
   (function(el){
     var cdTip = document.getElementById('leo-cd-tooltip');
     if (!cdTip) return;
-    function pos(e){ var x=e.clientX+14,y=e.clientY+14; if(x+300>window.innerWidth)x=e.clientX-304; if(y+220>window.innerHeight)y=e.clientY-224; cdTip.style.left=x+'px'; cdTip.style.top=y+'px'; }
+    function pos(e){ var h=cdTip.offsetHeight||160; var x=e.clientX+14,y=e.clientY-h-14; if(x+300>window.innerWidth)x=e.clientX-304; if(y<4)y=e.clientY+14; cdTip.style.left=x+'px'; cdTip.style.top=y+'px'; }
     el.addEventListener('mouseenter',function(e){cdTip.style.display='block';pos(e);});
     el.addEventListener('mousemove',function(e){pos(e);});
     el.addEventListener('mouseleave',function(){cdTip.style.display='none';});
