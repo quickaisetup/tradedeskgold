@@ -1740,6 +1740,9 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 .leo-ind-btn{font-family:var(--mono);font-size:8px;letter-spacing:0.1em;text-transform:uppercase;padding:2px 8px;height:20px;border-radius:3px;border:1px solid rgba(255,255,255,0.12);background:transparent;color:rgba(255,255,255,0.35);cursor:pointer;transition:all .15s}
 .leo-ind-btn:hover:not(.active){color:rgba(255,255,255,0.7);border-color:rgba(255,255,255,0.25)}
 .leo-ind-btn.active{color:var(--gold);border-color:rgba(240,188,78,0.5);background:rgba(240,188,78,0.08)}
+#leo-tips-btn{font-family:var(--mono);font-size:8px;font-weight:700;letter-spacing:0.1em;padding:2px 10px;height:20px;border-radius:3px;border:1.5px solid rgba(168,85,247,0.7);background:rgba(168,85,247,0.18);color:#c084fc;cursor:pointer;transition:all .15s}
+#leo-tips-btn:hover{background:rgba(168,85,247,0.28);border-color:rgba(168,85,247,1)}
+#leo-tips-btn.off{border-color:rgba(255,255,255,0.12);background:transparent;color:rgba(255,255,255,0.3)}
 #leo-ema-legend{display:flex;align-items:center;gap:10px;padding:0 14px;border-left:1px solid rgba(255,255,255,0.08);flex-shrink:0}
 .leo-ema-item{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:0.04em}
 #leo-price-right{margin-left:auto;display:flex;align-items:center;gap:10px;padding:0 14px;border-left:1px solid rgba(255,255,255,0.08);flex-shrink:0}
@@ -4894,6 +4897,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
       <button class="leo-ind-btn" onclick="leoSetIndicator('volume',this)">Volume</button>
       <button class="leo-ind-btn" onclick="leoSetIndicator('rsi',this)">RSI</button>
       <button class="leo-ind-btn" onclick="leoSetIndicator('stoch',this)">Stoch</button>
+      <div style="width:1px;height:16px;background:rgba(255,255,255,0.1);margin:0 6px"></div>
+      <button id="leo-tips-btn" onclick="leoToggleTips(this)" title="Explainer popups on/off">💡 TIPS</button>
     </div>
   </div>
 
@@ -10487,6 +10492,22 @@ function subscribeTradeAlerts() {
 
 // ── LIVE EXECUTION — TradingView Edition ─────────────
 var _leoIndicator = localStorage.getItem('leo_indicator') || 'ao';
+var _leoTipsOn = localStorage.getItem('leo_tips') !== 'off';
+
+function leoToggleTips(btn) {
+  _leoTipsOn = !_leoTipsOn;
+  localStorage.setItem('leo_tips', _leoTipsOn ? 'on' : 'off');
+  if (btn) { btn.classList.toggle('off', !_leoTipsOn); btn.textContent = _leoTipsOn ? '💡 TIPS' : '💡 TIPS'; }
+}
+
+function _leoShowTip(tip, e) {
+  if (!_leoTipsOn || !tip) return;
+  tip.style.display = 'block';
+  var h = tip.offsetHeight || 180, w = tip.offsetWidth || 280;
+  var x = e.clientX < window.innerWidth / 2 ? e.clientX + 14 : e.clientX - w - 14;
+  var y = Math.max(4, e.clientY - h - 14);
+  tip.style.left = x + 'px'; tip.style.top = y + 'px';
+}
 
 function leoSetIndicator(key, btn) {
   _leoIndicator = key;
@@ -10502,6 +10523,8 @@ function leoRestoreIndicatorBtn() {
     var key = (b.getAttribute('onclick') || '').match(/leoSetIndicator\('([^']+)'/);
     if (key) b.classList.toggle('active', key[1] === saved);
   });
+  var tipsBtn = document.getElementById('leo-tips-btn');
+  if (tipsBtn) tipsBtn.classList.toggle('off', !_leoTipsOn);
 }
 
 function _leoGetStudies() {
@@ -10604,8 +10627,8 @@ function leoLoadWidget(tfId, sym, interval) {
     var tip = document.getElementById('leo-wm-tooltip');
     if (!tip) return;
     function pos(e){ var h=tip.offsetHeight||180,w=tip.offsetWidth||280; var x=e.clientX<window.innerWidth/2?e.clientX+14:e.clientX-w-14; var y=Math.max(4,e.clientY-h-14); tip.style.left=x+'px';tip.style.top=y+'px'; }
-    el.addEventListener('mouseenter',function(e){tip.style.display='block';pos(e);});
-    el.addEventListener('mousemove',pos);
+    el.addEventListener('mouseenter',function(e){if(!_leoTipsOn)return;tip.style.display='block';pos(e);});
+    el.addEventListener('mousemove',function(e){if(_leoTipsOn)pos(e);});
     el.addEventListener('mouseleave',function(){tip.style.display='none';});
   })(wm);
 
@@ -10626,8 +10649,8 @@ function leoLoadWidget(tfId, sym, interval) {
     var tip = document.getElementById('leo-cd-tooltip');
     if (!tip) return;
     function pos(e){ var h=tip.offsetHeight||160,w=tip.offsetWidth||260; var x=e.clientX<window.innerWidth/2?e.clientX+14:e.clientX-w-14; var y=Math.max(4,e.clientY-h-14); tip.style.left=x+'px';tip.style.top=y+'px'; }
-    el.addEventListener('mouseenter',function(e){tip.style.display='block';pos(e);});
-    el.addEventListener('mousemove',pos);
+    el.addEventListener('mouseenter',function(e){if(!_leoTipsOn)return;tip.style.display='block';pos(e);});
+    el.addEventListener('mousemove',function(e){if(_leoTipsOn)pos(e);});
     el.addEventListener('mouseleave',function(){tip.style.display='none';});
   })(pill);
 
