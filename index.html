@@ -11593,8 +11593,8 @@ function eodQuestionsSave() {
 
   if (typeof saveAll === 'function') saveAll();
 
-  // Grant +1 XP once per day
-  if (!localStorage.getItem(_eodXpGrantedKey())) {
+  // Grant +1 XP once per day — only if rules were followed
+  if (!localStorage.getItem(_eodXpGrantedKey()) && (_eodRulesVal === 'Yes' || _eodRulesVal === 'Mostly')) {
     var totalXp = parseInt(localStorage.getItem('td_total_xp') || '0', 10) + 1;
     localStorage.setItem('td_total_xp', String(totalXp));
     localStorage.setItem(_eodXpGrantedKey(), '1');
