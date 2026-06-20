@@ -10692,8 +10692,9 @@ function leoSetSymbol(sym, btn) {
   // Re-filter level cards and KL bar for this instrument
   lvlRenderAll();
   leoRenderKLBar();
-  // Restore this instrument's analysis snapshot so score/bias reflect the right instrument
-  if (typeof _tdRestoreAnalysisSnapshot === 'function') _tdRestoreAnalysisSnapshot(sym);
+  // Switch the analysis panel to this instrument (saves outgoing, clears, restores incoming)
+  var analysisName = (sym === 'XAUUSD') ? 'Gold' : sym;
+  if (typeof switchAnalysisInstrument === 'function') switchAnalysisInstrument(analysisName, null);
   // Re-sync the header with the updated score
   _leoSyncHeader();
 }
