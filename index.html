@@ -1777,7 +1777,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 #ptg-mantra{margin-top:28px;text-align:center;font-family:var(--display);font-size:11px;letter-spacing:0.28em;text-transform:uppercase;color:var(--gold);opacity:0.7;user-select:none}
 #ptg-run-check{font-family:var(--mono);font-size:8px;letter-spacing:0.1em;text-transform:uppercase;padding:3px 10px;border-radius:4px;border:1px solid rgba(240,188,78,0.25);background:rgba(240,188,78,0.07);color:rgba(240,188,78,0.55);cursor:pointer;transition:all 0.15s;white-space:nowrap}#ptg-run-check:hover{border-color:var(--gb);color:var(--gold);background:var(--gd)}
 #ptg-override-badge{display:none;font-family:var(--mono);font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(240,96,96,0.55);padding:2px 8px;border-radius:3px;border:1px solid rgba(240,96,96,0.2);background:rgba(240,96,96,0.06)}
-#leo-header{display:flex;align-items:center;justify-content:space-between;padding:6px 14px;background:#08090b;border-bottom:1px solid rgba(255,255,255,0.1);flex-shrink:0;height:42px}
+#leo-header{display:flex;align-items:center;justify-content:space-between;padding:6px 14px;background:#08090b;border-bottom:1px solid rgba(255,255,255,0.1);flex-shrink:0;height:42px;transition:background 0.5s ease,border-bottom-color 0.5s ease}
 #leo-title{font-family:var(--display);font-size:15px;letter-spacing:0.14em;color:#fff;display:flex;align-items:center;gap:10px}
 #leo-live-dot{width:8px;height:8px;border-radius:50%;background:#4ed68a;box-shadow:0 0 8px rgba(78,214,138,1);animation:livePulse 1.4s ease-in-out infinite;flex-shrink:0}
 #leo-refresh{
@@ -7083,6 +7083,7 @@ function updateVerdictAuto() {
   var el = document.getElementById('vt-main'); if (el) { el.textContent = label; el.style.color = color; }
   var hl = document.getElementById('score-headline'); if (hl) { hl.textContent = headline; hl.style.color = color; hl.style.opacity = '0.8'; }
   var sn = document.getElementById('score-num'); if (sn) { sn.textContent = scoreStr; sn.style.color = color; }
+  if (typeof leoSyncHeaderColor === 'function') leoSyncHeaderColor();
   var nd = document.getElementById('score-needle');
   if (nd) nd.style.left = Math.min(Math.max(((displayScore + 10) / 20) * 100, 2), 98) + '%';
   var vn = document.getElementById('vs-num'); if (vn) { vn.textContent = scoreStr; vn.style.color = color; }
@@ -10990,6 +10991,7 @@ function openLiveExec() {
   if (leoM) leoM.textContent = tradingMode.length ? tradingMode.join(' + ') : '— no mode —';
   var md = document.querySelector('#market-direction .bb.sel');
   if (leoD) leoD.textContent = md ? md.textContent.trim() : '—';
+  leoSyncHeaderColor();
 
   if (window.leoRestoreIndicatorBtn) leoRestoreIndicatorBtn();
 
@@ -11189,6 +11191,20 @@ function _leoShowNudge() {
     setTimeout(function(){ el.style.display = 'none'; }, 400);
   }, 5000);
 }
+function leoSyncHeaderColor() {
+  var header = document.getElementById('leo-header');
+  if (!header) return;
+  var scoreEl = document.getElementById('score-num');
+  var score = scoreEl ? parseInt(scoreEl.textContent, 10) : 0;
+  var bg, border;
+  if (score > 3)       { bg = 'rgba(78,214,138,0.10)';  border = 'rgba(78,214,138,0.28)'; }
+  else if (score < -3) { bg = 'rgba(240,96,96,0.10)';   border = 'rgba(240,96,96,0.28)'; }
+  else                 { bg = 'rgba(240,188,78,0.08)';   border = 'rgba(240,188,78,0.22)'; }
+  header.style.background = bg;
+  header.style.borderBottomColor = border;
+}
+window.leoSyncHeaderColor = leoSyncHeaderColor;
+
 function closeLiveExec() {
   var overlay = document.getElementById('live-exec-overlay');
   if (overlay) overlay.classList.remove('show');
