@@ -1805,7 +1805,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 #leo-header{display:flex;align-items:center;justify-content:space-between;padding:6px 14px 6px 22px;background:#0a0b0d;border-bottom:1px solid rgba(255,255,255,0.08);flex-shrink:0;height:42px;position:relative;isolation:isolate;z-index:1}
 #leo-header::before{content:'';position:absolute;left:0;top:0;bottom:0;width:6px;z-index:-1;background:var(--lh-bg,#08090b);pointer-events:none;box-shadow:0 0 18px 2px var(--lh-glow,transparent)}
 #leo-header>*{position:relative;z-index:1}
-#leo-header>div,#leo-kl-bar{background:transparent!important}
+#leo-header>div:not(#kl-hover-card),#leo-kl-bar{background:transparent!important}
 #leo-header .kl-pill-rich{background:transparent!important;border-color:rgba(255,255,255,0.18)!important}
 #ptg-override-badge,#ptg-run-check{background:transparent!important}
 #leo-bias{display:inline-flex;align-items:center;padding:3px 10px;border-radius:5px;font-weight:700!important}
