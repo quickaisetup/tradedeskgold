@@ -1721,7 +1721,6 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 /* ── LIVE EXECUTION OVERLAY — TradingView edition ── */
 #live-exec-overlay{display:none;position:fixed;inset:0;z-index:9998;background:#060708;flex-direction:column;overflow:hidden}
 #live-exec-overlay.show{display:flex}
-#live-exec-overlay::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;box-shadow:var(--leo-glow,none);transition:box-shadow 0.6s}
 /* ── PRE-TRADE GATE ── */
 #ptg-gate{display:none;position:absolute;inset:0;z-index:50;background:#07080c;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;overflow-y:auto}
 #ptg-gate.show{display:flex}
@@ -11240,20 +11239,20 @@ function openLiveExec() {
     var t = Math.max(-1, Math.min(1, s / maxScore)); // -1 = full bear, +1 = full bull
     var bg, border;
     if (t > 0.05) {
-      var a = Math.min(0.18, 0.04 + t * 0.14);
-      var ab = Math.min(0.4, 0.1 + t * 0.3);
-      bg = 'rgba(40,160,100,' + a + ')';
-      border = 'rgba(40,160,100,' + ab + ')';
+      var a = Math.min(0.5, 0.1 + t * 0.4);
+      var ab = Math.min(0.8, 0.2 + t * 0.6);
+      bg = 'rgba(30,140,70,' + a + ')';
+      border = 'rgba(78,214,138,' + ab + ')';
     } else if (t < -0.05) {
-      var a = Math.min(0.18, 0.04 + Math.abs(t) * 0.14);
-      var ab = Math.min(0.4, 0.1 + Math.abs(t) * 0.3);
-      bg = 'rgba(180,60,60,' + a + ')';
-      border = 'rgba(180,60,60,' + ab + ')';
+      var a = Math.min(0.5, 0.1 + Math.abs(t) * 0.4);
+      var ab = Math.min(0.8, 0.2 + Math.abs(t) * 0.6);
+      bg = 'rgba(160,30,30,' + a + ')';
+      border = 'rgba(240,96,96,' + ab + ')';
     } else {
-      bg = 'rgba(240,188,78,0.08)';
+      bg = 'rgba(240,188,78,0.2)';
       border = 'rgba(240,188,78,0.45)';
     }
-    header.style.background = 'transparent';
+    header.style.background = bg;
     header.style.borderBottomColor = border;
     var overlay = document.getElementById('live-exec-overlay');
     if (overlay) {
@@ -11267,9 +11266,7 @@ function openLiveExec() {
       } else {
         gc = '240,188,78'; edgeA = 0.04;
       }
-      overlay.style.setProperty('--leo-glow',
-        'inset 0 0 250px 40px rgba(' + gc + ',' + edgeA + '),' +
-        'inset 0 0 600px rgba(' + gc + ',' + (edgeA * 0.3) + ')');
+      overlay.style.removeProperty('--leo-glow');
     }
   })();
 
