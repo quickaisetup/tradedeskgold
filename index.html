@@ -1801,8 +1801,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 #ptg-mantra{margin-top:28px;text-align:center;font-family:var(--display);font-size:11px;letter-spacing:0.28em;text-transform:uppercase;color:var(--gold);opacity:0.7;user-select:none}
 #ptg-run-check{font-family:var(--mono);font-size:8px;letter-spacing:0.1em;text-transform:uppercase;padding:3px 10px;border-radius:4px;border:1px solid rgba(240,188,78,0.25);background:rgba(240,188,78,0.07);color:rgba(240,188,78,0.55);cursor:pointer;transition:all 0.15s;white-space:nowrap}#ptg-run-check:hover{border-color:var(--gb);color:var(--gold);background:var(--gd)}
 #ptg-override-badge{display:none;font-family:var(--mono);font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(240,96,96,0.55);padding:2px 8px;border-radius:3px;border:1px solid rgba(240,96,96,0.2);background:rgba(240,96,96,0.06)}
-#leo-header{display:flex;align-items:center;justify-content:space-between;padding:6px 14px 6px 18px;background:#0a0b0d;border-bottom:1px solid rgba(255,255,255,0.08);flex-shrink:0;height:42px;position:relative;isolation:isolate;z-index:1}
-#leo-header::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;z-index:-1;background:var(--lh-bg,#08090b);pointer-events:none;box-shadow:0 0 14px 1px var(--lh-glow,transparent)}
+#leo-header{display:flex;align-items:center;justify-content:space-between;padding:6px 14px 6px 22px;background:#0a0b0d;border-bottom:3px solid var(--lh-bg,#08090b);flex-shrink:0;height:42px;position:relative;isolation:isolate;z-index:1;transition:border-bottom-color 0.4s}
+#leo-header::before{content:'';position:absolute;left:0;top:0;bottom:0;width:6px;z-index:-1;background:var(--lh-bg,#08090b);pointer-events:none;box-shadow:0 0 18px 2px var(--lh-glow,transparent)}
 #leo-header>*{position:relative;z-index:1}
 #leo-header>div,#leo-kl-bar{background:transparent!important}
 #leo-header .kl-pill-rich{background:transparent!important;border-color:rgba(255,255,255,0.18)!important}
@@ -1810,7 +1810,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 #leo-bias{display:inline-flex;align-items:center;padding:3px 10px;border-radius:5px;font-weight:700!important}
 #leo-score{padding:3px 8px;border-radius:5px}
 #leo-title{font-family:var(--display);font-size:15px;letter-spacing:0.14em;color:#fff;display:flex;align-items:center;gap:10px}
-#leo-live-dot{width:8px;height:8px;border-radius:50%;background:#4ed68a;box-shadow:0 0 8px rgba(78,214,138,1);animation:livePulse 1.4s ease-in-out infinite;flex-shrink:0}
+#leo-live-dot{width:8px;height:8px;border-radius:50%;background:var(--lh-bg,#4ed68a);box-shadow:0 0 10px 1px var(--lh-glow,rgba(78,214,138,1));animation:livePulse 1.4s ease-in-out infinite;flex-shrink:0;transition:background 0.4s}
 #leo-refresh{
   font-family:var(--mono);font-size:11px;letter-spacing:0.1em;font-weight:700;
   color:#060708;background:#f0bc4e;
@@ -5124,6 +5124,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
   <div id="leo-header">
     <div style="display:flex;align-items:center;gap:14px;flex-shrink:0">
       <button onclick="closeLiveExec()" style="background:transparent;border:none;color:rgba(255,255,255,0.3);font-size:16px;cursor:pointer;padding:0;line-height:1" title="Close (Esc)">✕</button>
+      <div id="leo-live-dot"></div>
       <div style="font-family:var(--display);font-size:13px;letter-spacing:0.12em;color:rgba(255,255,255,0.7)">LIVE EXECUTION</div>
       <div style="width:1px;height:16px;background:rgba(255,255,255,0.1)"></div>
       <div id="leo-bias" style="font-family:var(--mono);font-size:11px;letter-spacing:0.08em;font-weight:600;color:#aaa">—</div>
