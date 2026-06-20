@@ -11321,6 +11321,20 @@ function openLiveExec() {
 }
 
 // ── END-OF-DAY NOTES NUDGE ──────────────────────────────
+var _eodNudgeTimer = null;
+var _eodNudgeRepeat = null;
+function _eodScheduleNudge() {
+  clearTimeout(_eodNudgeTimer);
+  clearInterval(_eodNudgeRepeat);
+  if (localStorage.getItem(_eodXpGrantedKey())) return;
+  _eodNudgeTimer = setTimeout(function() {
+    if (!localStorage.getItem(_eodXpGrantedKey())) eodNudgeOpen();
+    _eodNudgeRepeat = setInterval(function() {
+      if (localStorage.getItem(_eodXpGrantedKey())) { clearInterval(_eodNudgeRepeat); return; }
+      eodNudgeOpen();
+    }, (60 + Math.random() * 60) * 60 * 1000);
+  }, 60 * 60 * 1000);
+}
 function _eodXpGrantedKey() {
   var dateISO = typeof tdlTodayBKK === 'function' ? tdlTodayBKK() : new Date().toLocaleDateString('sv-SE');
   return 'td_eod_xp_granted_' + dateISO;
@@ -11941,7 +11955,7 @@ function _leoInitCharts() {
     leoLoadIframes();
     leoUpdateCountdowns();
     _leoCdTimer = setInterval(leoUpdateCountdowns, 1000);
-    setTimeout(eodNudgeOpen, 900);
+    _eodScheduleNudge();
   }
 }
 function ptgSkip() {
