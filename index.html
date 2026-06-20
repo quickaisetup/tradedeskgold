@@ -947,11 +947,16 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 @keyframes splashPulse{0%,100%{box-shadow:0 0 32px rgba(240,188,78,0.15),0 8px 32px rgba(0,0,0,0.5)}
   50%{box-shadow:0 0 60px rgba(240,188,78,0.28),0 8px 32px rgba(0,0,0,0.5)}}
 #splash-secondary-btns{display:flex;align-items:center;gap:12px;margin-top:2px}
-#session-splash-live{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.18);
-  border-radius:10px;font-family:var(--mono);font-size:11px;letter-spacing:0.1em;
-  text-transform:uppercase;color:rgba(255,255,255,0.65);cursor:pointer;
-  padding:10px 20px;transition:all 0.15s}
-#session-splash-live:hover{background:rgba(255,255,255,0.09);color:#fff;border-color:rgba(255,255,255,0.35)}
+#session-splash-live{
+  font-family:var(--display);font-size:15px;letter-spacing:0.12em;text-transform:uppercase;
+  color:#fff;background:linear-gradient(135deg,rgba(240,96,96,0.22) 0%,rgba(240,96,96,0.08) 100%);
+  border:1.5px solid rgba(240,96,96,0.65);border-radius:50px;padding:11px 28px;cursor:pointer;
+  box-shadow:0 0 24px rgba(240,96,96,0.28),0 8px 32px rgba(0,0,0,0.5);
+  transition:all 0.2s;display:flex;align-items:center;gap:9px}
+#session-splash-live:hover{background:linear-gradient(135deg,rgba(240,96,96,0.38) 0%,rgba(240,96,96,0.18) 100%);
+  box-shadow:0 0 40px rgba(240,96,96,0.5),0 8px 32px rgba(0,0,0,0.6);border-color:rgba(240,96,96,1)}
+#session-splash-live .btn-dot{width:8px;height:8px;border-radius:50%;background:#f06060;
+  animation:livePulse 1.2s ease-in-out infinite;box-shadow:0 0 8px rgba(240,96,96,0.8);flex-shrink:0}
 #session-splash-skip{background:transparent;border:1px solid rgba(255,255,255,0.1);border-radius:10px;
   font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.4);cursor:pointer;
   letter-spacing:0.1em;text-transform:uppercase;padding:10px 20px;transition:all 0.15s}
@@ -3147,7 +3152,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
     </div>
     <button id="session-splash-btn" onclick="sessionSplashStart()">▶ Start Session</button>
     <div id="splash-secondary-btns">
-      <button id="session-splash-live" onclick="sessionSplashDismiss();window._leoChartsEntered=true;if(typeof openLiveExec==='function')openLiveExec();">⚡ Live Execution</button>
+      <button id="session-splash-live" onclick="sessionSplashDismiss();window._leoChartsEntered=true;if(typeof openLiveExec==='function')openLiveExec();"><div class="btn-dot"></div>Live Execution</button>
       <button id="session-splash-skip" onclick="sessionSplashDismiss()">Skip guide</button>
     </div>
   </div>
