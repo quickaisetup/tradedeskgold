@@ -931,6 +931,23 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 .leo-tv-cell-cd.cd-red{background:rgba(240,96,96,0.16);border-color:rgba(240,96,96,0.6);color:#f06060}
 .leo-tv-widget{position:absolute;inset:0;width:100%;height:100%}
 .leo-tv-widget .tradingview-widget-container{width:100%;height:100%}
+/* Watermark tooltip */
+#leo-wm-tooltip{display:none;position:fixed;z-index:9999;background:#1a1d27;border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:12px 14px;width:280px;pointer-events:none;box-shadow:0 8px 32px rgba(0,0,0,0.5)}
+.wmt-title{font-size:12px;font-weight:700;color:#e0e0e0;margin-bottom:8px;letter-spacing:0.05em}
+.wmt-body{font-size:11.5px;color:#a0a4b8;line-height:1.55}
+.wmt-chip{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10.5px;font-weight:600;margin:2px 2px 0}
+.wmt-chip.up{background:rgba(78,214,138,0.15);color:#4ed68a;border:1px solid rgba(78,214,138,0.35)}
+.wmt-chip.dn{background:rgba(240,96,96,0.15);color:#f06060;border:1px solid rgba(240,96,96,0.35)}
+.wmt-chip.rng{background:rgba(240,188,78,0.12);color:#f0bc4e;border:1px solid rgba(240,188,78,0.3)}
+/* Countdown tooltip */
+#leo-cd-tooltip{display:none;position:fixed;z-index:9999;background:#1a1d27;border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:12px 14px;width:260px;pointer-events:none;box-shadow:0 8px 32px rgba(0,0,0,0.5)}
+.cdt-title{font-size:12px;font-weight:700;color:#e0e0e0;margin-bottom:8px;letter-spacing:0.05em}
+.cdt-title-icon{margin-right:5px}
+.cdt-badges{display:flex;flex-direction:column;gap:5px;margin-bottom:8px}
+.cdt-badge{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:600}
+.cdt-badge-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.cdt-badge-green{color:#4ed68a}.cdt-badge-yellow{color:#f0bc4e}.cdt-badge-red{color:#f06060}
+.cdt-desc{font-size:11px;color:#a0a4b8;line-height:1.5}
 .leo-tv-widget .tradingview-widget-container__widget{width:100%;height:100%}
 
 @media(max-width:768px){
@@ -7819,6 +7836,14 @@ function leoLoadWidget(tfId, sym, interval) {
   else if (savedTrend === 'ranging') wm.classList.add('wm-ranging');
   wm.onclick = function() { cycleWmTrend(this); };
   container.appendChild(wm);
+  (function(el){
+    var tip = document.getElementById('leo-wm-tooltip');
+    if (!tip) return;
+    function pos(e){ var h=tip.offsetHeight||180,w=tip.offsetWidth||280; var x=e.clientX<window.innerWidth/2?e.clientX+14:e.clientX-w-14; var y=Math.max(4,e.clientY-h-14); tip.style.left=x+'px';tip.style.top=y+'px'; }
+    el.addEventListener('mouseenter',function(e){tip.style.display='block';pos(e);});
+    el.addEventListener('mousemove',pos);
+    el.addEventListener('mouseleave',function(){tip.style.display='none';});
+  })(wm);
 
   // Countdown pill — top left
   var pill = document.createElement('div');
@@ -7833,6 +7858,14 @@ function leoLoadWidget(tfId, sym, interval) {
   pill.appendChild(tfSpan);
   pill.appendChild(timeSpan);
   container.appendChild(pill);
+  (function(el){
+    var tip = document.getElementById('leo-cd-tooltip');
+    if (!tip) return;
+    function pos(e){ var h=tip.offsetHeight||160,w=tip.offsetWidth||260; var x=e.clientX<window.innerWidth/2?e.clientX+14:e.clientX-w-14; var y=Math.max(4,e.clientY-h-14); tip.style.left=x+'px';tip.style.top=y+'px'; }
+    el.addEventListener('mouseenter',function(e){tip.style.display='block';pos(e);});
+    el.addEventListener('mousemove',pos);
+    el.addEventListener('mouseleave',function(){tip.style.display='none';});
+  })(pill);
 
   // TradingView widget injected directly — no iframe needed, works from file://
   var wrap = document.createElement('div');
@@ -11931,6 +11964,30 @@ document.addEventListener('keydown', function(e) {
   <!-- stubs for JS compat -->
   <span id="tap-pts" style="display:none"></span>
   <div id="tap-note-banner" style="display:none"><div id="tap-note-big"></div></div>
+</div>
+
+<!-- Watermark tooltip -->
+<div id="leo-wm-tooltip">
+  <div class="wmt-title">👆 Click to set bias</div>
+  <div class="wmt-body">
+    Tap the timeframe label to cycle:<br>
+    <span class="wmt-chip up">▲ Bullish</span>
+    <span class="wmt-chip dn">▼ Bearish</span>
+    <span class="wmt-chip rng">● Neutral / Uncertain</span>
+    <br><br>
+    Before and during a trade, set bias every few minutes — it helps you notice when the market starts to turn.
+  </div>
+</div>
+
+<!-- Countdown tooltip -->
+<div id="leo-cd-tooltip">
+  <div class="cdt-title"><span class="cdt-title-icon">⏱</span> CANDLE PROGRESS</div>
+  <div class="cdt-badges">
+    <div class="cdt-badge cdt-badge-green"><div class="cdt-badge-dot" style="background:#4ed68a"></div>Green · 0–50%</div>
+    <div class="cdt-badge cdt-badge-yellow"><div class="cdt-badge-dot" style="background:#f0bc4e"></div>Yellow · 50–70%</div>
+    <div class="cdt-badge cdt-badge-red"><div class="cdt-badge-dot" style="background:#f06060"></div>Red · 70%+</div>
+  </div>
+  <div class="cdt-desc">Color shows how much of the candle has elapsed. Red means it's closing soon — act or wait for the next one.</div>
 </div>
 </body>
 </html>
