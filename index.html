@@ -10760,7 +10760,12 @@ function leoRestoreIndicatorBtn() {
 }
 
 function _leoGetStudies() {
-  var emas = ['STD;EMA', 'STD;EMA', 'STD;EMA', 'STD;MA'];
+  var emas = [
+    {id:'MAExp@tv-basicstudies',inputs:{length:9}},
+    {id:'MAExp@tv-basicstudies',inputs:{length:20}},
+    {id:'MAExp@tv-basicstudies',inputs:{length:50}},
+    {id:'MASimple@tv-basicstudies',inputs:{length:200}}
+  ];
   var ind = { ao: 'STD;Awesome_Oscillator', rsi: 'STD;RSI', stoch: 'STD;Stochastic' };
   return _leoIndicator === 'volume' ? emas : [ind[_leoIndicator] || 'STD;Awesome_Oscillator'].concat(emas);
 }
@@ -10875,7 +10880,7 @@ function leoLoadWidget(tfId, sym, interval) {
     autosize: true, symbol: sym, interval: interval,
     timezone: _tzIANA(), theme: 'dark', style: '1', locale: 'en',
     hide_top_toolbar: true, hide_legend: true, hide_side_toolbar: true,
-    allow_symbol_change: false, save_image: false, calendar: false, hide_volume: _leoHideVolume(),
+    allow_symbol_change: false, save_image: false, calendar: false,
     studies: _leoGetStudies(),
     support_host: 'https://www.tradingview.com'
   };
@@ -10890,8 +10895,8 @@ function leoLoadWidget(tfId, sym, interval) {
 }
 
 function leoLoadIframes() {
-  LEO_TFS.forEach(function(tf) {
-    leoLoadWidget(tf.id, _leoSymbol, tf.interval);
+  LEO_TFS.forEach(function(tf, i) {
+    setTimeout(function() { leoLoadWidget(tf.id, _leoSymbol, tf.interval); }, i * 300);
   });
 }
 
