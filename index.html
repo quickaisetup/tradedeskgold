@@ -1696,15 +1696,13 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 }
 #live-exec-btn:hover{background:linear-gradient(135deg,rgba(240,96,96,0.38) 0%,rgba(240,96,96,0.18) 100%);box-shadow:0 0 40px rgba(240,96,96,0.5),0 8px 32px rgba(0,0,0,0.7);border-color:rgba(240,96,96,1)}
 #live-exec-btn.wt-section-active{
-  transform:translateX(-50%) scale(1.5);
-  font-size:20px;padding:16px 52px;
-  background:linear-gradient(135deg,rgba(240,96,96,0.35) 0%,rgba(240,96,96,0.16) 100%);
-  border:2px solid rgba(240,96,96,0.95);
-  box-shadow:0 0 0 8px rgba(240,96,96,0.1),0 0 60px rgba(240,96,96,0.55),0 12px 48px rgba(0,0,0,0.8);
-  animation:liveExecPulseWT 1.6s ease-in-out infinite;z-index:20000}
+  border-color:rgba(240,96,96,0.9);
+  box-shadow:0 0 0 4px rgba(240,96,96,0.12),0 0 36px rgba(240,96,96,0.45),0 8px 32px rgba(0,0,0,0.7);
+  animation:liveExecPulseWT 1.8s ease-in-out infinite}
 @keyframes liveExecPulseWT{
-  0%,100%{box-shadow:0 0 0 8px rgba(240,96,96,0.1),0 0 60px rgba(240,96,96,0.55),0 12px 48px rgba(0,0,0,0.8)}
-  50%{box-shadow:0 0 0 16px rgba(240,96,96,0.07),0 0 90px rgba(240,96,96,0.75),0 12px 48px rgba(0,0,0,0.8)}}
+  0%,100%{box-shadow:0 0 0 4px rgba(240,96,96,0.12),0 0 36px rgba(240,96,96,0.4),0 8px 32px rgba(0,0,0,0.7)}
+  50%{box-shadow:0 0 0 8px rgba(240,96,96,0.08),0 0 56px rgba(240,96,96,0.6),0 8px 32px rgba(0,0,0,0.7)}}
+#wt-chip.wt-above-btn{bottom:110px}
 #leo-back-btn{
   position:fixed;bottom:32px;left:50%;transform:translateX(-50%);
   z-index:9999;font-family:var(--display);font-size:17px;letter-spacing:0.12em;text-transform:uppercase;
@@ -14944,6 +14942,7 @@ function wtShowStep() {
     if (s.onShow === 'loadBriefing' && typeof loadBriefing === 'function') setTimeout(function(){ loadBriefing(false); }, 400);
   }
   _wtSaveProgress();
+  chip.classList.toggle('wt-above-btn', s.id === 'live-exec-btn');
   chip.style.display = 'flex';
   chip.style.animation = 'none'; void chip.offsetWidth;
   chip.style.animation = 'wtChipIn 0.38s cubic-bezier(0.34,1.56,0.64,1) both';
