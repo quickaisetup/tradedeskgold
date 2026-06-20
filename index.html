@@ -944,16 +944,20 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
   transform:scale(1.03)}
 @keyframes splashPulse{0%,100%{box-shadow:0 0 40px rgba(240,188,78,0.18),0 8px 32px rgba(0,0,0,0.6)}
   50%{box-shadow:0 0 72px rgba(240,188,78,0.32),0 8px 32px rgba(0,0,0,0.6)}}
-#session-splash-skip{background:transparent;border:none;font-family:var(--mono);
-  font-size:10px;color:rgba(255,255,255,0.2);cursor:pointer;letter-spacing:0.1em;
-  text-transform:uppercase;padding:4px 0;transition:color 0.15s}
-#session-splash-skip:hover{color:rgba(255,255,255,0.45)}
-#session-splash-live{padding:10px 28px;font-family:var(--display);font-size:13px;
-  letter-spacing:0.12em;text-transform:uppercase;background:rgba(78,214,138,0.1);
-  border:1.5px solid rgba(78,214,138,0.5);border-radius:10px;color:#4ed68a;
-  cursor:pointer;display:flex;align-items:center;gap:8px;transition:all 0.2s}
-#session-splash-live:hover{background:rgba(78,214,138,0.18);border-color:rgba(78,214,138,0.75);transform:scale(1.03)}
-#session-splash-live .btn-dot{width:8px;height:8px;border-radius:50%;background:#4ed68a;animation:splashPulse 1.5s ease-in-out infinite}
+#session-splash-skip{background:transparent;border:1px solid rgba(255,255,255,0.12);border-radius:8px;
+  font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.45);cursor:pointer;letter-spacing:0.1em;
+  text-transform:uppercase;padding:8px 20px;transition:all 0.15s}
+#session-splash-skip:hover{color:rgba(255,255,255,0.8);border-color:rgba(255,255,255,0.28);background:rgba(255,255,255,0.05)}
+#session-splash-live{padding:11px 30px;font-family:var(--display);font-size:14px;
+  letter-spacing:0.12em;text-transform:uppercase;
+  background:linear-gradient(135deg,rgba(240,96,96,0.2) 0%,rgba(240,96,96,0.08) 100%);
+  border:1.5px solid rgba(240,96,96,0.6);border-radius:50px;color:#fff;
+  cursor:pointer;display:flex;align-items:center;gap:9px;transition:all 0.2s;
+  box-shadow:0 0 20px rgba(240,96,96,0.22),0 4px 16px rgba(0,0,0,0.5)}
+#session-splash-live:hover{background:linear-gradient(135deg,rgba(240,96,96,0.35) 0%,rgba(240,96,96,0.18) 100%);
+  border-color:rgba(240,96,96,0.9);box-shadow:0 0 36px rgba(240,96,96,0.4),0 4px 16px rgba(0,0,0,0.5);transform:scale(1.03)}
+#session-splash-live .btn-dot{width:8px;height:8px;border-radius:50%;background:#f06060;
+  box-shadow:0 0 6px rgba(240,96,96,0.8);animation:livePulse 1.2s ease-in-out infinite}
 #splash-secondary-btns{display:flex;align-items:center;gap:20px;flex-wrap:wrap;justify-content:center;margin-top:-4px}
 /* ── RANK CARD ─────────────────────────────────────── */
 #splash-rank-card{width:400px;max-width:calc(100vw - 32px);background:#07080c;
@@ -9604,7 +9608,10 @@ function setStreakUI(streak, clean, total, pct, sortedRows, allRows) {
   updateStickyRank(streak, rank, palEntry.pal);
   updateRankWidget(streak, rank, palEntry.pal, clean, total, pct);
   if (typeof splashRankUpdate === 'function') {
-    var _splashWk = window._liveWeekUsd != null ? window._liveWeekUsd : (window._myDbWeekPnl != null ? window._myDbWeekPnl : undefined);
+    var _palCache = window._tdPalCache || {};
+    var _splashWk = (_palCache.weeklyUsd != null) ? _palCache.weeklyUsd
+                  : (window._liveWeekUsd != null) ? window._liveWeekUsd
+                  : (window._myDbWeekPnl != null) ? window._myDbWeekPnl : undefined;
     splashRankUpdate(streak, rank, window._liveTodayUsd, _splashWk, pct, clean, total);
   }
 
