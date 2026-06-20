@@ -11890,6 +11890,7 @@ function _leoInitCharts() {
     leoLoadIframes();
     leoUpdateCountdowns();
     _leoCdTimer = setInterval(leoUpdateCountdowns, 1000);
+    setTimeout(eodNudgeOpen, 900);
   }
 }
 function ptgSkip() {
@@ -11902,7 +11903,6 @@ function ptgSkip() {
   if (badge) badge.style.display = '';
   _leoInitCharts();
   if (obShouldShow()) obOpen();
-  setTimeout(eodNudgeOpen, 900);
 }
 function ptgCombinedUnlock() {
   _ptgLog({ type: 'pass', ts: new Date().toISOString(), answers: [] });
@@ -11953,7 +11953,6 @@ function ptgOverride() {
   var warn = document.getElementById('leo-ptg-warning');
   if (warn) warn.style.display = '';
   _leoInitCharts();
-  setTimeout(eodNudgeOpen, 900);
 }
 window.ptgMarkStopOut = ptgMarkStopOut;
 window.ptgCombinedUnlock = ptgCombinedUnlock;
