@@ -10808,6 +10808,16 @@ var LEO_TF_LABELS = {'1D':'1D','240':'4H','60':'1H','15':'15','5':'5','1':'1'};
 var _leoBlobUrls = {};
 
 function leoMakeWidgetHTML(sym, interval, tfLabel) {
+  var ind = { ao: 'STD;Awesome_Oscillator', rsi: 'STD;RSI', stoch: 'STD;Stochastic' };
+  var indStudy = _leoIndicator === 'volume' ? null : (ind[_leoIndicator] || 'STD;Awesome_Oscillator');
+  // EMA/MA as objects with specific lengths — confirmed working in TV embed widget
+  var emaStudies = [
+    {id:'MAExp@tv-basicstudies',inputs:{length:9}},
+    {id:'MAExp@tv-basicstudies',inputs:{length:20}},
+    {id:'MAExp@tv-basicstudies',inputs:{length:50}},
+    {id:'MASimple@tv-basicstudies',inputs:{length:200}}
+  ];
+  var studies = indStudy ? [indStudy].concat(emaStudies) : emaStudies;
   var cfg = JSON.stringify({
     autosize: true,
     symbol: sym,
@@ -10817,13 +10827,11 @@ function leoMakeWidgetHTML(sym, interval, tfLabel) {
     style: '1',
     locale: 'en',
     hide_top_toolbar: true,
-    hide_legend: true,
+    hide_legend: false,
     hide_side_toolbar: true,
     allow_symbol_change: false,
     save_image: false,
-    calendar: false,
-    hide_volume: _leoHideVolume(),
-    studies: _leoGetStudies(),
+    studies: studies,
     support_host: 'https://www.tradingview.com'
   });
   return '<!DOCTYPE html><html><head><meta charset="UTF-8">' +
