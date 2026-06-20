@@ -1919,12 +1919,18 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 #eod-nudge-close:hover{color:rgba(255,255,255,0.7)}
 #eod-card-slot{width:100%;display:flex;justify-content:center}
 #eod-card-slot #splash-rank-card{width:100%}
-#eod-card-slot{overflow:hidden;border-radius:18px}
-#eod-nudge-card{position:relative;width:100%;max-width:420px;display:flex;flex-direction:column;align-items:center;gap:0;text-align:center}
-#eod-nudge-hook{font-family:var(--display);font-size:22px;letter-spacing:0.02em;color:#fff;margin-bottom:6px}
+#eod-card-slot{display:none}
+#eod-nudge-card{position:relative;width:100%;max-width:400px;display:flex;flex-direction:column;align-items:center;gap:0;text-align:center}
+#eod-next-rank-wrap{display:flex;flex-direction:column;align-items:center;margin-bottom:20px}
+#eod-next-rank-wrap svg{filter:drop-shadow(0 0 20px var(--eod-rank-glow,rgba(192,200,216,0.4)));margin-bottom:10px}
+#eod-next-rank-name{font-family:var(--display);font-size:28px;letter-spacing:0.06em;margin-bottom:2px}
+#eod-next-rank-quote{font-family:var(--mono);font-size:10px;font-style:italic;color:rgba(255,255,255,0.35);letter-spacing:0.03em}
+#eod-nudge-hook{font-family:var(--display);font-size:20px;letter-spacing:0.02em;color:#fff;margin:18px 0 4px}
 #eod-nudge-hook span{color:#f0bc4e}
-#eod-nudge-sub{font-family:var(--mono);font-size:11px;letter-spacing:0.04em;color:rgba(255,255,255,0.5);margin-bottom:28px;line-height:1.5}
-#eod-nudge-cta{position:relative;z-index:2;width:100%;display:flex;align-items:center;justify-content:center;gap:10px;font-family:var(--display);font-size:17px;letter-spacing:0.04em;color:#0a0b0d;background:linear-gradient(135deg,#f0bc4e,#ffd070);border:none;border-radius:14px;padding:20px 0;cursor:pointer;transition:all 0.18s;box-shadow:0 0 30px rgba(240,188,78,0.25)}
+#eod-nudge-income{font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.45);margin-bottom:6px}
+#eod-nudge-income span{color:var(--green,#4ed68a);font-weight:700}
+#eod-nudge-sub{font-family:var(--mono);font-size:10px;letter-spacing:0.04em;color:rgba(255,255,255,0.3);margin-bottom:24px;line-height:1.5}
+#eod-nudge-cta{position:relative;z-index:2;width:100%;display:flex;align-items:center;justify-content:center;gap:10px;font-family:var(--display);font-size:18px;letter-spacing:0.04em;color:#0a0b0d;background:linear-gradient(135deg,#f0bc4e,#ffd070);border:none;border-radius:14px;padding:22px 0;cursor:pointer;transition:all 0.18s;box-shadow:0 0 30px rgba(240,188,78,0.25)}
 #eod-nudge-cta:hover{background:linear-gradient(135deg,#ffd070,#ffe0a0);box-shadow:0 0 40px rgba(240,188,78,0.45);transform:scale(1.02)}
 #eod-nudge-xp-pill,#eod-questions-xp-pill{font-family:var(--mono);font-size:10px;font-weight:700;background:rgba(10,11,13,0.2);border-radius:6px;padding:3px 9px}
 #eod-nudge-later{position:relative;z-index:2;width:100%;font-family:var(--mono);font-size:10px;letter-spacing:0.06em;color:rgba(255,255,255,0.3);background:transparent;border:none;border-radius:10px;padding:14px 0;cursor:pointer;transition:all 0.15s}
@@ -11322,28 +11328,51 @@ var _eodRulesVal = '';
 // to the welcome screen, then restores it to the splash on close.
 function eodNudgeOpen() {
   var overlay = document.getElementById('eod-nudge-overlay');
-  var slot = document.getElementById('eod-card-slot');
-  var card = document.getElementById('splash-rank-card');
-  if (!overlay || !slot || !card) return;
-  card.classList.remove('hidden');
-  slot.appendChild(card);
+  if (!overlay) return;
 
   var alreadyGranted = !!localStorage.getItem(_eodXpGrantedKey());
   var xpPill = document.getElementById('eod-nudge-xp-pill');
   if (xpPill) xpPill.textContent = alreadyGranted ? '✓ done today' : '+1 XP';
 
+  var tiers = typeof getRankDefs === 'function' ? getRankDefs() : [];
+  var streakEl = document.getElementById('src-s-streak');
+  var streak = streakEl ? parseInt(streakEl.textContent) || 0 : 0;
+  var rank = tiers.find(function(r){ return streak >= r.min && streak <= r.max; }) || tiers[0];
+  var nextRank = tiers[Math.min(rank.rankIdx + 1, tiers.length - 1)];
+
+  // Next rank SVG
+  var svg = document.getElementById('eod-next-svg');
+  if (svg && typeof getRankSVG === 'function') {
+    svg.innerHTML = getRankSVG(nextRank.rankIdx);
+    overlay.style.setProperty('--eod-rank-glow', nextRank.color + '60');
+  }
+
+  // Next rank name & quote
+  var nameEl = document.getElementById('eod-next-rank-name');
+  if (nameEl) { nameEl.textContent = nextRank.name; nameEl.style.color = nextRank.color; }
+  var quoteEl = document.getElementById('eod-next-rank-quote');
+  if (quoteEl) quoteEl.textContent = '"' + nextRank.quote + '"';
+
+  // Hook text
   var hook = document.getElementById('eod-nudge-hook');
   if (hook) {
-    var streak = parseInt(localStorage.getItem('td_streak')) || 0;
-    var tiers = typeof getRankDefs === 'function' ? getRankDefs() : [];
-    var rank = tiers.find(function(r){ return streak >= r.min && streak <= r.max; }) || null;
-    if (rank && rank.nextMin < 999) {
+    if (rank.nextMin < 999) {
       var daysLeft = rank.nextMin - streak;
-      hook.innerHTML = 'Only <span>' + daysLeft + ' more XP</span> to ' + rank.nextName + '!';
-    } else if (rank && rank.nextMin >= 999) {
-      hook.innerHTML = 'You\'re <span>God Mode</span>. Keep the streak alive!';
+      hook.innerHTML = 'Only <span>' + daysLeft + ' more day' + (daysLeft > 1 ? 's' : '') + '</span> to ' + rank.nextName + '!';
     } else {
-      hook.innerHTML = 'Earn <span>+1 XP</span> — save your day!';
+      hook.innerHTML = 'You\'re <span>' + rank.name + '</span>. Keep the streak alive!';
+    }
+  }
+
+  // Monthly income projection
+  var incomeEl = document.getElementById('eod-nudge-income');
+  if (incomeEl) {
+    var monthlyEl = document.getElementById('rp-monthly-val') || document.getElementById('s-monthly-val');
+    var monthlyR = monthlyEl ? monthlyEl.textContent.trim() : '';
+    if (monthlyR && monthlyR !== '—') {
+      incomeEl.innerHTML = 'Projected monthly: <span>' + monthlyR + '/mo</span>';
+    } else {
+      incomeEl.innerHTML = 'Log your trades to unlock monthly projections';
     }
   }
 
@@ -18314,8 +18343,14 @@ window.fwFinish = fwFinish;
   <div id="eod-nudge-card">
     <button id="eod-nudge-close" onclick="eodNudgeDismiss()" title="Close">✕</button>
     <div id="eod-card-slot"></div>
+    <div id="eod-next-rank-wrap">
+      <svg id="eod-next-svg" width="120" height="135" viewBox="0 0 72 90" fill="none"></svg>
+      <div id="eod-next-rank-name"></div>
+      <div id="eod-next-rank-quote"></div>
+    </div>
     <div id="eod-nudge-hook"></div>
-    <div id="eod-nudge-sub">Save your trading day — you can update notes later.</div>
+    <div id="eod-nudge-income"></div>
+    <div id="eod-nudge-sub">You can always update your notes later.</div>
     <button id="eod-nudge-cta" onclick="eodOpenQuestions()">📝 Save My Day <span id="eod-nudge-xp-pill">+1 XP</span></button>
     <button id="eod-nudge-later" onclick="eodNudgeDismiss()">Not now</button>
   </div>
