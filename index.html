@@ -6325,6 +6325,7 @@ function dismissExplainer(id) {
 function initExplainers() {
   try {
     var d = JSON.parse(localStorage.getItem('td_dismissed') || '{}');
+    if (localStorage.getItem('td_hide_explainers') === null) localStorage.setItem('td_hide_explainers', '1');
     var hidden = localStorage.getItem('td_hide_explainers') === '1';
     document.querySelectorAll('.td-explainer').forEach(function(el) {
       if (d[el.id] || hidden) { el.style.display = 'none'; return; }
