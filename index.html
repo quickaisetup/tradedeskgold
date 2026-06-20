@@ -10904,29 +10904,22 @@ function leoLoadWidget(tfId, sym, interval) {
     el.addEventListener('mouseleave',function(){cdTip.style.display='none';});
   })(pill);
 
-  // Direct DOM injection — same approach that worked before today's iframe experiments
-  var wrap = document.createElement('div');
-  wrap.className = 'tradingview-widget-container';
-  wrap.style.cssText = 'position:absolute;inset:0;width:100%;height:100%';
-  var inner = document.createElement('div');
-  inner.className = 'tradingview-widget-container__widget';
-  inner.style.cssText = 'width:100%;height:100%';
-  wrap.appendChild(inner);
-
-  var script = document.createElement('script');
-  script.type = 'text/javascript';
-  script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
-  script.async = true;
-  script.textContent = JSON.stringify({
-    autosize: true, symbol: sym, interval: interval,
-    timezone: _tzIANA(), theme: 'dark', style: '1', locale: 'en',
-    hide_top_toolbar: true, hide_legend: true, hide_side_toolbar: true,
-    allow_symbol_change: false, save_image: false, calendar: false,
-    studies: _leoGetStudies(),
+  // Direct widgetembed iframe — bypasses embed-widget-advanced-chart.js which crashes on object studies
+  var params = {
+    symbol: sym, interval: interval, timezone: _tzIANA(),
+    theme: 'dark', style: '1', locale: 'en',
+    hidesidetoolbar: '1', hidetoptoolbar: '1', hide_legend: '1',
+    allow_symbol_change: '0', saveimage: '0', calendar: '0',
+    studies: JSON.stringify(_leoGetStudies()),
     support_host: 'https://www.tradingview.com'
-  });
-  wrap.appendChild(script);
-  container.appendChild(wrap);
+  };
+  var qs = Object.keys(params).map(function(k){ return encodeURIComponent(k)+'='+encodeURIComponent(params[k]); }).join('&');
+  var iframe = document.createElement('iframe');
+  iframe.src = 'https://www.tradingview.com/widgetembed/?' + qs;
+  iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:none;background:transparent;';
+  iframe.setAttribute('frameborder', '0');
+  iframe.setAttribute('allowtransparency', 'true');
+  container.appendChild(iframe);
 }
 
 window.addEventListener('message', function(e) {
