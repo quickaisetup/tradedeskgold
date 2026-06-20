@@ -14991,11 +14991,16 @@ function splashShare() {
 window.splashShare = splashShare;
 
 document.addEventListener('DOMContentLoaded', function() {
-  if (localStorage.getItem('td_walkthrough_pending')) {
+  // Show splash every Bangkok day — not just during the walkthrough
+  var todayBKK = new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
+  var lastSplash = localStorage.getItem('td_splash_shown_date');
+  var shouldShow = (lastSplash !== todayBKK) || localStorage.getItem('td_walkthrough_pending');
+  if (shouldShow) {
+    localStorage.setItem('td_splash_shown_date', todayBKK);
     var splash = document.getElementById('session-splash');
     var btnEl  = document.getElementById('session-splash-btn');
     var saved  = _wtLoadProgress();
-    if (saved && saved.step > 0) {
+    if (saved && saved.step > 0 && localStorage.getItem('td_walkthrough_pending')) {
       if (btnEl) btnEl.textContent = '▶ Continue Day';
     }
     if (splash) setTimeout(function(){ splash.classList.add('show'); }, 600);
