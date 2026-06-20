@@ -12534,19 +12534,7 @@ function initTVChart(forceInstrument) {
     hide_top_toolbar: false, hide_legend: true,
     allow_symbol_change: false, save_image: false,
     hide_side_toolbar: true,
-    studies: [
-      // NOTE: the widget appears to silently cap how many auto-loaded studies
-      // it will render (AO vanished once total count pushed past ~4-5).
-      // Re-adding EMA 9 & 20 brings us back to 6 total — if AO or MACD
-      // disappear again, trim this back to the 4-study set (MACD, AO,
-      // EMA50, SMA200) that's confirmed to work reliably.
-      'STD;MACD',
-      'STD;Awesome_Oscillator',
-      { id: 'MAExp@tv-basicstudies', inputs: { length: 9 } },
-      { id: 'MAExp@tv-basicstudies', inputs: { length: 20 } },
-      { id: 'MAExp@tv-basicstudies', inputs: { length: 50 } },
-      { id: 'MASimple@tv-basicstudies', inputs: { length: 200 } }
-    ],
+    studies: ['STD;MACD', 'STD;Awesome_Oscillator'],
     support_host: 'https://www.tradingview.com'
   });
   container.appendChild(script);
