@@ -1747,6 +1747,10 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 .leo-tips-track.on .leo-tips-knob{left:16px}
 .leo-tips-label{font-family:var(--mono);font-size:8px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.45);transition:color .2s;white-space:nowrap}
 .leo-tips-track.on + .leo-tips-label{color:#4ed68a}
+/* Indicator + Calc tooltips */
+#leo-ind-tooltip,#leo-calc-tooltip{display:none;position:fixed;z-index:9999;background:#1a1d27;border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:12px 14px;width:270px;pointer-events:none;box-shadow:0 8px 32px rgba(0,0,0,0.5);font-family:var(--mono)}
+.leotip-title{font-size:11px;font-weight:700;color:#e0e0e0;margin-bottom:7px;letter-spacing:0.05em}
+.leotip-body{font-size:11px;color:#a0a4b8;line-height:1.6}
 #leo-ema-legend{display:flex;align-items:center;gap:10px;padding:0 14px;border-left:1px solid rgba(255,255,255,0.08);flex-shrink:0}
 .leo-ema-item{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:0.04em}
 #leo-price-right{margin-left:auto;display:flex;align-items:center;gap:10px;padding:0 14px;border-left:1px solid rgba(255,255,255,0.08);flex-shrink:0}
@@ -10527,6 +10531,16 @@ function leoSetIndicator(key, btn) {
   leoRefreshCharts();
 }
 
+function _leoBind(elId, tipId, w, h) {
+  var el = document.getElementById(elId);
+  var tip = document.getElementById(tipId);
+  if (!el || !tip) return;
+  function pos(e){ var tw=tip.offsetWidth||w, th=tip.offsetHeight||h; var x=e.clientX<window.innerWidth/2?e.clientX+14:e.clientX-tw-14; var y=Math.max(4,e.clientY-th-14); tip.style.left=x+'px';tip.style.top=y+'px'; }
+  el.addEventListener('mouseenter',function(e){if(!_leoTipsOn)return;tip.style.display='block';pos(e);});
+  el.addEventListener('mousemove',function(e){if(_leoTipsOn)pos(e);});
+  el.addEventListener('mouseleave',function(){tip.style.display='none';});
+}
+
 function leoRestoreIndicatorBtn() {
   var saved = localStorage.getItem('leo_indicator') || 'ao';
   document.querySelectorAll('.leo-ind-btn').forEach(function(b) {
@@ -10535,6 +10549,8 @@ function leoRestoreIndicatorBtn() {
   });
   var track = document.getElementById('leo-tips-track');
   if (track) track.classList.toggle('on', _leoTipsOn);
+  _leoBind('leo-ind-toggle', 'leo-ind-tooltip', 270, 80);
+  _leoBind('leo-calc-bar',   'leo-calc-tooltip', 270, 160);
 }
 
 function _leoGetStudies() {
@@ -17539,6 +17555,20 @@ window.fwGoLive = fwGoLive;
 window.fwFinish = fwFinish;
 // ── END FIRST-TIME WALKTHROUGH ─────────────────────────
 </script>
+
+<div id="leo-ind-tooltip">
+  <div class="leotip-title">💡 Did you know?</div>
+  <div class="leotip-body">You can switch the indicator shown below each chart — <b>AO</b>, <b>RSI</b>, <b>Stoch</b>, or <b>Volume</b> — using the buttons in the upper right corner of this panel.</div>
+</div>
+
+<div id="leo-calc-tooltip">
+  <div class="leotip-title">📐 Position Calculator</div>
+  <div class="leotip-body">
+    Enter your <b>Entry</b>, <b>Stop Loss</b> and <b>Take Profit</b> prices.<br><br>
+    The calculator automatically works out your <b>lot size</b> based on your account size and risk %, and shows your <b>R:R ratio</b>.<br><br>
+    Aim for at least <b>1:2 R:R</b> before taking a trade.
+  </div>
+</div>
 
 <div id="leo-wm-tooltip">
   <div class="wmt-title">👆 Click to set bias</div>
