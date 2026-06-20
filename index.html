@@ -7462,6 +7462,8 @@ function setTradingMode(btn, val) {
   const disp = document.getElementById('trading-mode-display');
   var label = tradingMode.join(' + ');
   if (disp) { disp.textContent = label; disp.style.color = tradingMode.length ? 'var(--text)' : 'var(--text3)'; }
+  var leoM = document.getElementById('leo-mode');
+  if (leoM) leoM.textContent = tradingMode.length ? tradingMode.join(' + ') : '— no mode —';
   updateStickyBiasBar();
   updateBottomHUD();
   _saveTFStateLocal();
