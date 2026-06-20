@@ -11041,6 +11041,7 @@ function openLiveExec() {
   var overlay = document.getElementById('live-exec-overlay');
   if (!overlay) return;
   overlay.classList.add('show');
+  _leoBindCellTooltips();
   clearInterval(_leoNudgeInterval);
   setTimeout(_leoShowNudge, 800);
   _leoNudgeInterval = setInterval(_leoShowNudge, 5 * 60 * 1000);
@@ -11260,37 +11261,30 @@ function _leoShowNudge() {
   }, 5000);
 }
 // ── COUNTDOWN + WATERMARK TOOLTIPS ───────────────────────
-(function(){
+function _leoBindCellTooltips() {
+  var cdTip = document.getElementById('leo-cd-tooltip');
+  var wmTip = document.getElementById('leo-wm-tooltip');
   function posTooltip(tip, e) {
     var x = e.clientX + 14, y = e.clientY + 14;
-    if (x + 240 > window.innerWidth)  x = e.clientX - 244;
-    if (y + 160 > window.innerHeight) y = e.clientY - 164;
+    if (x + 280 > window.innerWidth)  x = e.clientX - 284;
+    if (y + 200 > window.innerHeight) y = e.clientY - 204;
     tip.style.left = x + 'px';
     tip.style.top  = y + 'px';
   }
-  document.addEventListener('mouseover', function(e) {
-    var cd  = e.target.closest('.leo-tv-cell-cd');
-    var wm  = e.target.closest('.leo-tv-cell-wm');
-    var cdTip = document.getElementById('leo-cd-tooltip');
-    var wmTip = document.getElementById('leo-wm-tooltip');
-    if (cd && cdTip) { cdTip.style.display = 'block'; posTooltip(cdTip, e); }
-    if (wm && wmTip) { wmTip.style.display = 'block'; posTooltip(wmTip, e); }
-  });
-  document.addEventListener('mousemove', function(e) {
-    var cdTip = document.getElementById('leo-cd-tooltip');
-    var wmTip = document.getElementById('leo-wm-tooltip');
-    if (cdTip && cdTip.style.display === 'block') posTooltip(cdTip, e);
-    if (wmTip && wmTip.style.display === 'block') posTooltip(wmTip, e);
-  });
-  document.addEventListener('mouseout', function(e) {
-    var cd  = e.target.closest('.leo-tv-cell-cd');
-    var wm  = e.target.closest('.leo-tv-cell-wm');
-    var cdTip = document.getElementById('leo-cd-tooltip');
-    var wmTip = document.getElementById('leo-wm-tooltip');
-    if (cd && cdTip) cdTip.style.display = 'none';
-    if (wm && wmTip) wmTip.style.display = 'none';
-  });
-})();
+  function bindCell(el, tip) {
+    el.addEventListener('mouseenter', function(e) {
+      tip.style.display = 'block'; posTooltip(tip, e);
+    });
+    el.addEventListener('mousemove', function(e) {
+      posTooltip(tip, e);
+    });
+    el.addEventListener('mouseleave', function() {
+      tip.style.display = 'none';
+    });
+  }
+  if (cdTip) document.querySelectorAll('.leo-tv-cell-cd').forEach(function(el){ bindCell(el, cdTip); });
+  if (wmTip) document.querySelectorAll('.leo-tv-cell-wm').forEach(function(el){ bindCell(el, wmTip); });
+}
 
 function leoSyncHeaderColor() {
   var header = document.getElementById('leo-header');
