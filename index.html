@@ -11255,22 +11255,19 @@ function openLiveExec() {
     header.style.borderBottomColor = border;
     var overlay = document.getElementById('live-exec-overlay');
     if (overlay) {
-      var gc, ga, edgeA, bgA;
+      var gc, edgeA;
       if (t > 0.05) {
         gc = '40,180,90';
-        edgeA = Math.min(0.5, 0.1 + t * 0.4);
-        bgA = Math.min(0.06, t * 0.06);
+        edgeA = Math.min(0.45, 0.08 + t * 0.37);
       } else if (t < -0.05) {
         gc = '200,50,50';
-        edgeA = Math.min(0.5, 0.1 + Math.abs(t) * 0.4);
-        bgA = Math.min(0.06, Math.abs(t) * 0.06);
+        edgeA = Math.min(0.45, 0.08 + Math.abs(t) * 0.37);
       } else {
-        gc = '240,188,78'; edgeA = 0.05; bgA = 0.01;
+        gc = '240,188,78'; edgeA = 0.04;
       }
       overlay.style.boxShadow =
-        'inset 0 0 300px 60px rgba(' + gc + ',' + edgeA + '),' +
-        'inset 0 0 80px rgba(' + gc + ',' + (edgeA * 0.6) + ')';
-      overlay.style.background = 'linear-gradient(180deg, rgba(' + gc + ',' + (bgA * 2) + ') 0%, #060708 15%, #060708 85%, rgba(' + gc + ',' + bgA + ') 100%)';
+        'inset 0 0 250px 40px rgba(' + gc + ',' + edgeA + '),' +
+        'inset 0 0 600px rgba(' + gc + ',' + (edgeA * 0.3) + ')';
     }
   })();
 
