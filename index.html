@@ -4982,6 +4982,9 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
       <div class="ob-dot"></div>
       <div class="ob-dot"></div>
       <div class="ob-dot"></div>
+      <div class="ob-dot"></div>
+      <div class="ob-dot"></div>
+      <div class="ob-dot"></div>
     </div>
 
     <!-- Cards -->
@@ -4997,7 +5000,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 
       <!-- Step 1: Watermark clicks -->
       <div class="ob-card" id="ob-s1">
-        <div class="ob-label">FEATURE 1 OF 3</div>
+        <div class="ob-label">FEATURE 1 OF 6</div>
         <div class="ob-title">Mark your bias per timeframe</div>
         <div class="ob-body">Click the timeframe watermark to cycle through <span class="ob-hl ob-hl-up">bullish</span>, <span class="ob-hl ob-hl-down">bearish</span>, and <span class="ob-hl ob-hl-rng">ranging</span>. Click it <strong id="ob-wm-remain">4</strong> more times to continue.</div>
         <!-- Exact replica of .leo-tv-cell -->
@@ -5013,7 +5016,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 
       <!-- Step 2: Key level click -->
       <div class="ob-card" id="ob-s2">
-        <div class="ob-label">FEATURE 2 OF 3</div>
+        <div class="ob-label">FEATURE 2 OF 6</div>
         <div class="ob-title">One tap loads your trade</div>
         <div class="ob-body">The bar at the top shows saved price levels. Tap any green or red tag and your Entry, Stop Loss, and Take Profit fill in automatically — no typing needed.</div>
 
@@ -5082,7 +5085,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 
       <!-- Step 3: Countdown explainer -->
       <div class="ob-card" id="ob-s3">
-        <div class="ob-label">FEATURE 3 OF 3</div>
+        <div class="ob-label">FEATURE 3 OF 6</div>
         <div class="ob-title">How long until the candle closes?</div>
         <div class="ob-body" style="margin-bottom:24px">The pill in the corner of each chart counts down to when the candle closes. The color tells you how much time is left — like a traffic light.</div>
 
@@ -5122,8 +5125,99 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
         <button class="ob-btn-primary" onclick="obNext()" style="margin-top:0">Got it →</button>
       </div>
 
-      <!-- Step 4: Done -->
+      <!-- Step 4: Chart grid -->
       <div class="ob-card" id="ob-s4">
+        <div class="ob-label">FEATURE 4 OF 6</div>
+        <div class="ob-title">6 charts, one screen</div>
+        <div class="ob-body" style="margin-bottom:20px">Your charts run simultaneously across 6 timeframes — <strong>Daily, 4H, 1H, 15M, 5M, and 1M</strong>. Top-down analysis without switching tabs.</div>
+        <div style="position:relative;width:100%;height:180px;background:#060708;border:1px solid rgba(255,255,255,0.08);border-radius:6px;overflow:hidden;margin-bottom:20px">
+          <iframe id="ob-tv-frame-5m" scrolling="no" style="position:absolute;inset:0;width:100%;height:100%;border:none;pointer-events:none" allowtransparency="true"></iframe>
+          <div class="leo-tv-cell-cd cd-green" style="pointer-events:none"><div class="cd-tf">5M</div><div class="cd-time">03:22</div></div>
+          <div class="leo-tv-cell-wm" style="pointer-events:none;font-size:clamp(28px,7vw,52px);color:rgba(255,255,255,0.08)">5M</div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:20px">
+          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:4px;padding:8px 0;text-align:center;font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.4)">1D</div>
+          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:4px;padding:8px 0;text-align:center;font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.4)">4H</div>
+          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:4px;padding:8px 0;text-align:center;font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.4)">1H</div>
+          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:4px;padding:8px 0;text-align:center;font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.4)">15M</div>
+          <div style="background:rgba(240,188,78,0.1);border:1px solid rgba(240,188,78,0.3);border-radius:4px;padding:8px 0;text-align:center;font-family:var(--mono);font-size:10px;color:#f0bc4e;font-weight:700">5M ←</div>
+          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:4px;padding:8px 0;text-align:center;font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.4)">1M</div>
+        </div>
+        <button class="ob-btn-primary" onclick="obNext()">Next →</button>
+      </div>
+
+      <!-- Step 5: EMA lines -->
+      <div class="ob-card" id="ob-s5">
+        <div class="ob-label">FEATURE 5 OF 6</div>
+        <div class="ob-title">Read the trend with EMAs</div>
+        <div class="ob-body" style="margin-bottom:20px">Every chart has 4 exponential moving averages baked in. They help you spot trend direction, dynamic support/resistance, and momentum shifts at a glance.</div>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:24px">
+          <div style="display:flex;align-items:center;gap:14px;padding:12px 16px;background:rgba(168,85,247,0.06);border:1px solid rgba(168,85,247,0.2);border-radius:8px">
+            <div style="width:32px;height:3px;background:#a855f7;border-radius:2px;flex-shrink:0"></div>
+            <div style="text-align:left">
+              <div style="font-family:var(--mono);font-size:11px;font-weight:700;color:#a855f7;letter-spacing:0.06em;margin-bottom:2px">EMA 9 — Fast</div>
+              <div style="font-size:11px;color:rgba(255,255,255,0.45);line-height:1.4">Reacts first. Captures short-term momentum and scalp entries.</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:14px;padding:12px 16px;background:rgba(240,188,78,0.06);border:1px solid rgba(240,188,78,0.2);border-radius:8px">
+            <div style="width:32px;height:3px;background:#f0bc4e;border-radius:2px;flex-shrink:0"></div>
+            <div style="text-align:left">
+              <div style="font-family:var(--mono);font-size:11px;font-weight:700;color:#f0bc4e;letter-spacing:0.06em;margin-bottom:2px">EMA 20 — Medium</div>
+              <div style="font-size:11px;color:rgba(255,255,255,0.45);line-height:1.4">The swing trader's anchor. Price holding above = bullish bias.</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:14px;padding:12px 16px;background:rgba(106,163,245,0.06);border:1px solid rgba(106,163,245,0.2);border-radius:8px">
+            <div style="width:32px;height:3px;background:#6aa3f5;border-radius:2px;flex-shrink:0"></div>
+            <div style="text-align:left">
+              <div style="font-family:var(--mono);font-size:11px;font-weight:700;color:#6aa3f5;letter-spacing:0.06em;margin-bottom:2px">EMA 50 — Slow</div>
+              <div style="font-size:11px;color:rgba(255,255,255,0.45);line-height:1.4">Dynamic support/resistance. Institutions watch this level.</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:14px;padding:12px 16px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.15);border-radius:8px">
+            <div style="width:32px;height:4px;background:#ffffff;border-radius:2px;flex-shrink:0"></div>
+            <div style="text-align:left">
+              <div style="font-family:var(--mono);font-size:11px;font-weight:700;color:#ffffff;letter-spacing:0.06em;margin-bottom:2px">EMA 200 — Macro</div>
+              <div style="font-size:11px;color:rgba(255,255,255,0.45);line-height:1.4">The big picture. Price above = long-term uptrend. Thicker line.</div>
+            </div>
+          </div>
+        </div>
+        <button class="ob-btn-primary" onclick="obNext()">Next →</button>
+      </div>
+
+      <!-- Step 6: Indicators -->
+      <div class="ob-card" id="ob-s6">
+        <div class="ob-label">FEATURE 6 OF 6</div>
+        <div class="ob-title">Switch indicators in one tap</div>
+        <div class="ob-body" style="margin-bottom:20px">Use the toggle bar above the charts to swap between indicators. All 6 charts update at once — no need to configure each one.</div>
+        <div style="display:flex;gap:6px;margin-bottom:20px;justify-content:center;flex-wrap:wrap">
+          <div style="padding:8px 16px;background:rgba(240,188,78,0.12);border:1px solid rgba(240,188,78,0.4);border-radius:6px;font-family:var(--mono);font-size:11px;color:#f0bc4e;font-weight:700;letter-spacing:0.06em">AO</div>
+          <div style="padding:8px 16px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);border-radius:6px;font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.4);letter-spacing:0.06em">Volume</div>
+          <div style="padding:8px 16px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);border-radius:6px;font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.4);letter-spacing:0.06em">RSI</div>
+          <div style="padding:8px 16px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);border-radius:6px;font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.4);letter-spacing:0.06em">Stoch</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:24px">
+          <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:6px">
+            <span style="font-family:var(--mono);font-size:10px;font-weight:700;color:#f0bc4e;white-space:nowrap;margin-top:1px">AO</span>
+            <span style="font-size:11px;color:rgba(255,255,255,0.45);line-height:1.4">Awesome Oscillator — shows momentum shifts. Green bars = bullish momentum building.</span>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:6px">
+            <span style="font-family:var(--mono);font-size:10px;font-weight:700;color:rgba(255,255,255,0.6);white-space:nowrap;margin-top:1px">VOL</span>
+            <span style="font-size:11px;color:rgba(255,255,255,0.45);line-height:1.4">Volume bars — confirm breakouts. High volume on a move = conviction.</span>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:6px">
+            <span style="font-family:var(--mono);font-size:10px;font-weight:700;color:rgba(255,255,255,0.6);white-space:nowrap;margin-top:1px">RSI</span>
+            <span style="font-size:11px;color:rgba(255,255,255,0.45);line-height:1.4">Relative Strength Index — overbought above 70, oversold below 30.</span>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:6px">
+            <span style="font-family:var(--mono);font-size:10px;font-weight:700;color:rgba(255,255,255,0.6);white-space:nowrap;margin-top:1px">STOCH</span>
+            <span style="font-size:11px;color:rgba(255,255,255,0.45);line-height:1.4">Stochastic — catches reversals. Cross below 20 or above 80 = potential turning point.</span>
+          </div>
+        </div>
+        <button class="ob-btn-primary" onclick="obNext()">Got it →</button>
+      </div>
+
+      <!-- Step 7: Done -->
+      <div class="ob-card" id="ob-s7">
         <div class="ob-icon">✦</div>
         <div class="ob-title">You're ready to trade</div>
         <div class="ob-body">Check your trading rules and AI analysis on the main dashboard before every trade. This tutorial won't appear again.</div>
@@ -11519,6 +11613,12 @@ function obOpen() {
     var html = leoMakeWidgetHTML('XAUUSD', '60', '1H');
     var blob = new Blob([html], { type: 'text/html' });
     frame.src = URL.createObjectURL(blob);
+  }
+  var frame5 = document.getElementById('ob-tv-frame-5m');
+  if (frame5 && !frame5.src) {
+    var html5 = leoMakeWidgetHTML('XAUUSD', '5', '5M');
+    var blob5 = new Blob([html5], { type: 'text/html' });
+    frame5.src = URL.createObjectURL(blob5);
   }
 }
 
