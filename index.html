@@ -6998,11 +6998,10 @@ function toggleBias(tf, val, btn) {
   var biasCls = { bull: 'sel-bull', bear: 'sel-bear', range: 'sel-range', neutral: 'sel-range' };
   var container = btn.closest('.bias-btns') || btn.parentElement;
   var currentBias = tfState[tf].bias.slice();
-  var idx = window._inRestore ? -1 : currentBias.indexOf(val); // never deselect during restore
+  var idx = currentBias.indexOf(val);
 
   if (idx > -1) {
-    // Deselect this one
-    currentBias.splice(idx, 1);
+    // Already selected — keep it (no deselect)
   } else {
     // Bull/Bear are mutually exclusive; Neutral can combine with either
     if (val === 'bull') currentBias = currentBias.filter(function(v){ return v !== 'bear'; });
@@ -7037,10 +7036,9 @@ function setTFBias(tf, val, btn) { toggleBias(tf, val, btn); }
 function toggleTrend(tf, val, btn) {
   if (!tfState[tf]) tfState[tf] = { bias: [], trend: [] };
   const trendCls = { up: 'sel-bull', down: 'sel-bear', ranging: 'sel-range' };
-  const idx = window._inRestore ? -1 : tfState[tf].trend.indexOf(val);
-  // Up and down are mutually exclusive; ranging can combine with either
+  const idx = tfState[tf].trend.indexOf(val);
   if (idx > -1) {
-    tfState[tf].trend.splice(idx, 1);
+    // Already selected — keep it
   } else {
     if (val === 'up')   tfState[tf].trend = tfState[tf].trend.filter(function(v){ return v !== 'down'; });
     if (val === 'down') tfState[tf].trend = tfState[tf].trend.filter(function(v){ return v !== 'up'; });
