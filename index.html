@@ -11282,6 +11282,12 @@ function _leoSyncHeader() {
     leoB.style.background = badgeBg;
     leoB.style.border = '1px solid ' + badgeBorder;
   }
+  var leoM = document.getElementById('leo-mode');
+  if (leoM) {
+    var tmDisp2 = document.getElementById('trading-mode-display');
+    var tmVal = tradingMode.length ? tradingMode.join(' + ') : (tmDisp2 && tmDisp2.textContent.trim() ? tmDisp2.textContent.trim() : '');
+    leoM.textContent = tmVal || '— no mode —';
+  }
   if (leoS) {
     var newScore = scoreEl ? scoreEl.textContent : '0';
     if (leoS.textContent !== newScore) {
