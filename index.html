@@ -2680,10 +2680,11 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
   #leo-close{font-size:16px!important;padding:6px 14px!important;min-width:36px;min-height:36px;display:flex;align-items:center;justify-content:center}
 
   /* ── LIVE EXEC PORTRAIT — professional layout ── */
-  /* Header: strip clutter */
-  #leo-mode{display:none!important}
+  /* Header: strip clutter but keep trading mode visible */
+  #leo-mode{display:block!important;font-size:10px!important;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   #leo-dir{display:none!important}
   #leo-bias-bar{display:none!important}
+  #leo-reanalyse{display:none!important}
   #leo-kl-bar{flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;justify-content:flex-start;padding:4px 12px;-webkit-overflow-scrolling:touch}
   /* Hide levels + LTF bars — save vertical space */
   #leo-levels-bar{display:none!important}
