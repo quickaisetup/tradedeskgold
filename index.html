@@ -2617,10 +2617,12 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 
   /* ── CARD PADDING ── */
   .card{padding:14px!important}
-  /* ── CALENDAR — edge-to-edge on mobile ── */
+  /* ── CALENDAR — compact on mobile ── */
   #econ-body{padding:6px 8px 10px!important}
   #econ-tabs{padding:6px 8px 0!important}
-  .ff-ev{padding:8px 10px!important;margin-bottom:4px!important;border-radius:6px!important}
+  .ff-ev{flex-wrap:wrap!important;padding:8px 10px!important;margin-bottom:4px!important;border-radius:6px!important;gap:4px 8px!important}
+  .ff-ev>div:nth-child(3){min-width:100%!important;white-space:normal!important}
+  .ff-ev>div:nth-child(3)>div:first-child{white-space:normal!important;overflow:visible!important}
 
   /* ── TF GRID — 2 col on mobile ── */
   .tf-grid{grid-template-columns:1fr 1fr!important;gap:6px}
@@ -13448,15 +13450,15 @@ function _renderDay(items,today){
       time: _ffTime(x.date),
       ts: x.date.getTime()
     });
-    html+='<div class="ff-ev" style="padding:10px 12px;border-radius:8px;margin-bottom:6px;border:1px solid '+rowBd+';background:'+rowBg+(past?';opacity:0.5':'')+'">'
-      +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">'
-        +'<div style="width:8px;height:8px;border-radius:50%;background:'+dot+';flex-shrink:0"></div>'
-        +'<span style="font-family:var(--mono);font-size:11px;color:'+_evTimeC+';font-weight:600;letter-spacing:0.02em">'+_ffTime(x.date)+'</span>'
-        +'<span style="font-size:14px;color:'+_evTitleC+';font-weight:600;letter-spacing:0.01em">'+ev.title+'</span>'
-        +'<span style="font-family:var(--mono);font-size:9px;color:'+_evCountryC+';background:'+_evCountryBg+';border:1px solid '+_evCountryBd+';border-radius:3px;padding:2px 7px;flex-shrink:0;font-weight:600;margin-left:auto">'+(ev.country||'')+'</span>'
+    html+='<div class="ff-ev" style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:8px;margin-bottom:6px;border:1px solid '+rowBd+';background:'+rowBg+(past?';opacity:0.5':'')+'">'
+      +'<div style="width:9px;height:9px;border-radius:50%;background:'+dot+';flex-shrink:0"></div>'
+      +'<span style="font-family:var(--mono);font-size:11px;color:'+_evTimeC+';min-width:62px;flex-shrink:0;font-weight:600;letter-spacing:0.02em">'+_ffTime(x.date)+'</span>'
+      +'<div style="flex:1;min-width:0">'
+        +'<div style="font-size:13px;color:'+_evTitleC+';font-weight:500;letter-spacing:0.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+ev.title+'</div>'
+        +(meta.length?'<div style="font-family:var(--mono);font-size:9px;color:'+_evMetaC+';margin-top:2px">'+meta.join(' · ')+'</div>':'')
       +'</div>'
-      +(meta.length?'<div style="font-family:var(--mono);font-size:10px;color:'+_evMetaC+';padding-left:16px;margin-bottom:4px">'+meta.join(' · ')+'</div>':'')
-      +'<div style="padding-left:16px">'+alertBtnHtml+'</div>'
+      +'<span style="font-family:var(--mono);font-size:9px;color:'+_evCountryC+';background:'+_evCountryBg+';border:1px solid '+_evCountryBd+';border-radius:3px;padding:2px 7px;flex-shrink:0;font-weight:600">'+(ev.country||'')+'</span>'
+      +alertBtnHtml
       +'</div>';
   });
   bodyEl.innerHTML=html;
