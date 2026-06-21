@@ -8707,7 +8707,7 @@ async function saveAll(dateISOOverride) {
   }
 
   // Market direction
-  var marketDirEl = document.querySelector('#market-direction .bb.sel');
+  var marketDirEl = document.querySelector('#market-direction .bb.sel-bull, #market-direction .bb.sel-bear, #market-direction .bb.sel-range');
   var marketDir = marketDirEl ? marketDirEl.textContent.trim() : '';
 
   // Final bias buttons
