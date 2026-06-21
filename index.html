@@ -17895,25 +17895,51 @@ function mobMenuClose(){
 
 /* ── TODAY DIRECTION card — proxy clicks to main inputs ── */
 function mobDirClick(dir, btn) {
-  // click the real button in the main direction section
   var real = document.querySelector('#market-direction .bb[onclick*="\''+dir+'\'"]');
   if (real) real.click();
-  // update mini card button states
-  document.querySelectorAll('#mob-dir-btns .bb').forEach(function(b){ b.classList.remove('active','sel'); });
-  if (btn) btn.classList.add('active');
+  document.querySelectorAll('#mob-dir-btns .bb').forEach(function(b){ b.classList.remove('active','sel','sel-bull','sel-bear','sel-range'); });
+  if (btn) { var cls = {up:'sel-bull',down:'sel-bear',range:'sel-range'}; btn.classList.add(cls[dir]||'active'); }
 }
 function mobPivotClick(dir, btn) {
   var real = document.querySelector('#pivot-btns .bb[onclick*="\''+dir+'\'"]');
   if (real) real.click();
-  document.querySelectorAll('#mob-pivot-btns .bb').forEach(function(b){ b.classList.remove('active','sel'); });
-  if (btn) btn.classList.add('active');
+  document.querySelectorAll('#mob-pivot-btns .bb').forEach(function(b){ b.classList.remove('active','sel','sel-bull','sel-bear','sel-range'); });
+  if (btn) { var cls = {bull:'sel-bull',bear:'sel-bear',neu:'sel-range'}; btn.classList.add(cls[dir]||'active'); }
 }
 function mobLondonClick(dir, btn) {
   var real = document.querySelector('#london-btns .bb[onclick*="\''+dir+'\'"]');
   if (real) real.click();
-  document.querySelectorAll('#mob-london-btns .bb').forEach(function(b){ b.classList.remove('active','sel'); });
-  if (btn) btn.classList.add('active');
+  document.querySelectorAll('#mob-london-btns .bb').forEach(function(b){ b.classList.remove('active','sel','sel-bull','sel-bear','sel-range'); });
+  if (btn) { var cls = {bull:'sel-bull',bear:'sel-bear',range:'sel-range'}; btn.classList.add(cls[dir]||'active'); }
 }
+function _mobSyncFromDesktop() {
+  // Direction
+  var mdSel = document.querySelector('#market-direction .bb.sel-bull, #market-direction .bb.sel-bear, #market-direction .bb.sel-range');
+  document.querySelectorAll('#mob-dir-btns .bb').forEach(function(b){ b.classList.remove('active','sel','sel-bull','sel-bear','sel-range'); });
+  if (mdSel) {
+    var mdDir = mdSel.textContent.includes('Up') ? 'up' : mdSel.textContent.includes('Down') ? 'down' : 'range';
+    var mobMd = document.querySelector('#mob-dir-btns .bb[onclick*="\''+mdDir+'\'"]');
+    if (mobMd) { var cls = {up:'sel-bull',down:'sel-bear',range:'sel-range'}; mobMd.classList.add(cls[mdDir]); }
+  }
+  // Pivot
+  var pvSel = document.querySelector('#pivot-btns .bb.sel-bull, #pivot-btns .bb.sel-bear, #pivot-btns .bb.sel-range');
+  document.querySelectorAll('#mob-pivot-btns .bb').forEach(function(b){ b.classList.remove('active','sel','sel-bull','sel-bear','sel-range'); });
+  if (pvSel) {
+    var pvDir = pvSel.textContent.includes('Above') ? 'bull' : pvSel.textContent.includes('Below') ? 'bear' : 'neu';
+    var mobPv = document.querySelector('#mob-pivot-btns .bb[onclick*="\''+pvDir+'\'"]');
+    if (mobPv) { var cls = {bull:'sel-bull',bear:'sel-bear',neu:'sel-range'}; mobPv.classList.add(cls[pvDir]); }
+  }
+  // London
+  var lbSel = document.querySelector('[onclick^="setLondonBias"].sel-bull, [onclick^="setLondonBias"].sel-bear, [onclick^="setLondonBias"].sel-range');
+  document.querySelectorAll('#mob-london-btns .bb').forEach(function(b){ b.classList.remove('active','sel','sel-bull','sel-bear','sel-range'); });
+  if (lbSel) {
+    var lbDir = lbSel.textContent.includes('up') ? 'bull' : lbSel.textContent.includes('down') ? 'bear' : 'range';
+    var mobLb = document.querySelector('#mob-london-btns .bb[onclick*="\''+lbDir+'\'"]');
+    if (mobLb) { var cls = {bull:'sel-bull',bear:'sel-bear',range:'sel-range'}; mobLb.classList.add(cls[lbDir]); }
+  }
+}
+setTimeout(_mobSyncFromDesktop, 2000);
+setTimeout(_mobSyncFromDesktop, 5000);
 
 /* ── MOBILE PROFILE STRIP — update with live data ── */
 function mobProfileSync() {
