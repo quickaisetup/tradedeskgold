@@ -16233,6 +16233,8 @@ window.autoRestoreToday = async function(source) {
         });
         var modeDisp = document.getElementById('trading-mode-display');
         if (modeDisp) modeDisp.textContent = _tmModes.join(' + ');
+        var leoM = document.getElementById('leo-mode');
+        if (leoM) leoM.textContent = _tmModes.join(' + ');
       }
 
       // News notes
