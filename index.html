@@ -11421,7 +11421,9 @@ function openLiveExec() {
   // Sync header from bias state (single source of truth — see _leoSyncHeader)
   var leoM = document.getElementById('leo-mode');
   var leoD = document.getElementById('leo-dir');
-  if (leoM) leoM.textContent = tradingMode.length ? tradingMode.join(' + ') : '— no mode —';
+  var tmDisp = document.getElementById('trading-mode-display');
+  var tmText = tradingMode.length ? tradingMode.join(' + ') : (tmDisp && tmDisp.textContent.trim() ? tmDisp.textContent.trim() : '');
+  if (leoM) leoM.textContent = tmText || '— no mode —';
   var md = document.querySelector('#market-direction .bb.sel');
   if (leoD) leoD.textContent = md ? md.textContent.trim() : '—';
   _leoSyncHeader();
