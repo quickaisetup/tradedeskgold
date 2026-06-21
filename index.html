@@ -11283,7 +11283,13 @@ function _leoSyncHeader() {
     leoB.style.border = '1px solid ' + badgeBorder;
   }
   if (leoS) {
-    leoS.textContent = scoreEl ? scoreEl.textContent : '0';
+    var newScore = scoreEl ? scoreEl.textContent : '0';
+    if (leoS.textContent !== newScore) {
+      window._lastAnalysisTs = Date.now();
+      localStorage.setItem('td_last_analysis_ts', String(Date.now()));
+      _leoUpdateAnalysisAge();
+    }
+    leoS.textContent = newScore;
     leoS.style.color = badgeColor;
     leoS.style.background = badgeBg;
   }
