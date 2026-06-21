@@ -2430,7 +2430,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
   #fb-btn{display:none!important}
 
   /* ── STICKY BIAS BAR ── */
-  #sticky-bias-bar{left:0!important;padding:0 10px;height:44px}
+  #sticky-bias-bar{display:none!important}
   .sbb-section{padding:0 8px}
 
   /* ── NEWS DRAWER ── */
@@ -2648,7 +2648,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
   *::-webkit-scrollbar{display:none}
 
   /* ── PRE-TRADE GATE — compact on mobile ── */
-  #ptg-gate{justify-content:flex-start!important;padding:20px 14px 24px!important;overflow-y:auto;background:#060708!important}
+  #ptg-gate{justify-content:flex-start!important;padding:20px 14px 24px!important;overflow-y:auto;background:#060708!important;min-height:0!important}
+  #ptg-gate>*:last-child{margin-bottom:0!important}
   #ptg-inner{max-width:100%}
   #ptg-title{font-size:16px!important;letter-spacing:0.08em!important}
   #ptg-header{margin-bottom:10px!important}
