@@ -6674,25 +6674,31 @@ function _restoreTFStateLocal() {
       });
     });
 
-    // Market direction
+    // Market direction — only click if not already selected
     if (data.marketDir) {
-      document.querySelectorAll('#market-direction .bb').forEach(function(btn) {
-        if (btn.getAttribute('onclick') === data.marketDir) btn.click();
-      });
+      var mdAlready = document.querySelector('#market-direction .bb.sel-bull, #market-direction .bb.sel-bear, #market-direction .bb.sel-range');
+      if (!mdAlready) {
+        document.querySelectorAll('#market-direction .bb').forEach(function(btn) {
+          if (btn.getAttribute('onclick') === data.marketDir) btn.click();
+        });
+      }
     }
 
-    // London open
+    // London open — only click if not already selected
     if (data.londonBias) {
-      document.querySelectorAll('[onclick^="setLondonBias"]').forEach(function(btn) {
-        if (btn.getAttribute('onclick') === data.londonBias) btn.click();
-      });
+      var lbAlready = document.querySelector('[onclick^="setLondonBias"].sel, [onclick^="setLondonBias"].sel-bull, [onclick^="setLondonBias"].sel-bear, [onclick^="setLondonBias"].sel-range');
+      if (!lbAlready) {
+        document.querySelectorAll('[onclick^="setLondonBias"]').forEach(function(btn) {
+          if (btn.getAttribute('onclick') === data.londonBias) btn.click();
+        });
+      }
     }
 
-    // Trading mode
+    // Trading mode — only click if not already selected
     if (data.tradingMode) {
       var tmModes = data.tradingMode.split(',').map(function(s){ return s.trim(); }).filter(Boolean);
       document.querySelectorAll('#trading-mode-btns .tgl').forEach(function(btn) {
-        if (tmModes.indexOf(btn.textContent.trim()) > -1) btn.click();
+        if (tmModes.indexOf(btn.textContent.trim()) > -1 && !btn.classList.contains('sel')) btn.click();
       });
     }
 
