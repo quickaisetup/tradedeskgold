@@ -18750,7 +18750,7 @@ body.fw-active .wt-banner{display:none!important}
 .wiz-choice-wrap #direction-row, .wiz-choice-wrap #pivot-row, .wiz-choice-wrap #london-row{display:flex;justify-content:center;flex-wrap:wrap}
 .wiz-choice-wrap #market-direction, .wiz-choice-wrap #pivot-btns, .wiz-choice-wrap #london-btns{justify-content:center;gap:12px!important}
 /* Hide the small redundant label/caption text — the wizard's own header above already explains the question */
-.wiz-choice-wrap #direction-row>div:first-child, .wiz-choice-wrap #pivot-row>div:first-child, .wiz-choice-wrap #pivot-row>div:last-child, .wiz-choice-wrap #london-row>div:first-child{display:none}
+.wiz-choice-wrap #direction-row>div:first-child, .wiz-choice-wrap #pivot-row>div:first-child, .wiz-choice-wrap #pivot-row>div:last-child, .wiz-choice-wrap #london-row>div:first-child{display:none!important}
 .wiz-choice-wrap #london-row>label{width:100%;justify-content:center;margin-top:8px;font-size:11px!important;color:rgba(255,255,255,0.5)!important}
 /* AI briefing cards in wizard — pro layout */
 .wiz-section-wrap #ai-briefing-section{border:none;background:transparent;padding:0;max-width:900px;width:100%}
@@ -20049,7 +20049,7 @@ function _wizRenderChoice(s, body) {
       { id: 'MAExp@tv-basicstudies', inputs: { length: 200 } }
     ];
     var dirGrid = document.createElement('div');
-    dirGrid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;width:100%;max-width:1400px;height:300px;margin-bottom:14px';
+    dirGrid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;width:100%;max-width:1400px;height:420px;margin-bottom:14px';
     [{ label: '4H', interval: '240' }, { label: '1H', interval: '60' }, { label: '15m', interval: '15' }].forEach(function(tf) {
       var cell = document.createElement('div');
       cell.style.cssText = 'position:relative;border:1px solid rgba(255,255,255,0.08);border-radius:10px;overflow:hidden;background:#060708;box-shadow:0 8px 24px rgba(0,0,0,0.3)';
@@ -20074,7 +20074,7 @@ function _wizRenderChoice(s, body) {
     // study, which renders reliably even if it shows the full level set.
     var pivotStudy = [{ id: 'PivotPointsStandard@tv-basicstudies' }];
     var pivotBox = document.createElement('div');
-    pivotBox.style.cssText = 'position:relative;width:100%;max-width:1000px;height:320px;border:1px solid rgba(255,255,255,0.08);border-radius:10px;overflow:hidden;background:#060708;box-shadow:0 8px 24px rgba(0,0,0,0.3);margin-bottom:14px';
+    pivotBox.style.cssText = 'position:relative;width:100%;max-width:1000px;height:420px;border:1px solid rgba(255,255,255,0.08);border-radius:10px;overflow:hidden;background:#060708;box-shadow:0 8px 24px rgba(0,0,0,0.3);margin-bottom:14px';
     var pivotWm = document.createElement('div');
     pivotWm.className = 'wiz-mini-wm';
     pivotWm.textContent = '15m';
