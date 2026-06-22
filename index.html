@@ -5266,17 +5266,17 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
           <div onclick="ptgEditLimit('trades')" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:14px 12px;text-align:center;cursor:pointer;transition:border-color 0.15s" onmouseover="this.style.borderColor='rgba(255,255,255,0.2)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.08)'">
             <div style="font-family:var(--mono);font-size:7px;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:6px">Max trades</div>
             <div id="ptg-limit-trades" style="font-family:var(--display);font-size:24px;color:#fff;line-height:1"></div>
-            <div style="font-family:var(--mono);font-size:8px;color:rgba(255,255,255,0.25);margin-top:4px">tap to edit</div>
+            <button style="margin-top:6px;font-family:var(--mono);font-size:7px;letter-spacing:0.08em;color:rgba(255,255,255,0.4);background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:4px;padding:3px 10px;cursor:pointer;transition:all 0.15s" onmouseover="this.style.borderColor='rgba(255,255,255,0.3)';this.style.color='#fff'" onmouseout="this.style.borderColor='rgba(255,255,255,0.12)';this.style.color='rgba(255,255,255,0.4)'">✎ Edit</button>
           </div>
           <div onclick="ptgEditLimit('stop')" style="background:rgba(240,96,96,0.04);border:1px solid rgba(240,96,96,0.15);border-radius:8px;padding:14px 12px;text-align:center;cursor:pointer;transition:border-color 0.15s" onmouseover="this.style.borderColor='rgba(240,96,96,0.35)'" onmouseout="this.style.borderColor='rgba(240,96,96,0.15)'">
             <div style="font-family:var(--mono);font-size:7px;letter-spacing:0.14em;text-transform:uppercase;color:rgba(240,96,96,0.5);margin-bottom:6px">Daily stop</div>
             <div id="ptg-limit-stop" style="font-family:var(--display);font-size:24px;color:#f06060;line-height:1"></div>
-            <div style="font-family:var(--mono);font-size:8px;color:rgba(240,96,96,0.35);margin-top:4px">tap to edit</div>
+            <button style="margin-top:6px;font-family:var(--mono);font-size:7px;letter-spacing:0.08em;color:rgba(240,96,96,0.45);background:rgba(240,96,96,0.06);border:1px solid rgba(240,96,96,0.2);border-radius:4px;padding:3px 10px;cursor:pointer;transition:all 0.15s" onmouseover="this.style.borderColor='rgba(240,96,96,0.5)';this.style.color='#f06060'" onmouseout="this.style.borderColor='rgba(240,96,96,0.2)';this.style.color='rgba(240,96,96,0.45)'">✎ Edit</button>
           </div>
           <div onclick="ptgEditLimit('risk')" style="background:rgba(240,188,78,0.04);border:1px solid rgba(240,188,78,0.15);border-radius:8px;padding:14px 12px;text-align:center;cursor:pointer;transition:border-color 0.15s" onmouseover="this.style.borderColor='rgba(240,188,78,0.35)'" onmouseout="this.style.borderColor='rgba(240,188,78,0.15)'">
             <div style="font-family:var(--mono);font-size:7px;letter-spacing:0.14em;text-transform:uppercase;color:rgba(240,188,78,0.5);margin-bottom:6px">Risk / trade</div>
             <div id="ptg-limit-risk" style="font-family:var(--display);font-size:24px;color:#f0bc4e;line-height:1"></div>
-            <div style="font-family:var(--mono);font-size:8px;color:rgba(240,188,78,0.35);margin-top:4px">tap to edit</div>
+            <button style="margin-top:6px;font-family:var(--mono);font-size:7px;letter-spacing:0.08em;color:rgba(240,188,78,0.45);background:rgba(240,188,78,0.06);border:1px solid rgba(240,188,78,0.2);border-radius:4px;padding:3px 10px;cursor:pointer;transition:all 0.15s" onmouseover="this.style.borderColor='rgba(240,188,78,0.5)';this.style.color='#f0bc4e'" onmouseout="this.style.borderColor='rgba(240,188,78,0.2)';this.style.color='rgba(240,188,78,0.45)'">✎ Edit</button>
           </div>
         </div>
       </div>
@@ -9397,8 +9397,8 @@ function _syncSessionLimitsUI() {
     card1.style.borderColor = tradeBreached ? 'rgba(240,96,96,0.5)' : 'rgba(255,255,255,0.08)';
     card1.style.background = tradeBreached ? 'rgba(240,96,96,0.08)' : 'rgba(255,255,255,0.03)';
   }
-  var lbl1 = card1 ? card1.querySelector('div:last-child') : null;
-  if (lbl1) lbl1.textContent = tradeBreached ? '⚠ limit reached' : 'tap to edit';
+  var lbl1 = card1 ? card1.querySelector('button:last-child') : null;
+  if (lbl1) lbl1.innerHTML = tradeBreached ? '⚠ limit reached' : '✎ Edit';
 
   var el2 = document.getElementById('ptg-limit-stop');
   if (el2) {
@@ -9410,8 +9410,8 @@ function _syncSessionLimitsUI() {
     card2.style.borderColor = stopBreached ? 'rgba(240,64,64,0.6)' : 'rgba(240,96,96,0.15)';
     card2.style.background = stopBreached ? 'rgba(240,64,64,0.12)' : 'rgba(240,96,96,0.04)';
   }
-  var lbl2 = card2 ? card2.querySelector('div:last-child') : null;
-  if (lbl2) lbl2.textContent = stopBreached ? '🛑 STOP TRADING' : 'tap to edit';
+  var lbl2 = card2 ? card2.querySelector('button:last-child') : null;
+  if (lbl2) lbl2.innerHTML = stopBreached ? '🛑 STOP TRADING' : '✎ Edit';
 
   var el3 = document.getElementById('ptg-limit-risk'); if (el3) el3.textContent = BASE_RISK_PCT + '%';
   var kmOwn = document.querySelector('#km-own .km-limit'); if (kmOwn) kmOwn.textContent = 'max ' + TD_MAX_TRADES + ' trades';
