@@ -18700,6 +18700,18 @@ body.fw-active .wt-banner{display:none!important}
 #wiz-levels-form{overflow-y:auto;padding:20px;border-left:1px solid rgba(255,255,255,0.06)}
 /* Wizard choice */
 .wiz-choice-wrap{padding:48px 28px;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:24px}
+/* Mini chart watermark — same look as Live Execution's corner watermark, non-interactive */
+.wiz-mini-wm{position:absolute;bottom:2px;right:10px;z-index:2;font-family:'Bebas Neue',sans-serif;font-size:clamp(20px,5.5vw,40px);line-height:1;letter-spacing:0.04em;color:rgba(255,255,255,0.14);pointer-events:none;user-select:none}
+/* Make the borrowed real Direction/Pivot/London buttons match the question buttons' prominent style */
+.wiz-choice-wrap .bb{font-family:var(--mono);font-size:13px;letter-spacing:0.04em;padding:12px 28px;border-radius:10px;border:1.5px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.03);color:rgba(255,255,255,0.55);cursor:pointer;transition:all 0.18s}
+.wiz-choice-wrap .bb:hover{border-color:rgba(240,188,78,0.4);color:#fff;background:rgba(240,188,78,0.06)}
+.wiz-choice-wrap .bb.sel-bull{border-color:var(--green);color:var(--green);background:rgba(78,214,138,0.16);box-shadow:0 0 12px rgba(78,214,138,0.2)}
+.wiz-choice-wrap .bb.sel-bear{border-color:var(--red);color:var(--red);background:rgba(240,96,96,0.16);box-shadow:0 0 12px rgba(240,96,96,0.2)}
+.wiz-choice-wrap .bb.sel-range{border-color:var(--gold);color:var(--gold);background:rgba(240,188,78,0.14);box-shadow:0 0 12px rgba(240,188,78,0.2)}
+.wiz-choice-wrap #direction-row, .wiz-choice-wrap #pivot-row, .wiz-choice-wrap #london-row{display:flex;justify-content:center}
+.wiz-choice-wrap #market-direction, .wiz-choice-wrap #pivot-btns, .wiz-choice-wrap #london-btns{justify-content:center;gap:12px!important}
+/* Hide the small redundant label/caption text — the wizard's own header above already explains the question */
+.wiz-choice-wrap #direction-row>div:first-child, .wiz-choice-wrap #pivot-row>div:first-child, .wiz-choice-wrap #pivot-row>div:last-child{display:none}
 /* Wizard reveal */
 .wiz-reveal{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;flex:1;padding:48px 28px}
 @keyframes wizPulse{0%,100%{box-shadow:0 0 0 0 rgba(240,188,78,0.5)}60%{box-shadow:0 0 0 14px rgba(240,188,78,0)}}
@@ -19812,31 +19824,42 @@ function _wizRenderChoice(s, body) {
       { id: 'MAExp@tv-basicstudies', inputs: { length: 200 } }
     ];
     var dirGrid = document.createElement('div');
-    dirGrid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;width:100%;max-width:1100px;height:280px;margin-bottom:20px';
+    dirGrid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;width:100%;max-width:1500px;height:420px;margin-bottom:20px';
     [{ label: '4H', interval: '240' }, { label: '1H', interval: '60' }, { label: '15m', interval: '15' }].forEach(function(tf) {
       var cell = document.createElement('div');
-      cell.style.cssText = 'position:relative;border:1px solid rgba(255,255,255,0.08);border-radius:8px;overflow:hidden;background:#060708';
-      var lbl = document.createElement('div');
-      lbl.style.cssText = 'position:absolute;top:6px;left:8px;z-index:2;font-family:var(--mono);font-size:9px;letter-spacing:0.08em;color:rgba(240,188,78,0.75);background:rgba(0,0,0,0.5);padding:2px 6px;border-radius:4px';
-      lbl.textContent = tf.label;
+      cell.style.cssText = 'position:relative;border:1px solid rgba(255,255,255,0.08);border-radius:10px;overflow:hidden;background:#060708;box-shadow:0 8px 24px rgba(0,0,0,0.3)';
+      var wmLabel = document.createElement('div');
+      wmLabel.className = 'wiz-mini-wm';
+      wmLabel.textContent = tf.label;
       var iframe = document.createElement('iframe');
       iframe.style.cssText = 'width:100%;height:100%;border:none';
       iframe.srcdoc = _wizMiniChartHTML(sym, tf.interval, emaStudies);
       cell.appendChild(iframe);
-      cell.appendChild(lbl);
+      cell.appendChild(wmLabel);
       dirGrid.appendChild(cell);
     });
     wrap.appendChild(dirGrid);
   }
 
   if (s.key === 'pivot') {
-    // One 15-minute chart, pivot points only — no EMAs, no other indicators
+    // One 15-minute chart, pivot points only — no EMAs, no other indicators.
+    // Limit to today's pivot only (no stacked history from previous days) and
+    // hide the outer R4/R5/S4/S5 levels, keeping just P and R1-R3/S1-R3.
+    var pivotStudy = [{
+      id: 'PivotPointsStandard@tv-basicstudies',
+      inputs: { in_0: 'Daily', in_1: 1, in_2: false },
+      styles: { 'R4.visible': false, 'R5.visible': false, 'S4.visible': false, 'S5.visible': false }
+    }];
     var pivotBox = document.createElement('div');
-    pivotBox.style.cssText = 'width:100%;max-width:780px;height:420px;border:1px solid rgba(255,255,255,0.08);border-radius:8px;overflow:hidden;background:#060708;margin-bottom:20px';
+    pivotBox.style.cssText = 'position:relative;width:100%;max-width:1100px;height:560px;border:1px solid rgba(255,255,255,0.08);border-radius:10px;overflow:hidden;background:#060708;box-shadow:0 8px 24px rgba(0,0,0,0.3);margin-bottom:20px';
+    var pivotWm = document.createElement('div');
+    pivotWm.className = 'wiz-mini-wm';
+    pivotWm.textContent = '15m';
     var pivotIframe = document.createElement('iframe');
     pivotIframe.style.cssText = 'width:100%;height:100%;border:none';
-    pivotIframe.srcdoc = _wizMiniChartHTML(sym, '15', [{ id: 'PivotPointsStandard@tv-basicstudies' }]);
+    pivotIframe.srcdoc = _wizMiniChartHTML(sym, '15', pivotStudy);
     pivotBox.appendChild(pivotIframe);
+    pivotBox.appendChild(pivotWm);
     wrap.appendChild(pivotBox);
   }
 
