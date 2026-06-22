@@ -12172,10 +12172,11 @@ function leoReanalyse() {
   setTimeout(function() {
     var monthlyIdx = _wizSteps.findIndex(function(s){ return s.key === 'tf-1M'; });
     if (monthlyIdx >= 0) {
-      localStorage.setItem('td_walkthrough_pending', '1');
       _wizStep = monthlyIdx;
       _wizSubStep = 0;
-      wizOpen();
+      var ov = document.getElementById('wiz-overlay');
+      if (ov) ov.classList.add('show');
+      wizShowStep();
     } else {
       var section = document.getElementById('analysis');
       if (section) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -19381,6 +19382,17 @@ function wizShowStep() {
 
   var s = _wizSteps[_wizStep];
   var total = _wizSteps.length;
+
+  // Skip London Open step if before London open (10:00 Bangkok / 03:00 UTC)
+  if (s && s.key === 'london' && !_wizSingleMode) {
+    var _bkkNow = typeof _tzNow === 'function' ? _tzNow() : new Date();
+    var _bkkHour = _bkkNow.getHours();
+    if (_bkkHour < 10) {
+      _wizStep++;
+      if (_wizStep >= _wizSteps.length) { wizDone(); return; }
+      s = _wizSteps[_wizStep];
+    }
+  }
 
   // Header
   var badge = document.getElementById('wiz-step-badge');
