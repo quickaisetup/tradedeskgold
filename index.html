@@ -1720,6 +1720,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 }
 #live-exec-btn .btn-dot{width:9px;height:9px;border-radius:50%;background:#f06060;animation:livePulse 1.2s ease-in-out infinite;box-shadow:0 0 8px rgba(240,96,96,0.8)}
 @keyframes livePulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.5);opacity:0.6}}
+@keyframes limitPulse{0%,100%{box-shadow:0 0 20px rgba(240,64,64,0.3)}50%{box-shadow:0 0 36px rgba(240,64,64,0.6)}}
 
 /* ── LIVE EXECUTION OVERLAY — TradingView edition ── */
 #live-exec-overlay{display:none;position:fixed;inset:0;z-index:9998;background:#060708;flex-direction:column;overflow:hidden}
@@ -9395,24 +9396,45 @@ function _syncSessionLimitsUI() {
   }
   var card1 = el1 ? el1.parentElement : null;
   if (card1) {
-    card1.style.borderColor = tradeBreached ? 'rgba(240,96,96,0.5)' : 'rgba(255,255,255,0.08)';
-    card1.style.background = tradeBreached ? 'rgba(240,96,96,0.08)' : 'rgba(255,255,255,0.03)';
+    card1.style.borderColor = tradeBreached ? 'rgba(240,96,96,0.7)' : 'rgba(255,255,255,0.08)';
+    card1.style.background = tradeBreached ? 'rgba(240,96,96,0.15)' : 'rgba(255,255,255,0.03)';
+    card1.style.boxShadow = tradeBreached ? '0 0 20px rgba(240,96,96,0.3),inset 0 0 20px rgba(240,96,96,0.08)' : 'none';
+    card1.style.animation = tradeBreached ? 'limitPulse 2s ease-in-out infinite' : 'none';
   }
   var lbl1 = card1 ? card1.querySelector('button:last-child') : null;
-  if (lbl1) lbl1.innerHTML = tradeBreached ? '⚠ limit reached' : '✎ Edit';
+  if (lbl1) {
+    if (tradeBreached) {
+      lbl1.innerHTML = '⚠ LIMIT REACHED';
+      lbl1.style.cssText = 'margin-top:6px;font-family:var(--mono);font-size:8px;font-weight:700;letter-spacing:0.1em;color:#ff4040;background:rgba(240,64,64,0.2);border:1px solid rgba(240,64,64,0.5);border-radius:4px;padding:5px 12px;cursor:pointer;animation:limitPulse 2s ease-in-out infinite';
+    } else {
+      lbl1.innerHTML = '✎ Edit';
+      lbl1.style.cssText = 'margin-top:6px;font-family:var(--mono);font-size:7px;letter-spacing:0.08em;color:rgba(255,255,255,0.4);background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:4px;padding:3px 10px;cursor:pointer;transition:all 0.15s';
+    }
+  }
 
   var el2 = document.getElementById('ptg-limit-stop');
   if (el2) {
     el2.textContent = '-' + TD_DAILY_STOP + '%';
     el2.style.color = stopBreached ? '#ff4040' : '#f06060';
+    el2.style.fontSize = stopBreached ? '28px' : '24px';
   }
   var card2 = el2 ? el2.parentElement : null;
   if (card2) {
-    card2.style.borderColor = stopBreached ? 'rgba(240,64,64,0.6)' : 'rgba(240,96,96,0.15)';
-    card2.style.background = stopBreached ? 'rgba(240,64,64,0.12)' : 'rgba(240,96,96,0.04)';
+    card2.style.borderColor = stopBreached ? 'rgba(240,64,64,0.8)' : 'rgba(240,96,96,0.15)';
+    card2.style.background = stopBreached ? 'rgba(240,64,64,0.2)' : 'rgba(240,96,96,0.04)';
+    card2.style.boxShadow = stopBreached ? '0 0 30px rgba(240,64,64,0.4),inset 0 0 24px rgba(240,64,64,0.1)' : 'none';
+    card2.style.animation = stopBreached ? 'limitPulse 1.5s ease-in-out infinite' : 'none';
   }
   var lbl2 = card2 ? card2.querySelector('button:last-child') : null;
-  if (lbl2) lbl2.innerHTML = stopBreached ? '🛑 STOP TRADING' : '✎ Edit';
+  if (lbl2) {
+    if (stopBreached) {
+      lbl2.innerHTML = '🛑 STOP TRADING NOW';
+      lbl2.style.cssText = 'margin-top:6px;font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:0.1em;color:#fff;background:rgba(240,64,64,0.6);border:2px solid #ff4040;border-radius:4px;padding:6px 14px;cursor:pointer;animation:limitPulse 1.5s ease-in-out infinite;text-transform:uppercase';
+    } else {
+      lbl2.innerHTML = '✎ Edit';
+      lbl2.style.cssText = 'margin-top:6px;font-family:var(--mono);font-size:7px;letter-spacing:0.08em;color:rgba(240,96,96,0.45);background:rgba(240,96,96,0.06);border:1px solid rgba(240,96,96,0.2);border-radius:4px;padding:3px 10px;cursor:pointer;transition:all 0.15s';
+    }
+  }
 
   var el3 = document.getElementById('ptg-limit-risk'); if (el3) el3.textContent = BASE_RISK_PCT + '%';
   var kmOwn = document.querySelector('#km-own .km-limit'); if (kmOwn) kmOwn.textContent = 'max ' + TD_MAX_TRADES + ' trades';
