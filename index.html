@@ -19338,15 +19338,37 @@ function _wizRenderTF(s, body) {
   if (chart) { chart.style.height = '100%'; chartWrap.appendChild(chart); }
   layout.appendChild(chartWrap);
 
-  // Right sidebar: big TF label on top, TF card below
+  // Right sidebar: completed cards stack + current card + score
   var sidebar = document.createElement('div');
   sidebar.id = 'wiz-tf-sidebar';
 
+  // Stack of previously completed TF cards (mini)
+  var tfKeys = ['1M','1W','D','4H','1H'];
+  var currentIdx = tfKeys.indexOf(s.tfKey);
+  if (currentIdx > 0) {
+    var stack = document.createElement('div');
+    stack.style.cssText = 'padding:8px 16px 0;display:flex;flex-direction:column;gap:4px';
+    for (var _ti = 0; _ti < currentIdx; _ti++) {
+      var _tk = tfKeys[_ti];
+      var _card = document.getElementById('tfc-' + _tk);
+      if (!_card) continue;
+      var hasBias = _card.querySelector('.bb.sel-bull,.bb.sel-bear,.bb.sel-range');
+      if (!hasBias) continue;
+      var biasText = hasBias.textContent.trim();
+      var biasClr = hasBias.classList.contains('sel-bull') ? '#4ed68a' : hasBias.classList.contains('sel-bear') ? '#f06060' : '#f0bc4e';
+      var mini = document.createElement('div');
+      mini.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:4px 10px;border-radius:4px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06)';
+      mini.innerHTML = '<span style="font-family:var(--display);font-size:12px;color:rgba(255,255,255,0.4);letter-spacing:0.04em">' + _tk + '</span><span style="font-family:var(--mono);font-size:9px;color:' + biasClr + '">' + biasText + '</span>';
+      stack.appendChild(mini);
+    }
+    sidebar.appendChild(stack);
+  }
+
   // Big timeframe label
   var tfLabel = document.createElement('div');
-  tfLabel.style.cssText = 'padding:24px 20px 0;text-align:center';
-  tfLabel.innerHTML = '<div style="font-family:var(--display);font-size:48px;color:#fff;letter-spacing:0.06em;line-height:1">' + s.tfKey + '</div>' +
-    '<div style="font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.3);letter-spacing:0.08em;margin-top:4px">' + s.label.toUpperCase() + '</div>';
+  tfLabel.style.cssText = 'padding:16px 20px 0;text-align:center';
+  tfLabel.innerHTML = '<div style="font-family:var(--display);font-size:42px;color:#fff;letter-spacing:0.06em;line-height:1">' + s.tfKey + '</div>' +
+    '<div style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:0.08em;margin-top:4px">' + s.label.toUpperCase() + '</div>';
   sidebar.appendChild(tfLabel);
 
   // The actual TF card
@@ -19355,6 +19377,19 @@ function _wizRenderTF(s, body) {
   var tfCard = wizBorrow('tfc-' + s.tfKey);
   if (tfCard) cardWrap.appendChild(tfCard);
   sidebar.appendChild(cardWrap);
+
+  // Score at bottom
+  var scoreWrap = document.createElement('div');
+  scoreWrap.style.cssText = 'margin-top:auto;padding:12px 16px;border-top:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:space-between';
+  var scoreEl = document.getElementById('score-num');
+  var vtEl = document.getElementById('vt-main');
+  var scoreVal = scoreEl ? scoreEl.textContent : '0';
+  var vtText = vtEl ? vtEl.textContent : '—';
+  var sc = parseFloat(scoreVal) || 0;
+  var scClr = sc > 0 ? '#4ed68a' : sc < 0 ? '#f06060' : 'rgba(255,255,255,0.3)';
+  scoreWrap.innerHTML = '<span style="font-family:var(--mono);font-size:8px;letter-spacing:0.1em;color:rgba(255,255,255,0.25);text-transform:uppercase">Score</span>' +
+    '<div style="display:flex;align-items:center;gap:8px"><span style="font-family:var(--display);font-size:22px;color:' + scClr + '">' + scoreVal + '</span><span style="font-family:var(--mono);font-size:9px;color:' + scClr + '">' + vtText + '</span></div>';
+  sidebar.appendChild(scoreWrap);
 
   layout.appendChild(sidebar);
   body.appendChild(layout);
@@ -19441,8 +19476,18 @@ function _wizSubClick(tf, key, val, btn) {
   if (key === 'macd')  cardBtn = document.querySelector('#tfc-' + tf + ' .ind-row:last-child .ib[onclick*="\'' + val + '\'"]');
   if (cardBtn) cardBtn.click();
 
-  // Auto-save
+  // Auto-save + refresh sidebar score
   if (typeof saveMorningAnalysis === 'function') setTimeout(function(){ saveMorningAnalysis(true); }, 400);
+  setTimeout(function(){
+    var sw = document.querySelector('#wiz-tf-sidebar > div:last-child');
+    if (sw) {
+      var se = document.getElementById('score-num');
+      var ve = document.getElementById('vt-main');
+      var sv = se ? se.textContent : '0'; var vt = ve ? ve.textContent : '—';
+      var sc2 = parseFloat(sv)||0; var c2 = sc2>0?'#4ed68a':sc2<0?'#f06060':'rgba(255,255,255,0.3)';
+      sw.innerHTML = '<span style="font-family:var(--mono);font-size:8px;letter-spacing:0.1em;color:rgba(255,255,255,0.25);text-transform:uppercase">Score</span><div style="display:flex;align-items:center;gap:8px"><span style="font-family:var(--display);font-size:22px;color:'+c2+'">'+sv+'</span><span style="font-family:var(--mono);font-size:9px;color:'+c2+'">'+vt+'</span></div>';
+    }
+  }, 200);
 
   // Advance sub-step
   setTimeout(function() {
