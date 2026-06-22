@@ -19269,9 +19269,9 @@ function wizShowStep() {
   var backBtn = document.getElementById('wiz-back');
   if (backBtn) backBtn.style.visibility = _wizStep > 0 ? 'visible' : 'hidden';
 
-  // Next button
+  // Next button — always reset visibility and state
   var nextBtn = document.getElementById('wiz-next');
-  if (nextBtn) { nextBtn.disabled = false; nextBtn.textContent = 'Next →'; }
+  if (nextBtn) { nextBtn.disabled = false; nextBtn.textContent = 'Next →'; nextBtn.style.display = ''; }
 
   // Render by type
   if (s.type === 'section') {
