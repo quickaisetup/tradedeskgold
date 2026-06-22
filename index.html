@@ -18700,7 +18700,7 @@ body.fw-active .wt-banner{display:none!important}
 /* Wizard choice */
 .wiz-choice-wrap{padding:48px 28px;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:24px}
 /* Mini chart watermark — same look as Live Execution's corner watermark, non-interactive */
-.wiz-mini-wm{position:absolute;top:6px;right:90px;z-index:2;font-family:'Bebas Neue',sans-serif;font-size:clamp(28px,6vw,56px);line-height:1;letter-spacing:0.04em;color:rgba(255,255,255,0.16);pointer-events:none;user-select:none}
+.wiz-mini-wm{position:absolute;top:6px;right:12%;z-index:2;font-family:'Bebas Neue',sans-serif;font-size:clamp(22px,5vw,48px);line-height:1;letter-spacing:0.04em;color:rgba(255,255,255,0.16);pointer-events:none;user-select:none;white-space:nowrap}
 /* Make the borrowed real Direction/Pivot/London buttons match the question buttons' prominent style */
 .wiz-choice-wrap .bb{font-family:var(--mono);font-size:13px;letter-spacing:0.04em;padding:12px 28px;border-radius:10px;border:1.5px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.03);color:rgba(255,255,255,0.55);cursor:pointer;transition:all 0.18s}
 .wiz-choice-wrap .bb:hover{border-color:rgba(240,188,78,0.4);color:#fff;background:rgba(240,188,78,0.06)}
@@ -18710,7 +18710,7 @@ body.fw-active .wt-banner{display:none!important}
 .wiz-choice-wrap #direction-row, .wiz-choice-wrap #pivot-row, .wiz-choice-wrap #london-row{display:flex;justify-content:center}
 .wiz-choice-wrap #market-direction, .wiz-choice-wrap #pivot-btns, .wiz-choice-wrap #london-btns{justify-content:center;gap:12px!important}
 /* Hide the small redundant label/caption text — the wizard's own header above already explains the question */
-.wiz-choice-wrap #direction-row>div:first-child, .wiz-choice-wrap #pivot-row>div:first-child, .wiz-choice-wrap #pivot-row>div:last-child{display:none}
+.wiz-choice-wrap #direction-row>div:first-child, .wiz-choice-wrap #pivot-row>div:first-child, .wiz-choice-wrap #pivot-row>div:last-child, .wiz-choice-wrap #london-row>div:first-child{display:none}
 /* Wizard reveal */
 .wiz-reveal{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;flex:1;padding:48px 28px}
 @keyframes wizPulse{0%,100%{box-shadow:0 0 0 0 rgba(240,188,78,0.5)}60%{box-shadow:0 0 0 14px rgba(240,188,78,0)}}
@@ -19344,6 +19344,10 @@ function wizShowStep() {
   // Next button — always reset visibility and state
   var nextBtn = document.getElementById('wiz-next');
   if (nextBtn) { nextBtn.disabled = false; nextBtn.textContent = 'Next →'; nextBtn.style.display = ''; }
+  // The choice-step Skip button lives in the persistent footer (not the step
+  // body), so it must be cleaned up explicitly on every step change.
+  var oldChoiceSkip = document.getElementById('wiz-choice-skip');
+  if (oldChoiceSkip) oldChoiceSkip.remove();
 
   // Render by type
   if (s.type === 'section') {
@@ -19902,6 +19906,26 @@ function _wizRenderChoice(s, body) {
     wrap.appendChild(el);
   }
   body.appendChild(wrap);
+
+  // Clicking an answer is enough to move on — no separate Next click needed.
+  // Swap the Next button for a Skip button (for "I'm not sure" / no answer).
+  var oldSkip = document.getElementById('wiz-choice-skip');
+  if (oldSkip) oldSkip.remove();
+  var nextBtn = document.getElementById('wiz-next');
+  if (nextBtn) nextBtn.style.display = 'none';
+  if (el && nextBtn && nextBtn.parentNode) {
+    var skipBtn = document.createElement('button');
+    skipBtn.id = 'wiz-choice-skip';
+    skipBtn.textContent = 'Skip →';
+    skipBtn.style.cssText = 'font-family:var(--mono);font-size:10px;letter-spacing:0.06em;color:rgba(255,255,255,0.35);background:transparent;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:12px 24px;cursor:pointer;transition:all 0.15s';
+    skipBtn.onmouseover = function(){ this.style.color = '#fff'; this.style.borderColor = 'rgba(255,255,255,0.25)'; };
+    skipBtn.onmouseout = function(){ this.style.color = 'rgba(255,255,255,0.35)'; this.style.borderColor = 'rgba(255,255,255,0.1)'; };
+    skipBtn.onclick = function() { wizNext(); };
+    nextBtn.parentNode.insertBefore(skipBtn, nextBtn);
+
+    var advance = function() { setTimeout(function() { wizNext(); }, 400); };
+    el.querySelectorAll('.bb').forEach(function(btn) { btn.addEventListener('click', advance); });
+  }
 }
 
 function _wizRenderLevels(s, body) {
