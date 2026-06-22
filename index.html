@@ -923,6 +923,9 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
   display:none;align-items:center;justify-content:center;
   animation:splashIn 0.6s ease both}
 #session-splash.show{display:flex}
+#session-splash.show ~ .main iframe,
+#session-splash.show ~ #live-exec-overlay iframe,
+#session-splash.show ~ .main .tradingview-widget-container{visibility:hidden}
 @keyframes splashIn{from{opacity:0;transform:scale(0.98)}to{opacity:1;transform:scale(1)}}
 @keyframes splashOut{from{opacity:1}to{opacity:0}}
 #session-splash-inner{display:grid;
