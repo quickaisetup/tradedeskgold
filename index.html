@@ -8659,7 +8659,7 @@ async function saveTrade(id) {
 
   t.saved = true;
   // Show EOD nudge after saving a trade (delayed so it doesn't interrupt)
-  if (!localStorage.getItem(_eodXpGrantedKey())) {
+  if (!localStorage.getItem(_eodDaySavedKey())) {
     setTimeout(function(){ if (typeof eodNudgeOpen === 'function') eodNudgeOpen(); }, 2000);
   }
   // Flag a stop-out so the pre-trade gate re-triggers next time the panel opens
@@ -11512,11 +11512,11 @@ var _eodNudgeRepeat = null;
 function _eodScheduleNudge() {
   clearTimeout(_eodNudgeTimer);
   clearInterval(_eodNudgeRepeat);
-  if (localStorage.getItem(_eodXpGrantedKey())) return;
+  if (localStorage.getItem(_eodDaySavedKey())) return;
   _eodNudgeTimer = setTimeout(function() {
-    if (!localStorage.getItem(_eodXpGrantedKey())) eodNudgeOpen();
+    if (!localStorage.getItem(_eodDaySavedKey())) eodNudgeOpen();
     _eodNudgeRepeat = setInterval(function() {
-      if (localStorage.getItem(_eodXpGrantedKey())) { clearInterval(_eodNudgeRepeat); return; }
+      if (localStorage.getItem(_eodDaySavedKey())) { clearInterval(_eodNudgeRepeat); return; }
       eodNudgeOpen();
     }, (60 + Math.random() * 60) * 60 * 1000);
   }, 60 * 60 * 1000);
@@ -11524,6 +11524,10 @@ function _eodScheduleNudge() {
 function _eodXpGrantedKey() {
   var dateISO = typeof tdlTodayBKK === 'function' ? tdlTodayBKK() : new Date().toLocaleDateString('sv-SE');
   return 'td_eod_xp_granted_' + dateISO;
+}
+function _eodDaySavedKey() {
+  var dateISO = typeof tdlTodayBKK === 'function' ? tdlTodayBKK() : new Date().toLocaleDateString('sv-SE');
+  return 'td_eod_day_saved_' + dateISO;
 }
 var _eodRulesVal = '';
 
@@ -11685,6 +11689,9 @@ function eodQuestionsSave() {
   if (realRuleBtn && typeof setRulesFollowed === 'function') setRulesFollowed(_eodRulesVal, realRuleBtn);
 
   if (typeof saveAll === 'function') saveAll();
+
+  // Mark day as saved (stops nudge from reappearing)
+  localStorage.setItem(_eodDaySavedKey(), '1');
 
   // Grant +1 XP once per day — only if rules were followed
   if (!localStorage.getItem(_eodXpGrantedKey()) && (_eodRulesVal === 'Yes' || _eodRulesVal === 'Mostly')) {
