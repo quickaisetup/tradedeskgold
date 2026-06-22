@@ -7592,6 +7592,10 @@ function lvlAddFromForm() {
   var notes = (document.getElementById('lvl-in-notes')||{}).value || '';
   if (!price) { var p = document.getElementById('lvl-in-price'); if(p){p.style.borderColor='var(--red)';setTimeout(function(){p.style.borderColor='';},1200);} return; }
 
+  // Auto-add pending "Other" confluence input
+  var otherInput = document.getElementById('lvl-cf-other-input');
+  if (otherInput && otherInput.value.trim()) { lvlAddOtherConf(otherInput.value); otherInput.value = ''; }
+
   levelCount++;
   var id = levelCount;
   var lvl = { id: id, direction: _lvlFormDir, type: _lvlFormDir, price: price, sl: sl, tp: tp, confluence: _lvlFormConf.slice(), confidence: _lvlFormConfidence, notes: notes, instrument: _lvlInstrument };
