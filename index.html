@@ -19541,8 +19541,9 @@ function _wizRenderSubQ(s, container) {
     var chartArea = document.getElementById('wiz-tf-chart');
     if (chartArea) {
       var hintText = key === 'ao' ? '↓ Look at the green/red bars below — that\'s the AO' : '↓ Look at the two lines below — that\'s the MACD';
-      // AO is the middle indicator panel, MACD is the bottom one
-      var pos = key === 'ao' ? '52%' : '82%';
+      // Chart studies load in this order: MACD then Awesome Oscillator (see _tdLoadChart's
+      // studies array), so on screen it's Price → Volume → MACD (middle) → AO (bottom).
+      var pos = key === 'ao' ? '82%' : '52%';
       var hint = document.createElement('div');
       hint.id = 'wiz-chart-hint';
       hint.style.top = pos;
