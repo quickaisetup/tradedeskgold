@@ -19572,10 +19572,10 @@ function _wizRenderSubQ(s, container) {
 
   var titles = { bias: 'What is the bias?', trend: 'What is the trend?', ao: 'Awesome Oscillator reading?', macd: 'MACD signal?' };
 
-  // On-chart hint, pointing at the actual indicator row. Studies load in a fixed
-  // order — Price -> AO -> MACD, every time (see _tdLoadChart's studies array) —
-  // so AO's pane sits roughly in the upper-middle of the indicator area and
-  // MACD's sits below it; percentages calibrated against the rendered layout.
+  // On-chart hint, pointing at the actual indicator row. On 4H/1H (both AO and
+  // MACD present) the widget consistently renders MACD's pane above AO's —
+  // confirmed across multiple fresh page loads, opposite of the studies array
+  // order — so those two are positioned swapped relative to the AO-only TFs.
   var hintEl = document.getElementById('wiz-chart-hint');
   if (hintEl) hintEl.remove();
   if (key === 'ao' || key === 'macd') {
@@ -19586,7 +19586,13 @@ function _wizRenderSubQ(s, container) {
         : '↓ MACD panel — two colored wavy lines with small bars underneath';
       var hint = document.createElement('div');
       hint.id = 'wiz-chart-hint';
-      hint.style.top = key === 'ao' ? 'calc(44px + 56%)' : 'calc(44px + 79%)';
+      if (s.hasMacd) {
+        // 4H / 1H — MACD pane renders above AO's
+        hint.style.top = key === 'ao' ? 'calc(44px + 79%)' : 'calc(44px + 56%)';
+      } else {
+        // 1M / 1W / D — AO only, single oscillator pane
+        hint.style.top = 'calc(44px + 65%)';
+      }
       hint.innerHTML = '<div id="wiz-chart-hint-inner">' + hintText + '</div>';
       chartArea.style.position = 'relative';
       chartArea.appendChild(hint);
