@@ -8865,6 +8865,7 @@ async function saveAll(dateISOOverride) {
     var _dayOk = await postToSheets({ type: 'full_day', ...entry });
     if (_dayOk === false) throw new Error('Database rejected the save — check console for details');
     if (btn) { btn.textContent = 'Saved ✓'; btn.style.background = 'var(--gd)'; btn.style.color = 'var(--green)'; btn.style.borderColor = 'var(--gnb)'; btn.style.opacity = '1'; btn.style.pointerEvents = 'auto'; }
+    if (typeof _eodDaySavedKey === 'function') localStorage.setItem(_eodDaySavedKey(), '1');
     var reBtn = document.getElementById('resave-eod-btn');
     if (reBtn) reBtn.style.display = 'block';
     var _eodNow = new Date(); var _eodT = _eodNow.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
