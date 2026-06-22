@@ -3234,9 +3234,9 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
           <div class="src-stat-lbl">Day<br>Streak</div>
         </div>
         <div class="src-stat">
-          <div class="src-stat-icon">✅</div>
-          <div class="src-stat-val" id="src-s-clean" style="color:rgba(255,255,255,0.25)">—</div>
-          <div class="src-stat-lbl">Clean<br>Days</div>
+          <div class="src-stat-icon">📊</div>
+          <div class="src-stat-val" id="src-s-month-est" style="color:rgba(255,255,255,0.25)">—</div>
+          <div class="src-stat-lbl">Month<br>Est.</div>
         </div>
         <div class="src-stat">
           <div class="src-stat-icon">⚡</div>
@@ -15941,7 +15941,18 @@ function splashRankUpdate(streak, rank, todayPnl, weekPnl, winRate, cleanDays, t
     } else { el.textContent = '—'; el.style.color = 'rgba(255,255,255,0.2)'; }
   };
   fmt2('src-s-streak',   score || null, hex);
-  fmt2('src-s-clean',    clean || null, '#4ed68a');
+  // Month estimate — from s-monthly-val or accounts panel
+  (function(){
+    var mEl = document.getElementById('src-s-month-est');
+    if (!mEl) return;
+    var src = document.getElementById('s-monthly-val') || document.getElementById('rp-monthly-val');
+    if (src && src.textContent && src.textContent !== '—') {
+      mEl.textContent = src.textContent;
+      mEl.style.color = src.style.color || '#f0bc4e';
+    } else {
+      mEl.textContent = '—'; mEl.style.color = 'rgba(255,255,255,0.2)';
+    }
+  })();
   fmt2('src-s-days-left', nextRank ? daysLeft : '∞', nextRank ? (daysLeft <= 3 ? '#f0bc4e' : '#a0a4b8') : hex);
 
   // Weekly P&L — compute from localStorage td_history (Bangkok Mon-start week)
