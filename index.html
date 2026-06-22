@@ -19467,29 +19467,64 @@ function _wizRenderSection(s, body) {
     wrap.appendChild(tmWrap);
   }
 
-  // Analysis Overview — recap the score, then offer AI Analysis and Traders'
-  // Analysis as optional extras. Neither is required to continue.
+  // Analysis Overview — score + trading mode selection
   if (s.key === 'overview') {
-    var ovHeader = document.createElement('div');
-    ovHeader.style.cssText = 'text-align:center;margin-bottom:24px;width:100%';
     var ovScoreEl = document.getElementById('score-num');
     var ovVtEl = document.getElementById('vt-main');
+    var ovScore = parseFloat(ovScoreEl ? ovScoreEl.textContent : '0') || 0;
+    var ovVerdict = ovVtEl ? ovVtEl.textContent : '—';
+    var ovClr = ovScore > 0 ? '#4ed68a' : ovScore < 0 ? '#f06060' : '#f0bc4e';
+
+    var ovRecModes = [];
+    var ovRecText = '';
+    if (ovScore >= 4) {
+      ovRecModes = ['Buy on dips', 'Buy breakouts'];
+      ovRecText = 'Score is strongly bullish — look for long entries only.';
+    } else if (ovScore >= 2) {
+      ovRecModes = ['Buy on dips'];
+      ovRecText = 'Lean bullish — buy dips at key levels, skip shorts.';
+    } else if (ovScore <= -4) {
+      ovRecModes = ['Short on bounces', 'Short breakdowns'];
+      ovRecText = 'Score is strongly bearish — look for short entries only.';
+    } else if (ovScore <= -2) {
+      ovRecModes = ['Short on bounces'];
+      ovRecText = 'Lean bearish — short bounces at key levels, skip longs.';
+    } else {
+      ovRecModes = ['Wait — no clear setup', 'Range play'];
+      ovRecText = 'Score is neutral — wait for clarity or play the range.';
+    }
+
+    var ovHeader = document.createElement('div');
+    ovHeader.style.cssText = 'text-align:center;margin-bottom:0;width:100%';
     ovHeader.innerHTML =
       '<div style="font-size:36px;margin-bottom:8px">🧠</div>' +
       '<div style="font-family:var(--display);font-size:28px;color:#fff;letter-spacing:0.04em;margin-bottom:6px">Your Analysis Overview</div>' +
-      '<div style="font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.4);line-height:1.6;max-width:480px;margin:0 auto 18px">Here\'s where your answers landed. From here you can optionally run an AI Analysis<br>or see what other traders see — both are optional, hit Next whenever you\'re ready.</div>';
+      '<div style="font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.4);line-height:1.6;max-width:480px;margin:0 auto">Here\'s where your answers landed.<br>Choose your trading mode for this session, then mark your key levels.</div>';
     wrap.appendChild(ovHeader);
 
     var ovScoreWrap = document.createElement('div');
-    ovScoreWrap.style.cssText = 'width:100%;max-width:380px;margin:0 auto 24px;padding:18px 20px;border:1px solid rgba(255,255,255,0.08);border-radius:12px;background:rgba(255,255,255,0.02)';
-    ovScoreWrap.innerHTML = _wizScoreBlockHTML(ovScoreEl ? ovScoreEl.textContent : '0', ovVtEl ? ovVtEl.textContent : '—');
+    ovScoreWrap.style.cssText = 'width:100%;max-width:380px;margin:20px auto 0;padding:18px 20px;border:1px solid rgba(255,255,255,0.08);border-radius:12px;background:rgba(255,255,255,0.02)';
+    ovScoreWrap.innerHTML = _wizScoreBlockHTML(ovScoreEl ? ovScoreEl.textContent : '0', ovVerdict);
     wrap.appendChild(ovScoreWrap);
 
-    var edgeEl = wizBorrow('edge-panel');
-    if (edgeEl) { edgeEl.style.width = '100%'; edgeEl.style.maxWidth = '900px'; edgeEl.style.borderRadius = '10px'; edgeEl.style.overflow = 'hidden'; wrap.appendChild(edgeEl); }
-
-    var cbEl = wizBorrow('community-bias-panel');
-    if (cbEl) { cbEl.style.width = '100%'; cbEl.style.maxWidth = '900px'; cbEl.style.marginTop = '14px'; cbEl.style.borderRadius = '10px'; cbEl.style.overflow = 'hidden'; wrap.appendChild(cbEl); }
+    var ovTmWrap = document.createElement('div');
+    ovTmWrap.style.cssText = 'width:100%;max-width:480px;margin:16px auto 0;padding:16px 20px;border:1px solid rgba(255,255,255,0.08);border-radius:12px;background:rgba(255,255,255,0.02)';
+    var ovTmTitle = '<div style="font-family:var(--mono);font-size:9px;letter-spacing:0.14em;color:rgba(255,255,255,0.3);text-transform:uppercase;text-align:center;margin-bottom:10px">Choose Trading Mode</div>';
+    var ovTmHint = '<div style="font-family:var(--mono);font-size:10px;color:' + ovClr + ';text-align:center;margin-bottom:12px;line-height:1.5">' + ovRecText + '</div>';
+    var ovAllModes = ['Buy on dips','Short on bounces','Buy breakouts','Short breakdowns','Range play','Wait — no clear setup'];
+    var ovTmBtns = '<div style="display:flex;flex-wrap:wrap;justify-content:center;gap:8px">';
+    ovAllModes.forEach(function(m) {
+      var isRec = ovRecModes.indexOf(m) > -1;
+      var mClr = m.indexOf('Buy') > -1 ? '#4ed68a' : m.indexOf('Short') > -1 ? '#f06060' : '#f0bc4e';
+      var border = isRec ? mClr : 'rgba(255,255,255,0.08)';
+      var bg = isRec ? (mClr + '18') : 'transparent';
+      var color = isRec ? mClr : 'rgba(255,255,255,0.3)';
+      var badge = isRec ? '<span style="font-size:7px;background:' + mClr + '22;border:1px solid ' + mClr + '44;color:' + mClr + ';padding:1px 5px;border-radius:3px;margin-left:6px;letter-spacing:0.08em;vertical-align:1px">REC</span>' : '';
+      ovTmBtns += '<button class="tgl tm-mode-btn" onclick="setTradingMode(this,\'' + m.replace(/'/g, "\\'") + '\')" style="font-family:var(--mono);font-size:10px;padding:8px 14px;border-radius:8px;border:1px solid ' + border + ';background:' + bg + ';color:' + color + ';cursor:pointer;transition:all 0.15s">' + m + badge + '</button>';
+    });
+    ovTmBtns += '</div>';
+    ovTmWrap.innerHTML = ovTmTitle + ovTmHint + ovTmBtns;
+    wrap.appendChild(ovTmWrap);
   } else if (s.sourceId === '_econ_card') {
     // Special: borrow the forex factory card (parent of #econ-body)
     var econBody = document.getElementById('econ-body');
