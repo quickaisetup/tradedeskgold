@@ -20033,11 +20033,28 @@ function _wizRenderLevels(s, body) {
   body.style.padding = '0';
   body.style.alignItems = 'stretch';
 
+  var lvScoreEl = document.getElementById('score-num');
+  var lvVtEl = document.getElementById('vt-main');
+  var lvScore = parseFloat(lvScoreEl ? lvScoreEl.textContent : '0') || 0;
+  var lvVerdict = lvVtEl ? lvVtEl.textContent : '—';
+  var lvClr = lvScore > 0 ? '#4ed68a' : lvScore < 0 ? '#f06060' : '#f0bc4e';
+  var lvModes = (typeof tradingMode !== 'undefined' && tradingMode.length) ? tradingMode.join(' + ') : 'None selected';
+
   var levelsHeader = document.createElement('div');
-  levelsHeader.style.cssText = 'text-align:center;padding:16px 20px 0;flex-shrink:0';
+  levelsHeader.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:10px 20px;flex-shrink:0;border-bottom:1px solid rgba(255,255,255,0.06)';
   levelsHeader.innerHTML =
-    '<div style="font-family:var(--display);font-size:18px;color:#fff;letter-spacing:0.04em">📌 Mark Your Key Levels</div>' +
-    '<div style="font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.4);line-height:1.5;margin-top:2px">Find a price on the chart where you\'d consider buying or selling. Fill in the form on the right and save it.</div>';
+    '<div style="display:flex;align-items:center;gap:14px">' +
+      '<div style="font-family:var(--display);font-size:18px;color:#fff;letter-spacing:0.04em">📌 Mark Your Key Levels</div>' +
+      '<div style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.35)">Find a price to buy or sell — fill in the form on the right</div>' +
+    '</div>' +
+    '<div style="display:flex;align-items:center;gap:16px">' +
+      '<div style="display:flex;align-items:center;gap:8px">' +
+        '<div style="font-family:var(--display);font-size:32px;line-height:1;color:' + lvClr + ';letter-spacing:0.02em">' + lvScore + '</div>' +
+        '<div style="font-family:var(--mono);font-size:9px;color:' + lvClr + ';letter-spacing:0.08em;text-transform:uppercase;line-height:1.2">' + lvVerdict + '</div>' +
+      '</div>' +
+      '<div style="width:1px;height:28px;background:rgba(255,255,255,0.08)"></div>' +
+      '<div style="font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.5);max-width:200px;line-height:1.4">' + lvModes + '</div>' +
+    '</div>';
   body.appendChild(levelsHeader);
 
   var layout = document.createElement('div');
