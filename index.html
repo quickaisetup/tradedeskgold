@@ -19459,6 +19459,10 @@ function _wizApplySidebarMood(sidebarEl, sc) {
 function _wizRenderTF(s, body) {
   body.style.padding = '0';
 
+  // Unfreeze the score gauge if a manual bias override was left active from
+  // outside the wizard — otherwise it'll show a stale frozen number all the way through.
+  if (typeof biasOverride !== 'undefined' && biasOverride && typeof clearBiasOverride === 'function') clearBiasOverride();
+
   var layout = document.createElement('div');
   layout.id = 'wiz-tf-layout';
 
@@ -19473,7 +19477,7 @@ function _wizRenderTF(s, body) {
   // pale numeral, dead center over the price panel (the lightweight embed widget
   // used here doesn't expose a native watermark toggle, so we recreate the look).
   var tfWm = document.createElement('div');
-  tfWm.style.cssText = 'position:absolute;left:50%;top:38%;transform:translate(-50%,-50%);z-index:1;font-family:-apple-system,Helvetica,Arial,sans-serif;font-size:clamp(120px,18vw,260px);font-weight:600;line-height:1;color:rgba(255,255,255,0.08);pointer-events:none;user-select:none;white-space:nowrap';
+  tfWm.style.cssText = 'position:absolute;left:50%;top:38%;transform:translate(-50%,-50%);z-index:1;font-family:-apple-system,Helvetica,Arial,sans-serif;font-size:clamp(60px,9vw,130px);font-weight:600;line-height:1;color:rgba(255,255,255,0.08);pointer-events:none;user-select:none;white-space:nowrap';
   tfWm.textContent = s.tfKey;
   chartWrap.appendChild(tfWm);
 
@@ -19642,6 +19646,12 @@ function _wizGetCurrentVal(tf, key) {
 }
 
 function _wizSubClick(tf, key, val, btn) {
+  // The dashboard has a manual bias override (Bull/Bear/Range/Auto) that, once set,
+  // makes updateVerdictAuto() early-return and freeze the score — see
+  // "if (biasOverride) return;". The wizard's score gauge should always reflect
+  // the live answers, so clear any override before applying this answer.
+  if (typeof biasOverride !== 'undefined' && biasOverride && typeof clearBiasOverride === 'function') clearBiasOverride();
+
   // Highlight selected
   btn.parentElement.querySelectorAll('.wiz-q-btn').forEach(function(b){ b.classList.remove('wiz-sel'); });
   btn.classList.add('wiz-sel');
