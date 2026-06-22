@@ -15663,38 +15663,38 @@ var _wtSubDefs = {
   bias: {
     q: 'Look at the candles on the chart.',
     items: [
-      {val:'bull',    label:'Going Up',      cls:'bull'},
-      {val:'bear',    label:'Going Down',    cls:'bear'},
-      {val:'neutral', label:'Flat / Unclear', cls:'neu'},
+      {val:'bull',    label:'Bullish',  cls:'bull'},
+      {val:'bear',    label:'Bearish',  cls:'bear'},
+      {val:'neutral', label:'Neutral',  cls:'neu'},
     ],
     skippable: false,
   },
   trend: {
-    q: 'Now look at the bigger picture, not just the last few candles.',
+    q: 'Higher highs and higher lows = Uptrend. Lower highs and lower lows = Downtrend. No clear pattern = Ranging.',
     items: [
-      {val:'up',      label:'Mostly Climbing',   cls:'bull'},
-      {val:'down',    label:'Mostly Falling',    cls:'bear'},
-      {val:'ranging', label:'Moving Sideways',   cls:'neu'},
+      {val:'up',      label:'Uptrend',    cls:'bull'},
+      {val:'down',    label:'Downtrend',  cls:'bear'},
+      {val:'ranging', label:'Ranging',    cls:'neu'},
     ],
     skippable: false,
   },
   ao: {
     q: 'Look at the green and red bars in the middle panel — that\'s the AO.',
     items: [
-      {val:'bull',     label:'Bars just turned green (above the middle line)', cls:'bull'},
-      {val:'bear',     label:'Bars just turned red (below the middle line)',  cls:'bear'},
-      {val:'bull-div', label:'Bars are rising while price keeps falling',     cls:'bull'},
-      {val:'bear-div', label:'Bars are falling while price keeps rising',     cls:'bear'},
+      {val:'bull',     label:'↑ Just went above zero', cls:'bull'},
+      {val:'bear',     label:'↓ Just went below zero', cls:'bear'},
+      {val:'bull-div', label:'Bullish divergence ▲',   cls:'bull'},
+      {val:'bear-div', label:'Bearish divergence ▼',   cls:'bear'},
     ],
     skippable: true,
   },
   macd: {
     q: 'Look at the two wavy lines in the bottom panel — that\'s the MACD.',
     items: [
-      {val:'macd-zero-bull', label:'Lines just moved above the middle line', cls:'bull'},
-      {val:'macd-zero-bear', label:'Lines just moved below the middle line', cls:'bear'},
-      {val:'bull-div',       label:'The two lines just crossed — pointing up',   cls:'bull'},
-      {val:'bear-div',       label:'The two lines just crossed — pointing down', cls:'bear'},
+      {val:'macd-zero-bull', label:'↑ Just above zero', cls:'bull'},
+      {val:'macd-zero-bear', label:'↓ Just below zero', cls:'bear'},
+      {val:'bull-div',       label:'Cross ▲',           cls:'bull'},
+      {val:'bear-div',       label:'Cross ▼',           cls:'bear'},
     ],
     skippable: true,
   },
@@ -19532,7 +19532,7 @@ function _wizRenderSubQ(s, container) {
   var defs = (typeof _wtSubDefs !== 'undefined') ? _wtSubDefs[key] : null;
   if (!defs) { _wizSubStep++; _wizRenderSubQ(s, container); return; }
 
-  var titles = { bias: 'Which way is price moving?', trend: 'What is the overall trend?', ao: 'What is the AO showing?', macd: 'What is the MACD showing?' };
+  var titles = { bias: 'What is the bias?', trend: 'What is the trend?', ao: 'Awesome Oscillator reading?', macd: 'MACD signal?' };
 
   // Show indicator hint on chart for AO/MACD
   var hintEl = document.getElementById('wiz-chart-hint');
