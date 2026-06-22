@@ -18621,11 +18621,11 @@ body.fw-active .wt-banner{display:none!important}
 /* Wizard section content */
 .wiz-section-wrap{padding:32px 28px;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;max-width:700px;margin:0 auto;width:100%}
 /* Wizard TF layout */
-#wiz-tf-layout{display:grid;grid-template-columns:1fr 320px;flex:1;width:100%;min-height:0}
+#wiz-tf-layout{display:grid;grid-template-columns:1fr 340px;flex:1;width:100%;min-height:0}
 #wiz-tf-chart{overflow:hidden;min-height:0}
-#wiz-tf-sidebar{display:flex;flex-direction:column;border-left:1px solid rgba(255,255,255,0.06);overflow-y:auto}
-#wiz-tf-card-wrap{padding:16px;flex-shrink:0}
-#wiz-tf-question{padding:20px 16px;text-align:center;border-top:1px solid rgba(255,255,255,0.06);flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center}
+#wiz-tf-sidebar{display:flex;flex-direction:column;border-left:1px solid rgba(255,255,255,0.06);overflow-y:auto;background:rgba(255,255,255,0.01)}
+#wiz-tf-card-wrap{padding:12px 16px;flex:1}
+#wiz-tf-card-wrap .tf-card{border:none!important;background:transparent!important;padding:12px 0!important;box-shadow:none!important}
 .wiz-q-title{font-family:var(--display);font-size:24px;color:#fff;margin-bottom:18px;letter-spacing:0.04em}
 .wiz-q-btns{display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
 .wiz-q-btn{font-family:var(--mono);font-size:13px;letter-spacing:0.04em;padding:12px 32px;border-radius:10px;border:1.5px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.03);color:rgba(255,255,255,0.55);cursor:pointer;transition:all 0.18s}
@@ -19328,34 +19328,42 @@ function _wizRenderTF(s, body) {
   var layout = document.createElement('div');
   layout.id = 'wiz-tf-layout';
 
-  // Chart area
+  // Left: chart
   var chartWrap = document.createElement('div');
   chartWrap.id = 'wiz-tf-chart';
   var chart = wizBorrow('tv-chart-wrap');
   if (chart) { chart.style.height = '100%'; chartWrap.appendChild(chart); }
   layout.appendChild(chartWrap);
 
-  // Sidebar: TF card + question
+  // Right sidebar: big TF label on top, TF card below
   var sidebar = document.createElement('div');
   sidebar.id = 'wiz-tf-sidebar';
 
-  // Borrow the actual TF card
+  // Big timeframe label
+  var tfLabel = document.createElement('div');
+  tfLabel.style.cssText = 'padding:24px 20px 0;text-align:center';
+  tfLabel.innerHTML = '<div style="font-family:var(--display);font-size:48px;color:#fff;letter-spacing:0.06em;line-height:1">' + s.tfKey + '</div>' +
+    '<div style="font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.3);letter-spacing:0.08em;margin-top:4px">' + s.label.toUpperCase() + '</div>';
+  sidebar.appendChild(tfLabel);
+
+  // The actual TF card
   var cardWrap = document.createElement('div');
   cardWrap.id = 'wiz-tf-card-wrap';
   var tfCard = wizBorrow('tfc-' + s.tfKey);
   if (tfCard) cardWrap.appendChild(tfCard);
   sidebar.appendChild(cardWrap);
 
-  // Question area below card
-  var qArea = document.createElement('div');
-  qArea.id = 'wiz-tf-question';
-  sidebar.appendChild(qArea);
-
   layout.appendChild(sidebar);
   body.appendChild(layout);
 
   // Switch to correct TF
   if (typeof setTVInterval === 'function') setTVInterval(s.tvTF);
+
+  // Question area — render below in footer as the sub-step prompt
+  var qArea = document.createElement('div');
+  qArea.id = 'wiz-tf-question';
+  qArea.style.cssText = 'text-align:center;padding:16px 20px;border-top:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.02)';
+  body.appendChild(qArea);
 
   // Hide footer next button — sub-steps auto-advance
   var nextBtn = document.getElementById('wiz-next');
