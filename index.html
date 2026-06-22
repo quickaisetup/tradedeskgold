@@ -20044,19 +20044,17 @@ function _wizRenderLevels(s, body) {
   var lvModes = (typeof tradingMode !== 'undefined' && tradingMode.length) ? tradingMode.join(' + ') : 'None selected';
 
   var levelsHeader = document.createElement('div');
-  levelsHeader.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:10px 20px;flex-shrink:0;border-bottom:1px solid rgba(255,255,255,0.06)';
+  levelsHeader.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:8px 20px;flex-shrink:0;border-bottom:1px solid rgba(255,255,255,0.06);background:linear-gradient(90deg,rgba(255,255,255,0.01),rgba(' + (lvScore > 0 ? '78,214,138' : lvScore < 0 ? '240,96,96' : '240,188,78') + ',0.04))';
   levelsHeader.innerHTML =
-    '<div style="display:flex;align-items:center;gap:14px">' +
-      '<div style="font-family:var(--display);font-size:18px;color:#fff;letter-spacing:0.04em">📌 Mark Your Key Levels</div>' +
-      '<div style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.35)">Find a price to buy or sell — fill in the form on the right</div>' +
+    '<div style="display:flex;align-items:center;gap:12px">' +
+      '<div style="font-family:var(--display);font-size:16px;color:#fff;letter-spacing:0.04em">📌 Key Levels</div>' +
     '</div>' +
-    '<div style="display:flex;align-items:center;gap:16px">' +
-      '<div style="display:flex;align-items:center;gap:8px">' +
-        '<div style="font-family:var(--display);font-size:32px;line-height:1;color:' + lvClr + ';letter-spacing:0.02em">' + lvScore + '</div>' +
-        '<div style="font-family:var(--mono);font-size:9px;color:' + lvClr + ';letter-spacing:0.08em;text-transform:uppercase;line-height:1.2">' + lvVerdict + '</div>' +
+    '<div style="display:flex;align-items:center;gap:4px">' +
+      '<div style="font-family:var(--display);font-size:44px;line-height:1;color:' + lvClr + ';letter-spacing:0.02em;text-shadow:0 0 20px ' + lvClr + '44">' + (lvScore > 0 ? '+' : '') + lvScore + '</div>' +
+      '<div style="display:flex;flex-direction:column;gap:2px;margin-left:6px">' +
+        '<div style="font-family:var(--display);font-size:14px;color:' + lvClr + ';letter-spacing:0.06em;text-transform:uppercase;font-weight:700">' + lvVerdict + '</div>' +
+        '<div style="font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.6);letter-spacing:0.02em;max-width:220px;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + lvModes + '</div>' +
       '</div>' +
-      '<div style="width:1px;height:28px;background:rgba(255,255,255,0.08)"></div>' +
-      '<div style="font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.5);max-width:200px;line-height:1.4">' + lvModes + '</div>' +
     '</div>';
   body.appendChild(levelsHeader);
 
