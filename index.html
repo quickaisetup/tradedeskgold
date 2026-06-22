@@ -5945,6 +5945,8 @@ function renderAccountsPanel() {
   var _mU = pal.monthlyUsd;
   var _wR = pal.weeklyR  ? Math.round((pal.weeklyR )*100)/100 : null;
   var _mR = pal.monthlyR ? Math.round((pal.monthlyR)*100)/100 : null;
+  window._acctWeekUsd = _wU;
+  window._acctMonthUsd = _mU;
   var _wP = _wU ? (_wU>=0?'+$':'-$')+Math.abs(_wU).toLocaleString() : (_wR?(_wR>=0?'+':'')+_wR+'R':'—');
   var _mP = _mU ? (_mU>=0?'+$':'-$')+Math.abs(_mU).toLocaleString() : (_mR?(_mR>=0?'+':'')+_mR+'R':'—');
   var _wC = _wU ? (_wU>=0?'#4ed68a':'#f06060') : (pal.weeklyColor||_CL2);
@@ -16078,10 +16080,10 @@ document.addEventListener('DOMContentLoaded', function() {
         var tp2 = calcTodayPnl();
         if (td2 && tp2.hasTrades) { td2.textContent = fmt2(tp2.total); td2.style.color = clr2(tp2.total); }
       }
-      if (wk2 && window._weeklyUsdAccurate != null) {
-        var todayExtra = (typeof calcTodayPnl === 'function' && calcTodayPnl().hasTrades) ? calcTodayPnl().total : 0;
-        var fresh = window._weeklyUsdAccurate + todayExtra;
-        wk2.textContent = fmt2(fresh); wk2.style.color = clr2(fresh);
+      // Read week P&L from accounts panel computed value (single source of truth)
+      if (wk2 && window._acctWeekUsd != null) {
+        wk2.textContent = fmt2(window._acctWeekUsd);
+        wk2.style.color = clr2(window._acctWeekUsd);
       }
     }
     setTimeout(_refreshSplashPnl, 2000);
