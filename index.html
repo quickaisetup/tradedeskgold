@@ -7469,6 +7469,10 @@ window.scheduleMorningAutosave = function(score) {
       _fp += tf + ':' + (s.bias||[]).join(',') + '|' + (s.trend||[]).join(',') + ';';
     });
     _fp += 'score:' + (score||0);
+    _fp += '|dir:' + (document.querySelector('#market-direction .bb.sel-bull,#market-direction .bb.sel-bear,#market-direction .bb.sel-range') ? '1' : '0');
+    _fp += '|piv:' + (typeof pivotState !== 'undefined' ? pivotState || '' : '');
+    _fp += '|lon:' + (typeof londonBiasState !== 'undefined' ? londonBiasState || '' : '');
+    _fp += '|tm:' + (typeof tradingMode !== 'undefined' ? tradingMode.join(',') : '');
   } catch(e) {}
   if (_fp === window._lastAutosaveFp) return; // nothing changed
   window._lastAutosaveFp = _fp;
