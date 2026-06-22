@@ -19233,7 +19233,7 @@ function wizBorrow(id) {
 function wizReturn(id) {
   var ph = document.querySelector('[data-wiz-placeholder="' + id + '"]');
   var el = document.getElementById(id);
-  if (ph && el) { ph.parentNode.insertBefore(el, ph); ph.remove(); }
+  if (ph && el) { el.style.height = ''; el.style.width = ''; ph.parentNode.insertBefore(el, ph); ph.remove(); }
   _wizBorrowed = _wizBorrowed.filter(function(x){ return x !== id; });
 }
 
