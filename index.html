@@ -19572,21 +19572,22 @@ function _wizRenderSubQ(s, container) {
 
   var titles = { bias: 'What is the bias?', trend: 'What is the trend?', ao: 'Awesome Oscillator reading?', macd: 'MACD signal?' };
 
-  // On-chart hint, pointing at the actual indicator row. The studies array now
-  // loads in a fixed order — Price → Volume → AO → MACD, every time (see
-  // _tdLoadChart's studies list) — so these positions are reliable.
+  // On-chart hint — pinned to ONE fixed spot just below the toolbar, never
+  // claiming a specific row. TradingView's pane order for this embed is not
+  // reliably controllable (confirmed: even with a fixed studies array order,
+  // AO/MACD panes still sometimes swap which one renders on top), so the text
+  // describes what each indicator looks like instead of where it is.
   var hintEl = document.getElementById('wiz-chart-hint');
   if (hintEl) hintEl.remove();
   if (key === 'ao' || key === 'macd') {
     var chartArea = document.getElementById('wiz-tf-chart');
     if (chartArea) {
       var hintText = key === 'ao'
-        ? '↓ Look at the AO panel below — a single row of green/red bars (no lines)'
-        : '↓ Look at the MACD panel below — two colored wavy lines crossing over small bars';
+        ? '👀 AO = a single row of green/red bars only (no lines, no curves)'
+        : '👀 MACD = two colored wavy lines with small bars underneath them';
       var hint = document.createElement('div');
       hint.id = 'wiz-chart-hint';
-      // Below the chart's own toolbar (~44px), then roughly at the AO or MACD pane
-      hint.style.top = key === 'ao' ? 'calc(44px + 50%)' : 'calc(44px + 76%)';
+      hint.style.top = '48px';
       hint.innerHTML = '<div id="wiz-chart-hint-inner">' + hintText + '</div>';
       chartArea.style.position = 'relative';
       chartArea.appendChild(hint);
