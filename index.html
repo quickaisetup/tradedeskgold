@@ -13571,12 +13571,11 @@ function initTVChart(forceInstrument) {
       // Re-adding EMA 9 & 20 brings us back to 6 total — if AO or MACD
       // disappear again, trim this back to the 4-study set (MACD, AO,
       // EMA50, EMA200) that's confirmed to work reliably.
-      // Order matters: studies stack panes in the order they're added, so this
-      // fixes the on-screen order to Price → AO → MACD every time (Volume is
-      // hidden so EMA 9/20/50/200 render on the price pane instead) — the
-      // wizard's chart hint positions below rely on this being stable.
-      'STD;Awesome_Oscillator',
+      // Order matters: TradingView's embed widget renders panes bottom-up from
+      // this array, so MACD first → appears at bottom, AO second → appears above it.
+      // On-screen order: Price → AO → MACD (top to bottom).
       'STD;MACD',
+      'STD;Awesome_Oscillator',
       { id: 'MAExp@tv-basicstudies', inputs: { length: 9 } },
       { id: 'MAExp@tv-basicstudies', inputs: { length: 20 } },
       { id: 'MAExp@tv-basicstudies', inputs: { length: 50 } },
@@ -18679,7 +18678,7 @@ body.fw-active .wt-banner{display:none!important}
 #wiz-tf-card-wrap{padding:12px 16px;flex:1}
 #wiz-tf-card-wrap .tf-card{border:none!important;background:transparent!important;padding:12px 0!important;box-shadow:none!important}
 #wiz-tf-card-wrap .tf-card>.tf-name{display:none!important}
-#wiz-chart-indbar{flex-shrink:0;background:rgba(240,188,78,0.12);border-bottom:1px solid rgba(240,188,78,0.35);padding:7px 16px;font-family:var(--mono);font-size:10px;font-weight:700;color:#f0bc4e;letter-spacing:0.04em;text-align:center;animation:eodFadeIn 0.25s ease}
+#wiz-chart-indbar{flex-shrink:0;background:rgba(240,188,78,0.12);border-top:1px solid rgba(240,188,78,0.35);padding:7px 16px;font-family:var(--mono);font-size:10px;font-weight:700;color:#f0bc4e;letter-spacing:0.04em;text-align:center;animation:eodFadeIn 0.25s ease}
 .wiz-q-title{font-family:var(--display);font-size:24px;color:#fff;margin-bottom:18px;letter-spacing:0.04em}
 .wiz-q-btns{display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
 .wiz-q-btn{font-family:var(--mono);font-size:13px;letter-spacing:0.04em;padding:12px 32px;border-radius:10px;border:1.5px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.03);color:rgba(255,255,255,0.55);cursor:pointer;transition:all 0.18s}
@@ -19617,13 +19616,13 @@ function _wizRenderTF(s, body) {
   // Permanent indicator label bar — sits above the chart, never overlapping the
   // toolbar, and stays up for as long as the AO/MACD question is showing
   // (no auto-fade). Filled in / cleared by _wizRenderSubQ per sub-question.
+  var chart = wizBorrow('tv-chart-wrap');
+  if (chart) { chart.style.cssText = 'flex:1;min-height:0;width:100%'; chartWrap.appendChild(chart); }
+
   var indBar = document.createElement('div');
   indBar.id = 'wiz-chart-indbar';
   indBar.style.display = 'none';
   chartWrap.appendChild(indBar);
-
-  var chart = wizBorrow('tv-chart-wrap');
-  if (chart) { chart.style.cssText = 'flex:1;min-height:0;width:100%'; chartWrap.appendChild(chart); }
 
   // Faded timeframe watermark — matches TradingView's own native style: one huge
   // pale numeral, dead center over the price panel (the lightweight embed widget
