@@ -7469,7 +7469,7 @@ window.scheduleMorningAutosave = function(score) {
       _fp += tf + ':' + (s.bias||[]).join(',') + '|' + (s.trend||[]).join(',') + ';';
     });
     _fp += 'score:' + (score||0);
-    _fp += '|dir:' + (document.querySelector('#market-direction .bb.sel-bull,#market-direction .bb.sel-bear,#market-direction .bb.sel-range') ? '1' : '0');
+    _fp += '|dir:' + (function(){ var d=document.querySelector('#market-direction .bb.sel-bull,#market-direction .bb.sel-bear,#market-direction .bb.sel-range'); return d ? d.textContent.trim() : ''; })();
     _fp += '|piv:' + (typeof pivotState !== 'undefined' ? pivotState || '' : '');
     _fp += '|lon:' + (typeof londonBiasState !== 'undefined' ? londonBiasState || '' : '');
     _fp += '|tm:' + (typeof tradingMode !== 'undefined' ? tradingMode.join(',') : '');
@@ -7479,8 +7479,14 @@ window.scheduleMorningAutosave = function(score) {
   if (window._morningAutosaveTimer) clearTimeout(window._morningAutosaveTimer);
   window._morningAutosaveTimer = setTimeout(function() {
     if (typeof saveMorningAnalysis === 'function') saveMorningAnalysis(true);
-  }, 2000);
+  }, 500);
 };
+window.addEventListener('beforeunload', function() {
+  if (window._morningAutosaveTimer) {
+    clearTimeout(window._morningAutosaveTimer);
+    if (typeof saveMorningAnalysis === 'function') saveMorningAnalysis(true);
+  }
+});
 
 function overrideBias(val, btn) {
   biasOverride = val;
