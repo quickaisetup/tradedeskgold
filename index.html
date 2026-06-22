@@ -18658,7 +18658,7 @@ body.fw-active .wt-banner{display:none!important}
 .wiz-section-wrap.wiz-wide{max-width:1000px}
 .wiz-tm{font-family:var(--mono)!important;font-size:10px!important;padding:8px 14px!important;border-radius:8px!important;border:1px solid rgba(255,255,255,0.08)!important;background:transparent!important;color:rgba(255,255,255,0.4)!important;cursor:pointer!important;transition:all 0.15s!important}
 .wiz-tm:hover{border-color:rgba(255,255,255,0.2)!important;color:rgba(255,255,255,0.7)!important}
-.wiz-tm.sel{border-color:var(--gold)!important;background:rgba(240,188,78,0.15)!important;color:var(--gold)!important;box-shadow:0 0 10px rgba(240,188,78,0.2)!important}
+.wiz-tm.sel{border-color:var(--gold)!important;border-width:2px!important;background:rgba(240,188,78,0.25)!important;color:#fff!important;font-weight:700!important;box-shadow:0 0 18px rgba(240,188,78,0.4),inset 0 0 12px rgba(240,188,78,0.1)!important;transform:scale(1.03)}
 /* Wizard TF layout */
 #wiz-tf-layout{display:grid;grid-template-columns:1fr 340px;flex:1;width:100%;min-height:0}
 #wiz-tf-chart{overflow:hidden;min-height:0}
@@ -19975,7 +19975,7 @@ function _wizRenderChoice(s, body) {
     // study, which renders reliably even if it shows the full level set.
     var pivotStudy = [{ id: 'PivotPointsStandard@tv-basicstudies' }];
     var pivotBox = document.createElement('div');
-    pivotBox.style.cssText = 'position:relative;width:100%;max-width:1000px;height:240px;border:1px solid rgba(255,255,255,0.08);border-radius:10px;overflow:hidden;background:#060708;box-shadow:0 8px 24px rgba(0,0,0,0.3);margin-bottom:14px';
+    pivotBox.style.cssText = 'position:relative;width:100%;max-width:1000px;height:320px;border:1px solid rgba(255,255,255,0.08);border-radius:10px;overflow:hidden;background:#060708;box-shadow:0 8px 24px rgba(0,0,0,0.3);margin-bottom:14px';
     var pivotWm = document.createElement('div');
     pivotWm.className = 'wiz-mini-wm';
     pivotWm.textContent = '15m';
