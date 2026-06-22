@@ -7664,7 +7664,8 @@ function lvlRenderCard(lvl) {
       '<span style="font-family:var(--display);font-size:12px;letter-spacing:0.1em;color:' + clr + '">' + (isLong ? '▲ LONG' : '▼ SHORT') + '</span>' +
       (lvl.confidence ? '<span style="font-family:var(--mono);font-size:7px;padding:1px 7px;border-radius:3px;border:1px solid ' + br + ';color:' + clr + '">' + (confLbls[lvl.confidence]||'') + '</span>' : '') +
       (rr ? '<span style="font-family:var(--mono);font-size:9px;font-weight:700;padding:2px 8px;border-radius:4px;border:1px solid ' + rrBdr + ';background:' + rrBg + ';color:' + rrClr + '">' + rr + '</span>' : '') +
-      '<button onclick="removeLevel(' + lvl.id + ')" style="margin-left:auto;font-family:var(--mono);font-size:11px;font-weight:700;color:rgba(240,96,96,0.55);background:rgba(240,96,96,0.08);border:1px solid rgba(240,96,96,0.25);border-radius:6px;width:28px;height:28px;cursor:pointer;transition:all 0.15s;line-height:1;display:flex;align-items:center;justify-content:center" onmouseover="this.style.background=\'rgba(240,96,96,0.22)\';this.style.borderColor=\'rgba(240,96,96,0.6)\';this.style.color=\'#f06060\'" onmouseout="this.style.background=\'rgba(240,96,96,0.08)\';this.style.borderColor=\'rgba(240,96,96,0.25)\';this.style.color=\'rgba(240,96,96,0.55)\'">✕</button>' +
+      '<button onclick="editLevel(' + lvl.id + ')" style="margin-left:auto;font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.4);background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:6px;width:28px;height:28px;cursor:pointer;transition:all 0.15s;line-height:1;display:flex;align-items:center;justify-content:center" onmouseover="this.style.background=\'rgba(255,255,255,0.12)\';this.style.color=\'rgba(255,255,255,0.7)\'" onmouseout="this.style.background=\'rgba(255,255,255,0.05)\';this.style.color=\'rgba(255,255,255,0.4)\'">✎</button>' +
+      '<button onclick="removeLevel(' + lvl.id + ')" style="font-family:var(--mono);font-size:11px;font-weight:700;color:rgba(240,96,96,0.55);background:rgba(240,96,96,0.08);border:1px solid rgba(240,96,96,0.25);border-radius:6px;width:28px;height:28px;cursor:pointer;transition:all 0.15s;line-height:1;display:flex;align-items:center;justify-content:center" onmouseover="this.style.background=\'rgba(240,96,96,0.22)\';this.style.borderColor=\'rgba(240,96,96,0.6)\';this.style.color=\'#f06060\'" onmouseout="this.style.background=\'rgba(240,96,96,0.08)\';this.style.borderColor=\'rgba(240,96,96,0.25)\';this.style.color=\'rgba(240,96,96,0.55)\'">✕</button>' +
     '</div>' +
     // ── Price ladder ──
     '<div style="display:flex;gap:11px;margin-bottom:' + (lvl.confluence&&lvl.confluence.length || lvl.notes ? '10px' : '0') + '">' +
@@ -7695,6 +7696,34 @@ function lvlRenderAll() {
     if (instr === _lvlInstrument) lvlRenderCard(lvl);
   });
 }
+
+function editLevel(id) {
+  var l = levels.find(function(x){ return x.id === id; });
+  if (!l) return;
+  // Populate form
+  lvlSetDir(l.direction);
+  var priceEl = document.getElementById('lvl-in-price'); if (priceEl) priceEl.value = l.price || '';
+  var slEl = document.getElementById('lvl-in-sl'); if (slEl) slEl.value = l.sl || '';
+  var tpEl = document.getElementById('lvl-in-tp'); if (tpEl) tpEl.value = l.tp || '';
+  var notesEl = document.getElementById('lvl-in-notes'); if (notesEl) notesEl.value = l.notes || '';
+  // Restore confluence
+  _lvlFormConf = [];
+  document.querySelectorAll('#lvl-conf-btns .lvl-cf').forEach(function(b){ b.classList.remove('on'); b.style.borderColor=''; b.style.color=''; b.style.background=''; });
+  (l.confluence || []).forEach(function(c) {
+    var found = false;
+    document.querySelectorAll('#lvl-conf-btns .lvl-cf').forEach(function(b){ if (b.textContent.trim() === c) { lvlToggleConf(b, c); found = true; } });
+    if (!found) lvlAddOtherConf(c);
+  });
+  // Restore confidence
+  _lvlFormConfidence = l.confidence || 0;
+  [1,2,3].forEach(function(n){ var b=document.getElementById('lvl-conf-'+n); if(b){b.classList.remove('on');b.style.borderColor='';b.style.color='';b.style.background='';} });
+  if (l.confidence) { var cb = document.getElementById('lvl-conf-' + l.confidence); if (cb) lvlSetConf(l.confidence); }
+  // Remove old level
+  removeLevel(id);
+  // Scroll to form
+  var form = document.getElementById('lvl-form'); if (form) form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+window.editLevel = editLevel;
 
 function removeLevel(id) {
   var el=document.getElementById('lvl-'+id); if(el)el.remove();
