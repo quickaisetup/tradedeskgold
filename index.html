@@ -7898,7 +7898,7 @@ function _setBalApplied(map) {
 function _updateAccountBalance(t, sign) {
   // sign: +1 when trade added, -1 when trade removed
   if (!t || !window._tdAccounts) return;
-  var usd = _tradeUsdValue(t) * sign;
+  var usd = (t._forceUsd !== undefined ? t._forceUsd : _tradeUsdValue(t)) * sign;
   if (!usd) return;
   // For multi-account trades (accounts array), update each matched account
   var acctList = (t.accounts && t.accounts.length) ? t.accounts : [(t.account || '')];
@@ -8649,13 +8649,22 @@ async function saveTrade(id) {
     if (btn2) { btn2.textContent = '⚠ Saved locally — DB error'; btn2.style.color = '#f0bc4e'; }
   }
 
-  // Apply this trade's USD result to the matching account's running balance —
-  // only once, on first save (otherwise re-saving/editing would double-count).
-  // removeTrade() already reverses this with sign -1 when a trade is deleted.
-  if (_wasNew && !t._balanceApplied) {
+  // Apply this trade's USD result to the matching account's running balance.
+  // On first save: add the full amount. On edit: reverse the old amount and add the new.
+  var newUsd = _tradeUsdValue(t);
+  if (t._balanceApplied) {
+    var oldUsd = t._lastAppliedUsd || 0;
+    var diff = newUsd - oldUsd;
+    if (diff) {
+      var _diffTrade = Object.assign({}, t);
+      _diffTrade._forceUsd = diff;
+      _updateAccountBalance(_diffTrade, +1);
+    }
+  } else {
     _updateAccountBalance(t, +1);
     t._balanceApplied = true;
   }
+  t._lastAppliedUsd = newUsd;
 
   t.saved = true;
   // Show EOD nudge after saving a trade (delayed so it doesn't interrupt)
