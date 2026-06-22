@@ -12104,12 +12104,12 @@ function _leoUpdateAnalysisAge() {
 function leoReanalyse() {
   closeLiveExec();
   setTimeout(function() {
-    var monthlyIdx = _wtSteps.findIndex(function(s){ return s.id === 'tfc-1M'; });
+    var monthlyIdx = _wizSteps.findIndex(function(s){ return s.key === 'tf-1M'; });
     if (monthlyIdx >= 0) {
       localStorage.setItem('td_walkthrough_pending', '1');
-      _wtStep = monthlyIdx;
-      _wtSubStep = 0;
-      wtShowStep();
+      _wizStep = monthlyIdx;
+      _wizSubStep = 0;
+      wizOpen();
     } else {
       var section = document.getElementById('analysis');
       if (section) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -15876,22 +15876,15 @@ function wtDone() {
 
 window.wtRestart = function() {
   localStorage.setItem('td_walkthrough_pending', '1');
-  _wtStep = 0; _wtSubStep = 0;
-  _wtClearProgress();
-  wtShowStep();
+  localStorage.removeItem(_wizProgressKey());
+  _wizStep = 0; _wizSubStep = 0;
+  wizOpen();
 };
 
 function sessionSplashStart() {
   sessionSplashDismiss();
   localStorage.setItem('td_walkthrough_pending', '1');
-  var saved = _wtLoadProgress();
-  if (saved && saved.step > 0) {
-    _wtStep = saved.step;
-    _wtSubStep = saved.sub || 0;
-  } else {
-    _wtStep = 0; _wtSubStep = 0;
-  }
-  setTimeout(wtShowStep, 400);
+  setTimeout(wizOpen, 400);
 }
 function sessionSplashDismiss() {
   var el = document.getElementById('session-splash');
@@ -18604,6 +18597,53 @@ body.fw-active .wt-banner{display:none!important}
   border-radius:6px;
   box-shadow:0 0 0 2px rgba(240,188,78,0.4),0 0 60px rgba(240,188,78,0.07)!important;
   transition:box-shadow 0.3s}
+
+/* ── FULL-SCREEN WIZARD ── */
+#wiz-overlay{position:fixed;inset:0;z-index:100000;background:#0a0b0d;display:none;flex-direction:column;overflow:hidden}
+#wiz-overlay.show{display:flex;animation:eodFadeIn 0.3s ease}
+#wiz-header{display:flex;align-items:center;gap:14px;padding:14px 20px;border-bottom:1px solid rgba(255,255,255,0.06);flex-shrink:0}
+#wiz-step-badge{font-family:var(--mono);font-size:9px;letter-spacing:0.1em;color:rgba(240,188,78,0.6);background:rgba(240,188,78,0.08);border:1px solid rgba(240,188,78,0.2);border-radius:20px;padding:3px 10px;white-space:nowrap}
+#wiz-title{font-family:var(--display);font-size:20px;letter-spacing:0.06em;color:#fff;flex:1}
+#wiz-progress-wrap{flex:1;max-width:200px;height:4px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden}
+#wiz-progress-fill{height:100%;background:var(--gold);border-radius:2px;transition:width 0.4s ease;width:0%}
+#wiz-close{background:transparent;border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.3);font-size:14px;width:32px;height:32px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s}
+#wiz-close:hover{border-color:rgba(255,255,255,0.3);color:rgba(255,255,255,0.7)}
+#wiz-body{flex:1;overflow-y:auto;display:flex;flex-direction:column;align-items:center;padding:24px;min-height:0}
+#wiz-body>*{max-width:700px;width:100%}
+#wiz-footer{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-top:1px solid rgba(255,255,255,0.06);flex-shrink:0;gap:12px}
+#wiz-back{font-family:var(--mono);font-size:10px;letter-spacing:0.06em;color:rgba(255,255,255,0.35);background:transparent;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 20px;cursor:pointer;transition:all 0.15s}
+#wiz-back:hover{color:rgba(255,255,255,0.6);border-color:rgba(255,255,255,0.25)}
+#wiz-next{font-family:var(--display);font-size:14px;letter-spacing:0.08em;color:#0a0b0d;background:var(--gold);border:none;border-radius:8px;padding:12px 32px;cursor:pointer;transition:all 0.15s;flex-shrink:0}
+#wiz-next:hover{background:#ffd070}
+#wiz-next:disabled{opacity:0.3;cursor:not-allowed}
+#wiz-skip{font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.2);background:transparent;border:none;cursor:pointer;letter-spacing:0.06em}
+#wiz-skip:hover{color:rgba(255,255,255,0.4)}
+/* Wizard TF layout */
+#wiz-tf-layout{display:flex;flex-direction:column;flex:1;width:100%;max-width:none!important;min-height:0}
+#wiz-tf-chart{flex:1;min-height:300px;border-radius:8px;overflow:hidden;border:1px solid rgba(255,255,255,0.08)}
+#wiz-tf-question{padding:20px 0;text-align:center}
+.wiz-q-title{font-family:var(--display);font-size:22px;color:#fff;margin-bottom:16px}
+.wiz-q-btns{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+.wiz-q-btn{font-family:var(--mono);font-size:12px;letter-spacing:0.04em;padding:10px 24px;border-radius:8px;border:1.5px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.6);cursor:pointer;transition:all 0.15s}
+.wiz-q-btn:hover{border-color:rgba(240,188,78,0.4);color:#fff;background:rgba(240,188,78,0.08)}
+.wiz-q-btn.wiz-sel{border-color:rgba(240,188,78,0.6);color:var(--gold);background:rgba(240,188,78,0.12)}
+/* Wizard levels layout */
+#wiz-levels-layout{display:grid;grid-template-columns:1fr 1fr;gap:16px;width:100%;max-width:none!important;min-height:0;flex:1}
+#wiz-levels-chart{min-height:300px;border-radius:8px;overflow:hidden;border:1px solid rgba(255,255,255,0.08)}
+#wiz-levels-form{overflow-y:auto}
+/* Wizard reveal */
+.wiz-reveal{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;flex:1}
+@keyframes wizPulse{0%,100%{box-shadow:0 0 0 0 rgba(240,188,78,0.5)}60%{box-shadow:0 0 0 14px rgba(240,188,78,0)}}
+.wiz-pulse{animation:wizPulse 1.5s ease-in-out infinite}
+/* Mobile */
+@media(max-width:768px){
+  #wiz-header{padding:10px 14px}
+  #wiz-title{font-size:16px}
+  #wiz-body{padding:14px}
+  #wiz-footer{padding:10px 14px}
+  #wiz-levels-layout{grid-template-columns:1fr}
+  #wiz-tf-chart{min-height:220px}
+}
 </style>
 
 <!-- Banner -->
@@ -19128,6 +19168,336 @@ window.fwFinish = fwFinish;
     <button id="eod-questions-save" onclick="eodQuestionsSave()">💾 Save Day <span id="eod-questions-xp-pill">+1 XP</span></button>
   </div>
 </div>
+<!-- FULL-SCREEN WIZARD -->
+<div id="wiz-overlay">
+  <div id="wiz-header">
+    <span id="wiz-step-badge">1 / 13</span>
+    <div id="wiz-title"></div>
+    <div id="wiz-progress-wrap"><div id="wiz-progress-fill"></div></div>
+    <button id="wiz-close" onclick="wizDone()" title="Exit wizard">✕</button>
+  </div>
+  <div id="wiz-body"></div>
+  <div id="wiz-footer">
+    <button id="wiz-back" onclick="wizBack()">← Back</button>
+    <button id="wiz-skip" onclick="wizDone()">skip wizard</button>
+    <button id="wiz-next" onclick="wizNext()">Next →</button>
+  </div>
+</div>
+
+<script>
+// ── FULL-SCREEN WIZARD ENGINE ─────────────────────────
+var _wizSteps = [
+  { key:'morning',   label:'Morning Routine',     type:'section', sourceId:'gate-items',  doneCheck:'gates' },
+  { key:'news',      label:'Economic Calendar',   type:'section', sourceId:'_econ_card'  },
+  { key:'tf-1M',     label:'1M — Monthly',        type:'tf', tfKey:'1M', tvTF:'M',   hasMacd:false },
+  { key:'tf-1W',     label:'1W — Weekly',         type:'tf', tfKey:'1W', tvTF:'W',   hasMacd:false },
+  { key:'tf-D',      label:'Daily',               type:'tf', tfKey:'D',  tvTF:'D',   hasMacd:false },
+  { key:'tf-4H',     label:'4H — Key Timeframe',  type:'tf', tfKey:'4H', tvTF:'240', hasMacd:true  },
+  { key:'tf-1H',     label:'1H — Entry Timeframe', type:'tf', tfKey:'1H', tvTF:'60',  hasMacd:true  },
+  { key:'direction', label:'Today\'s Direction',   type:'choice', sourceId:'direction-row' },
+  { key:'pivot',     label:'Daily Pivot Point',    type:'choice', sourceId:'pivot-row'     },
+  { key:'london',    label:'London Open',          type:'choice', sourceId:'london-row'    },
+  { key:'levels',    label:'Key Levels',           type:'levels' },
+  { key:'briefing',  label:'AI Morning Briefing',  type:'section', sourceId:'ai-briefing-section', onShow:'loadBriefing' },
+  { key:'reveal',    label:'Let\'s Go!',           type:'reveal' }
+];
+var _wizStep = 0;
+var _wizSubStep = 0;
+var _wizBorrowed = [];
+
+function _wizProgressKey() { return 'td_wiz_progress_' + (typeof _tdTodayBKK === 'function' ? _tdTodayBKK() : new Date().toLocaleDateString('sv-SE')); }
+function _wizSaveProgress() { try { localStorage.setItem(_wizProgressKey(), JSON.stringify({step:_wizStep, sub:_wizSubStep})); } catch(e){} }
+function _wizLoadProgress() { try { return JSON.parse(localStorage.getItem(_wizProgressKey()) || 'null'); } catch(e){ return null; } }
+
+function wizBorrow(id) {
+  var el = document.getElementById(id);
+  if (!el) return null;
+  var ph = document.createElement('div');
+  ph.setAttribute('data-wiz-placeholder', id);
+  ph.style.display = 'none';
+  el.parentNode.insertBefore(ph, el);
+  _wizBorrowed.push(id);
+  return el;
+}
+
+function wizReturn(id) {
+  var ph = document.querySelector('[data-wiz-placeholder="' + id + '"]');
+  var el = document.getElementById(id);
+  if (ph && el) { ph.parentNode.insertBefore(el, ph); ph.remove(); }
+  _wizBorrowed = _wizBorrowed.filter(function(x){ return x !== id; });
+}
+
+function wizReturnAll() {
+  _wizBorrowed.slice().forEach(function(id){ wizReturn(id); });
+  _wizBorrowed = [];
+}
+
+function wizShowStep() {
+  wizReturnAll();
+  var body = document.getElementById('wiz-body');
+  if (!body) return;
+  body.innerHTML = '';
+  body.style.cssText = 'flex:1;overflow-y:auto;display:flex;flex-direction:column;align-items:center;padding:24px;min-height:0';
+
+  var s = _wizSteps[_wizStep];
+  var total = _wizSteps.length;
+
+  // Header
+  var badge = document.getElementById('wiz-step-badge');
+  if (badge) badge.textContent = (_wizStep + 1) + ' / ' + total;
+  var title = document.getElementById('wiz-title');
+  if (title) title.textContent = s.label;
+  var fill = document.getElementById('wiz-progress-fill');
+  if (fill) fill.style.width = Math.round(((_wizStep + 1) / total) * 100) + '%';
+
+  // Back button
+  var backBtn = document.getElementById('wiz-back');
+  if (backBtn) backBtn.style.visibility = _wizStep > 0 ? 'visible' : 'hidden';
+
+  // Next button
+  var nextBtn = document.getElementById('wiz-next');
+  if (nextBtn) { nextBtn.disabled = false; nextBtn.textContent = 'Next →'; }
+
+  // Render by type
+  if (s.type === 'section') {
+    _wizRenderSection(s, body);
+  } else if (s.type === 'tf') {
+    _wizRenderTF(s, body);
+  } else if (s.type === 'choice') {
+    _wizRenderChoice(s, body);
+  } else if (s.type === 'levels') {
+    _wizRenderLevels(s, body);
+  } else if (s.type === 'reveal') {
+    _wizRenderReveal(body);
+  }
+
+  _wizSaveProgress();
+}
+
+function _wizRenderSection(s, body) {
+  var wrap = document.createElement('div');
+  wrap.style.cssText = 'max-width:700px;width:100%;flex:1';
+  if (s.sourceId === '_econ_card') {
+    // Special: borrow the forex factory card (parent of #econ-body)
+    var econBody = document.getElementById('econ-body');
+    if (econBody) {
+      var card = econBody.closest('.card');
+      if (card) { card.id = card.id || '_econ_card_el'; var el = wizBorrow(card.id); if (el) wrap.appendChild(el); }
+    }
+  } else {
+    var el = wizBorrow(s.sourceId);
+    if (el) wrap.appendChild(el);
+  }
+  body.appendChild(wrap);
+  if (s.onShow === 'loadBriefing' && typeof loadBriefing === 'function') loadBriefing(false);
+  // Gate check
+  if (s.doneCheck === 'gates') {
+    var nextBtn = document.getElementById('wiz-next');
+    if (nextBtn) {
+      var allDone = document.querySelectorAll('#gate-items .gate-item:not(.done)').length === 0 && document.querySelectorAll('#gate-items .gate-item').length > 0;
+      nextBtn.disabled = !allDone;
+      if (!allDone) nextBtn.textContent = 'Complete checklist to continue';
+    }
+    // Re-check on click within gate items
+    var gateEl = document.getElementById('gate-items');
+    if (gateEl) gateEl.addEventListener('click', function() {
+      setTimeout(function() {
+        var btn = document.getElementById('wiz-next');
+        var done = document.querySelectorAll('#gate-items .gate-item:not(.done)').length === 0;
+        if (btn) { btn.disabled = !done; btn.textContent = done ? 'Next →' : 'Complete checklist to continue'; }
+      }, 100);
+    });
+  }
+}
+
+function _wizRenderTF(s, body) {
+  body.style.padding = '0';
+  body.style.alignItems = 'stretch';
+
+  var layout = document.createElement('div');
+  layout.id = 'wiz-tf-layout';
+
+  // Chart area
+  var chartWrap = document.createElement('div');
+  chartWrap.id = 'wiz-tf-chart';
+  var chart = wizBorrow('tv-chart-wrap');
+  if (chart) { chart.style.height = '100%'; chartWrap.appendChild(chart); }
+  layout.appendChild(chartWrap);
+
+  // Switch to correct TF
+  if (typeof setTVInterval === 'function') setTVInterval(s.tvTF);
+
+  // Question area
+  var qArea = document.createElement('div');
+  qArea.id = 'wiz-tf-question';
+  layout.appendChild(qArea);
+
+  body.appendChild(layout);
+
+  // Hide footer next button — sub-steps auto-advance
+  var nextBtn = document.getElementById('wiz-next');
+  if (nextBtn) nextBtn.style.display = 'none';
+
+  _wizSubStep = 0;
+  _wizRenderSubQ(s, qArea);
+}
+
+function _wizRenderSubQ(s, container) {
+  var keys = ['bias', 'trend', 'ao'];
+  if (s.hasMacd) keys.push('macd');
+
+  if (_wizSubStep >= keys.length) {
+    // All sub-questions done — auto advance
+    var nextBtn = document.getElementById('wiz-next');
+    if (nextBtn) nextBtn.style.display = '';
+    _wizStep++;
+    _wizSubStep = 0;
+    setTimeout(wizShowStep, 300);
+    return;
+  }
+
+  var key = keys[_wizSubStep];
+  var defs = (typeof _wtSubDefs !== 'undefined') ? _wtSubDefs[key] : null;
+  if (!defs) { _wizSubStep++; _wizRenderSubQ(s, container); return; }
+
+  var titles = { bias: 'What is the bias?', trend: 'What is the trend?', ao: 'Awesome Oscillator reading?', macd: 'MACD signal?' };
+
+  container.innerHTML =
+    '<div class="wiz-q-title">' + (titles[key] || key) + '</div>' +
+    '<div class="wiz-q-btns">' +
+      defs.items.map(function(it) {
+        return '<button class="wiz-q-btn" onclick="_wizSubClick(\'' + s.tfKey + '\',\'' + key + '\',\'' + it.val + '\',this)">' + it.label + '</button>';
+      }).join('') +
+      (defs.skippable ? '<button class="wiz-q-btn" onclick="_wizSubSkip()" style="border-style:dashed;color:rgba(255,255,255,0.25)">Skip</button>' : '') +
+    '</div>';
+}
+
+function _wizSubClick(tf, key, val, btn) {
+  // Highlight selected
+  btn.parentElement.querySelectorAll('.wiz-q-btn').forEach(function(b){ b.classList.remove('wiz-sel'); });
+  btn.classList.add('wiz-sel');
+
+  // Click the real button on the TF card
+  var cardBtn = null;
+  if (key === 'bias')  cardBtn = document.querySelector('#bias-' + tf + ' .bb[onclick*="\'' + val + '\'"]');
+  if (key === 'trend') cardBtn = document.querySelector('#trend-' + tf + ' .bb[onclick*="\'' + val + '\'"]');
+  if (key === 'ao')    cardBtn = document.querySelector('#tfc-' + tf + ' .ind-row:first-child .ib[onclick*="\'' + val + '\'"]');
+  if (key === 'macd')  cardBtn = document.querySelector('#tfc-' + tf + ' .ind-row:last-child .ib[onclick*="\'' + val + '\'"]');
+  if (cardBtn) cardBtn.click();
+
+  // Auto-save
+  if (typeof saveMorningAnalysis === 'function') setTimeout(function(){ saveMorningAnalysis(true); }, 400);
+
+  // Advance sub-step
+  setTimeout(function() {
+    _wizSubStep++;
+    var s = _wizSteps[_wizStep];
+    var container = document.getElementById('wiz-tf-question');
+    if (container && s) _wizRenderSubQ(s, container);
+  }, 350);
+}
+window._wizSubClick = _wizSubClick;
+
+function _wizSubSkip() {
+  _wizSubStep++;
+  var s = _wizSteps[_wizStep];
+  var container = document.getElementById('wiz-tf-question');
+  if (container && s) _wizRenderSubQ(s, container);
+}
+window._wizSubSkip = _wizSubSkip;
+
+function _wizRenderChoice(s, body) {
+  var wrap = document.createElement('div');
+  wrap.style.cssText = 'max-width:500px;width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:20px;text-align:center';
+  var el = wizBorrow(s.sourceId);
+  if (el) {
+    el.style.width = '100%';
+    wrap.appendChild(el);
+  }
+  body.appendChild(wrap);
+}
+
+function _wizRenderLevels(s, body) {
+  body.style.padding = '0';
+  body.style.alignItems = 'stretch';
+
+  var layout = document.createElement('div');
+  layout.id = 'wiz-levels-layout';
+
+  var chartWrap = document.createElement('div');
+  chartWrap.id = 'wiz-levels-chart';
+  var chart = wizBorrow('tv-chart-wrap');
+  if (chart) { chart.style.height = '100%'; chartWrap.appendChild(chart); }
+  layout.appendChild(chartWrap);
+
+  var formWrap = document.createElement('div');
+  formWrap.id = 'wiz-levels-form';
+  var form = wizBorrow('lvl-form');
+  if (form) formWrap.appendChild(form);
+  var list = wizBorrow('level-list');
+  if (list) formWrap.appendChild(list);
+  layout.appendChild(formWrap);
+
+  body.appendChild(layout);
+}
+
+function _wizRenderReveal(body) {
+  var wrap = document.createElement('div');
+  wrap.className = 'wiz-reveal';
+  wrap.innerHTML =
+    '<div style="font-size:64px;margin-bottom:16px">🚀</div>' +
+    '<div style="font-family:var(--display);font-size:42px;color:var(--gold);letter-spacing:0.06em;margin-bottom:8px">YOUR COCKPIT IS READY</div>' +
+    '<div style="font-family:var(--mono);font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:32px">Analysis complete — time to execute your plan</div>' +
+    '<button onclick="wizDone();setTimeout(function(){var b=document.getElementById(\'live-exec-btn\');if(b){b.classList.add(\'wiz-pulse\');b.scrollIntoView({behavior:\'smooth\',block:\'center\'});setTimeout(function(){b.classList.remove(\'wiz-pulse\');},5000);}},500)" style="font-family:var(--display);font-size:18px;letter-spacing:0.1em;color:#0a0b0d;background:var(--gold);border:none;border-radius:12px;padding:18px 50px;cursor:pointer;transition:all 0.15s">→ ENTER LIVE EXECUTION</button>';
+  body.appendChild(wrap);
+
+  // Hide normal next button
+  var nextBtn = document.getElementById('wiz-next');
+  if (nextBtn) nextBtn.style.display = 'none';
+}
+
+function wizNext() {
+  var s = _wizSteps[_wizStep];
+  // Validate gates
+  if (s && s.doneCheck === 'gates') {
+    var allDone = document.querySelectorAll('#gate-items .gate-item:not(.done)').length === 0;
+    if (!allDone) return;
+  }
+  _wizStep++;
+  _wizSubStep = 0;
+  if (_wizStep >= _wizSteps.length) { wizDone(); return; }
+  wizShowStep();
+}
+
+function wizBack() {
+  if (_wizStep > 0) { _wizStep--; _wizSubStep = 0; wizShowStep(); }
+}
+
+function wizDone() {
+  wizReturnAll();
+  var ov = document.getElementById('wiz-overlay');
+  if (ov) ov.classList.remove('show');
+  localStorage.removeItem('td_walkthrough_pending');
+  localStorage.removeItem(_wizProgressKey());
+  // Restore chart height
+  var chartWrap = document.getElementById('tv-chart-wrap');
+  if (chartWrap) chartWrap.style.height = '';
+}
+
+function wizOpen() {
+  var saved = _wizLoadProgress();
+  _wizStep = (saved && saved.step > 0) ? saved.step : 0;
+  _wizSubStep = (saved) ? (saved.sub || 0) : 0;
+  var ov = document.getElementById('wiz-overlay');
+  if (ov) ov.classList.add('show');
+  wizShowStep();
+}
+window.wizOpen = wizOpen;
+window.wizDone = wizDone;
+window.wizNext = wizNext;
+window.wizBack = wizBack;
+</script>
+
 <script>
 // Auto-update: check for new deploy every 2 minutes, reload if changed
 (function(){
