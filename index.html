@@ -13563,21 +13563,23 @@ function initTVChart(forceInstrument) {
     hide_top_toolbar: false, hide_legend: true,
     allow_symbol_change: false, save_image: false,
     hide_side_toolbar: true,
+    hide_volume: true,
     studies: [
       // NOTE: the widget appears to silently cap how many auto-loaded studies
       // it will render (AO vanished once total count pushed past ~4-5).
       // Re-adding EMA 9 & 20 brings us back to 6 total — if AO or MACD
       // disappear again, trim this back to the 4-study set (MACD, AO,
-      // EMA50, SMA200) that's confirmed to work reliably.
+      // EMA50, EMA200) that's confirmed to work reliably.
       // Order matters: studies stack panes in the order they're added, so this
-      // fixes the on-screen order to Price → Volume → AO → MACD every time —
-      // the wizard's chart hint positions below rely on this being stable.
+      // fixes the on-screen order to Price → AO → MACD every time (Volume is
+      // hidden so EMA 9/20/50/200 render on the price pane instead) — the
+      // wizard's chart hint positions below rely on this being stable.
       'STD;Awesome_Oscillator',
       'STD;MACD',
       { id: 'MAExp@tv-basicstudies', inputs: { length: 9 } },
       { id: 'MAExp@tv-basicstudies', inputs: { length: 20 } },
       { id: 'MAExp@tv-basicstudies', inputs: { length: 50 } },
-      { id: 'MASimple@tv-basicstudies', inputs: { length: 200 } }
+      { id: 'MAExp@tv-basicstudies', inputs: { length: 200 } }
     ],
     support_host: 'https://www.tradingview.com'
   });
