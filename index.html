@@ -19377,6 +19377,10 @@ function wizReturn(id) {
 function wizReturnAll() {
   _wizBorrowed.slice().forEach(function(id){ wizReturn(id); });
   _wizBorrowed = [];
+  // Return hover card to body if it was moved into wizard
+  var hc = document.getElementById('kl-hover-card');
+  if (hc && hc.closest('#wiz-overlay')) document.body.appendChild(hc);
+  if (hc) hc.classList.remove('show');
 }
 
 function wizShowStep() {
@@ -20168,7 +20172,7 @@ function _wizBuildLevelPills() {
     var gb = isLong ? 'rgba(78,214,138,0.08)' : 'rgba(240,96,96,0.08)';
     var arr = isLong ? '▲' : '▼';
     var price = parseFloat(l.price).toFixed(0);
-    return '<div onmouseenter="_wizKlHover(' + idx + ',this)" onmouseleave="klhHide()" onclick="_wizKlClick(' + idx + ')" title="Click to load" style="display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:5px;border:1px solid ' + gbd + ';background:' + gb + ';cursor:pointer;transition:filter 0.12s;flex-shrink:0" onmouseover="this.style.filter=\'brightness(1.3)\'" onmouseout="this.style.filter=\'\'">' +
+    return '<div onmouseenter="_wizKlHover(' + idx + ',this)" onmouseleave="klhHide()" onclick="_wizKlClick(' + idx + ')" style="display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:5px;border:1px solid ' + gbd + ';background:' + gb + ';cursor:pointer;transition:filter 0.12s;flex-shrink:0" onmouseover="this.style.filter=\'brightness(1.3)\'" onmouseout="this.style.filter=\'\'">' +
       '<span style="font-family:var(--mono);font-size:7px;color:rgba(255,255,255,0.35)">@' + user + '</span>' +
       '<span style="font-family:var(--display);font-size:8px;color:' + gc + '">' + arr + '</span>' +
       '<span style="font-family:var(--mono);font-size:10px;font-weight:700;color:' + gc + '">' + price + '</span>' +
@@ -20253,6 +20257,13 @@ function _wizRenderLevels(s, body) {
   layout.appendChild(formWrap);
 
   body.appendChild(layout);
+
+  // Move hover card into wizard overlay so it renders on top
+  var hoverCard = document.getElementById('kl-hover-card');
+  var wizOverlay = document.getElementById('wiz-overlay');
+  if (hoverCard && wizOverlay) wizOverlay.appendChild(hoverCard);
+  // Ensure entries are synced
+  window._klAllEntries = window._wizKlEntries || [];
 }
 
 function _wizRenderReveal(body) {
