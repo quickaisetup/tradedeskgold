@@ -15962,7 +15962,7 @@ function splashRankUpdate(streak, rank, todayPnl, weekPnl, winRate, cleanDays, t
       var icon  = document.getElementById('src-event-icon');
       var title = document.getElementById('src-event-title');
       var sub   = document.getElementById('src-event-sub');
-      if (icon)  icon.textContent  = isUp ? '🏆' : '📉';
+      if (icon)  icon.textContent  = isUp ? '🏆' : '⬇';
       if (title) title.textContent = isUp ? 'RANKED UP — ' + rankName : 'RANKED DOWN — ' + rankName;
       if (sub)   sub.textContent   = isUp ? 'You leveled up. Screenshot this and share.' : 'Rebuild the streak. You\'ve done it before.';
     } else {
