@@ -13569,8 +13569,11 @@ function initTVChart(forceInstrument) {
       // Re-adding EMA 9 & 20 brings us back to 6 total — if AO or MACD
       // disappear again, trim this back to the 4-study set (MACD, AO,
       // EMA50, SMA200) that's confirmed to work reliably.
-      'STD;MACD',
+      // Order matters: studies stack panes in the order they're added, so this
+      // fixes the on-screen order to Price → Volume → AO → MACD every time —
+      // the wizard's chart hint positions below rely on this being stable.
       'STD;Awesome_Oscillator',
+      'STD;MACD',
       { id: 'MAExp@tv-basicstudies', inputs: { length: 9 } },
       { id: 'MAExp@tv-basicstudies', inputs: { length: 20 } },
       { id: 'MAExp@tv-basicstudies', inputs: { length: 50 } },
@@ -19538,21 +19541,21 @@ function _wizRenderSubQ(s, container) {
 
   var titles = { bias: 'What is the bias?', trend: 'What is the trend?', ao: 'Awesome Oscillator reading?', macd: 'MACD signal?' };
 
-  // On-chart hint, pinned to a fixed spot (top of chart) rather than a guessed
-  // row position — TradingView's study pane order isn't reliable (MACD/AO sometimes
-  // swap places between chart loads), so we describe what each indicator LOOKS like
-  // instead of claiming it's at a specific height.
+  // On-chart hint, pointing at the actual indicator row. The studies array now
+  // loads in a fixed order — Price → Volume → AO → MACD, every time (see
+  // _tdLoadChart's studies list) — so these positions are reliable.
   var hintEl = document.getElementById('wiz-chart-hint');
   if (hintEl) hintEl.remove();
   if (key === 'ao' || key === 'macd') {
     var chartArea = document.getElementById('wiz-tf-chart');
     if (chartArea) {
       var hintText = key === 'ao'
-        ? '👀 Find the panel below with a single row of green/red bars (no lines) — that\'s the AO'
-        : '👀 Find the panel below with two colored wavy lines crossing over small bars — that\'s the MACD';
+        ? '↓ Look at the AO panel below — a single row of green/red bars (no lines)'
+        : '↓ Look at the MACD panel below — two colored wavy lines crossing over small bars';
       var hint = document.createElement('div');
       hint.id = 'wiz-chart-hint';
-      hint.style.top = '8px';
+      // Below the chart's own toolbar (~44px), then roughly at the AO or MACD pane
+      hint.style.top = key === 'ao' ? 'calc(44px + 50%)' : 'calc(44px + 76%)';
       hint.innerHTML = '<div id="wiz-chart-hint-inner">' + hintText + '</div>';
       chartArea.style.position = 'relative';
       chartArea.appendChild(hint);
