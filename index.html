@@ -19394,29 +19394,33 @@ function _wizRenderSubQ(s, container) {
   var titles = { bias: 'What is the bias?', trend: 'What is the trend?', ao: 'Awesome Oscillator reading?', macd: 'MACD signal?' };
 
   // Show indicator hint on chart for AO/MACD
+  var hintEl = document.getElementById('wiz-chart-hint');
+  if (hintEl) hintEl.remove();
   if (key === 'ao' || key === 'macd') {
-    var hintEl = document.getElementById('wiz-chart-hint');
-    if (hintEl) hintEl.remove();
     var chartArea = document.getElementById('wiz-tf-chart');
     if (chartArea) {
+      var hintText = key === 'ao' ? '↓ Look at the AO histogram — green = bullish momentum' : '↓ Check MACD lines — crossovers signal direction changes';
       var hint = document.createElement('div');
       hint.id = 'wiz-chart-hint';
-      hint.textContent = '👇 Read the ' + key.toUpperCase() + ' indicator below';
-      hint.style.cssText = 'position:absolute;bottom:38%;left:50%;transform:translateX(-50%);background:rgba(240,188,78,0.95);color:#0a0b0d;font-family:var(--mono);font-size:11px;font-weight:700;padding:6px 16px;border-radius:6px;z-index:5;pointer-events:none;white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,0.4);animation:eodFadeIn 0.3s ease';
+      hint.innerHTML = hintText;
+      hint.style.cssText = 'position:absolute;bottom:' + (key === 'macd' ? '8%' : '30%') + ';left:50%;transform:translateX(-50%);background:rgba(240,188,78,0.95);color:#0a0b0d;font-family:var(--mono);font-size:11px;font-weight:700;padding:8px 18px;border-radius:8px;z-index:5;pointer-events:none;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,0.5);animation:eodFadeIn 0.3s ease';
       chartArea.style.position = 'relative';
       chartArea.appendChild(hint);
-      setTimeout(function(){ if (hint.parentNode) { hint.style.transition = 'opacity 0.4s'; hint.style.opacity = '0'; setTimeout(function(){ if(hint.parentNode) hint.remove(); }, 400); } }, 3500);
+      setTimeout(function(){ if (hint.parentNode) { hint.style.transition = 'opacity 0.5s'; hint.style.opacity = '0'; setTimeout(function(){ if(hint.parentNode) hint.remove(); }, 500); } }, 4000);
     }
   }
 
+  var canGoBack = _wizSubStep > 0;
   container.innerHTML =
+    '<div style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.2);margin-bottom:6px;letter-spacing:0.08em">' + (_wizSubStep + 1) + ' / ' + keys.length + '</div>' +
     '<div class="wiz-q-title">' + (titles[key] || key) + '</div>' +
     '<div class="wiz-q-btns">' +
       defs.items.map(function(it) {
         return '<button class="wiz-q-btn" onclick="_wizSubClick(\'' + s.tfKey + '\',\'' + key + '\',\'' + it.val + '\',this)">' + it.label + '</button>';
       }).join('') +
-      (defs.skippable ? '<button class="wiz-q-btn" onclick="_wizSubSkip()" style="border-style:dashed;color:rgba(255,255,255,0.25)">Skip</button>' : '') +
-    '</div>';
+      (defs.skippable ? '<button class="wiz-q-btn" onclick="_wizSubSkip()" style="border-style:dashed;color:rgba(255,255,255,0.2)">Skip</button>' : '') +
+    '</div>' +
+    (canGoBack ? '<button onclick="_wizSubBack()" style="margin-top:12px;font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.25);background:transparent;border:none;cursor:pointer;letter-spacing:0.06em">← previous question</button>' : '');
 }
 
 function _wizSubClick(tf, key, val, btn) {
@@ -19452,6 +19456,16 @@ function _wizSubSkip() {
   if (container && s) _wizRenderSubQ(s, container);
 }
 window._wizSubSkip = _wizSubSkip;
+
+function _wizSubBack() {
+  if (_wizSubStep > 0) {
+    _wizSubStep--;
+    var s = _wizSteps[_wizStep];
+    var container = document.getElementById('wiz-tf-question');
+    if (container && s) _wizRenderSubQ(s, container);
+  }
+}
+window._wizSubBack = _wizSubBack;
 
 function _wizRenderChoice(s, body) {
   var wrap = document.createElement('div');
