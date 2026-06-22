@@ -18621,9 +18621,11 @@ body.fw-active .wt-banner{display:none!important}
 /* Wizard section content */
 .wiz-section-wrap{padding:32px 28px;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;max-width:700px;margin:0 auto;width:100%}
 /* Wizard TF layout */
-#wiz-tf-layout{display:flex;flex-direction:column;align-items:center;flex:1;width:100%;min-height:0;padding:20px 28px}
-#wiz-tf-chart{width:60%;height:70vh;max-height:70vh;flex-shrink:0;overflow:hidden;border-radius:10px;border:1px solid rgba(255,255,255,0.08)}
-#wiz-tf-question{width:60%;padding:24px 0;text-align:center}
+#wiz-tf-layout{display:grid;grid-template-columns:1fr 320px;flex:1;width:100%;min-height:0}
+#wiz-tf-chart{overflow:hidden;min-height:0}
+#wiz-tf-sidebar{display:flex;flex-direction:column;border-left:1px solid rgba(255,255,255,0.06);overflow-y:auto}
+#wiz-tf-card-wrap{padding:16px;flex-shrink:0}
+#wiz-tf-question{padding:20px 16px;text-align:center;border-top:1px solid rgba(255,255,255,0.06);flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center}
 .wiz-q-title{font-family:var(--display);font-size:24px;color:#fff;margin-bottom:18px;letter-spacing:0.04em}
 .wiz-q-btns{display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
 .wiz-q-btn{font-family:var(--mono);font-size:13px;letter-spacing:0.04em;padding:12px 32px;border-radius:10px;border:1.5px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.03);color:rgba(255,255,255,0.55);cursor:pointer;transition:all 0.18s}
@@ -18648,9 +18650,9 @@ body.fw-active .wt-banner{display:none!important}
   #wiz-next{padding:12px 28px;font-size:14px}
   #wiz-levels-layout{grid-template-columns:1fr}
   #wiz-levels-form{border-left:none;border-top:1px solid rgba(255,255,255,0.06)}
-  #wiz-tf-layout{padding:12px 14px}
-  #wiz-tf-chart{width:100%;height:50vh;max-height:50vh}
-  #wiz-tf-question{width:100%}
+  #wiz-tf-layout{grid-template-columns:1fr!important}
+  #wiz-tf-chart{height:40vh;max-height:40vh}
+  #wiz-tf-sidebar{border-left:none!important;border-top:1px solid rgba(255,255,255,0.06)}
   #wiz-tf-question{padding:16px 14px}
   .wiz-choice-wrap{padding:32px 14px}
 }
@@ -19322,7 +19324,6 @@ function _wizRenderSection(s, body) {
 
 function _wizRenderTF(s, body) {
   body.style.padding = '0';
-  body.style.alignItems = 'stretch';
 
   var layout = document.createElement('div');
   layout.id = 'wiz-tf-layout';
@@ -19334,15 +19335,27 @@ function _wizRenderTF(s, body) {
   if (chart) { chart.style.height = '100%'; chartWrap.appendChild(chart); }
   layout.appendChild(chartWrap);
 
-  // Switch to correct TF
-  if (typeof setTVInterval === 'function') setTVInterval(s.tvTF);
+  // Sidebar: TF card + question
+  var sidebar = document.createElement('div');
+  sidebar.id = 'wiz-tf-sidebar';
 
-  // Question area
+  // Borrow the actual TF card
+  var cardWrap = document.createElement('div');
+  cardWrap.id = 'wiz-tf-card-wrap';
+  var tfCard = wizBorrow('tfc-' + s.tfKey);
+  if (tfCard) cardWrap.appendChild(tfCard);
+  sidebar.appendChild(cardWrap);
+
+  // Question area below card
   var qArea = document.createElement('div');
   qArea.id = 'wiz-tf-question';
-  layout.appendChild(qArea);
+  sidebar.appendChild(qArea);
 
+  layout.appendChild(sidebar);
   body.appendChild(layout);
+
+  // Switch to correct TF
+  if (typeof setTVInterval === 'function') setTVInterval(s.tvTF);
 
   // Hide footer next button — sub-steps auto-advance
   var nextBtn = document.getElementById('wiz-next');
