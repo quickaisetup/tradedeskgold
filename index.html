@@ -9500,11 +9500,12 @@ async function _fetchCooldownAIMsg(losses, notes) {
   }
 }
 
-function _showCooldownPopup(st) {
+function _showCooldownPopup(st, fromLiveExec) {
   var existing = document.getElementById('cooldown-overlay');
   if (existing) existing.remove();
   clearInterval(_cooldownTimer);
 
+  var _cdBlockingMode = !!fromLiveExec;
   var isFirm = st.losses >= 2;
   var accent = isFirm ? '#60a5fa' : '#38bdf8';
   var accentBg = isFirm ? 'rgba(96,165,250,0.06)' : 'rgba(56,189,248,0.06)';
@@ -9518,7 +9519,8 @@ function _showCooldownPopup(st) {
   ov.style.cssText = 'position:fixed;inset:0;z-index:200002;background:linear-gradient(180deg,#040812 0%,#060a14 50%,#040812 100%);display:flex;align-items:center;justify-content:center;padding:24px;animation:eodFadeIn 0.3s ease';
 
   ov.innerHTML =
-    '<div style="max-width:440px;width:100%;text-align:center">' +
+    '<div style="max-width:440px;width:100%;text-align:center;position:relative">' +
+    (!_cdBlockingMode ? '<button onclick="var o=document.getElementById(\'cooldown-overlay\');if(o)o.remove();clearInterval(_cooldownTimer)" style="position:absolute;top:-8px;right:-8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.4);font-size:14px;cursor:pointer;transition:all 0.15s;z-index:1" onmouseover="this.style.color=\'#fff\';this.style.borderColor=\'rgba(255,255,255,0.3)\'" onmouseout="this.style.color=\'rgba(255,255,255,0.4)\';this.style.borderColor=\'rgba(255,255,255,0.12)\'">✕</button>' : '') +
       // Rank warning
       (function() {
         var tiers = typeof getRankDefs === 'function' ? getRankDefs() : [];
@@ -9626,6 +9628,8 @@ function _cooldownBypass() {
   _clearCooldown();
   var ov = document.getElementById('cooldown-overlay');
   if (ov) ov.remove();
+  // If was blocking live exec, open it now
+  if (typeof openLiveExec === 'function') setTimeout(openLiveExec, 200);
 }
 window._cooldownBypass = _cooldownBypass;
 
@@ -11887,6 +11891,12 @@ function leoUpdateCountdowns() {
 
 // ── OPEN / CLOSE ──────────────────────────────────────
 function openLiveExec() {
+  // Block if cooldown is active — force reflection
+  var cdState = typeof _getCooldownState === 'function' ? _getCooldownState() : null;
+  if (cdState && cdState.expiresAt && cdState.expiresAt > Date.now()) {
+    _showCooldownPopup(cdState, true);
+    return;
+  }
   var overlay = document.getElementById('live-exec-overlay');
   if (!overlay) return;
   overlay.classList.add('show');
