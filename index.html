@@ -18655,6 +18655,7 @@ body.fw-active .wt-banner{display:none!important}
 #wiz-skip:hover{color:rgba(255,255,255,0.35)}
 /* Wizard section content */
 .wiz-section-wrap{padding:32px 28px;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;max-width:700px;margin:0 auto;width:100%}
+.wiz-section-wrap.wiz-wide{max-width:1000px}
 /* Wizard TF layout */
 #wiz-tf-layout{display:grid;grid-template-columns:1fr 340px;flex:1;width:100%;min-height:0}
 #wiz-tf-chart{overflow:hidden;min-height:0}
@@ -19296,8 +19297,9 @@ var _wizSteps = [
   { key:'direction', label:'Today\'s Direction',   type:'choice', sourceId:'direction-row' },
   { key:'pivot',     label:'Daily Pivot Point',    type:'choice', sourceId:'pivot-row'     },
   { key:'london',    label:'London Open',          type:'choice', sourceId:'london-row'    },
-  { key:'overview',  label:'Analysis Overview',    type:'section', sourceId:'edge-panel'    },
+  { key:'overview',  label:'Trading Mode',         type:'section', sourceId:'_none'         },
   { key:'levels',    label:'Key Levels',           type:'levels' },
+  { key:'analysis',  label:'AI Analysis',          type:'section', sourceId:'_analysis'     },
   { key:'briefing',  label:'AI Morning Briefing',  type:'section', sourceId:'ai-briefing-section', onShow:'loadBriefing' },
   { key:'reveal',    label:'Let\'s Go!',           type:'reveal' }
 ];
@@ -19380,7 +19382,7 @@ function wizShowStep() {
 
 function _wizRenderSection(s, body) {
   var wrap = document.createElement('div');
-  wrap.className = 'wiz-section-wrap';
+  wrap.className = 'wiz-section-wrap' + (s.key === 'briefing' || s.key === 'analysis' ? ' wiz-wide' : '');
 
   // Morning routine gets special treatment
   if (s.doneCheck === 'gates') {
@@ -19404,67 +19406,15 @@ function _wizRenderSection(s, body) {
     wrap.appendChild(newsHeader);
   }
 
-  // AI Briefing gets score recap + trading mode recommendation + briefing cards
+  // AI Briefing — just header + cards (score/mode already chosen in overview step)
   if (s.key === 'briefing') {
-    var bScoreEl = document.getElementById('score-num');
-    var bVtEl = document.getElementById('vt-main');
-    var bScore = parseFloat(bScoreEl ? bScoreEl.textContent : '0') || 0;
-    var bVerdict = bVtEl ? bVtEl.textContent : '—';
-    var bClr = bScore > 0 ? '#4ed68a' : bScore < 0 ? '#f06060' : '#f0bc4e';
-
-    // Recommend trading modes based on score
-    var recModes = [];
-    var recText = '';
-    if (bScore >= 4) {
-      recModes = ['Buy on dips', 'Buy breakouts'];
-      recText = 'Score is strongly bullish — look for long entries only.';
-    } else if (bScore >= 2) {
-      recModes = ['Buy on dips'];
-      recText = 'Lean bullish — buy dips at key levels, skip shorts.';
-    } else if (bScore <= -4) {
-      recModes = ['Short on bounces', 'Short breakdowns'];
-      recText = 'Score is strongly bearish — look for short entries only.';
-    } else if (bScore <= -2) {
-      recModes = ['Short on bounces'];
-      recText = 'Lean bearish — short bounces at key levels, skip longs.';
-    } else {
-      recModes = ['Wait — no clear setup', 'Range play'];
-      recText = 'Score is neutral — wait for clarity or play the range.';
-    }
-
     var briefHeader = document.createElement('div');
-    briefHeader.style.cssText = 'text-align:center;margin-bottom:0;width:100%';
+    briefHeader.style.cssText = 'text-align:center;margin-bottom:20px;width:100%';
     briefHeader.innerHTML =
       '<div style="font-size:36px;margin-bottom:8px">🤖</div>' +
       '<div style="font-family:var(--display);font-size:28px;color:#fff;letter-spacing:0.04em;margin-bottom:6px">Your AI Briefing</div>' +
       '<div style="font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.4);line-height:1.6;max-width:440px;margin:0 auto">Based on everything you just answered, the AI writes you<br>a short summary of what today might look like. Just read it.</div>';
     wrap.appendChild(briefHeader);
-
-    // Score block
-    var bScoreWrap = document.createElement('div');
-    bScoreWrap.style.cssText = 'width:100%;max-width:380px;margin:20px auto 0;padding:18px 20px;border:1px solid rgba(255,255,255,0.08);border-radius:12px;background:rgba(255,255,255,0.02)';
-    bScoreWrap.innerHTML = _wizScoreBlockHTML(bScoreEl ? bScoreEl.textContent : '0', bVerdict);
-    wrap.appendChild(bScoreWrap);
-
-    // Trading mode recommendation
-    var tmWrap = document.createElement('div');
-    tmWrap.style.cssText = 'width:100%;max-width:480px;margin:16px auto 20px;padding:16px 20px;border:1px solid rgba(255,255,255,0.08);border-radius:12px;background:rgba(255,255,255,0.02)';
-    var tmTitle = '<div style="font-family:var(--mono);font-size:9px;letter-spacing:0.14em;color:rgba(255,255,255,0.3);text-transform:uppercase;text-align:center;margin-bottom:10px">Recommended Trading Mode</div>';
-    var tmHint = '<div style="font-family:var(--mono);font-size:10px;color:' + bClr + ';text-align:center;margin-bottom:12px;line-height:1.5">' + recText + '</div>';
-    var allModes = ['Buy on dips','Short on bounces','Buy breakouts','Short breakdowns','Range play','Wait — no clear setup'];
-    var tmBtns = '<div style="display:flex;flex-wrap:wrap;justify-content:center;gap:8px">';
-    allModes.forEach(function(m) {
-      var isRec = recModes.indexOf(m) > -1;
-      var mClr = m.indexOf('Buy') > -1 ? '#4ed68a' : m.indexOf('Short') > -1 ? '#f06060' : '#f0bc4e';
-      var border = isRec ? mClr : 'rgba(255,255,255,0.08)';
-      var bg = isRec ? (mClr + '18') : 'transparent';
-      var color = isRec ? mClr : 'rgba(255,255,255,0.3)';
-      var badge = isRec ? '<span style="font-size:7px;background:' + mClr + '22;border:1px solid ' + mClr + '44;color:' + mClr + ';padding:1px 5px;border-radius:3px;margin-left:6px;letter-spacing:0.08em;vertical-align:1px">REC</span>' : '';
-      tmBtns += '<button class="tgl tm-mode-btn" onclick="setTradingMode(this,\'' + m.replace(/'/g, "\\'") + '\')" style="font-family:var(--mono);font-size:10px;padding:8px 14px;border-radius:8px;border:1px solid ' + border + ';background:' + bg + ';color:' + color + ';cursor:pointer;transition:all 0.15s">' + m + badge + '</button>';
-    });
-    tmBtns += '</div>';
-    tmWrap.innerHTML = tmTitle + tmHint + tmBtns;
-    wrap.appendChild(tmWrap);
   }
 
   // Analysis Overview — score + trading mode selection
@@ -19497,9 +19447,9 @@ function _wizRenderSection(s, body) {
     var ovHeader = document.createElement('div');
     ovHeader.style.cssText = 'text-align:center;margin-bottom:0;width:100%';
     ovHeader.innerHTML =
-      '<div style="font-size:36px;margin-bottom:8px">🧠</div>' +
-      '<div style="font-family:var(--display);font-size:28px;color:#fff;letter-spacing:0.04em;margin-bottom:6px">Your Analysis Overview</div>' +
-      '<div style="font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.4);line-height:1.6;max-width:480px;margin:0 auto">Here\'s where your answers landed.<br>Choose your trading mode for this session, then mark your key levels.</div>';
+      '<div style="font-size:36px;margin-bottom:8px">🎯</div>' +
+      '<div style="font-family:var(--display);font-size:28px;color:#fff;letter-spacing:0.04em;margin-bottom:6px">Choose Your Trading Style</div>' +
+      '<div style="font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.4);line-height:1.6;max-width:480px;margin:0 auto">Based on your score, pick how you\'ll trade this session.<br>Select one or more styles — recommended ones are highlighted.</div>';
     wrap.appendChild(ovHeader);
 
     var ovScoreWrap = document.createElement('div');
@@ -19508,12 +19458,19 @@ function _wizRenderSection(s, body) {
     wrap.appendChild(ovScoreWrap);
 
     var ovTmWrap = document.createElement('div');
-    ovTmWrap.style.cssText = 'width:100%;max-width:480px;margin:16px auto 0;padding:16px 20px;border:1px solid rgba(255,255,255,0.08);border-radius:12px;background:rgba(255,255,255,0.02)';
-    var ovTmTitle = '<div style="font-family:var(--mono);font-size:9px;letter-spacing:0.14em;color:rgba(255,255,255,0.3);text-transform:uppercase;text-align:center;margin-bottom:10px">Choose Trading Mode</div>';
-    var ovTmHint = '<div style="font-family:var(--mono);font-size:10px;color:' + ovClr + ';text-align:center;margin-bottom:12px;line-height:1.5">' + ovRecText + '</div>';
-    var ovAllModes = ['Buy on dips','Short on bounces','Buy breakouts','Short breakdowns','Range play','Wait — no clear setup'];
-    var ovTmBtns = '<div style="display:flex;flex-wrap:wrap;justify-content:center;gap:8px">';
-    ovAllModes.forEach(function(m) {
+    ovTmWrap.style.cssText = 'width:100%;max-width:520px;margin:16px auto 0;padding:20px 24px;border:1px solid rgba(255,255,255,0.08);border-radius:12px;background:rgba(255,255,255,0.02)';
+    var ovTmTitle = '<div style="font-family:var(--mono);font-size:9px;letter-spacing:0.14em;color:rgba(255,255,255,0.3);text-transform:uppercase;text-align:center;margin-bottom:10px">Select Trading Style</div>';
+    var ovTmHint = '<div style="font-family:var(--mono);font-size:10px;color:' + ovClr + ';text-align:center;margin-bottom:14px;line-height:1.5">' + ovRecText + '</div>';
+
+    // Get existing custom modes from the dashboard
+    var existingModes = [];
+    document.querySelectorAll('#trading-mode-btns .tgl').forEach(function(b) { existingModes.push(b.textContent.trim()); });
+    var defaultModes = ['Buy on dips','Short on bounces','Buy breakouts','Short breakdowns','Range play','Wait — no clear setup'];
+    var allModes = defaultModes.slice();
+    existingModes.forEach(function(m) { if (allModes.indexOf(m) === -1) allModes.push(m); });
+
+    var ovTmBtns = '<div id="wiz-tm-btns" style="display:flex;flex-wrap:wrap;justify-content:center;gap:8px">';
+    allModes.forEach(function(m) {
       var isRec = ovRecModes.indexOf(m) > -1;
       var mClr = m.indexOf('Buy') > -1 ? '#4ed68a' : m.indexOf('Short') > -1 ? '#f06060' : '#f0bc4e';
       var border = isRec ? mClr : 'rgba(255,255,255,0.08)';
@@ -19523,8 +19480,38 @@ function _wizRenderSection(s, body) {
       ovTmBtns += '<button class="tgl tm-mode-btn" onclick="setTradingMode(this,\'' + m.replace(/'/g, "\\'") + '\')" style="font-family:var(--mono);font-size:10px;padding:8px 14px;border-radius:8px;border:1px solid ' + border + ';background:' + bg + ';color:' + color + ';cursor:pointer;transition:all 0.15s">' + m + badge + '</button>';
     });
     ovTmBtns += '</div>';
-    ovTmWrap.innerHTML = ovTmTitle + ovTmHint + ovTmBtns;
+    var ovAddRow = '<div style="display:flex;justify-content:center;margin-top:12px">' +
+      '<div style="display:flex;align-items:center;gap:6px">' +
+      '<input id="wiz-add-mode" type="text" placeholder="+ Add custom style" ' +
+      'style="font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.6);background:rgba(255,255,255,0.03);border:1px dashed rgba(255,255,255,0.12);border-radius:8px;padding:8px 14px;width:180px;outline:none;transition:border-color 0.15s" ' +
+      'onfocus="this.style.borderColor=\'rgba(240,188,78,0.4)\'" onblur="this.style.borderColor=\'rgba(255,255,255,0.12)\'" ' +
+      'onkeydown="if(event.key===\'Enter\'&&this.value.trim()){_wizAddCustomMode(this.value.trim());this.value=\'\';}">' +
+      '<button onclick="var inp=document.getElementById(\'wiz-add-mode\');if(inp&&inp.value.trim()){_wizAddCustomMode(inp.value.trim());inp.value=\'\';}" ' +
+      'style="font-family:var(--mono);font-size:9px;color:rgba(240,188,78,0.6);background:transparent;border:1px solid rgba(240,188,78,0.25);border-radius:6px;padding:7px 12px;cursor:pointer;transition:all 0.15s" ' +
+      'onmouseover="this.style.borderColor=\'rgba(240,188,78,0.5)\';this.style.color=\'var(--gold)\'" ' +
+      'onmouseout="this.style.borderColor=\'rgba(240,188,78,0.25)\';this.style.color=\'rgba(240,188,78,0.6)\'">Add</button>' +
+      '</div></div>';
+    ovTmWrap.innerHTML = ovTmTitle + ovTmHint + ovTmBtns + ovAddRow;
     wrap.appendChild(ovTmWrap);
+  } else if (s.key === 'analysis') {
+    // AI Analysis step — edge panel + community bias
+    var anHeader = document.createElement('div');
+    anHeader.style.cssText = 'text-align:center;margin-bottom:0;width:100%';
+    var anScoreEl = document.getElementById('score-num');
+    var anVtEl = document.getElementById('vt-main');
+    var anScore = parseFloat(anScoreEl ? anScoreEl.textContent : '0') || 0;
+    var anClr = anScore > 0 ? '#4ed68a' : anScore < 0 ? '#f06060' : '#f0bc4e';
+    anHeader.innerHTML =
+      '<div style="font-size:36px;margin-bottom:8px">✨</div>' +
+      '<div style="font-family:var(--display);font-size:28px;color:#fff;letter-spacing:0.04em;margin-bottom:6px">AI Analysis</div>' +
+      '<div style="font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.4);line-height:1.6;max-width:480px;margin:0 auto">Get AI coaching based on your score of <span style="color:' + anClr + ';font-weight:700">' + anScore + '</span> (' + (anVtEl ? anVtEl.textContent : '—') + ').<br>Optionally see what other traders in the room are seeing.</div>';
+    wrap.appendChild(anHeader);
+
+    var edgeEl = wizBorrow('edge-panel');
+    if (edgeEl) { edgeEl.style.width = '100%'; edgeEl.style.maxWidth = '900px'; edgeEl.style.borderRadius = '10px'; edgeEl.style.overflow = 'hidden'; edgeEl.style.marginTop = '20px'; wrap.appendChild(edgeEl); }
+
+    var cbEl = wizBorrow('community-bias-panel');
+    if (cbEl) { cbEl.style.width = '100%'; cbEl.style.maxWidth = '900px'; cbEl.style.marginTop = '14px'; cbEl.style.borderRadius = '10px'; cbEl.style.overflow = 'hidden'; wrap.appendChild(cbEl); }
   } else if (s.sourceId === '_econ_card') {
     // Special: borrow the forex factory card (parent of #econ-body)
     var econBody = document.getElementById('econ-body');
@@ -19575,6 +19562,20 @@ function _wizRenderSection(s, body) {
       }, 100);
     });
   }
+}
+
+function _wizAddCustomMode(name) {
+  if (!name) return;
+  var container = document.getElementById('wiz-tm-btns');
+  if (!container) return;
+  var btn = document.createElement('button');
+  btn.className = 'tgl tm-mode-btn';
+  btn.textContent = name;
+  btn.setAttribute('onclick', "setTradingMode(this,'" + name.replace(/'/g, "\\'") + "')");
+  btn.style.cssText = 'font-family:var(--mono);font-size:10px;padding:8px 14px;border-radius:8px;border:1px solid rgba(240,188,78,0.3);background:rgba(240,188,78,0.08);color:rgba(240,188,78,0.7);cursor:pointer;transition:all 0.15s';
+  container.appendChild(btn);
+  // Also add to the dashboard's trading mode buttons
+  if (typeof tmAddMode === 'function') tmAddMode(name);
 }
 
 // Score gauge runs roughly -10 (strong sell) to +10 (strong buy) — matches the
