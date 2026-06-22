@@ -19467,14 +19467,12 @@ function _wizRenderTF(s, body) {
   var chart = wizBorrow('tv-chart-wrap');
   if (chart) { chart.style.height = '100%'; chartWrap.appendChild(chart); }
 
-  // Faded symbol/timeframe watermark, styled like TradingView's own — the lightweight
-  // embed widget used here doesn't expose a native watermark toggle (that's a
-  // charting_library-only feature), so we recreate the look: large, pale grey,
-  // lower-left, "SYMBOL · INTERVAL".
+  // Faded timeframe watermark — matches TradingView's own native style: one huge
+  // pale numeral, dead center over the price panel (the lightweight embed widget
+  // used here doesn't expose a native watermark toggle, so we recreate the look).
   var tfWm = document.createElement('div');
-  tfWm.style.cssText = 'position:absolute;left:14px;bottom:18px;z-index:4;font-family:-apple-system,Helvetica,Arial,sans-serif;font-size:clamp(20px,2.6vw,34px);font-weight:600;line-height:1.15;letter-spacing:0.01em;color:rgba(255,255,255,0.16);pointer-events:none;user-select:none;white-space:nowrap';
-  var _wmSymbol = (typeof _tdChartTitleFor === 'function' ? _tdChartTitleFor(typeof _tdActiveInstrument !== 'undefined' ? _tdActiveInstrument : 'Gold') : 'XAUUSD').split('·')[0].trim();
-  tfWm.textContent = _wmSymbol + ' · ' + s.tfKey;
+  tfWm.style.cssText = 'position:absolute;left:50%;top:38%;transform:translate(-50%,-50%);z-index:1;font-family:-apple-system,Helvetica,Arial,sans-serif;font-size:clamp(120px,18vw,260px);font-weight:600;line-height:1;color:rgba(255,255,255,0.08);pointer-events:none;user-select:none;white-space:nowrap';
+  tfWm.textContent = s.tfKey;
   chartWrap.appendChild(tfWm);
 
   layout.appendChild(chartWrap);
