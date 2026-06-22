@@ -18673,9 +18673,9 @@ body.fw-active .wt-banner{display:none!important}
 .wiz-q-btn.wiz-q-neu{border-color:rgba(240,188,78,0.22);color:rgba(240,188,78,0.6)}
 .wiz-q-btn.wiz-q-neu.wiz-sel{border-color:var(--gold);color:var(--gold);background:rgba(240,188,78,0.14);box-shadow:0 0 12px rgba(240,188,78,0.2)}
 /* Speech-bubble style temporary tip */
-.wiz-bubble-tip{position:absolute;left:0;bottom:calc(100% + 14px);background:linear-gradient(160deg,#1a1710,#100f0c);border:1px solid rgba(240,188,78,0.3);border-radius:10px;padding:12px 16px;width:280px;font-family:var(--mono);font-size:10px;color:rgba(240,188,78,0.85);line-height:1.6;box-shadow:0 12px 32px rgba(0,0,0,0.5);z-index:5;animation:eodFadeIn 0.25s ease}
-.wiz-bubble-tip:after{content:'';position:absolute;left:22px;top:100%;border:7px solid transparent;border-top-color:rgba(240,188,78,0.3)}
-.wiz-bubble-tip:before{content:'';position:absolute;left:23px;top:100%;border:6px solid transparent;border-top-color:#100f0c}
+.wiz-bubble-tip{position:absolute;left:50%;transform:translateX(-50%);top:calc(100% + 14px);background:linear-gradient(160deg,#1a1710,#100f0c);border:1px solid rgba(240,188,78,0.3);border-radius:10px;padding:12px 16px;width:280px;font-family:var(--mono);font-size:10px;color:rgba(240,188,78,0.85);line-height:1.6;text-align:center;box-shadow:0 12px 32px rgba(0,0,0,0.5);z-index:5;animation:eodFadeIn 0.25s ease}
+.wiz-bubble-tip:after{content:'';position:absolute;left:50%;margin-left:-7px;bottom:100%;border:7px solid transparent;border-bottom-color:rgba(240,188,78,0.3)}
+.wiz-bubble-tip:before{content:'';position:absolute;left:50%;margin-left:-6px;bottom:100%;border:6px solid transparent;border-bottom-color:#100f0c}
 /* Wizard levels layout */
 #wiz-levels-layout{display:grid;grid-template-columns:1fr 1fr;gap:0;width:100%;min-height:0;flex:1}
 #wiz-levels-chart{min-height:300px;overflow:hidden}
@@ -19575,15 +19575,17 @@ function _wizRenderSubQ(s, container) {
 }
 
 function _wizGetCurrentVal(tf, key) {
+  // NOTE: tfState is declared with const in the main script, so it never appears on
+  // window — check the bare identifier directly, not window.tfState (always undefined).
   if (key === 'bias') {
-    var b = (window.tfState && tfState[tf] && tfState[tf].bias) || [];
+    var b = (typeof tfState !== 'undefined' && tfState[tf] && tfState[tf].bias) || [];
     if (b.indexOf('bull') > -1) return 'bull';
     if (b.indexOf('bear') > -1) return 'bear';
     if (b.indexOf('neutral') > -1) return 'neutral';
     return null;
   }
   if (key === 'trend') {
-    var t = (window.tfState && tfState[tf] && tfState[tf].trend) || [];
+    var t = (typeof tfState !== 'undefined' && tfState[tf] && tfState[tf].trend) || [];
     if (t.indexOf('up') > -1) return 'up';
     if (t.indexOf('down') > -1) return 'down';
     if (t.indexOf('ranging') > -1) return 'ranging';
@@ -19612,12 +19614,12 @@ function _wizSubClick(tf, key, val, btn) {
   if (key === 'bias') {
     var biasGrp = document.getElementById('bias-' + tf);
     if (biasGrp) biasGrp.querySelectorAll('.bb').forEach(function(b){ b.classList.remove('sel','sel-bull','sel-bear','sel-range'); b.style.color=''; b.style.borderColor=''; b.style.background=''; });
-    if (window.tfState && tfState[tf]) tfState[tf].bias = [];
+    if (typeof tfState !== 'undefined' && tfState[tf]) tfState[tf].bias = [];
   }
   if (key === 'trend') {
     var trendGrp = document.getElementById('trend-' + tf);
     if (trendGrp) trendGrp.querySelectorAll('.bb').forEach(function(b){ b.classList.remove('sel','sel-bull','sel-bear','sel-range'); });
-    if (window.tfState && tfState[tf]) tfState[tf].trend = [];
+    if (typeof tfState !== 'undefined' && tfState[tf]) tfState[tf].trend = [];
   }
   if (key === 'ao' || key === 'macd') {
     var indRow = key === 'ao'
