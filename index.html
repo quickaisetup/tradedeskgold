@@ -13585,9 +13585,8 @@ function initTVChart(forceInstrument) {
     gridColor: document.body.classList.contains('light-mode') ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.04)',
     hide_top_toolbar: false, hide_legend: true,
     allow_symbol_change: false, save_image: false,
-    hide_side_toolbar: false,
+    hide_side_toolbar: true,
     hide_volume: true,
-    drawings_access: { type: 'all' },
     studies: [
       // NOTE: the widget appears to silently cap how many auto-loaded studies
       // it will render (AO vanished once total count pushed past ~4-5).
