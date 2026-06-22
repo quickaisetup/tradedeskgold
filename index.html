@@ -19403,8 +19403,8 @@ function _wizRenderSubQ(s, container) {
     var chartArea = document.getElementById('wiz-tf-chart');
     if (chartArea) {
       var hintText = key === 'ao' ? '↓ READ THE AO HISTOGRAM BELOW — green bars = bullish momentum building' : '↓ READ THE MACD BELOW — line crossovers signal direction changes';
-      // AO is typically at ~55% from top, MACD at ~75% from top
-      var pos = key === 'ao' ? '50%' : '68%';
+      // AO is the middle indicator panel, MACD is the bottom one
+      var pos = key === 'ao' ? '52%' : '82%';
       var hint = document.createElement('div');
       hint.id = 'wiz-chart-hint';
       hint.style.top = pos;
