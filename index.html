@@ -6569,10 +6569,10 @@ function renderGateItems() {
 
 function _escHtml(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-function addGateItem() {
-  var label = prompt('Item label:');
+async function addGateItem() {
+  var label = await tdPrompt('Item label', '', 'e.g. Check broker margin requirements');
   if (!label || !label.trim()) return;
-  var url = prompt('Link URL (optional — leave blank to skip):') || '';
+  var url = await tdPrompt('Link URL', '', 'Optional — leave blank to skip') || '';
   var defs = _getGateDefs();
   var id = 'custom_' + Date.now();
   defs.push({id:id, label:label.trim(), url:url.trim()});
@@ -6580,13 +6580,13 @@ function addGateItem() {
   renderGateItems();
 }
 
-function editGateItem(id) {
+async function editGateItem(id) {
   var defs = _getGateDefs();
   var def = defs.find(function(g){ return g.id === id; });
   if (!def) return;
-  var label = prompt('Item label:', def.label);
+  var label = await tdPrompt('Item label', def.label);
   if (label === null) return;
-  var url = prompt('Link URL (leave blank to remove):', def.url || '');
+  var url = await tdPrompt('Link URL', def.url || '', 'Leave blank to remove');
   if (url === null) return;
   def.label = label.trim() || def.label;
   def.url = url.trim();
@@ -6874,8 +6874,8 @@ function renderAnalysisInstrumentTabs() {
   });
 }
 
-function addAnalysisInstrument() {
-  var raw = prompt('Enter another instrument/ticker to run top-down analysis on\n(e.g. BTCUSD, EURUSD, US30, NAS100):', '');
+async function addAnalysisInstrument() {
+  var raw = await tdPrompt('Add Instrument', '', 'e.g. BTCUSD, EURUSD, US30, NAS100');
   if (!raw) return;
   raw = raw.trim().toUpperCase();
   if (!raw || raw === 'GOLD') return;
@@ -8421,8 +8421,8 @@ function buildTickerButtons(id) {
   return html;
 }
 
-function addCustomTicker(id) {
-  var raw = prompt('Enter the instrument/ticker you want to log trades for\n(e.g. EURUSD, US30, BTCUSD, NAS100):', '');
+async function addCustomTicker(id) {
+  var raw = await tdPrompt('Add Trade Instrument', '', 'e.g. EURUSD, US30, BTCUSD, NAS100');
   if (!raw) return;
   raw = raw.trim().toUpperCase();
   if (!raw) return;
@@ -9329,6 +9329,35 @@ async function reSaveAll() {
 var BASE_RISK_PCT = parseFloat(localStorage.getItem('td_risk_pct')) || 0.5;
 var TD_MAX_TRADES = parseInt(localStorage.getItem('td_max_trades')) || 2;
 var TD_DAILY_STOP = parseFloat(localStorage.getItem('td_daily_stop')) || 1.5;
+
+// ── CUSTOM PROMPT MODAL (replaces browser prompt()) ──
+function tdPrompt(label, defaultVal, hint) {
+  return new Promise(function(resolve) {
+    var existing = document.getElementById('td-prompt-modal');
+    if (existing) existing.remove();
+    var ov = document.createElement('div');
+    ov.id = 'td-prompt-modal';
+    ov.style.cssText = 'position:fixed;inset:0;z-index:200010;background:rgba(4,5,7,0.92);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:24px;animation:eodFadeIn 0.2s ease';
+    ov.onclick = function(e){ if(e.target===ov){ ov.remove(); resolve(null); } };
+    ov.innerHTML =
+      '<div style="background:linear-gradient(160deg,#14130d,#0c0d10);border:1px solid rgba(240,188,78,0.3);border-radius:14px;padding:28px 26px;width:380px;max-width:90vw;box-shadow:0 24px 80px rgba(0,0,0,0.7)">' +
+        '<div style="font-family:var(--display);font-size:18px;color:#fff;margin-bottom:4px">' + label + '</div>' +
+        (hint ? '<div style="font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.35);margin-bottom:16px">' + hint + '</div>' : '<div style="margin-bottom:16px"></div>') +
+        '<input id="td-prompt-input" type="text" value="' + (defaultVal || '').replace(/"/g,'&quot;') + '" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.06);border:1.5px solid rgba(240,188,78,0.35);border-radius:8px;padding:14px 16px;font-family:var(--mono);font-size:14px;color:#fff;outline:none" />' +
+        '<div style="display:flex;gap:10px;margin-top:16px">' +
+          '<button id="td-prompt-cancel" style="flex:1;font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.4);background:transparent;border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:12px 0;cursor:pointer">Cancel</button>' +
+          '<button id="td-prompt-ok" style="flex:1;font-family:var(--display);font-size:14px;color:#0a0b0d;background:#f0bc4e;border:none;border-radius:8px;padding:12px 0;cursor:pointer;font-weight:700">OK</button>' +
+        '</div>' +
+      '</div>';
+    document.body.appendChild(ov);
+    var inp = document.getElementById('td-prompt-input');
+    setTimeout(function(){ if(inp){ inp.focus(); inp.select(); } }, 100);
+    inp.onkeydown = function(e){ if(e.key==='Enter'){ ov.remove(); resolve(inp.value); } if(e.key==='Escape'){ ov.remove(); resolve(null); } };
+    document.getElementById('td-prompt-cancel').onclick = function(){ ov.remove(); resolve(null); };
+    document.getElementById('td-prompt-ok').onclick = function(){ ov.remove(); resolve(inp.value); };
+  });
+}
+window.tdPrompt = tdPrompt;
 
 function _showHardStopPopup() {
   var existing = document.getElementById('hard-stop-overlay');
@@ -11765,8 +11794,8 @@ function leoRenderCustomTabs() {
   });
 }
 
-function leoAddCustomTab() {
-  var raw = prompt('Enter the TradingView ticker symbol to chart\n(e.g. OANDA:EURUSD, NASDAQ:AAPL, BINANCE:BTCUSDT):', '');
+async function leoAddCustomTab() {
+  var raw = await tdPrompt('Add Chart Ticker', '', 'e.g. OANDA:EURUSD, NASDAQ:AAPL, BINANCE:BTCUSDT');
   if (!raw) return;
   raw = raw.trim().toUpperCase();
   if (!raw) return;
