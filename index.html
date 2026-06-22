@@ -6570,9 +6570,9 @@ function renderGateItems() {
 function _escHtml(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
 async function addGateItem() {
-  var label = await tdPrompt('Item label', '', 'e.g. Check broker margin requirements');
+  var label = await tdPrompt('Add your own morning routine', '', 'Write one thing you want to check every day before you start trading. Example: Check my account balance');
   if (!label || !label.trim()) return;
-  var url = await tdPrompt('Link URL', '', 'Optional — leave blank to skip') || '';
+  var url = await tdPrompt('Add a link (optional)', '', 'Want a website to open and check for this? Paste the link below — or leave empty and press OK') || '';
   var defs = _getGateDefs();
   var id = 'custom_' + Date.now();
   defs.push({id:id, label:label.trim(), url:url.trim()});
@@ -15661,40 +15661,40 @@ function _wtClearProgress() {
 // ── TF sub-step definitions ────────────────────────────
 var _wtSubDefs = {
   bias: {
-    q: 'How does the chart look?',
+    q: 'Look at the candles on the chart.',
     items: [
-      {val:'bull',    label:'Bullish',  cls:'bull'},
-      {val:'bear',    label:'Bearish',  cls:'bear'},
-      {val:'neutral', label:'Neutral',  cls:'neu'},
+      {val:'bull',    label:'Going Up',      cls:'bull'},
+      {val:'bear',    label:'Going Down',    cls:'bear'},
+      {val:'neutral', label:'Flat / Unclear', cls:'neu'},
     ],
     skippable: false,
   },
   trend: {
-    q: 'What is the trend?',
+    q: 'Now look at the bigger picture, not just the last few candles.',
     items: [
-      {val:'up',      label:'Uptrend',    cls:'bull'},
-      {val:'down',    label:'Downtrend',  cls:'bear'},
-      {val:'ranging', label:'Ranging',    cls:'neu'},
+      {val:'up',      label:'Mostly Climbing',   cls:'bull'},
+      {val:'down',    label:'Mostly Falling',    cls:'bear'},
+      {val:'ranging', label:'Moving Sideways',   cls:'neu'},
     ],
     skippable: false,
   },
   ao: {
-    q: 'Anything on the Awesome Oscillator?',
+    q: 'Look at the green and red bars in the middle panel — that\'s the AO.',
     items: [
-      {val:'bull',     label:'↑ Just went above zero', cls:'bull'},
-      {val:'bear',     label:'↓ Just went below zero', cls:'bear'},
-      {val:'bull-div', label:'Bullish divergence ▲',   cls:'bull'},
-      {val:'bear-div', label:'Bearish divergence ▼',   cls:'bear'},
+      {val:'bull',     label:'Bars just turned green (above the middle line)', cls:'bull'},
+      {val:'bear',     label:'Bars just turned red (below the middle line)',  cls:'bear'},
+      {val:'bull-div', label:'Bars are rising while price keeps falling',     cls:'bull'},
+      {val:'bear-div', label:'Bars are falling while price keeps rising',     cls:'bear'},
     ],
     skippable: true,
   },
   macd: {
-    q: 'Anything on the MACD?',
+    q: 'Look at the two wavy lines in the bottom panel — that\'s the MACD.',
     items: [
-      {val:'macd-zero-bull', label:'↑ Just above zero', cls:'bull'},
-      {val:'macd-zero-bear', label:'↓ Just below zero', cls:'bear'},
-      {val:'bull-div',       label:'Cross ▲',           cls:'bull'},
-      {val:'bear-div',       label:'Cross ▼',           cls:'bear'},
+      {val:'macd-zero-bull', label:'Lines just moved above the middle line', cls:'bull'},
+      {val:'macd-zero-bear', label:'Lines just moved below the middle line', cls:'bear'},
+      {val:'bull-div',       label:'The two lines just crossed — pointing up',   cls:'bull'},
+      {val:'bear-div',       label:'The two lines just crossed — pointing down', cls:'bear'},
     ],
     skippable: true,
   },
@@ -19329,8 +19329,30 @@ function _wizRenderSection(s, body) {
     header.innerHTML =
       '<div style="font-size:36px;margin-bottom:8px">☀️</div>' +
       '<div style="font-family:var(--display);font-size:28px;color:#fff;letter-spacing:0.04em;margin-bottom:6px">Before You Trade</div>' +
-      '<div style="font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.4);line-height:1.6;max-width:420px;margin:0 auto">Tick off each item before entering the markets.<br>Open the links to verify — don\'t skip this.</div>';
+      '<div style="font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.4);line-height:1.6;max-width:420px;margin:0 auto">Check every box below before you open a chart.<br>Click each link, make sure it\'s safe, then tick it off.</div>';
     wrap.appendChild(header);
+  }
+
+  // Economic Calendar gets a simple plain-language header
+  if (s.key === 'news') {
+    var newsHeader = document.createElement('div');
+    newsHeader.style.cssText = 'text-align:center;margin-bottom:24px;width:100%';
+    newsHeader.innerHTML =
+      '<div style="font-size:36px;margin-bottom:8px">📰</div>' +
+      '<div style="font-family:var(--display);font-size:28px;color:#fff;letter-spacing:0.04em;margin-bottom:6px">Check Today\'s News</div>' +
+      '<div style="font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.4);line-height:1.6;max-width:440px;margin:0 auto">Big news can make the market jump suddenly.<br>Look at the times below — those are the risky moments today.</div>';
+    wrap.appendChild(newsHeader);
+  }
+
+  // AI Briefing gets a simple plain-language header
+  if (s.key === 'briefing') {
+    var briefHeader = document.createElement('div');
+    briefHeader.style.cssText = 'text-align:center;margin-bottom:20px;width:100%';
+    briefHeader.innerHTML =
+      '<div style="font-size:36px;margin-bottom:8px">🤖</div>' +
+      '<div style="font-family:var(--display);font-size:28px;color:#fff;letter-spacing:0.04em;margin-bottom:6px">Your AI Briefing</div>' +
+      '<div style="font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.4);line-height:1.6;max-width:440px;margin:0 auto">Based on everything you just answered, the AI writes you<br>a short summary of what today might look like. Just read it.</div>';
+    wrap.appendChild(briefHeader);
   }
 
   if (s.sourceId === '_econ_card') {
@@ -19351,6 +19373,11 @@ function _wizRenderSection(s, body) {
     editRow.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:12px;margin-top:16px;width:100%';
     editRow.innerHTML =
       '<button onclick="addGateItem()" style="font-family:var(--mono);font-size:10px;color:rgba(240,188,78,0.6);background:transparent;border:1px dashed rgba(240,188,78,0.25);border-radius:6px;padding:8px 16px;cursor:pointer;transition:all 0.15s;letter-spacing:0.04em" onmouseover="this.style.borderColor=\'rgba(240,188,78,0.5)\';this.style.color=\'var(--gold)\'" onmouseout="this.style.borderColor=\'rgba(240,188,78,0.25)\';this.style.color=\'rgba(240,188,78,0.6)\'">+ Add routine item</button>';
+    // Always-visible explainer hint — kept on screen, not just shown once
+    var hintBubble = document.createElement('div');
+    hintBubble.style.cssText = 'margin-top:16px;background:rgba(240,188,78,0.08);border:1px solid rgba(240,188,78,0.2);border-radius:8px;padding:12px 16px;text-align:center;width:100%;animation:eodFadeIn 0.3s ease';
+    hintBubble.innerHTML = '<div style="font-family:var(--mono);font-size:10px;color:rgba(240,188,78,0.7);line-height:1.6">💡 You can add your own checks here.<br>Examples: "Check my account balance", "Read yesterday\'s notes", "Set today\'s goal"</div>';
+    editRow.appendChild(hintBubble);
     wrap.appendChild(editRow);
   }
 
@@ -19479,7 +19506,7 @@ function _wizRenderSubQ(s, container) {
   var defs = (typeof _wtSubDefs !== 'undefined') ? _wtSubDefs[key] : null;
   if (!defs) { _wizSubStep++; _wizRenderSubQ(s, container); return; }
 
-  var titles = { bias: 'What is the bias?', trend: 'What is the trend?', ao: 'Awesome Oscillator reading?', macd: 'MACD signal?' };
+  var titles = { bias: 'Which way is price moving?', trend: 'What is the overall trend?', ao: 'What is the AO showing?', macd: 'What is the MACD showing?' };
 
   // Show indicator hint on chart for AO/MACD
   var hintEl = document.getElementById('wiz-chart-hint');
@@ -19487,7 +19514,7 @@ function _wizRenderSubQ(s, container) {
   if (key === 'ao' || key === 'macd') {
     var chartArea = document.getElementById('wiz-tf-chart');
     if (chartArea) {
-      var hintText = key === 'ao' ? '↓ READ THE AO HISTOGRAM BELOW — green bars = bullish momentum building' : '↓ READ THE MACD BELOW — line crossovers signal direction changes';
+      var hintText = key === 'ao' ? '↓ Look at the green/red bars below — that\'s the AO' : '↓ Look at the two lines below — that\'s the MACD';
       // AO is the middle indicator panel, MACD is the bottom one
       var pos = key === 'ao' ? '52%' : '82%';
       var hint = document.createElement('div');
@@ -19504,13 +19531,49 @@ function _wizRenderSubQ(s, container) {
   container.innerHTML =
     '<div style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.2);margin-bottom:6px;letter-spacing:0.08em">' + (_wizSubStep + 1) + ' / ' + keys.length + '</div>' +
     '<div class="wiz-q-title">' + (titles[key] || key) + '</div>' +
+    (defs.q ? '<div style="font-family:var(--mono);font-size:12px;color:rgba(255,255,255,0.45);margin:-6px 0 18px;line-height:1.5">' + defs.q + '</div>' : '') +
     '<div class="wiz-q-btns">' +
       defs.items.map(function(it) {
-        return '<button class="wiz-q-btn" onclick="_wizSubClick(\'' + s.tfKey + '\',\'' + key + '\',\'' + it.val + '\',this)">' + it.label + '</button>';
+        return '<button class="wiz-q-btn" data-val="' + it.val + '" onclick="_wizSubClick(\'' + s.tfKey + '\',\'' + key + '\',\'' + it.val + '\',this)">' + it.label + '</button>';
       }).join('') +
-      (defs.skippable ? '<button class="wiz-q-btn" onclick="_wizSubSkip()" style="border-style:dashed;color:rgba(255,255,255,0.2)">Skip</button>' : '') +
+      (defs.skippable ? '<button class="wiz-q-btn" onclick="_wizSubSkip(\'' + s.tfKey + '\',\'' + key + '\')" style="border-style:dashed;color:rgba(255,255,255,0.2)">I don\'t see this — Skip</button>' : '') +
     '</div>' +
-    (canGoBack ? '<button onclick="_wizSubBack()" style="margin-top:12px;font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.25);background:transparent;border:none;cursor:pointer;letter-spacing:0.06em">← previous question</button>' : '');
+    (canGoBack ? '<button onclick="_wizSubBack()" style="margin-top:12px;font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.25);background:transparent;border:none;cursor:pointer;letter-spacing:0.06em">← Go back to previous question</button>' : '');
+
+  // Pre-highlight whatever answer is already set, so going back/forward shows your current pick
+  var curVal = _wizGetCurrentVal(s.tfKey, key);
+  if (curVal) {
+    var curBtn = container.querySelector('.wiz-q-btn[data-val="' + curVal + '"]');
+    if (curBtn) curBtn.classList.add('wiz-sel');
+  }
+}
+
+function _wizGetCurrentVal(tf, key) {
+  if (key === 'bias') {
+    var b = (window.tfState && tfState[tf] && tfState[tf].bias) || [];
+    if (b.indexOf('bull') > -1) return 'bull';
+    if (b.indexOf('bear') > -1) return 'bear';
+    if (b.indexOf('neutral') > -1) return 'neutral';
+    return null;
+  }
+  if (key === 'trend') {
+    var t = (window.tfState && tfState[tf] && tfState[tf].trend) || [];
+    if (t.indexOf('up') > -1) return 'up';
+    if (t.indexOf('down') > -1) return 'down';
+    if (t.indexOf('ranging') > -1) return 'ranging';
+    return null;
+  }
+  if (key === 'ao' || key === 'macd') {
+    var row = key === 'ao'
+      ? document.querySelector('#tfc-' + tf + ' .ind-row:first-child')
+      : document.querySelector('#tfc-' + tf + ' .ind-row:last-child');
+    if (!row) return null;
+    var selBtn = row.querySelector('.ib.sel');
+    if (!selBtn) return null;
+    var m = (selBtn.getAttribute('onclick') || '').match(/setInd\(this,'([^']+)'\)/);
+    return m ? m[1] : null;
+  }
+  return null;
 }
 
 function _wizSubClick(tf, key, val, btn) {
@@ -19518,13 +19581,37 @@ function _wizSubClick(tf, key, val, btn) {
   btn.parentElement.querySelectorAll('.wiz-q-btn').forEach(function(b){ b.classList.remove('wiz-sel'); });
   btn.classList.add('wiz-sel');
 
-  // Click the real button on the TF card
+  // Clear whatever was selected before — this answer always replaces the old one,
+  // never adds to it (MACD's real card allows multi-select, which we don't want here)
+  if (key === 'bias') {
+    var biasGrp = document.getElementById('bias-' + tf);
+    if (biasGrp) biasGrp.querySelectorAll('.bb').forEach(function(b){ b.classList.remove('sel','sel-bull','sel-bear','sel-range'); b.style.color=''; b.style.borderColor=''; b.style.background=''; });
+    if (window.tfState && tfState[tf]) tfState[tf].bias = [];
+  }
+  if (key === 'trend') {
+    var trendGrp = document.getElementById('trend-' + tf);
+    if (trendGrp) trendGrp.querySelectorAll('.bb').forEach(function(b){ b.classList.remove('sel','sel-bull','sel-bear','sel-range'); });
+    if (window.tfState && tfState[tf]) tfState[tf].trend = [];
+  }
+  if (key === 'ao' || key === 'macd') {
+    var indRow = key === 'ao'
+      ? document.querySelector('#tfc-' + tf + ' .ind-row:first-child')
+      : document.querySelector('#tfc-' + tf + ' .ind-row:last-child');
+    if (indRow) indRow.querySelectorAll('.ib.sel').forEach(function(b){ b.classList.remove('sel'); b.style.color=''; b.style.borderColor=''; });
+  }
+
+  // Click the real button on the TF card — force-select (override), never toggle off
   var cardBtn = null;
   if (key === 'bias')  cardBtn = document.querySelector('#bias-' + tf + ' .bb[onclick*="\'' + val + '\'"]');
   if (key === 'trend') cardBtn = document.querySelector('#trend-' + tf + ' .bb[onclick*="\'' + val + '\'"]');
   if (key === 'ao')    cardBtn = document.querySelector('#tfc-' + tf + ' .ind-row:first-child .ib[onclick*="\'' + val + '\'"]');
   if (key === 'macd')  cardBtn = document.querySelector('#tfc-' + tf + ' .ind-row:last-child .ib[onclick*="\'' + val + '\'"]');
-  if (cardBtn) cardBtn.click();
+  if (cardBtn) {
+    var _prevRestore = window._inRestore;
+    window._inRestore = true;
+    cardBtn.click();
+    window._inRestore = _prevRestore;
+  }
 
   // Auto-save + refresh sidebar score
   if (typeof saveMorningAnalysis === 'function') setTimeout(function(){ saveMorningAnalysis(true); }, 400);
@@ -19549,7 +19636,21 @@ function _wizSubClick(tf, key, val, btn) {
 }
 window._wizSubClick = _wizSubClick;
 
-function _wizSubSkip() {
+function _wizSubSkip(tf, key) {
+  // Skipping AO/MACD clears any stale prior selection — no answer means no signal
+  if (key === 'ao' || key === 'macd') {
+    var row = key === 'ao'
+      ? document.querySelector('#tfc-' + tf + ' .ind-row:first-child')
+      : document.querySelector('#tfc-' + tf + ' .ind-row:last-child');
+    if (row) {
+      row.querySelectorAll('.ib.sel').forEach(function(b) {
+        b.className = 'ib'; b.style.color = ''; b.style.borderColor = '';
+      });
+      if (typeof updateVerdictAuto === 'function') updateVerdictAuto();
+      if (typeof _saveTFStateLocal === 'function') _saveTFStateLocal();
+      if (typeof saveMorningAnalysis === 'function') saveMorningAnalysis(true);
+    }
+  }
   _wizSubStep++;
   var s = _wizSteps[_wizStep];
   var container = document.getElementById('wiz-tf-question');
@@ -19570,6 +19671,23 @@ window._wizSubBack = _wizSubBack;
 function _wizRenderChoice(s, body) {
   var wrap = document.createElement('div');
   wrap.className = 'wiz-choice-wrap';
+
+  var choiceHelp = {
+    direction: { icon:'🧭', title:'Today\'s Direction',  text:'Right now, is the price mostly going up, mostly going down, or just moving sideways?' },
+    pivot:     { icon:'📍', title:'Daily Pivot Point',   text:'The pivot is today\'s "middle line". Is the price trading above it, below it, or right on it?' },
+    london:    { icon:'🇬🇧', title:'London Open',         text:'When London markets opened today, which way did the price move first?' }
+  };
+  var ch = choiceHelp[s.key];
+  if (ch) {
+    var choiceHeader = document.createElement('div');
+    choiceHeader.style.cssText = 'text-align:center;margin-bottom:24px;width:100%';
+    choiceHeader.innerHTML =
+      '<div style="font-size:36px;margin-bottom:8px">' + ch.icon + '</div>' +
+      '<div style="font-family:var(--display);font-size:28px;color:#fff;letter-spacing:0.04em;margin-bottom:6px">' + ch.title + '</div>' +
+      '<div style="font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.4);line-height:1.6;max-width:440px;margin:0 auto">' + ch.text + '</div>';
+    wrap.appendChild(choiceHeader);
+  }
+
   var el = wizBorrow(s.sourceId);
   if (el) {
     el.style.width = '100%';
@@ -19581,6 +19699,13 @@ function _wizRenderChoice(s, body) {
 function _wizRenderLevels(s, body) {
   body.style.padding = '0';
   body.style.alignItems = 'stretch';
+
+  var levelsHeader = document.createElement('div');
+  levelsHeader.style.cssText = 'text-align:center;padding:16px 20px 0;flex-shrink:0';
+  levelsHeader.innerHTML =
+    '<div style="font-family:var(--display);font-size:18px;color:#fff;letter-spacing:0.04em">📌 Mark Your Key Levels</div>' +
+    '<div style="font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.4);line-height:1.5;margin-top:2px">Find a price on the chart where you\'d consider buying or selling. Fill in the form on the right and save it.</div>';
+  body.appendChild(levelsHeader);
 
   var layout = document.createElement('div');
   layout.id = 'wiz-levels-layout';
