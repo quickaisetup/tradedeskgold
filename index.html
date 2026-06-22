@@ -19370,6 +19370,22 @@ function _wizRenderSubQ(s, container) {
 
   var titles = { bias: 'What is the bias?', trend: 'What is the trend?', ao: 'Awesome Oscillator reading?', macd: 'MACD signal?' };
 
+  // Show indicator hint on chart for AO/MACD
+  if (key === 'ao' || key === 'macd') {
+    var hintEl = document.getElementById('wiz-chart-hint');
+    if (hintEl) hintEl.remove();
+    var chartArea = document.getElementById('wiz-tf-chart');
+    if (chartArea) {
+      var hint = document.createElement('div');
+      hint.id = 'wiz-chart-hint';
+      hint.textContent = '👇 Read the ' + key.toUpperCase() + ' indicator below';
+      hint.style.cssText = 'position:absolute;bottom:38%;left:50%;transform:translateX(-50%);background:rgba(240,188,78,0.95);color:#0a0b0d;font-family:var(--mono);font-size:11px;font-weight:700;padding:6px 16px;border-radius:6px;z-index:5;pointer-events:none;white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,0.4);animation:eodFadeIn 0.3s ease';
+      chartArea.style.position = 'relative';
+      chartArea.appendChild(hint);
+      setTimeout(function(){ if (hint.parentNode) { hint.style.transition = 'opacity 0.4s'; hint.style.opacity = '0'; setTimeout(function(){ if(hint.parentNode) hint.remove(); }, 400); } }, 3500);
+    }
+  }
+
   container.innerHTML =
     '<div class="wiz-q-title">' + (titles[key] || key) + '</div>' +
     '<div class="wiz-q-btns">' +
