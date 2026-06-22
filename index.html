@@ -16057,6 +16057,24 @@ document.addEventListener('DOMContentLoaded', function() {
     splash.classList.add('show');
     var leoOv = document.getElementById('live-exec-overlay');
     if (leoOv) leoOv.classList.remove('show');
+    // Re-sync splash P&L after trade data loads
+    function _refreshSplashPnl() {
+      var fmt2 = function(v){ if(v==null||isNaN(v))return null; var n=Number(v); return (n>=0?'+':'')+n.toLocaleString('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}); };
+      var clr2 = function(v){ return (Number(v)||0)<0?'#f06060':'#4ed68a'; };
+      var td2 = document.getElementById('src-pnl-today');
+      var wk2 = document.getElementById('src-pnl-week');
+      if (typeof calcTodayPnl === 'function') {
+        var tp2 = calcTodayPnl();
+        if (td2 && tp2.hasTrades) { td2.textContent = fmt2(tp2.total); td2.style.color = clr2(tp2.total); }
+      }
+      if (wk2 && window._weeklyUsdAccurate != null) {
+        var todayExtra = (typeof calcTodayPnl === 'function' && calcTodayPnl().hasTrades) ? calcTodayPnl().total : 0;
+        var fresh = window._weeklyUsdAccurate + todayExtra;
+        wk2.textContent = fmt2(fresh); wk2.style.color = clr2(fresh);
+      }
+    }
+    setTimeout(_refreshSplashPnl, 2000);
+    setTimeout(_refreshSplashPnl, 5000);
   }, 600);
 });
 // ─────────────────────────────────────────────────────
