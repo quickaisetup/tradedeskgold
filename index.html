@@ -19745,6 +19745,35 @@ function _wizSubBack() {
 }
 window._wizSubBack = _wizSubBack;
 
+// Standalone mini chart for the wizard's choice steps — its own iframe (not the
+// shared #tv-chart-wrap), so multiple can sit side by side without ID clashes.
+function _wizMiniChartHTML(sym, interval, studies) {
+  var cfg = JSON.stringify({
+    autosize: true,
+    symbol: sym,
+    interval: interval,
+    timezone: _tzIANA(),
+    theme: 'dark',
+    style: '1',
+    locale: 'en',
+    hide_top_toolbar: true,
+    hide_legend: true,
+    hide_side_toolbar: true,
+    allow_symbol_change: false,
+    save_image: false,
+    calendar: false,
+    hide_volume: true,
+    studies: studies,
+    support_host: 'https://www.tradingview.com'
+  });
+  return '<!DOCTYPE html><html><head><meta charset="UTF-8">' +
+    '<style>*{margin:0;padding:0;box-sizing:border-box}html,body{width:100%;height:100%;overflow:hidden;background:#060708}.tradingview-widget-container,.tradingview-widget-container__widget{width:100%;height:100%}</style>' +
+    '</head><body>' +
+    '<div class="tradingview-widget-container"><div class="tradingview-widget-container__widget"></div>' +
+    '<script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>' +
+    cfg + '<\/script></div></body></html>';
+}
+
 function _wizRenderChoice(s, body) {
   var wrap = document.createElement('div');
   wrap.className = 'wiz-choice-wrap';
@@ -19763,6 +19792,47 @@ function _wizRenderChoice(s, body) {
       '<div style="font-family:var(--display);font-size:28px;color:#fff;letter-spacing:0.04em;margin-bottom:6px">' + ch.title + '</div>' +
       '<div style="font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.4);line-height:1.6;max-width:440px;margin:0 auto">' + ch.text + '</div>';
     wrap.appendChild(choiceHeader);
+  }
+
+  var sym = typeof _tdChartSymbolFor === 'function'
+    ? _tdChartSymbolFor(typeof _tdActiveInstrument !== 'undefined' ? _tdActiveInstrument : 'Gold')
+    : 'CAPITALCOM:XAUUSD';
+
+  if (s.key === 'direction') {
+    // 4H, 1H, 15m side by side — EMAs only, no other indicators
+    var emaStudies = [
+      { id: 'MAExp@tv-basicstudies', inputs: { length: 9 } },
+      { id: 'MAExp@tv-basicstudies', inputs: { length: 20 } },
+      { id: 'MAExp@tv-basicstudies', inputs: { length: 50 } },
+      { id: 'MAExp@tv-basicstudies', inputs: { length: 200 } }
+    ];
+    var dirGrid = document.createElement('div');
+    dirGrid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;width:100%;max-width:1100px;height:280px;margin-bottom:20px';
+    [{ label: '4H', interval: '240' }, { label: '1H', interval: '60' }, { label: '15m', interval: '15' }].forEach(function(tf) {
+      var cell = document.createElement('div');
+      cell.style.cssText = 'position:relative;border:1px solid rgba(255,255,255,0.08);border-radius:8px;overflow:hidden;background:#060708';
+      var lbl = document.createElement('div');
+      lbl.style.cssText = 'position:absolute;top:6px;left:8px;z-index:2;font-family:var(--mono);font-size:9px;letter-spacing:0.08em;color:rgba(240,188,78,0.75);background:rgba(0,0,0,0.5);padding:2px 6px;border-radius:4px';
+      lbl.textContent = tf.label;
+      var iframe = document.createElement('iframe');
+      iframe.style.cssText = 'width:100%;height:100%;border:none';
+      iframe.srcdoc = _wizMiniChartHTML(sym, tf.interval, emaStudies);
+      cell.appendChild(iframe);
+      cell.appendChild(lbl);
+      dirGrid.appendChild(cell);
+    });
+    wrap.appendChild(dirGrid);
+  }
+
+  if (s.key === 'pivot') {
+    // One 15-minute chart, pivot points only — no EMAs, no other indicators
+    var pivotBox = document.createElement('div');
+    pivotBox.style.cssText = 'width:100%;max-width:780px;height:420px;border:1px solid rgba(255,255,255,0.08);border-radius:8px;overflow:hidden;background:#060708;margin-bottom:20px';
+    var pivotIframe = document.createElement('iframe');
+    pivotIframe.style.cssText = 'width:100%;height:100%;border:none';
+    pivotIframe.srcdoc = _wizMiniChartHTML(sym, '15', [{ id: 'PivotPointsStandard@tv-basicstudies' }]);
+    pivotBox.appendChild(pivotIframe);
+    wrap.appendChild(pivotBox);
   }
 
   var el = wizBorrow(s.sourceId);
