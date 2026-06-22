@@ -18655,7 +18655,20 @@ body.fw-active .wt-banner{display:none!important}
 /* Wizard TF layout */
 #wiz-tf-layout{display:grid;grid-template-columns:1fr 340px;flex:1;width:100%;min-height:0}
 #wiz-tf-chart{overflow:hidden;min-height:0}
-#wiz-tf-sidebar{display:flex;flex-direction:column;border-left:1px solid rgba(255,255,255,0.06);overflow-y:auto;background:rgba(255,255,255,0.01)}
+#wiz-tf-sidebar{display:flex;flex-direction:column;border-left:1px solid rgba(255,255,255,0.06);overflow-y:auto;background:rgba(255,255,255,0.01);transition:background 0.5s ease,box-shadow 0.5s ease}
+#wiz-tf-sidebar.wiz-mood-bull{background:radial-gradient(ellipse at 50% 100%,rgba(78,214,138,0.14),rgba(255,255,255,0.01) 70%);box-shadow:inset 0 0 80px rgba(78,214,138,0.05)}
+#wiz-tf-sidebar.wiz-mood-bear{background:radial-gradient(ellipse at 50% 100%,rgba(240,96,96,0.14),rgba(255,255,255,0.01) 70%);box-shadow:inset 0 0 80px rgba(240,96,96,0.05)}
+#wiz-tf-sidebar.wiz-mood-neutral{background:radial-gradient(ellipse at 50% 100%,rgba(240,188,78,0.1),rgba(255,255,255,0.01) 70%);box-shadow:inset 0 0 80px rgba(240,188,78,0.04)}
+/* Gamified score block */
+.wiz-score-block{margin-top:auto;padding:18px 20px 20px;border-top:1px solid rgba(255,255,255,0.06)}
+.wiz-score-label{font-family:var(--mono);font-size:9px;letter-spacing:0.14em;color:rgba(255,255,255,0.3);text-transform:uppercase;text-align:center;margin-bottom:4px}
+.wiz-score-big{font-family:var(--display);font-size:56px;line-height:1;text-align:center;letter-spacing:0.02em;transition:color 0.4s ease,text-shadow 0.4s ease}
+.wiz-score-verdict{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:0.1em;text-align:center;margin-top:2px;text-transform:uppercase;transition:color 0.4s ease}
+.wiz-gauge-track{position:relative;height:8px;border-radius:4px;margin-top:14px;background:linear-gradient(90deg,#f06060,rgba(255,255,255,0.12) 50%,#4ed68a)}
+.wiz-gauge-marker{position:absolute;top:50%;width:14px;height:14px;border-radius:50%;background:#fff;border:2px solid #0a0b0d;box-shadow:0 0 10px rgba(0,0,0,0.5),0 0 14px currentColor;transform:translate(-50%,-50%);transition:left 0.5s cubic-bezier(0.34,1.56,0.64,1)}
+.wiz-gauge-labels{display:flex;justify-content:space-between;margin-top:6px;font-family:var(--mono);font-size:7px;letter-spacing:0.08em;color:rgba(255,255,255,0.25);text-transform:uppercase}
+@keyframes wizScorePop{0%{transform:scale(0.85)}60%{transform:scale(1.08)}100%{transform:scale(1)}}
+.wiz-score-pop{animation:wizScorePop 0.35s cubic-bezier(0.34,1.56,0.64,1) both}
 #wiz-tf-card-wrap{padding:12px 16px;flex:1}
 #wiz-tf-card-wrap .tf-card{border:none!important;background:transparent!important;padding:12px 0!important;box-shadow:none!important}
 #wiz-tf-card-wrap .tf-card>.tf-name{display:none!important}
@@ -19423,6 +19436,24 @@ function _wizRenderSection(s, body) {
   }
 }
 
+// Score gauge runs roughly -10 (strong sell) to +10 (strong buy) — matches the
+// app's own verdict thresholds (>=7 Strong Buy, >=4 Bullish, >=2 Lean Bullish, etc).
+function _wizScoreBlockHTML(scoreVal, vtText) {
+  var sc = parseFloat(scoreVal) || 0;
+  var scClr = sc > 0 ? '#4ed68a' : sc < 0 ? '#f06060' : '#f0bc4e';
+  var pct = Math.max(0, Math.min(100, ((sc + 10) / 20) * 100));
+  return '<div class="wiz-score-label">Bias Score</div>' +
+    '<div class="wiz-score-big wiz-score-pop" style="color:' + scClr + ';text-shadow:0 0 24px ' + scClr + '55">' + scoreVal + '</div>' +
+    '<div class="wiz-score-verdict" style="color:' + scClr + '">' + vtText + '</div>' +
+    '<div class="wiz-gauge-track"><div class="wiz-gauge-marker" style="left:' + pct + '%;color:' + scClr + ';background:' + scClr + '"></div></div>' +
+    '<div class="wiz-gauge-labels"><span>Strong Sell</span><span>Neutral</span><span>Strong Buy</span></div>';
+}
+function _wizApplySidebarMood(sidebarEl, sc) {
+  if (!sidebarEl) return;
+  sidebarEl.classList.remove('wiz-mood-bull', 'wiz-mood-bear', 'wiz-mood-neutral');
+  sidebarEl.classList.add(sc > 0.5 ? 'wiz-mood-bull' : sc < -0.5 ? 'wiz-mood-bear' : 'wiz-mood-neutral');
+}
+
 function _wizRenderTF(s, body) {
   body.style.padding = '0';
 
@@ -19488,18 +19519,14 @@ function _wizRenderTF(s, body) {
   if (tfCard) cardWrap.appendChild(tfCard);
   sidebar.appendChild(cardWrap);
 
-  // Score at bottom
+  // Score at bottom — big gamified gauge instead of a plain number
   var scoreWrap = document.createElement('div');
-  scoreWrap.style.cssText = 'margin-top:auto;padding:12px 16px;border-top:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:space-between';
+  scoreWrap.className = 'wiz-score-block';
   var scoreEl = document.getElementById('score-num');
   var vtEl = document.getElementById('vt-main');
-  var scoreVal = scoreEl ? scoreEl.textContent : '0';
-  var vtText = vtEl ? vtEl.textContent : '—';
-  var sc = parseFloat(scoreVal) || 0;
-  var scClr = sc > 0 ? '#4ed68a' : sc < 0 ? '#f06060' : 'rgba(255,255,255,0.3)';
-  scoreWrap.innerHTML = '<span style="font-family:var(--mono);font-size:8px;letter-spacing:0.1em;color:rgba(255,255,255,0.25);text-transform:uppercase">Score</span>' +
-    '<div style="display:flex;align-items:center;gap:8px"><span style="font-family:var(--display);font-size:22px;color:' + scClr + '">' + scoreVal + '</span><span style="font-family:var(--mono);font-size:9px;color:' + scClr + '">' + vtText + '</span></div>';
+  scoreWrap.innerHTML = _wizScoreBlockHTML(scoreEl ? scoreEl.textContent : '0', vtEl ? vtEl.textContent : '—');
   sidebar.appendChild(scoreWrap);
+  _wizApplySidebarMood(sidebar, parseFloat(scoreEl ? scoreEl.textContent : '0') || 0);
 
   layout.appendChild(sidebar);
   body.appendChild(layout);
@@ -19654,13 +19681,14 @@ function _wizSubClick(tf, key, val, btn) {
   // Auto-save + refresh sidebar score
   if (typeof saveMorningAnalysis === 'function') setTimeout(function(){ saveMorningAnalysis(true); }, 400);
   setTimeout(function(){
-    var sw = document.querySelector('#wiz-tf-sidebar > div:last-child');
+    var sw = document.querySelector('#wiz-tf-sidebar .wiz-score-block');
+    var sidebarEl = document.getElementById('wiz-tf-sidebar');
     if (sw) {
       var se = document.getElementById('score-num');
       var ve = document.getElementById('vt-main');
       var sv = se ? se.textContent : '0'; var vt = ve ? ve.textContent : '—';
-      var sc2 = parseFloat(sv)||0; var c2 = sc2>0?'#4ed68a':sc2<0?'#f06060':'rgba(255,255,255,0.3)';
-      sw.innerHTML = '<span style="font-family:var(--mono);font-size:8px;letter-spacing:0.1em;color:rgba(255,255,255,0.25);text-transform:uppercase">Score</span><div style="display:flex;align-items:center;gap:8px"><span style="font-family:var(--display);font-size:22px;color:'+c2+'">'+sv+'</span><span style="font-family:var(--mono);font-size:9px;color:'+c2+'">'+vt+'</span></div>';
+      sw.innerHTML = _wizScoreBlockHTML(sv, vt);
+      _wizApplySidebarMood(sidebarEl, parseFloat(sv) || 0);
     }
   }, 200);
 
