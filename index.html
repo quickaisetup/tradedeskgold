@@ -10399,7 +10399,7 @@ function updateStickyBiasBar() {
   el = document.getElementById('sbb-verdict'); if (el) { el.textContent = verdict; el.style.color = color; }
   el = document.getElementById('sbb-score');   if (el) { el.textContent = (scoreVal>0?'+':'')+scoreVal; el.style.color = color; }
   var needle = document.getElementById('sbb-needle'); if (needle) needle.style.left = Math.min(Math.max(((scoreVal+10)/20)*100,2),98)+'%';
-  var marketDirEl = document.querySelector('#market-direction .bb.sel');
+  var marketDirEl = document.querySelector('#market-direction .bb.sel-bull, #market-direction .bb.sel-bear, #market-direction .bb.sel-range');
   var dirText='—', dirBorder='rgba(255,255,255,0.1)', dirTxtColor='var(--text3)';
   if (marketDirEl) {
     if (marketDirEl.textContent.indexOf('Up')>-1)        { dirText='⬆ Up';   dirBorder='var(--gnb)'; dirTxtColor='var(--green)'; }
@@ -11442,7 +11442,7 @@ function openLiveExec() {
   var tmDisp = document.getElementById('trading-mode-display');
   var tmText = tradingMode.length ? tradingMode.join(' + ') : (tmDisp && tmDisp.textContent.trim() ? tmDisp.textContent.trim() : '');
   if (leoM) leoM.textContent = tmText || '— no mode —';
-  var md = document.querySelector('#market-direction .bb.sel');
+  var md = document.querySelector('#market-direction .bb.sel-bull, #market-direction .bb.sel-bear, #market-direction .bb.sel-range');
   if (leoD) leoD.textContent = md ? md.textContent.trim() : '—';
   _leoSyncHeader();
 
