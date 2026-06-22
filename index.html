@@ -9393,7 +9393,7 @@ function triggerCooldown(consecLosses, tradeNotes) {
 async function _fetchCooldownAIMsg(losses, notes) {
   try {
     var tone = losses >= 2 ? 'firm and direct' : 'calm and supportive';
-    var prompt = 'You are a trading psychology coach. A trader just had ' + losses + ' consecutive loss' + (losses > 1 ? 'es' : '') + '. Their trade notes: "' + (notes || 'none provided') + '". Give a ' + tone + ' message in under 60 words. Coach tone, no bullet points, no greeting. Address what they can learn and why stepping away helps.';
+    var prompt = 'You are a trading psychology coach. A trader just had ' + losses + ' consecutive loss' + (losses > 1 ? 'es' : '') + '. Their trade notes: "' + (notes || 'none provided') + '". Give a ' + tone + ' message in EXACTLY 2 sentences, max 40 words total. No bullet points, no greeting, no filler.';
     var res = await fetch('/api/ai-proxy', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -9424,7 +9424,7 @@ function _showCooldownPopup(st) {
 
   var ov = document.createElement('div');
   ov.id = 'cooldown-overlay';
-  ov.style.cssText = 'position:fixed;inset:0;z-index:200002;background:rgba(4,5,7,0.96);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:24px;animation:eodFadeIn 0.3s ease';
+  ov.style.cssText = 'position:fixed;inset:0;z-index:200002;background:#040507;display:flex;align-items:center;justify-content:center;padding:24px;animation:eodFadeIn 0.3s ease';
 
   ov.innerHTML =
     '<div style="max-width:440px;width:100%;text-align:center">' +
@@ -9435,8 +9435,9 @@ function _showCooldownPopup(st) {
       '<div id="cooldown-ai-msg" style="font-family:var(--sans);font-size:13px;color:rgba(255,255,255,0.6);line-height:1.7;margin-bottom:24px;min-height:40px;font-style:italic">' + (_cooldownAIMsg || 'Getting coaching message...') + '</div>' +
       '<div style="width:100%;height:1px;background:' + accentBd + ';margin-bottom:24px"></div>' +
       '<div style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:8px;text-align:left">What will you do differently next trade? <span style="color:' + accent + '">(min 20 chars to unlock)</span></div>' +
-      '<textarea id="cooldown-reflect" oninput="_cooldownCheckReflect()" placeholder="Write your reflection here..." style="width:100%;box-sizing:border-box;min-height:70px;background:' + accentBg + ';border:1.5px solid ' + accentBd + ';border-radius:8px;padding:12px 14px;font-family:var(--mono);font-size:12px;color:var(--text);outline:none;resize:vertical;margin-bottom:16px"></textarea>' +
-      '<button id="cooldown-bypass" onclick="_cooldownBypass()" disabled style="width:100%;font-family:var(--mono);font-size:10px;letter-spacing:0.06em;color:rgba(255,255,255,0.2);background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:12px 0;cursor:not-allowed;transition:all 0.2s">Override cooldown — I accept the risk</button>' +
+      '<textarea id="cooldown-reflect" oninput="_cooldownCheckReflect()" placeholder="Write your reflection here..." style="width:100%;box-sizing:border-box;min-height:70px;background:' + accentBg + ';border:1.5px solid ' + accentBd + ';border-radius:8px;padding:12px 14px;font-family:var(--mono);font-size:12px;color:var(--text);outline:none;resize:vertical;margin-bottom:4px"></textarea>' +
+      '<div id="cooldown-char-count" style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.2);text-align:right;margin-bottom:16px">0 / 20</div>' +
+      '<button id="cooldown-bypass" onclick="_cooldownBypass()" disabled style="width:100%;font-family:var(--mono);font-size:11px;letter-spacing:0.08em;color:rgba(255,255,255,0.15);background:rgba(255,255,255,0.02);border:1.5px solid rgba(255,255,255,0.06);border-radius:10px;padding:14px 0;cursor:not-allowed;transition:all 0.25s">Override cooldown — I accept the risk</button>' +
     '</div>';
 
   document.body.appendChild(ov);
@@ -9461,13 +9462,20 @@ function _cooldownTick(st) {
 function _cooldownCheckReflect() {
   var ta = document.getElementById('cooldown-reflect');
   var btn = document.getElementById('cooldown-bypass');
+  var counter = document.getElementById('cooldown-char-count');
   if (!ta || !btn) return;
-  var ok = ta.value.trim().length >= 20;
+  var len = ta.value.trim().length;
+  var ok = len >= 20;
+  if (counter) {
+    counter.textContent = len + ' / 20';
+    counter.style.color = ok ? 'rgba(78,214,138,0.5)' : 'rgba(255,255,255,0.2)';
+  }
   btn.disabled = !ok;
   btn.style.cursor = ok ? 'pointer' : 'not-allowed';
-  btn.style.color = ok ? '#a855f7' : 'rgba(255,255,255,0.2)';
-  btn.style.borderColor = ok ? 'rgba(168,85,247,0.5)' : 'rgba(255,255,255,0.08)';
-  btn.style.background = ok ? 'rgba(168,85,247,0.1)' : 'rgba(255,255,255,0.03)';
+  btn.style.color = ok ? '#fff' : 'rgba(255,255,255,0.15)';
+  btn.style.borderColor = ok ? 'rgba(168,85,247,0.6)' : 'rgba(255,255,255,0.06)';
+  btn.style.background = ok ? 'rgba(168,85,247,0.2)' : 'rgba(255,255,255,0.02)';
+  btn.style.boxShadow = ok ? '0 0 20px rgba(168,85,247,0.15)' : 'none';
 }
 window._cooldownCheckReflect = _cooldownCheckReflect;
 
