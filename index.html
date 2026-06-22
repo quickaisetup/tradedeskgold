@@ -19292,6 +19292,18 @@ function wizShowStep() {
 function _wizRenderSection(s, body) {
   var wrap = document.createElement('div');
   wrap.className = 'wiz-section-wrap';
+
+  // Morning routine gets special treatment
+  if (s.doneCheck === 'gates') {
+    var header = document.createElement('div');
+    header.style.cssText = 'text-align:center;margin-bottom:24px;width:100%';
+    header.innerHTML =
+      '<div style="font-size:36px;margin-bottom:8px">☀️</div>' +
+      '<div style="font-family:var(--display);font-size:28px;color:#fff;letter-spacing:0.04em;margin-bottom:6px">Before You Trade</div>' +
+      '<div style="font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.4);line-height:1.6;max-width:420px;margin:0 auto">Tick off each item before entering the markets.<br>Open the links to verify — don\'t skip this.</div>';
+    wrap.appendChild(header);
+  }
+
   if (s.sourceId === '_econ_card') {
     // Special: borrow the forex factory card (parent of #econ-body)
     var econBody = document.getElementById('econ-body');
@@ -19304,6 +19316,15 @@ function _wizRenderSection(s, body) {
     if (el) wrap.appendChild(el);
   }
   body.appendChild(wrap);
+  // Add edit controls for morning routine
+  if (s.doneCheck === 'gates') {
+    var editRow = document.createElement('div');
+    editRow.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:12px;margin-top:16px;width:100%';
+    editRow.innerHTML =
+      '<button onclick="addGateItem()" style="font-family:var(--mono);font-size:10px;color:rgba(240,188,78,0.6);background:transparent;border:1px dashed rgba(240,188,78,0.25);border-radius:6px;padding:8px 16px;cursor:pointer;transition:all 0.15s;letter-spacing:0.04em" onmouseover="this.style.borderColor=\'rgba(240,188,78,0.5)\';this.style.color=\'var(--gold)\'" onmouseout="this.style.borderColor=\'rgba(240,188,78,0.25)\';this.style.color=\'rgba(240,188,78,0.6)\'">+ Add routine item</button>';
+    wrap.appendChild(editRow);
+  }
+
   if (s.onShow === 'loadBriefing' && typeof loadBriefing === 'function') loadBriefing(false);
   // Gate check
   if (s.doneCheck === 'gates') {
