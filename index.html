@@ -8552,13 +8552,23 @@ function updateKill() {
   // Mark killswitch section done if trades are saved (kill switch reviewed)
   if (saved.length > 0) markSection('killswitch');
 
-  // Danger states
+  // Danger states — use editable limits
+  var dailyStopR = TD_DAILY_STOP / (BASE_RISK_PCT || 0.5);
   var kmOwn = document.getElementById('km-own');
-  if (kmOwn) kmOwn.classList.toggle('danger', own >= 2);
+  if (kmOwn) kmOwn.classList.toggle('danger', own >= TD_MAX_TRADES);
   var kmConsec = document.getElementById('km-consec');
   if (kmConsec) kmConsec.classList.toggle('danger', consec >= 2);
   var kmPnl = document.getElementById('km-pnl');
-  if (kmPnl) kmPnl.classList.toggle('danger', totalR <= -2);
+  if (kmPnl) kmPnl.classList.toggle('danger', totalR <= -dailyStopR);
+  // Update kill switch limit labels
+  var kmOwnLim = document.querySelector('#km-own .km-limit'); if (kmOwnLim) kmOwnLim.textContent = 'max ' + TD_MAX_TRADES + ' trades';
+  var kmPnlLim = document.querySelector('#km-pnl .km-limit'); if (kmPnlLim) kmPnlLim.textContent = 'stop at -' + dailyStopR.toFixed(1) + 'R';
+
+  // Hard stop popup — triggers once when daily loss exceeds limit
+  if (totalR <= -dailyStopR && !window._hardStopShown) {
+    window._hardStopShown = true;
+    _showHardStopPopup();
+  }
 
   // Trade counter pills
   var p1 = document.getElementById('cp-own'); if (p1) p1.textContent = 'Own: ' + own;
@@ -9305,6 +9315,25 @@ async function reSaveAll() {
 var BASE_RISK_PCT = parseFloat(localStorage.getItem('td_risk_pct')) || 0.5;
 var TD_MAX_TRADES = parseInt(localStorage.getItem('td_max_trades')) || 2;
 var TD_DAILY_STOP = parseFloat(localStorage.getItem('td_daily_stop')) || 1.5;
+
+function _showHardStopPopup() {
+  var existing = document.getElementById('hard-stop-overlay');
+  if (existing) existing.remove();
+  var ov = document.createElement('div');
+  ov.id = 'hard-stop-overlay';
+  ov.style.cssText = 'position:fixed;inset:0;z-index:200000;background:rgba(20,4,4,0.96);display:flex;align-items:center;justify-content:center;padding:24px;animation:eodFadeIn 0.3s ease';
+  ov.innerHTML =
+    '<div style="max-width:420px;width:100%;text-align:center">' +
+      '<div style="font-size:64px;margin-bottom:16px">🛑</div>' +
+      '<div style="font-family:var(--display);font-size:32px;color:#f06060;letter-spacing:0.06em;margin-bottom:8px">HARD STOP</div>' +
+      '<div style="font-family:var(--display);font-size:18px;color:#ff8080;letter-spacing:0.04em;margin-bottom:20px">Daily loss limit hit: -' + TD_DAILY_STOP + '%</div>' +
+      '<div style="font-family:var(--mono);font-size:12px;color:rgba(255,180,180,0.7);line-height:1.7;margin-bottom:32px">You have reached your daily hard stop.<br>No more trades today — protect your capital.<br><strong style="color:#ff6060">Come back tomorrow with a fresh mind.</strong></div>' +
+      '<div style="width:100%;height:3px;background:linear-gradient(90deg,transparent,#f06060,transparent);margin-bottom:32px;border-radius:2px"></div>' +
+      '<button onclick="document.getElementById(\'hard-stop-overlay\').remove()" style="font-family:var(--display);font-size:14px;letter-spacing:0.08em;color:#f06060;background:rgba(240,96,96,0.1);border:1.5px solid rgba(240,96,96,0.4);border-radius:10px;padding:14px 40px;cursor:pointer;transition:all 0.15s" onmouseover="this.style.background=\'rgba(240,96,96,0.2)\'" onmouseout="this.style.background=\'rgba(240,96,96,0.1)\'">I understand — closing for today</button>' +
+    '</div>';
+  document.body.appendChild(ov);
+}
+window._showHardStopPopup = _showHardStopPopup;
 
 function _syncSessionLimitsUI() {
   var el1 = document.getElementById('ptg-limit-trades'); if (el1) el1.textContent = TD_MAX_TRADES;
