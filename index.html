@@ -9431,11 +9431,33 @@ function _showCooldownPopup(st) {
 
   ov.innerHTML =
     '<div style="max-width:440px;width:100%;text-align:center">' +
-      // Shield icon with glow ring
-      '<div style="position:relative;width:80px;height:80px;margin:0 auto 16px">' +
-        '<div style="position:absolute;inset:-8px;border-radius:50%;border:2px solid ' + accentBd + ';animation:micPulse 2s ease-in-out infinite"></div>' +
-        '<div style="width:80px;height:80px;border-radius:50%;background:' + accentBg + ';border:2px solid ' + accentBd + ';display:flex;align-items:center;justify-content:center;font-size:36px">' + (isFirm ? '🛡️' : '❄️') + '</div>' +
-      '</div>' +
+      // Rank warning
+      (function() {
+        var tiers = typeof getRankDefs === 'function' ? getRankDefs() : [];
+        var streakEl = document.getElementById('src-s-streak');
+        var streak = streakEl ? parseInt(streakEl.textContent) || 0 : 0;
+        var currentRank = tiers.find(function(r){ return streak >= r.min && streak <= r.max; }) || tiers[0];
+        var dropRank = tiers[Math.max(0, currentRank.rankIdx - 1)];
+        var wouldDrop = currentRank.rankIdx > 0;
+        var rankSvg = typeof getRankSVG === 'function' ? getRankSVG(currentRank.rankIdx) : '';
+        var dropSvg = wouldDrop && typeof getRankSVG === 'function' ? getRankSVG(dropRank.rankIdx) : '';
+        return '<div style="display:flex;align-items:center;justify-content:center;gap:20px;margin-bottom:20px">' +
+          '<div style="text-align:center">' +
+            '<svg width="64" height="72" viewBox="0 0 72 90" fill="none" style="filter:drop-shadow(0 0 12px ' + currentRank.color + '60)">' + rankSvg + '</svg>' +
+            '<div style="font-family:var(--display);font-size:14px;color:' + currentRank.color + ';letter-spacing:0.04em">' + currentRank.name + '</div>' +
+            '<div style="font-family:var(--mono);font-size:8px;color:rgba(255,255,255,0.3)">' + streak + ' day streak</div>' +
+          '</div>' +
+          (wouldDrop ?
+            '<div style="font-family:var(--mono);font-size:18px;color:rgba(240,96,96,0.6)">→</div>' +
+            '<div style="text-align:center;opacity:0.5">' +
+              '<svg width="64" height="72" viewBox="0 0 72 90" fill="none" style="filter:grayscale(0.5) opacity(0.6)">' + dropSvg + '</svg>' +
+              '<div style="font-family:var(--display);font-size:14px;color:rgba(240,96,96,0.7);letter-spacing:0.04em">' + dropRank.name + '</div>' +
+              '<div style="font-family:var(--mono);font-size:8px;color:rgba(240,96,96,0.4)">if you break rules</div>' +
+            '</div>'
+          : '') +
+        '</div>' +
+        (wouldDrop ? '<div style="font-family:var(--mono);font-size:10px;color:rgba(240,96,96,0.6);margin-bottom:16px">⚠ Don\'t lose your <strong style="color:' + currentRank.color + '">' + currentRank.name + '</strong> rank — protect your streak</div>' : '');
+      })() +
       // Title
       '<div style="font-family:var(--display);font-size:30px;color:' + accent + ';letter-spacing:0.06em;margin-bottom:4px">' + (isFirm ? 'RECOVERY MODE' : 'COOLDOWN') + '</div>' +
       '<div style="font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.3);margin-bottom:20px">' + st.losses + ' consecutive loss' + (st.losses > 1 ? 'es' : '') + ' · ' + mins + ' min reset</div>' +
