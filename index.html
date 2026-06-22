@@ -9346,17 +9346,41 @@ function _syncSessionLimitsUI() {
 }
 function ptgEditLimit(type) {
   var labels = { trades: 'Max trades per day', stop: 'Daily hard stop (%)', risk: 'Risk per trade (%)' };
+  var hints = { trades: 'How many own setups max?', stop: 'Stop trading after this % loss', risk: 'Maximum risk per single trade' };
+  var steps = { trades: '1', stop: '0.1', risk: '0.1' };
   var current = type === 'trades' ? TD_MAX_TRADES : type === 'stop' ? TD_DAILY_STOP : BASE_RISK_PCT;
-  var val = prompt(labels[type], current);
-  if (val === null) return;
-  var num = parseFloat(val);
+  var existing = document.getElementById('ptg-edit-modal');
+  if (existing) existing.remove();
+  var ov = document.createElement('div');
+  ov.id = 'ptg-edit-modal';
+  ov.style.cssText = 'position:fixed;inset:0;z-index:200001;background:rgba(4,5,7,0.92);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:24px;animation:eodFadeIn 0.2s ease';
+  ov.onclick = function(e){ if(e.target===ov) ov.remove(); };
+  ov.innerHTML =
+    '<div style="background:linear-gradient(160deg,#14130d,#0c0d10);border:1px solid rgba(240,188,78,0.3);border-radius:14px;padding:28px 26px;width:320px;max-width:90vw;box-shadow:0 24px 80px rgba(0,0,0,0.7)">' +
+      '<div style="font-family:var(--display);font-size:16px;color:#fff;margin-bottom:4px">' + labels[type] + '</div>' +
+      '<div style="font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.35);margin-bottom:18px">' + hints[type] + '</div>' +
+      '<input id="ptg-edit-input" type="number" step="' + steps[type] + '" value="' + current + '" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.06);border:1.5px solid rgba(240,188,78,0.35);border-radius:8px;padding:14px 16px;font-family:var(--display);font-size:28px;color:#f0bc4e;text-align:center;outline:none;letter-spacing:0.02em" />' +
+      '<div style="display:flex;gap:10px;margin-top:18px">' +
+        '<button onclick="document.getElementById(\'ptg-edit-modal\').remove()" style="flex:1;font-family:var(--mono);font-size:11px;letter-spacing:0.06em;color:rgba(255,255,255,0.4);background:transparent;border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:12px 0;cursor:pointer;transition:all 0.15s">Cancel</button>' +
+        '<button onclick="_ptgEditSave(\'' + type + '\')" style="flex:1;font-family:var(--display);font-size:13px;letter-spacing:0.06em;color:#0a0b0d;background:#f0bc4e;border:none;border-radius:8px;padding:12px 0;cursor:pointer;transition:all 0.15s;font-weight:700">Save</button>' +
+      '</div>' +
+    '</div>';
+  document.body.appendChild(ov);
+  setTimeout(function(){ var inp = document.getElementById('ptg-edit-input'); if(inp){ inp.focus(); inp.select(); } }, 100);
+}
+function _ptgEditSave(type) {
+  var inp = document.getElementById('ptg-edit-input');
+  if (!inp) return;
+  var num = parseFloat(inp.value);
   if (isNaN(num) || num <= 0) return;
   if (type === 'trades') { TD_MAX_TRADES = Math.round(num); localStorage.setItem('td_max_trades', TD_MAX_TRADES); }
   if (type === 'stop')   { TD_DAILY_STOP = num; localStorage.setItem('td_daily_stop', TD_DAILY_STOP); }
   if (type === 'risk')   { BASE_RISK_PCT = num; localStorage.setItem('td_risk_pct', BASE_RISK_PCT); }
   _syncSessionLimitsUI();
+  var modal = document.getElementById('ptg-edit-modal'); if (modal) modal.remove();
 }
 window.ptgEditLimit = ptgEditLimit;
+window._ptgEditSave = _ptgEditSave;
 document.addEventListener('DOMContentLoaded', _syncSessionLimitsUI);
 function signedR(result, r, riskPct) {
   var val  = parseFloat(r) || 0;
