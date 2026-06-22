@@ -4437,8 +4437,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
         <button id="lvl-dir-short" onclick="lvlSetDir('short')" style="flex:1;padding:9px;border-radius:8px;font-family:var(--display);font-size:13px;letter-spacing:0.08em;cursor:pointer;border:1px solid rgba(255,255,255,0.1);color:var(--text3);background:transparent;transition:all 0.15s">▼ SHORT</button>
       </div>
 
-      <!-- Entry / SL / TP -->
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px">
+      <!-- Entry / SL / TP1 / TP2 -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:14px">
         <div>
           <div style="font-family:var(--mono);font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px">Entry</div>
           <input id="lvl-in-price" class="li" style="width:100%;color:var(--green)" placeholder="3342.0">
@@ -4448,8 +4448,12 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
           <input id="lvl-in-sl" class="li" style="width:100%;color:#f06060" placeholder="3358.0">
         </div>
         <div>
-          <div style="font-family:var(--mono);font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px">Take Profit</div>
+          <div style="font-family:var(--mono);font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px">TP1</div>
           <input id="lvl-in-tp" class="li" style="width:100%;color:#6aa3f5" placeholder="3310.0">
+        </div>
+        <div>
+          <div style="font-family:var(--mono);font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px">TP2 <span style="font-size:7px;color:var(--text3);letter-spacing:0">(optional)</span></div>
+          <input id="lvl-in-tp2" class="li" style="width:100%;color:#a78bfa" placeholder="3280.0">
         </div>
       </div>
 
@@ -7629,6 +7633,7 @@ function lvlAddFromForm() {
   var price = (document.getElementById('lvl-in-price')||{}).value || '';
   var sl    = (document.getElementById('lvl-in-sl')||{}).value || '';
   var tp    = (document.getElementById('lvl-in-tp')||{}).value || '';
+  var tp2   = (document.getElementById('lvl-in-tp2')||{}).value || '';
   var notes = (document.getElementById('lvl-in-notes')||{}).value || '';
   if (!price) { var p = document.getElementById('lvl-in-price'); if(p){p.style.borderColor='var(--red)';setTimeout(function(){p.style.borderColor='';},1200);} return; }
 
@@ -7638,7 +7643,7 @@ function lvlAddFromForm() {
 
   levelCount++;
   var id = levelCount;
-  var lvl = { id: id, direction: _lvlFormDir, type: _lvlFormDir, price: price, sl: sl, tp: tp, confluence: _lvlFormConf.slice(), confidence: _lvlFormConfidence, notes: notes, instrument: _lvlInstrument };
+  var lvl = { id: id, direction: _lvlFormDir, type: _lvlFormDir, price: price, sl: sl, tp: tp, tp2: tp2, confluence: _lvlFormConf.slice(), confidence: _lvlFormConfidence, notes: notes, instrument: _lvlInstrument };
   levels.push(lvl);
   window.levels = levels;
 
@@ -7650,6 +7655,7 @@ function lvlAddFromForm() {
   // Reset form
   document.getElementById('lvl-in-price').value = '';
   document.getElementById('lvl-in-sl').value = '';
+  var tp2El = document.getElementById('lvl-in-tp2'); if (tp2El) tp2El.value = '';
   document.getElementById('lvl-in-tp').value = '';
   document.getElementById('lvl-in-notes').value = '';
   _lvlFormConf = [];
@@ -7677,13 +7683,20 @@ function lvlRenderCard(lvl) {
   var rrBdr    = rr ? (rrNum >= 2 ? 'rgba(78,214,138,0.3)' : rrNum >= 1.5 ? 'rgba(240,188,78,0.3)' : rrNum >= 1 ? 'rgba(255,255,255,0.12)' : 'rgba(240,96,96,0.3)') : '';
 
   // top = TP for long, SL for short; bottom = opposite
-  var top = isLong
-    ? { lbl:'TP',    val: lvl.tp,    c: 'var(--green)' }
-    : { lbl:'SL',    val: lvl.sl,    c: 'var(--red)'   };
-  var mid    = { lbl:'ENTRY', val: lvl.price, c: 'var(--text)' };
-  var bottom = isLong
-    ? { lbl:'SL',    val: lvl.sl,    c: 'var(--red)'   }
-    : { lbl:'TP',    val: lvl.tp,    c: 'var(--green)' };
+  var hasTP2 = lvl.tp2 && parseFloat(lvl.tp2);
+  var top, mid, bottom, extra;
+  if (isLong) {
+    extra = hasTP2 ? { lbl:'TP2', val: lvl.tp2, c: '#a78bfa' } : null;
+    top    = { lbl:'TP1',   val: lvl.tp,    c: 'var(--green)' };
+    mid    = { lbl:'ENTRY', val: lvl.price, c: 'var(--text)' };
+    bottom = { lbl:'SL',    val: lvl.sl,    c: 'var(--red)'   };
+  } else {
+    top    = { lbl:'SL',    val: lvl.sl,    c: 'var(--red)'   };
+    mid    = { lbl:'ENTRY', val: lvl.price, c: 'var(--text)' };
+    bottom = { lbl:'TP1',   val: lvl.tp,    c: 'var(--green)' };
+    extra  = hasTP2 ? { lbl:'TP2', val: lvl.tp2, c: '#a78bfa' } : null;
+  }
+  if (!hasTP2) { top.lbl = top.lbl.replace('TP1','TP'); bottom.lbl = bottom.lbl.replace('TP1','TP'); }
 
   var barGrad = isLong
     ? 'linear-gradient(to bottom,var(--green),rgba(255,255,255,0.18) 50%,var(--red))'
@@ -7712,7 +7725,7 @@ function lvlRenderCard(lvl) {
     // ── Price ladder ──
     '<div style="display:flex;gap:11px;margin-bottom:' + (lvl.confluence&&lvl.confluence.length || lvl.notes ? '10px' : '0') + '">' +
       '<div style="width:2px;border-radius:2px;background:' + barGrad + ';flex-shrink:0"></div>' +
-      '<div style="flex:1">' + pRow(top) + pRow(mid) + pRow(bottom, true) + '</div>' +
+      '<div style="flex:1">' + (isLong && extra ? pRow(extra) : '') + pRow(top) + pRow(mid) + pRow(bottom) + (!isLong && extra ? pRow(extra, true) : '') + (!(extra && !isLong) ? '' : '') + '</div>' +
     '</div>' +
     // ── Confluence tags ──
     (lvl.confluence && lvl.confluence.length ?
@@ -7748,6 +7761,7 @@ function editLevel(id) {
   var priceEl = document.getElementById('lvl-in-price'); if (priceEl) priceEl.value = l.price || '';
   var slEl = document.getElementById('lvl-in-sl'); if (slEl) slEl.value = l.sl || '';
   var tpEl = document.getElementById('lvl-in-tp'); if (tpEl) tpEl.value = l.tp || '';
+  var tp2El = document.getElementById('lvl-in-tp2'); if (tp2El) tp2El.value = l.tp2 || '';
   var notesEl = document.getElementById('lvl-in-notes'); if (notesEl) notesEl.value = l.notes || '';
   // Restore confluence
   _lvlFormConf = [];
@@ -20186,7 +20200,40 @@ function _wizKlHover(idx, el) {
 }
 function _wizKlClick(idx) {
   window._klAllEntries = window._wizKlEntries || [];
+  var entry = (window._wizKlEntries || [])[idx];
+  if (!entry) return;
+  var l = entry.l;
+  var isLong = l.type === 'long' || l.direction === 'long';
+  // Fill key levels form
+  var dirBtn = document.querySelector('#lvl-form .lvl-dir-btn[data-dir="' + (isLong ? 'long' : 'short') + '"]');
+  if (dirBtn) dirBtn.click();
+  else if (typeof lvlSetDir === 'function') lvlSetDir(isLong ? 'long' : 'short');
+  var pEl = document.getElementById('lvl-in-price'); if (pEl && l.price) pEl.value = parseFloat(l.price).toFixed(1);
+  var sEl = document.getElementById('lvl-in-sl');    if (sEl && l.sl)    sEl.value = parseFloat(l.sl).toFixed(1);
+  var tEl = document.getElementById('lvl-in-tp');    if (tEl && l.tp)    tEl.value = parseFloat(l.tp).toFixed(1);
+  var t2El = document.getElementById('lvl-in-tp2');  if (t2El) t2El.value = l.tp2 ? parseFloat(l.tp2).toFixed(1) : '';
+  // Fill confluences
+  if (l.confluence && l.confluence.length) {
+    l.confluence.forEach(function(c) {
+      var cfBtn = document.querySelector('#lvl-form .lvl-cf-btn');
+      document.querySelectorAll('#lvl-form .lvl-cf-btn, #lvl-form .cf-btn').forEach(function(b) {
+        if (b.textContent.trim() === c && !b.classList.contains('sel')) b.click();
+      });
+    });
+  }
+  // Fill confidence
+  if (l.confidence) {
+    document.querySelectorAll('#lvl-form .lvl-conf-btn, #lvl-form .conf-btn').forEach(function(b) {
+      if (b.dataset.val == l.confidence || b.textContent.trim().toLowerCase() === (['','low','med','high'][l.confidence]||'').toLowerCase()) {
+        if (!b.classList.contains('sel')) b.click();
+      }
+    });
+  }
+  if (l.notes) { var nEl = document.getElementById('lvl-in-notes'); if (nEl) nEl.value = l.notes; }
+  // Also fill live exec calc
   klSendToCalc(idx);
+  // Hide hover card
+  var card = document.getElementById('kl-hover-card'); if (card) card.classList.remove('show');
 }
 window._wizKlHover = _wizKlHover;
 window._wizKlClick = _wizKlClick;
