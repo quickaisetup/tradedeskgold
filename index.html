@@ -18663,6 +18663,19 @@ body.fw-active .wt-banner{display:none!important}
 .wiz-q-btn{font-family:var(--mono);font-size:13px;letter-spacing:0.04em;padding:12px 32px;border-radius:10px;border:1.5px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.03);color:rgba(255,255,255,0.55);cursor:pointer;transition:all 0.18s}
 .wiz-q-btn:hover{border-color:rgba(240,188,78,0.4);color:#fff;background:rgba(240,188,78,0.06)}
 .wiz-q-btn.wiz-sel{border-color:var(--gold);color:var(--gold);background:rgba(240,188,78,0.1);box-shadow:0 0 12px rgba(240,188,78,0.15)}
+/* Match the colors of the real bias/trend/AO/MACD buttons */
+.wiz-q-btn.wiz-q-bull{border-color:rgba(78,214,138,0.28);color:rgba(78,214,138,0.75)}
+.wiz-q-btn.wiz-q-bull:hover{border-color:var(--green);color:var(--green);background:rgba(78,214,138,0.08)}
+.wiz-q-btn.wiz-q-bull.wiz-sel{border-color:var(--green);color:var(--green);background:rgba(78,214,138,0.16);box-shadow:0 0 12px rgba(78,214,138,0.2)}
+.wiz-q-btn.wiz-q-bear{border-color:rgba(240,96,96,0.28);color:rgba(240,96,96,0.75)}
+.wiz-q-btn.wiz-q-bear:hover{border-color:var(--red);color:var(--red);background:rgba(240,96,96,0.08)}
+.wiz-q-btn.wiz-q-bear.wiz-sel{border-color:var(--red);color:var(--red);background:rgba(240,96,96,0.16);box-shadow:0 0 12px rgba(240,96,96,0.2)}
+.wiz-q-btn.wiz-q-neu{border-color:rgba(240,188,78,0.22);color:rgba(240,188,78,0.6)}
+.wiz-q-btn.wiz-q-neu.wiz-sel{border-color:var(--gold);color:var(--gold);background:rgba(240,188,78,0.14);box-shadow:0 0 12px rgba(240,188,78,0.2)}
+/* Speech-bubble style temporary tip */
+.wiz-bubble-tip{position:absolute;left:0;bottom:calc(100% + 14px);background:linear-gradient(160deg,#1a1710,#100f0c);border:1px solid rgba(240,188,78,0.3);border-radius:10px;padding:12px 16px;width:280px;font-family:var(--mono);font-size:10px;color:rgba(240,188,78,0.85);line-height:1.6;box-shadow:0 12px 32px rgba(0,0,0,0.5);z-index:5;animation:eodFadeIn 0.25s ease}
+.wiz-bubble-tip:after{content:'';position:absolute;left:22px;top:100%;border:7px solid transparent;border-top-color:rgba(240,188,78,0.3)}
+.wiz-bubble-tip:before{content:'';position:absolute;left:23px;top:100%;border:6px solid transparent;border-top-color:#100f0c}
 /* Wizard levels layout */
 #wiz-levels-layout{display:grid;grid-template-columns:1fr 1fr;gap:0;width:100%;min-height:0;flex:1}
 #wiz-levels-chart{min-height:300px;overflow:hidden}
@@ -19340,7 +19353,7 @@ function _wizRenderSection(s, body) {
     newsHeader.innerHTML =
       '<div style="font-size:36px;margin-bottom:8px">📰</div>' +
       '<div style="font-family:var(--display);font-size:28px;color:#fff;letter-spacing:0.04em;margin-bottom:6px">Check Today\'s News</div>' +
-      '<div style="font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.4);line-height:1.6;max-width:440px;margin:0 auto">Big news can make the market jump suddenly.<br>Look at the times below — those are the risky moments today.</div>';
+      '<div style="font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.4);line-height:1.6;max-width:440px;margin:0 auto">Big news can make the market jump suddenly — look at the times below.<br>Click the <span style="color:rgba(240,188,78,0.7)">clock button</span> next to a risky one to get an alert before it happens.</div>';
     wrap.appendChild(newsHeader);
   }
 
@@ -19370,15 +19383,20 @@ function _wizRenderSection(s, body) {
   // Add edit controls for morning routine
   if (s.doneCheck === 'gates') {
     var editRow = document.createElement('div');
-    editRow.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:12px;margin-top:16px;width:100%';
+    editRow.style.cssText = 'position:relative;display:flex;align-items:center;justify-content:center;gap:12px;margin-top:16px;width:100%';
     editRow.innerHTML =
       '<button onclick="addGateItem()" style="font-family:var(--mono);font-size:10px;color:rgba(240,188,78,0.6);background:transparent;border:1px dashed rgba(240,188,78,0.25);border-radius:6px;padding:8px 16px;cursor:pointer;transition:all 0.15s;letter-spacing:0.04em" onmouseover="this.style.borderColor=\'rgba(240,188,78,0.5)\';this.style.color=\'var(--gold)\'" onmouseout="this.style.borderColor=\'rgba(240,188,78,0.25)\';this.style.color=\'rgba(240,188,78,0.6)\'">+ Add routine item</button>';
-    // Always-visible explainer hint — kept on screen, not just shown once
-    var hintBubble = document.createElement('div');
-    hintBubble.style.cssText = 'margin-top:16px;background:rgba(240,188,78,0.08);border:1px solid rgba(240,188,78,0.2);border-radius:8px;padding:12px 16px;text-align:center;width:100%;animation:eodFadeIn 0.3s ease';
-    hintBubble.innerHTML = '<div style="font-family:var(--mono);font-size:10px;color:rgba(240,188,78,0.7);line-height:1.6">💡 You can add your own checks here.<br>Examples: "Check my account balance", "Read yesterday\'s notes", "Set today\'s goal"</div>';
-    editRow.appendChild(hintBubble);
     wrap.appendChild(editRow);
+
+    // Temporary speech-bubble tip — pops up near the button, then fades away on its own
+    if (!localStorage.getItem('td_gate_hint_seen')) {
+      localStorage.setItem('td_gate_hint_seen', '1');
+      var hintBubble = document.createElement('div');
+      hintBubble.className = 'wiz-bubble-tip';
+      hintBubble.innerHTML = '💡 You can add your own checks here.<br>Examples: "Check my account balance", "Read yesterday\'s notes", "Set today\'s goal"';
+      editRow.appendChild(hintBubble);
+      setTimeout(function(){ if (hintBubble.parentNode) { hintBubble.style.transition = 'opacity 0.5s'; hintBubble.style.opacity = '0'; setTimeout(function(){ if (hintBubble.parentNode) hintBubble.remove(); }, 500); } }, 6000);
+    }
   }
 
   if (s.onShow === 'loadBriefing' && typeof loadBriefing === 'function') loadBriefing(false);
@@ -19411,8 +19429,16 @@ function _wizRenderTF(s, body) {
   // Left: chart
   var chartWrap = document.createElement('div');
   chartWrap.id = 'wiz-tf-chart';
+  chartWrap.style.position = 'relative';
   var chart = wizBorrow('tv-chart-wrap');
   if (chart) { chart.style.height = '100%'; chartWrap.appendChild(chart); }
+
+  // Big faded timeframe watermark, so it's always obvious which chart you're looking at
+  var tfWm = document.createElement('div');
+  tfWm.style.cssText = 'position:absolute;top:8px;right:16px;z-index:4;font-family:var(--display);font-size:clamp(28px,5vw,56px);line-height:1;letter-spacing:0.04em;color:rgba(255,255,255,0.12);pointer-events:none;user-select:none';
+  tfWm.textContent = s.tfKey;
+  chartWrap.appendChild(tfWm);
+
   layout.appendChild(chartWrap);
 
   // Right sidebar: completed cards stack + current card + score
@@ -19534,7 +19560,7 @@ function _wizRenderSubQ(s, container) {
     (defs.q ? '<div style="font-family:var(--mono);font-size:12px;color:rgba(255,255,255,0.45);margin:-6px 0 18px;line-height:1.5">' + defs.q + '</div>' : '') +
     '<div class="wiz-q-btns">' +
       defs.items.map(function(it) {
-        return '<button class="wiz-q-btn" data-val="' + it.val + '" onclick="_wizSubClick(\'' + s.tfKey + '\',\'' + key + '\',\'' + it.val + '\',this)">' + it.label + '</button>';
+        return '<button class="wiz-q-btn wiz-q-' + it.cls + '" data-val="' + it.val + '" onclick="_wizSubClick(\'' + s.tfKey + '\',\'' + key + '\',\'' + it.val + '\',this)">' + it.label + '</button>';
       }).join('') +
       (defs.skippable ? '<button class="wiz-q-btn" onclick="_wizSubSkip(\'' + s.tfKey + '\',\'' + key + '\')" style="border-style:dashed;color:rgba(255,255,255,0.2)">I don\'t see this — Skip</button>' : '') +
     '</div>' +
