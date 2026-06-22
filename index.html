@@ -20152,6 +20152,40 @@ function _wizRenderLevels(s, body) {
 
   var formWrap = document.createElement('div');
   formWrap.id = 'wiz-levels-form';
+
+  // Community levels section
+  var clWrap = document.createElement('div');
+  clWrap.style.cssText = 'padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.015)';
+  clWrap.innerHTML = '<div style="font-family:var(--mono);font-size:8px;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:8px">👥 Other Traders\' Key Levels</div>';
+  var clBar = document.createElement('div');
+  clBar.id = 'wiz-kl-community';
+  clBar.style.cssText = 'display:flex;flex-wrap:wrap;gap:6px;min-height:28px;align-items:center';
+  // Populate from _klAllLevels
+  var _clEntries = (window._klAllLevels || []).filter(function(e) {
+    return (e.l.instrument || 'XAUUSD') === (typeof _lvlInstrument !== 'undefined' ? _lvlInstrument : 'XAUUSD');
+  });
+  if (_clEntries.length) {
+    clBar.innerHTML = _clEntries.map(function(e, idx) {
+      var l = e.l, user = e.user;
+      var isLong = l.type === 'long' || l.direction === 'long';
+      var gc = isLong ? '#4ed68a' : '#f06060';
+      var gbd = isLong ? 'rgba(78,214,138,0.3)' : 'rgba(240,96,96,0.3)';
+      var gb = isLong ? 'rgba(78,214,138,0.08)' : 'rgba(240,96,96,0.08)';
+      var arr = isLong ? '▲' : '▼';
+      var price = parseFloat(l.price).toFixed(2);
+      return '<div onclick="klSendToCalc(' + idx + ')" title="Click to load into calculator" style="display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:7px;border:1px solid ' + gbd + ';background:' + gb + ';cursor:pointer;transition:all 0.15s" onmouseover="this.style.filter=\'brightness(1.3)\';this.style.transform=\'scale(1.03)\'" onmouseout="this.style.filter=\'\';this.style.transform=\'\'">' +
+        '<span style="font-family:var(--mono);font-size:8px;color:rgba(255,255,255,0.4)">@' + user + '</span>' +
+        '<span style="font-family:var(--display);font-size:10px;color:' + gc + '">' + arr + '</span>' +
+        '<span style="font-family:var(--mono);font-size:12px;font-weight:700;color:' + gc + '">' + price + '</span>' +
+        (l.confidence ? '<span style="font-family:var(--mono);font-size:7px;color:rgba(255,255,255,0.25);border:1px solid rgba(255,255,255,0.08);border-radius:3px;padding:1px 4px">' + l.confidence + '</span>' : '') +
+      '</div>';
+    }).join('');
+  } else {
+    clBar.innerHTML = '<span style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.2)">No shared levels yet — be the first to add one</span>';
+  }
+  clWrap.appendChild(clBar);
+  formWrap.appendChild(clWrap);
+
   var form = wizBorrow('lvl-form');
   if (form) formWrap.appendChild(form);
   var list = wizBorrow('level-list');
