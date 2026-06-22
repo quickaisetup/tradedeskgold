@@ -5262,20 +5262,20 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
       <div id="ptg-limits" style="border-top:1px solid rgba(255,255,255,0.07);padding-top:20px;margin-top:20px">
         <div style="font-family:var(--mono);font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3);margin-bottom:14px">Session Limits</div>
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
-          <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:14px 12px;text-align:center">
+          <div onclick="ptgEditLimit('trades')" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:14px 12px;text-align:center;cursor:pointer;transition:border-color 0.15s" onmouseover="this.style.borderColor='rgba(255,255,255,0.2)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.08)'">
             <div style="font-family:var(--mono);font-size:7px;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:6px">Max trades</div>
-            <div id="ptg-limit-trades" style="font-family:var(--display);font-size:24px;color:#fff;line-height:1">2</div>
-            <div style="font-family:var(--mono);font-size:8px;color:rgba(255,255,255,0.25);margin-top:4px">own setups</div>
+            <div id="ptg-limit-trades" style="font-family:var(--display);font-size:24px;color:#fff;line-height:1"></div>
+            <div style="font-family:var(--mono);font-size:8px;color:rgba(255,255,255,0.25);margin-top:4px">tap to edit</div>
           </div>
-          <div style="background:rgba(240,96,96,0.04);border:1px solid rgba(240,96,96,0.15);border-radius:8px;padding:14px 12px;text-align:center">
+          <div onclick="ptgEditLimit('stop')" style="background:rgba(240,96,96,0.04);border:1px solid rgba(240,96,96,0.15);border-radius:8px;padding:14px 12px;text-align:center;cursor:pointer;transition:border-color 0.15s" onmouseover="this.style.borderColor='rgba(240,96,96,0.35)'" onmouseout="this.style.borderColor='rgba(240,96,96,0.15)'">
             <div style="font-family:var(--mono);font-size:7px;letter-spacing:0.14em;text-transform:uppercase;color:rgba(240,96,96,0.5);margin-bottom:6px">Daily stop</div>
-            <div id="ptg-limit-stop" style="font-family:var(--display);font-size:24px;color:#f06060;line-height:1">-1.5%</div>
-            <div style="font-family:var(--mono);font-size:8px;color:rgba(240,96,96,0.35);margin-top:4px">hard limit</div>
+            <div id="ptg-limit-stop" style="font-family:var(--display);font-size:24px;color:#f06060;line-height:1"></div>
+            <div style="font-family:var(--mono);font-size:8px;color:rgba(240,96,96,0.35);margin-top:4px">tap to edit</div>
           </div>
-          <div style="background:rgba(240,188,78,0.04);border:1px solid rgba(240,188,78,0.15);border-radius:8px;padding:14px 12px;text-align:center">
+          <div onclick="ptgEditLimit('risk')" style="background:rgba(240,188,78,0.04);border:1px solid rgba(240,188,78,0.15);border-radius:8px;padding:14px 12px;text-align:center;cursor:pointer;transition:border-color 0.15s" onmouseover="this.style.borderColor='rgba(240,188,78,0.35)'" onmouseout="this.style.borderColor='rgba(240,188,78,0.15)'">
             <div style="font-family:var(--mono);font-size:7px;letter-spacing:0.14em;text-transform:uppercase;color:rgba(240,188,78,0.5);margin-bottom:6px">Risk / trade</div>
-            <div id="ptg-limit-risk" style="font-family:var(--display);font-size:24px;color:#f0bc4e;line-height:1">0.5%</div>
-            <div style="font-family:var(--mono);font-size:8px;color:rgba(240,188,78,0.35);margin-top:4px">max exposure</div>
+            <div id="ptg-limit-risk" style="font-family:var(--display);font-size:24px;color:#f0bc4e;line-height:1"></div>
+            <div style="font-family:var(--mono);font-size:8px;color:rgba(240,188,78,0.35);margin-top:4px">tap to edit</div>
           </div>
         </div>
       </div>
@@ -9302,7 +9302,33 @@ async function reSaveAll() {
 // ── HISTORY TABLE ─────────────────────────────────────
 // Losses are stored as positive magnitude.
 // Normalize to base risk (0.5%): a 1R win at 1% risk = 2 base-R units.
-var BASE_RISK_PCT = 0.5;
+var BASE_RISK_PCT = parseFloat(localStorage.getItem('td_risk_pct')) || 0.5;
+var TD_MAX_TRADES = parseInt(localStorage.getItem('td_max_trades')) || 2;
+var TD_DAILY_STOP = parseFloat(localStorage.getItem('td_daily_stop')) || 1.5;
+
+function _syncSessionLimitsUI() {
+  var el1 = document.getElementById('ptg-limit-trades'); if (el1) el1.textContent = TD_MAX_TRADES;
+  var el2 = document.getElementById('ptg-limit-stop');   if (el2) el2.textContent = '-' + TD_DAILY_STOP + '%';
+  var el3 = document.getElementById('ptg-limit-risk');   if (el3) el3.textContent = BASE_RISK_PCT + '%';
+  // Kill switch limits
+  var kmOwn = document.querySelector('#km-own .km-limit'); if (kmOwn) kmOwn.textContent = 'max ' + TD_MAX_TRADES + ' trades';
+  // Position calculator default risk
+  var calcRisk = document.getElementById('calc-risk'); if (calcRisk && !calcRisk._userEdited) calcRisk.value = BASE_RISK_PCT;
+}
+function ptgEditLimit(type) {
+  var labels = { trades: 'Max trades per day', stop: 'Daily hard stop (%)', risk: 'Risk per trade (%)' };
+  var current = type === 'trades' ? TD_MAX_TRADES : type === 'stop' ? TD_DAILY_STOP : BASE_RISK_PCT;
+  var val = prompt(labels[type], current);
+  if (val === null) return;
+  var num = parseFloat(val);
+  if (isNaN(num) || num <= 0) return;
+  if (type === 'trades') { TD_MAX_TRADES = Math.round(num); localStorage.setItem('td_max_trades', TD_MAX_TRADES); }
+  if (type === 'stop')   { TD_DAILY_STOP = num; localStorage.setItem('td_daily_stop', TD_DAILY_STOP); }
+  if (type === 'risk')   { BASE_RISK_PCT = num; localStorage.setItem('td_risk_pct', BASE_RISK_PCT); }
+  _syncSessionLimitsUI();
+}
+window.ptgEditLimit = ptgEditLimit;
+document.addEventListener('DOMContentLoaded', _syncSessionLimitsUI);
 function signedR(result, r, riskPct) {
   var val  = parseFloat(r) || 0;
   var norm = riskPct ? val * (parseFloat(riskPct) / BASE_RISK_PCT) : val;
