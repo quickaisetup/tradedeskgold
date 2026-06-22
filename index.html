@@ -8667,10 +8667,10 @@ async function saveTrade(id) {
   t._lastAppliedUsd = newUsd;
 
   t.saved = true;
-  // Show EOD nudge after saving a trade (delayed so it doesn't interrupt)
-  if (!localStorage.getItem(_eodDaySavedKey())) {
-    setTimeout(function(){ if (typeof eodNudgeOpen === 'function') eodNudgeOpen(); }, 2000);
-  }
+  // After saving/updating a trade, prompt to update EOD review
+  setTimeout(function(){
+    if (typeof eodOpenQuestions === 'function') eodOpenQuestions(true);
+  }, 2000);
   // Flag a stop-out so the pre-trade gate re-triggers next time the panel opens
   if (t.result === 'Loss' && typeof ptgMarkStopOut === 'function') ptgMarkStopOut();
   _persistTradesToLocal(); // snapshot saved trades to localStorage immediately
@@ -11630,7 +11630,7 @@ function eodNudgeDismiss() {
 }
 
 // Popup 2 — the actual review questions
-function eodOpenQuestions() {
+function eodOpenQuestions(fromTrade) {
   var nudgeOverlay = document.getElementById('eod-nudge-overlay');
   if (nudgeOverlay) nudgeOverlay.classList.remove('show');
   _eodRestoreRankCard();
@@ -11646,6 +11646,12 @@ function eodOpenQuestions() {
       if (draft.rules) eodSetRules(draft.rules, document.querySelector('.eod-rule-btn[data-val="' + draft.rules + '"]'));
     }
   } catch(e) {}
+
+  // Update title based on context
+  var titleEl = document.getElementById('eod-questions-title');
+  var subEl = document.querySelector('#eod-questions-card > div:nth-child(3)');
+  if (titleEl) titleEl.textContent = fromTrade ? '📝 Update Your End of Day Notes' : '📝 Start Your End of Day Review';
+  if (subEl) subEl.textContent = fromTrade ? 'What did you learn from this trade? Update your notes.' : 'You can continue and edit later.';
 
   var overlay = document.getElementById('eod-questions-overlay');
   if (overlay) overlay.classList.add('show');
