@@ -18698,7 +18698,7 @@ body.fw-active .wt-banner{display:none!important}
 #wiz-levels-chart{min-height:300px;overflow:hidden}
 #wiz-levels-form{overflow-y:auto;padding:20px;border-left:1px solid rgba(255,255,255,0.06)}
 /* Wizard choice */
-.wiz-choice-wrap{padding:48px 28px;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:24px}
+.wiz-choice-wrap{padding:20px 28px;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:14px;min-height:0;overflow:hidden}
 /* Mini chart watermark — same look as Live Execution's corner watermark, non-interactive */
 .wiz-mini-wm{position:absolute;top:6px;right:12%;z-index:2;font-family:'Bebas Neue',sans-serif;font-size:clamp(22px,5vw,48px);line-height:1;letter-spacing:0.04em;color:rgba(255,255,255,0.16);pointer-events:none;user-select:none;white-space:nowrap}
 /* Make the borrowed real Direction/Pivot/London buttons match the question buttons' prominent style */
@@ -19825,10 +19825,10 @@ function _wizRenderChoice(s, body) {
   var ch = choiceHelp[s.key];
   if (ch) {
     var choiceHeader = document.createElement('div');
-    choiceHeader.style.cssText = 'text-align:center;margin-bottom:24px;width:100%';
+    choiceHeader.style.cssText = 'text-align:center;margin-bottom:4px;width:100%';
     choiceHeader.innerHTML =
-      '<div style="font-size:36px;margin-bottom:8px">' + ch.icon + '</div>' +
-      '<div style="font-family:var(--display);font-size:28px;color:#fff;letter-spacing:0.04em;margin-bottom:6px">' + ch.title + '</div>' +
+      '<div style="font-size:24px;margin-bottom:2px">' + ch.icon + '</div>' +
+      '<div style="font-family:var(--display);font-size:21px;color:#fff;letter-spacing:0.04em;margin-bottom:3px">' + ch.title + '</div>' +
       '<div style="font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.4);line-height:1.6;max-width:440px;margin:0 auto">' + ch.text + '</div>';
     wrap.appendChild(choiceHeader);
   }
@@ -19846,7 +19846,7 @@ function _wizRenderChoice(s, body) {
       { id: 'MAExp@tv-basicstudies', inputs: { length: 200 } }
     ];
     var dirGrid = document.createElement('div');
-    dirGrid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;width:100%;max-width:1500px;height:420px;margin-bottom:20px';
+    dirGrid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;width:100%;max-width:1400px;height:300px;margin-bottom:14px';
     [{ label: '4H', interval: '240' }, { label: '1H', interval: '60' }, { label: '15m', interval: '15' }].forEach(function(tf) {
       var cell = document.createElement('div');
       cell.style.cssText = 'position:relative;border:1px solid rgba(255,255,255,0.08);border-radius:10px;overflow:hidden;background:#060708;box-shadow:0 8px 24px rgba(0,0,0,0.3)';
@@ -19865,15 +19865,13 @@ function _wizRenderChoice(s, body) {
 
   if (s.key === 'pivot') {
     // One 15-minute chart, pivot points only — no EMAs, no other indicators.
-    // Limit to today's pivot only (no stacked history from previous days) and
-    // hide the outer R4/R5/S4/S5 levels, keeping just P and R1-R3/S1-R3.
-    var pivotStudy = [{
-      id: 'PivotPointsStandard@tv-basicstudies',
-      inputs: { in_0: 'Daily', in_1: 1, in_2: false },
-      styles: { 'R4.visible': false, 'R5.visible': false, 'S4.visible': false, 'S5.visible': false }
-    }];
+    // NOTE: previously tried passing inputs/styles overrides to limit history
+    // and hide R4/R5/S4/S5, but the guessed keys didn't work (levels still
+    // showed) and caused a rendering glitch — reverted to the plain default
+    // study, which renders reliably even if it shows the full level set.
+    var pivotStudy = [{ id: 'PivotPointsStandard@tv-basicstudies' }];
     var pivotBox = document.createElement('div');
-    pivotBox.style.cssText = 'position:relative;width:100%;max-width:1100px;height:560px;border:1px solid rgba(255,255,255,0.08);border-radius:10px;overflow:hidden;background:#060708;box-shadow:0 8px 24px rgba(0,0,0,0.3);margin-bottom:20px';
+    pivotBox.style.cssText = 'position:relative;width:100%;max-width:1000px;height:380px;border:1px solid rgba(255,255,255,0.08);border-radius:10px;overflow:hidden;background:#060708;box-shadow:0 8px 24px rgba(0,0,0,0.3);margin-bottom:14px';
     var pivotWm = document.createElement('div');
     pivotWm.className = 'wiz-mini-wm';
     pivotWm.textContent = '15m';
@@ -19888,7 +19886,7 @@ function _wizRenderChoice(s, body) {
   if (s.key === 'london') {
     // One 15-minute chart, plain price action — no indicators
     var londonBox = document.createElement('div');
-    londonBox.style.cssText = 'position:relative;width:100%;max-width:1100px;height:420px;border:1px solid rgba(255,255,255,0.08);border-radius:10px;overflow:hidden;background:#060708;box-shadow:0 8px 24px rgba(0,0,0,0.3);margin-bottom:20px';
+    londonBox.style.cssText = 'position:relative;width:100%;max-width:1000px;height:300px;border:1px solid rgba(255,255,255,0.08);border-radius:10px;overflow:hidden;background:#060708;box-shadow:0 8px 24px rgba(0,0,0,0.3);margin-bottom:14px';
     var londonWm = document.createElement('div');
     londonWm.className = 'wiz-mini-wm';
     londonWm.textContent = '15m';
