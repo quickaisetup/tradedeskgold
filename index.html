@@ -8658,6 +8658,10 @@ async function saveTrade(id) {
   }
 
   t.saved = true;
+  // Show EOD nudge after saving a trade (delayed so it doesn't interrupt)
+  if (!localStorage.getItem(_eodXpGrantedKey())) {
+    setTimeout(function(){ if (typeof eodNudgeOpen === 'function') eodNudgeOpen(); }, 2000);
+  }
   // Flag a stop-out so the pre-trade gate re-triggers next time the panel opens
   if (t.result === 'Loss' && typeof ptgMarkStopOut === 'function') ptgMarkStopOut();
   _persistTradesToLocal(); // snapshot saved trades to localStorage immediately
