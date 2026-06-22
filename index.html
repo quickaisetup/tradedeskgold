@@ -7105,6 +7105,7 @@ function setPivot(val, btn) {
   updateVerdictAuto();
   updateVerdictAuto();
   _saveTFStateLocal();
+  if (!window._inRestore && typeof saveMorningAnalysis === 'function') { if(window.scheduleMorningAutosave) scheduleMorningAutosave(0.001); else saveMorningAnalysis(true); }
 }
 function toggleMarketDir(val, btn) {
   const btns = document.querySelectorAll('#market-direction .bb');
@@ -7119,6 +7120,7 @@ function toggleMarketDir(val, btn) {
   updateStickyBiasBar();
   updateBottomHUD();
   _saveTFStateLocal();
+  if (!window._inRestore && typeof saveMorningAnalysis === 'function') { if(window.scheduleMorningAutosave) scheduleMorningAutosave(0.001); else saveMorningAnalysis(true); }
 }
 
 var finalBiasState = '';
@@ -7233,6 +7235,7 @@ function setLondonBias(val, btn) {
   updateVerdictAuto();
   updateVerdictAuto();
   _saveTFStateLocal();
+  if (!window._inRestore && typeof saveMorningAnalysis === 'function') { if(window.scheduleMorningAutosave) scheduleMorningAutosave(0.001); else saveMorningAnalysis(true); }
 }
 
 function updateVerdictAuto() {
@@ -8578,6 +8581,7 @@ function updateKill() {
   var p2 = document.getElementById('cp-alex'); if (p2) p2.textContent = 'Alex: ' + alex;
   var p3 = document.getElementById('cp-wins'); if (p3) p3.textContent = 'Wins: ' + wins;
   var p4 = document.getElementById('cp-losses'); if (p4) p4.textContent = 'Losses: ' + losses;
+  if (typeof _syncSessionLimitsUI === 'function') _syncSessionLimitsUI();
 }
 
 // ── OVERLAYS ──────────────────────────────────────────
@@ -9346,12 +9350,42 @@ function _showHardStopPopup() {
 window._showHardStopPopup = _showHardStopPopup;
 
 function _syncSessionLimitsUI() {
-  var el1 = document.getElementById('ptg-limit-trades'); if (el1) el1.textContent = TD_MAX_TRADES;
-  var el2 = document.getElementById('ptg-limit-stop');   if (el2) el2.textContent = '-' + TD_DAILY_STOP + '%';
-  var el3 = document.getElementById('ptg-limit-risk');   if (el3) el3.textContent = BASE_RISK_PCT + '%';
-  // Kill switch limits
+  // Count own trades
+  var saved = window._appState ? window._appState.trades.filter(function(t){ return t.saved; }) : [];
+  var ownCount = saved.filter(function(t){ return t.type === 'Own'; }).length;
+  var totalR = saved.reduce(function(s,t){ return s + (typeof signedR === 'function' ? signedR(t.result, t.rAchieved, t.riskPct) : 0); }, 0);
+  var dailyStopR = TD_DAILY_STOP / (BASE_RISK_PCT || 0.5);
+  var tradeBreached = ownCount >= TD_MAX_TRADES;
+  var stopBreached = totalR <= -dailyStopR;
+
+  var el1 = document.getElementById('ptg-limit-trades');
+  if (el1) {
+    el1.textContent = ownCount + ' / ' + TD_MAX_TRADES;
+    el1.style.color = tradeBreached ? '#f06060' : '#fff';
+  }
+  var card1 = el1 ? el1.parentElement : null;
+  if (card1) {
+    card1.style.borderColor = tradeBreached ? 'rgba(240,96,96,0.5)' : 'rgba(255,255,255,0.08)';
+    card1.style.background = tradeBreached ? 'rgba(240,96,96,0.08)' : 'rgba(255,255,255,0.03)';
+  }
+  var lbl1 = card1 ? card1.querySelector('div:last-child') : null;
+  if (lbl1) lbl1.textContent = tradeBreached ? '⚠ limit reached' : 'tap to edit';
+
+  var el2 = document.getElementById('ptg-limit-stop');
+  if (el2) {
+    el2.textContent = '-' + TD_DAILY_STOP + '%';
+    el2.style.color = stopBreached ? '#ff4040' : '#f06060';
+  }
+  var card2 = el2 ? el2.parentElement : null;
+  if (card2) {
+    card2.style.borderColor = stopBreached ? 'rgba(240,64,64,0.6)' : 'rgba(240,96,96,0.15)';
+    card2.style.background = stopBreached ? 'rgba(240,64,64,0.12)' : 'rgba(240,96,96,0.04)';
+  }
+  var lbl2 = card2 ? card2.querySelector('div:last-child') : null;
+  if (lbl2) lbl2.textContent = stopBreached ? '🛑 STOP TRADING' : 'tap to edit';
+
+  var el3 = document.getElementById('ptg-limit-risk'); if (el3) el3.textContent = BASE_RISK_PCT + '%';
   var kmOwn = document.querySelector('#km-own .km-limit'); if (kmOwn) kmOwn.textContent = 'max ' + TD_MAX_TRADES + ' trades';
-  // Position calculator default risk
   var calcRisk = document.getElementById('calc-risk'); if (calcRisk && !calcRisk._userEdited) calcRisk.value = BASE_RISK_PCT;
 }
 // ── LOSS COOLDOWN SYSTEM ──────────────────────────────
