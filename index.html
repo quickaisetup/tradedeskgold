@@ -8706,6 +8706,13 @@ async function saveTrade(id) {
   }, 2000);
   // Flag a stop-out so the pre-trade gate re-triggers next time the panel opens
   if (t.result === 'Loss' && typeof ptgMarkStopOut === 'function') ptgMarkStopOut();
+  // Trigger cooldown on loss
+  if (t.result === 'Loss' && typeof triggerCooldown === 'function') {
+    var _saved = state.trades.filter(function(x){ return x.saved; });
+    var _consec = 0;
+    for (var _ci = _saved.length - 1; _ci >= 0; _ci--) { if (_saved[_ci].result === 'Loss') _consec++; else break; }
+    if (_consec > 0) triggerCooldown(_consec, t.notes || '');
+  }
   _persistTradesToLocal(); // snapshot saved trades to localStorage immediately
 
   // ── Visual DB confirmation on the collapsed card ──────
@@ -9345,6 +9352,160 @@ function _syncSessionLimitsUI() {
   // Position calculator default risk
   var calcRisk = document.getElementById('calc-risk'); if (calcRisk && !calcRisk._userEdited) calcRisk.value = BASE_RISK_PCT;
 }
+// ── LOSS COOLDOWN SYSTEM ──────────────────────────────
+var _cooldownTimer = null;
+var _cooldownAIMsg = '';
+
+function _cooldownKey() { return 'td_cooldown_state'; }
+
+function _getCooldownState() {
+  try { return JSON.parse(localStorage.getItem(_cooldownKey()) || 'null'); } catch(e) { return null; }
+}
+
+function _setCooldownState(st) {
+  localStorage.setItem(_cooldownKey(), JSON.stringify(st));
+  // Persist to Supabase
+  try {
+    var sb = window._tdSB || (typeof getSB === 'function' ? getSB() : null);
+    if (sb && window._userId) sb.from('profiles').update({ cooldown_state: st }).eq('id', window._userId).then(function(){});
+  } catch(e) {}
+}
+
+function _clearCooldown() {
+  localStorage.removeItem(_cooldownKey());
+  clearInterval(_cooldownTimer);
+  try {
+    var sb = window._tdSB || (typeof getSB === 'function' ? getSB() : null);
+    if (sb && window._userId) sb.from('profiles').update({ cooldown_state: null }).eq('id', window._userId).then(function(){});
+  } catch(e) {}
+}
+
+function triggerCooldown(consecLosses, tradeNotes) {
+  var mins = consecLosses >= 2 ? 30 : 10;
+  var expiresAt = Date.now() + mins * 60 * 1000;
+  var st = { expiresAt: expiresAt, losses: consecLosses, notes: tradeNotes || '' };
+  _setCooldownState(st);
+  _cooldownAIMsg = '';
+  _fetchCooldownAIMsg(consecLosses, tradeNotes);
+  _showCooldownPopup(st);
+}
+
+async function _fetchCooldownAIMsg(losses, notes) {
+  try {
+    var tone = losses >= 2 ? 'firm and direct' : 'calm and supportive';
+    var prompt = 'You are a trading psychology coach. A trader just had ' + losses + ' consecutive loss' + (losses > 1 ? 'es' : '') + '. Their trade notes: "' + (notes || 'none provided') + '". Give a ' + tone + ' message in under 60 words. Coach tone, no bullet points, no greeting. Address what they can learn and why stepping away helps.';
+    var res = await fetch('/api/ai-proxy', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 120, messages: [{ role: 'user', content: prompt }] })
+    });
+    var data = await res.json();
+    _cooldownAIMsg = (data.content && data.content[0] && data.content[0].text) || '';
+    var msgEl = document.getElementById('cooldown-ai-msg');
+    if (msgEl && _cooldownAIMsg) msgEl.textContent = _cooldownAIMsg;
+  } catch(e) {
+    _cooldownAIMsg = losses >= 2
+      ? 'Two losses in a row. The market isn\'t going anywhere — but your capital is. Step away, review your setups, and come back with clarity.'
+      : 'One loss is part of the game. Take a breath, review what happened, and let the next setup come to you.';
+    var msgEl = document.getElementById('cooldown-ai-msg');
+    if (msgEl) msgEl.textContent = _cooldownAIMsg;
+  }
+}
+
+function _showCooldownPopup(st) {
+  var existing = document.getElementById('cooldown-overlay');
+  if (existing) existing.remove();
+  clearInterval(_cooldownTimer);
+
+  var isFirm = st.losses >= 2;
+  var accent = isFirm ? '#a855f7' : '#f0bc4e';
+  var accentBg = isFirm ? 'rgba(168,85,247,0.08)' : 'rgba(240,188,78,0.08)';
+  var accentBd = isFirm ? 'rgba(168,85,247,0.3)' : 'rgba(240,188,78,0.3)';
+
+  var ov = document.createElement('div');
+  ov.id = 'cooldown-overlay';
+  ov.style.cssText = 'position:fixed;inset:0;z-index:200002;background:rgba(4,5,7,0.96);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:24px;animation:eodFadeIn 0.3s ease';
+
+  ov.innerHTML =
+    '<div style="max-width:440px;width:100%;text-align:center">' +
+      '<div style="font-size:48px;margin-bottom:12px">' + (isFirm ? '🧘' : '⏸️') + '</div>' +
+      '<div style="font-family:var(--display);font-size:28px;color:' + accent + ';letter-spacing:0.06em;margin-bottom:6px">' + (isFirm ? 'MANDATORY COOLDOWN' : 'TAKE A BREATH') + '</div>' +
+      '<div style="font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.35);margin-bottom:24px">' + st.losses + ' consecutive loss' + (st.losses > 1 ? 'es' : '') + ' — ' + (isFirm ? '30' : '10') + ' min cooldown</div>' +
+      '<div id="cooldown-timer" style="font-family:var(--display);font-size:72px;color:#fff;letter-spacing:0.04em;line-height:1;margin-bottom:24px;text-shadow:0 0 40px ' + accent + '40">--:--</div>' +
+      '<div id="cooldown-ai-msg" style="font-family:var(--sans);font-size:13px;color:rgba(255,255,255,0.6);line-height:1.7;margin-bottom:24px;min-height:40px;font-style:italic">' + (_cooldownAIMsg || 'Getting coaching message...') + '</div>' +
+      '<div style="width:100%;height:1px;background:' + accentBd + ';margin-bottom:24px"></div>' +
+      '<div style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:8px;text-align:left">What will you do differently next trade? <span style="color:' + accent + '">(min 20 chars to unlock)</span></div>' +
+      '<textarea id="cooldown-reflect" oninput="_cooldownCheckReflect()" placeholder="Write your reflection here..." style="width:100%;box-sizing:border-box;min-height:70px;background:' + accentBg + ';border:1.5px solid ' + accentBd + ';border-radius:8px;padding:12px 14px;font-family:var(--mono);font-size:12px;color:var(--text);outline:none;resize:vertical;margin-bottom:16px"></textarea>' +
+      '<button id="cooldown-bypass" onclick="_cooldownBypass()" disabled style="width:100%;font-family:var(--mono);font-size:10px;letter-spacing:0.06em;color:rgba(255,255,255,0.2);background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:12px 0;cursor:not-allowed;transition:all 0.2s">Override cooldown — I accept the risk</button>' +
+    '</div>';
+
+  document.body.appendChild(ov);
+  _cooldownTick(st);
+  _cooldownTimer = setInterval(function() { _cooldownTick(st); }, 1000);
+}
+
+function _cooldownTick(st) {
+  var remaining = Math.max(0, st.expiresAt - Date.now());
+  var mins = Math.floor(remaining / 60000);
+  var secs = Math.floor((remaining % 60000) / 1000);
+  var el = document.getElementById('cooldown-timer');
+  if (el) el.textContent = String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+  if (remaining <= 0) {
+    clearInterval(_cooldownTimer);
+    _clearCooldown();
+    var ov = document.getElementById('cooldown-overlay');
+    if (ov) ov.remove();
+  }
+}
+
+function _cooldownCheckReflect() {
+  var ta = document.getElementById('cooldown-reflect');
+  var btn = document.getElementById('cooldown-bypass');
+  if (!ta || !btn) return;
+  var ok = ta.value.trim().length >= 20;
+  btn.disabled = !ok;
+  btn.style.cursor = ok ? 'pointer' : 'not-allowed';
+  btn.style.color = ok ? '#a855f7' : 'rgba(255,255,255,0.2)';
+  btn.style.borderColor = ok ? 'rgba(168,85,247,0.5)' : 'rgba(255,255,255,0.08)';
+  btn.style.background = ok ? 'rgba(168,85,247,0.1)' : 'rgba(255,255,255,0.03)';
+}
+window._cooldownCheckReflect = _cooldownCheckReflect;
+
+function _cooldownBypass() {
+  clearInterval(_cooldownTimer);
+  _clearCooldown();
+  var ov = document.getElementById('cooldown-overlay');
+  if (ov) ov.remove();
+}
+window._cooldownBypass = _cooldownBypass;
+
+function checkCooldownOnLoad() {
+  var st = _getCooldownState();
+  if (!st || !st.expiresAt) {
+    // Check Supabase for persisted cooldown
+    try {
+      var sb = window._tdSB || (typeof getSB === 'function' ? getSB() : null);
+      if (sb && window._userId) {
+        sb.from('profiles').select('cooldown_state').eq('id', window._userId).single().then(function(res) {
+          if (res.data && res.data.cooldown_state && res.data.cooldown_state.expiresAt > Date.now()) {
+            _setCooldownState(res.data.cooldown_state);
+            _showCooldownPopup(res.data.cooldown_state);
+            _fetchCooldownAIMsg(res.data.cooldown_state.losses, res.data.cooldown_state.notes);
+          }
+        });
+      }
+    } catch(e) {}
+    return;
+  }
+  if (st.expiresAt > Date.now()) {
+    _showCooldownPopup(st);
+    _fetchCooldownAIMsg(st.losses, st.notes);
+  } else {
+    _clearCooldown();
+  }
+}
+setTimeout(checkCooldownOnLoad, 3000);
+
 function ptgEditLimit(type) {
   var labels = { trades: 'Max trades per day', stop: 'Daily hard stop (%)', risk: 'Risk per trade (%)' };
   var hints = { trades: 'How many own setups max?', stop: 'Stop trading after this % loss', risk: 'Maximum risk per single trade' };
