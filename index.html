@@ -6034,13 +6034,24 @@ function renderAccountsPanel() {
         '<div style="width:3px;background:'+barClr+';flex-shrink:0"></div>' +
         '<div style="flex:1;padding:8px 11px;min-width:0">' +
           // Row 1: name + remove
-          '<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">' +
+          '<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">' +
             '<input value="'+escAttr(acc.name||acc.id)+'" onchange="updateAccount(\''+acc.id+'\',\'name\',this.value)" '+
               'style="flex:1;min-width:0;background:transparent;border:none;color:var(--text);font-family:var(--display);font-size:11px;letter-spacing:0.06em;outline:none;padding:0;transition:color 0.15s;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" '+'title="'+escAttr(acc.name||acc.id)+'" '+
               'onfocus="this.style.color=\'var(--gold)\'" onblur="this.style.color=\'var(--text)\'">' +
             '<button onclick="removeAccount(\''+acc.id+'\')" style="background:transparent;border:none;color:'+_CDim+';cursor:pointer;font-size:10px;padding:1px 4px;transition:color 0.15s;flex-shrink:0" onmouseover="this.style.color=\'#f06060\'" onmouseout="this.style.color=\''+_CDim+'\'">✕</button>' +
           '</div>' +
-          // Balance edit row (hidden until EDIT clicked) — shows current balance, not challenge size
+          // Row 2: BIG BALANCE + Today P&L
+          '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">' +
+            '<div style="display:flex;align-items:baseline;gap:6px">' +
+              '<span style="font-family:var(--display);font-size:22px;color:#fff;letter-spacing:0.02em;font-weight:700">'+cur+effectiveBal.toLocaleString()+'</span>' +
+              '<span style="'+MN+'font-size:9px;color:'+progClr+';font-weight:700">'+profitDisp+'</span>' +
+            '</div>' +
+            '<div style="text-align:right">' +
+              '<div style="'+MN+'font-size:7px;letter-spacing:0.1em;text-transform:uppercase;color:'+_CDim2+';margin-bottom:1px">Today</div>' +
+              '<div style="'+MN+'font-size:14px;font-weight:700;color:'+dayClr+'">'+(dayUsd>=0?'+'+cur:'-'+cur)+Math.abs(dayUsd).toLocaleString()+'</div>' +
+            '</div>' +
+          '</div>' +
+          // Hidden edit rows
           '<div id="acct-bal-wrap-'+acc.id+'" style="display:none;margin-bottom:8px">' +
             '<div style="'+MN+'font-size:7px;letter-spacing:0.1em;text-transform:uppercase;color:'+_CDim2+';margin-bottom:3px">Update balance</div>' +
             '<input id="acct-bal-inp-'+acc.id+'" type="number" step="1" value="'+(parseFloat(acc.balance)||size)+'" placeholder="'+(parseFloat(acc.balance)||size)+'" '+
@@ -6048,23 +6059,13 @@ function renderAccountsPanel() {
               'onchange="if(parseFloat(this.value)){updateAccount(\''+acc.id+'\',\'balance\',parseFloat(this.value));renderAccountsPanel();}" '+
               'onkeydown="if(event.key===\'Enter\'){event.preventDefault();if(parseFloat(this.value)){updateAccount(\''+acc.id+'\',\'balance\',parseFloat(this.value));}acctToggleSizeEdit(\''+acc.id+'\');}">' +
           '</div>' +
-          // Row 2: challenge size (hidden) + today P&L
-          '<div style="display:flex;align-items:center;justify-content:space-between">' +
-            '<div style="display:flex;align-items:center;gap:5px">' +
-              '<span id="acct-size-disp-'+acc.id+'" style="'+MN+'font-size:12px;color:var(--gold);font-weight:700">'+fmtK(size)+'</span>' +
-              '<input id="acct-size-inp-'+acc.id+'" type="number" min="0" step="10000" style="display:none;width:1px" ' +
-                'onkeydown="if(event.key===\'Enter\')acctToggleSizeEdit(\''+acc.id+'\')">' +
-              '<button id="acct-size-btn-'+acc.id+'" onclick="acctToggleSizeEdit(\''+acc.id+'\')" '+
-                'style="'+MN+'font-size:7px;text-transform:uppercase;letter-spacing:0.06em;color:'+_CDim2+';background:'+_Cdiv+';border:1px solid '+_CBd2+';border-radius:3px;padding:1px 5px;cursor:pointer;transition:all 0.15s" '+
-                'onmouseover="this.style.color=\'var(--gold)\';this.style.borderColor=\'rgba(240,188,78,0.3)\'" '+
-                'onmouseout="this.style.color=\''+_CDim2+'\';this.style.borderColor=\''+_CBd2+'\'">edit</button>' +
-            '</div>' +
-            // Today P&L
-            '<div style="text-align:right">' +
-              '<div style="'+MN+'font-size:7px;letter-spacing:0.1em;text-transform:uppercase;color:'+_CDim2+';margin-bottom:2px">Today</div>' +
-              '<div style="'+MN+'font-size:14px;font-weight:700;color:'+dayClr+'">'+(dayUsd>=0?'+'+cur:'-'+cur)+Math.abs(dayUsd).toLocaleString()+'</div>' +
-            '</div>' +
-          '</div>' +
+          '<span id="acct-size-disp-'+acc.id+'" style="display:none">'+fmtK(size)+'</span>' +
+          '<input id="acct-size-inp-'+acc.id+'" type="number" min="0" step="10000" style="display:none;width:1px" ' +
+            'onkeydown="if(event.key===\'Enter\')acctToggleSizeEdit(\''+acc.id+'\')">' +
+          '<button id="acct-size-btn-'+acc.id+'" onclick="acctToggleSizeEdit(\''+acc.id+'\')" '+
+            'style="'+MN+'font-size:7px;text-transform:uppercase;letter-spacing:0.06em;color:'+_CDim2+';background:'+_Cdiv+';border:1px solid '+_CBd2+';border-radius:3px;padding:1px 5px;cursor:pointer;transition:all 0.15s;margin-bottom:4px" '+
+            'onmouseover="this.style.color=\'var(--gold)\';this.style.borderColor=\'rgba(240,188,78,0.3)\'" '+
+            'onmouseout="this.style.color=\''+_CDim2+'\';this.style.borderColor=\''+_CBd2+'\'">✎ edit</button>' +
           // Progress bar — eval: toward profit target | funded: withdrawable
           (bal ? (
             isFunded ? (
