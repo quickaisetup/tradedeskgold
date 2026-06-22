@@ -15679,7 +15679,7 @@ var _wtSubDefs = {
     skippable: false,
   },
   ao: {
-    q: 'Look at the green and red bars in the middle panel — that\'s the AO.',
+    q: 'Find the AO panel below the chart — a single row of green/red bars with no lines on it.',
     items: [
       {val:'bull',     label:'↑ Just went above zero', cls:'bull'},
       {val:'bear',     label:'↓ Just went below zero', cls:'bear'},
@@ -15689,7 +15689,7 @@ var _wtSubDefs = {
     skippable: true,
   },
   macd: {
-    q: 'Look at the two wavy lines in the bottom panel — that\'s the MACD.',
+    q: 'Find the MACD panel below the chart — it has two colored wavy lines crossing over small bars.',
     items: [
       {val:'macd-zero-bull', label:'↑ Just above zero', cls:'bull'},
       {val:'macd-zero-bear', label:'↓ Just below zero', cls:'bear'},
@@ -19534,25 +19534,12 @@ function _wizRenderSubQ(s, container) {
 
   var titles = { bias: 'What is the bias?', trend: 'What is the trend?', ao: 'Awesome Oscillator reading?', macd: 'MACD signal?' };
 
-  // Show indicator hint on chart for AO/MACD
+  // No on-chart positional hint — TradingView's study pane order isn't reliable
+  // (sometimes MACD renders above AO, sometimes below), so a fixed % position
+  // points at the wrong panel on some charts. Instead the question subtitle below
+  // describes each indicator by how it LOOKS, not where it sits.
   var hintEl = document.getElementById('wiz-chart-hint');
   if (hintEl) hintEl.remove();
-  if (key === 'ao' || key === 'macd') {
-    var chartArea = document.getElementById('wiz-tf-chart');
-    if (chartArea) {
-      var hintText = key === 'ao' ? '↓ Look at the green/red bars below — that\'s the AO' : '↓ Look at the two lines below — that\'s the MACD';
-      // Chart studies load in this order: MACD then Awesome Oscillator (see _tdLoadChart's
-      // studies array), so on screen it's Price → Volume → MACD (middle) → AO (bottom).
-      var pos = key === 'ao' ? '82%' : '52%';
-      var hint = document.createElement('div');
-      hint.id = 'wiz-chart-hint';
-      hint.style.top = pos;
-      hint.innerHTML = '<div id="wiz-chart-hint-inner">' + hintText + '</div>';
-      chartArea.style.position = 'relative';
-      chartArea.appendChild(hint);
-      setTimeout(function(){ if (hint.parentNode) { hint.style.transition = 'opacity 0.6s'; hint.style.opacity = '0'; setTimeout(function(){ if(hint.parentNode) hint.remove(); }, 600); } }, 5000);
-    }
-  }
 
   var canGoBack = _wizSubStep > 0;
   container.innerHTML =
