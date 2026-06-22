@@ -18626,6 +18626,9 @@ body.fw-active .wt-banner{display:none!important}
 #wiz-tf-sidebar{display:flex;flex-direction:column;border-left:1px solid rgba(255,255,255,0.06);overflow-y:auto;background:rgba(255,255,255,0.01)}
 #wiz-tf-card-wrap{padding:12px 16px;flex:1}
 #wiz-tf-card-wrap .tf-card{border:none!important;background:transparent!important;padding:12px 0!important;box-shadow:none!important}
+#wiz-tf-card-wrap .tf-card>.tf-name{display:none!important}
+#wiz-chart-hint{position:absolute;left:0;right:0;z-index:5;pointer-events:none;display:flex;align-items:center;justify-content:center;padding:8px 0;animation:eodFadeIn 0.3s ease}
+#wiz-chart-hint-inner{background:rgba(240,188,78,0.12);border:1px solid rgba(240,188,78,0.35);border-radius:0;padding:6px 20px;font-family:var(--mono);font-size:10px;font-weight:700;color:#f0bc4e;letter-spacing:0.04em;width:100%;text-align:center}
 .wiz-q-title{font-family:var(--display);font-size:24px;color:#fff;margin-bottom:18px;letter-spacing:0.04em}
 .wiz-q-btns{display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
 .wiz-q-btn{font-family:var(--mono);font-size:13px;letter-spacing:0.04em;padding:12px 32px;border-radius:10px;border:1.5px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.03);color:rgba(255,255,255,0.55);cursor:pointer;transition:all 0.18s}
@@ -19399,14 +19402,16 @@ function _wizRenderSubQ(s, container) {
   if (key === 'ao' || key === 'macd') {
     var chartArea = document.getElementById('wiz-tf-chart');
     if (chartArea) {
-      var hintText = key === 'ao' ? '↓ Look at the AO histogram — green = bullish momentum' : '↓ Check MACD lines — crossovers signal direction changes';
+      var hintText = key === 'ao' ? '↓ READ THE AO HISTOGRAM BELOW — green bars = bullish momentum building' : '↓ READ THE MACD BELOW — line crossovers signal direction changes';
+      // AO is typically at ~55% from top, MACD at ~75% from top
+      var pos = key === 'ao' ? '50%' : '68%';
       var hint = document.createElement('div');
       hint.id = 'wiz-chart-hint';
-      hint.innerHTML = hintText;
-      hint.style.cssText = 'position:absolute;bottom:' + (key === 'macd' ? '8%' : '30%') + ';left:50%;transform:translateX(-50%);background:rgba(240,188,78,0.95);color:#0a0b0d;font-family:var(--mono);font-size:11px;font-weight:700;padding:8px 18px;border-radius:8px;z-index:5;pointer-events:none;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,0.5);animation:eodFadeIn 0.3s ease';
+      hint.style.top = pos;
+      hint.innerHTML = '<div id="wiz-chart-hint-inner">' + hintText + '</div>';
       chartArea.style.position = 'relative';
       chartArea.appendChild(hint);
-      setTimeout(function(){ if (hint.parentNode) { hint.style.transition = 'opacity 0.5s'; hint.style.opacity = '0'; setTimeout(function(){ if(hint.parentNode) hint.remove(); }, 500); } }, 4000);
+      setTimeout(function(){ if (hint.parentNode) { hint.style.transition = 'opacity 0.6s'; hint.style.opacity = '0'; setTimeout(function(){ if(hint.parentNode) hint.remove(); }, 600); } }, 5000);
     }
   }
 
