@@ -20129,10 +20129,21 @@ function _wizRenderLevels(s, body) {
   var levelsHeader = document.createElement('div');
   var lvRgb = lvScore > 0 ? '78,214,138' : lvScore < 0 ? '240,96,96' : '240,188,78';
   levelsHeader.style.cssText = 'display:flex;align-items:center;padding:0;flex-shrink:0;border-bottom:1px solid rgba(255,255,255,0.06);background:linear-gradient(90deg,rgba(' + lvRgb + ',0.06),rgba(' + lvRgb + ',0.02) 60%,transparent)';
-  // Build community levels pills for header
-  var _clEntries2 = (window._klAllLevels || []).filter(function(e) {
-    return (e.l.instrument || 'XAUUSD') === (typeof _lvlInstrument !== 'undefined' ? _lvlInstrument : 'XAUUSD');
-  });
+  // Trigger fetch if not loaded yet
+  if (typeof leoFetchAllLevels === 'function' && !(window._klAllLevels || []).length) leoFetchAllLevels();
+
+  // Build combined levels: own + others
+  var _wizLvlInstr = typeof _lvlInstrument !== 'undefined' ? _lvlInstrument : 'XAUUSD';
+  var _myUser = localStorage.getItem('td_username') || 'me';
+  var _clEntries2 = [];
+  // Own levels
+  (typeof levels !== 'undefined' ? levels : []).filter(function(l) {
+    return l.price && !isNaN(parseFloat(l.price)) && (l.instrument || 'XAUUSD') === _wizLvlInstr;
+  }).forEach(function(l) { _clEntries2.push({ l: l, user: _myUser, mine: true }); });
+  // Others
+  (window._klAllLevels || []).filter(function(e) {
+    return (e.l.instrument || 'XAUUSD') === _wizLvlInstr;
+  }).forEach(function(e) { _clEntries2.push(e); });
   var clPills = _clEntries2.map(function(e, idx) {
     var l = e.l, user = e.user;
     var isLong = l.type === 'long' || l.direction === 'long';
