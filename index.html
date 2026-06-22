@@ -19484,7 +19484,7 @@ function _wizRenderSection(s, body) {
       ovTmBtns += '<button class="tgl tm-mode-btn wiz-tm' + selCls + '" onclick="setTradingMode(this,\'' + m.replace(/'/g, "\\'") + '\')" style="' + recStyle + '">' + m + badge + '</button>';
     });
     ovTmBtns += '</div>';
-    var ovAddRow = '<div style="display:flex;justify-content:center;margin-top:12px">' +
+    var ovAddRow = '<div style="position:relative;display:flex;flex-direction:column;align-items:center;margin-top:12px">' +
       '<div style="display:flex;align-items:center;gap:6px">' +
       '<input id="wiz-add-mode" type="text" placeholder="+ Add custom style" ' +
       'style="font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.6);background:rgba(255,255,255,0.03);border:1px dashed rgba(255,255,255,0.12);border-radius:8px;padding:8px 14px;width:180px;outline:none;transition:border-color 0.15s" ' +
@@ -19494,9 +19494,13 @@ function _wizRenderSection(s, body) {
       'style="font-family:var(--mono);font-size:9px;color:rgba(240,188,78,0.6);background:transparent;border:1px solid rgba(240,188,78,0.25);border-radius:6px;padding:7px 12px;cursor:pointer;transition:all 0.15s" ' +
       'onmouseover="this.style.borderColor=\'rgba(240,188,78,0.5)\';this.style.color=\'var(--gold)\'" ' +
       'onmouseout="this.style.borderColor=\'rgba(240,188,78,0.25)\';this.style.color=\'rgba(240,188,78,0.6)\'">Add</button>' +
-      '</div></div>';
+      '</div>' +
+      '<div id="wiz-add-tip" style="margin-top:8px;font-family:var(--mono);font-size:9px;color:rgba(240,188,78,0.5);letter-spacing:0.03em;transition:opacity 0.5s">💡 Add your own style or strategy — it\'ll be saved for next time</div>' +
+      '</div>';
     ovTmWrap.innerHTML = ovTmTitle + ovTmHint + ovTmBtns + ovAddRow;
     wrap.appendChild(ovTmWrap);
+    // Auto-fade the tip after 6s
+    setTimeout(function(){ var tip = document.getElementById('wiz-add-tip'); if(tip){ tip.style.opacity='0'; setTimeout(function(){ if(tip.parentNode) tip.remove(); },500); } }, 6000);
   } else if (s.key === 'analysis') {
     // AI Analysis step — edge panel + community bias
     var anHeader = document.createElement('div');
@@ -19570,16 +19574,73 @@ function _wizRenderSection(s, body) {
 
 function _wizAddCustomMode(name) {
   if (!name) return;
+  // Add to wizard buttons
   var container = document.getElementById('wiz-tm-btns');
-  if (!container) return;
-  var btn = document.createElement('button');
-  btn.className = 'tgl tm-mode-btn';
-  btn.textContent = name;
-  btn.setAttribute('onclick', "setTradingMode(this,'" + name.replace(/'/g, "\\'") + "')");
-  btn.style.cssText = 'font-family:var(--mono);font-size:10px;padding:8px 14px;border-radius:8px;border:1px solid rgba(240,188,78,0.3);background:rgba(240,188,78,0.08);color:rgba(240,188,78,0.7);cursor:pointer;transition:all 0.15s';
-  container.appendChild(btn);
-  // Also add to the dashboard's trading mode buttons
+  if (container) {
+    var btn = document.createElement('button');
+    btn.className = 'tgl tm-mode-btn wiz-tm';
+    btn.textContent = name;
+    btn.setAttribute('onclick', "setTradingMode(this,'" + name.replace(/'/g, "\\'") + "')");
+    container.appendChild(btn);
+  }
+  // Add to dashboard buttons
   if (typeof tmAddMode === 'function') tmAddMode(name);
+  // Persist to localStorage + Supabase
+  _saveCustomTradingStyles(name);
+}
+
+function _saveCustomTradingStyles(newStyle) {
+  var styles = [];
+  try { styles = JSON.parse(localStorage.getItem('td_custom_trading_styles') || '[]'); } catch(e) {}
+  if (styles.indexOf(newStyle) === -1) styles.push(newStyle);
+  localStorage.setItem('td_custom_trading_styles', JSON.stringify(styles));
+  // Save to Supabase user profile
+  _syncCustomStylesToSupabase(styles);
+}
+
+function _loadCustomTradingStyles() {
+  var styles = [];
+  try { styles = JSON.parse(localStorage.getItem('td_custom_trading_styles') || '[]'); } catch(e) {}
+  // Also add to dashboard if not already there
+  styles.forEach(function(s) {
+    var existing = document.querySelector('#trading-mode-btns .tgl');
+    var found = false;
+    document.querySelectorAll('#trading-mode-btns .tgl').forEach(function(b) { if (b.textContent.trim() === s) found = true; });
+    if (!found && typeof tmAddMode === 'function') tmAddMode(s);
+  });
+  return styles;
+}
+
+async function _syncCustomStylesToSupabase(styles) {
+  try {
+    var uid = localStorage.getItem('td_user_id');
+    var sb = window._tdSB;
+    if (!uid || !sb) return;
+    await sb.from('profiles').upsert({ id: uid, custom_trading_styles: styles }, { onConflict: 'id' });
+    console.log('[TM] Saved custom styles to Supabase:', styles);
+  } catch(e) { console.log('[TM] Supabase save failed:', e.message); }
+}
+
+// Load custom styles on boot
+document.addEventListener('DOMContentLoaded', function() {
+  setTimeout(function() { _loadCustomTradingStyles(); _loadCustomStylesFromSupabase(); }, 2000);
+});
+
+async function _loadCustomStylesFromSupabase() {
+  try {
+    var uid = localStorage.getItem('td_user_id');
+    var sb = window._tdSB;
+    if (!uid || !sb) return;
+    var { data } = await sb.from('profiles').select('custom_trading_styles').eq('id', uid).single();
+    if (data && data.custom_trading_styles && data.custom_trading_styles.length) {
+      localStorage.setItem('td_custom_trading_styles', JSON.stringify(data.custom_trading_styles));
+      data.custom_trading_styles.forEach(function(s) {
+        var found = false;
+        document.querySelectorAll('#trading-mode-btns .tgl').forEach(function(b) { if (b.textContent.trim() === s) found = true; });
+        if (!found && typeof tmAddMode === 'function') tmAddMode(s);
+      });
+    }
+  } catch(e) { console.log('[TM] Supabase load failed:', e.message); }
 }
 
 // Score gauge runs roughly -10 (strong sell) to +10 (strong buy) — matches the
