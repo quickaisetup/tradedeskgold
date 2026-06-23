@@ -20873,10 +20873,11 @@ function tjOpen() {
           tjOpen(); // Re-open with data now loaded
         } else {
           // No insights anywhere — show normal upload UI
-          if (fileArea) fileArea.style.display = '';
+          var _fa = document.getElementById('tj-file-area'); if (_fa) _fa.style.display = '';
+          var _ta = document.getElementById('tj-text-area');
           document.querySelectorAll('.tj-tab').forEach(function(t){ t.style.display = ''; });
-          if (btn) { btn.style.display = ''; }
-          if (resultEl) resultEl.style.display = 'none';
+          var _ab = document.getElementById('tj-analyze-btn'); if (_ab) { _ab.style.display = ''; _ab.disabled = false; _ab.innerHTML = '✨ Analyze with AI (one-time)'; _ab.style.opacity = ''; }
+          var _re = document.getElementById('tj-result'); if (_re) _re.style.display = 'none';
         }
       });
       document.getElementById('tj-overlay').classList.add('show');
