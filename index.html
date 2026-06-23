@@ -12102,14 +12102,18 @@ function eodOpenQuestions(fromTrade) {
   if (nudgeOverlay) nudgeOverlay.classList.remove('show');
   _eodRestoreRankCard();
 
-  // Prefill from today's localStorage draft if present (same key checkReflection() writes)
+  // Always clear fields first, then fill from today's draft only
+  var w = document.getElementById('eod-q-well'); if (w) w.value = '';
+  var i = document.getElementById('eod-q-improve'); if (i) i.value = '';
+  var t = document.getElementById('eod-q-tomorrow'); if (t) t.value = '';
+  document.querySelectorAll('.eod-rule-btn').forEach(function(b){ b.classList.remove('sel'); });
   try {
     var dateISO = typeof tdlTodayBKK === 'function' ? tdlTodayBKK() : new Date().toLocaleDateString('sv-SE');
     var draft = JSON.parse(localStorage.getItem('td_eod_' + dateISO) || 'null');
     if (draft) {
-      var w = document.getElementById('eod-q-well'); if (w) w.value = draft.q1 || '';
-      var i = document.getElementById('eod-q-improve'); if (i) i.value = draft.q2 || '';
-      var t = document.getElementById('eod-q-tomorrow'); if (t) t.value = draft.q3 || '';
+      if (w && draft.q1) w.value = draft.q1;
+      if (i && draft.q2) i.value = draft.q2;
+      if (t && draft.q3) t.value = draft.q3;
       if (draft.rules) eodSetRules(draft.rules, document.querySelector('.eod-rule-btn[data-val="' + draft.rules + '"]'));
     }
   } catch(e) {}
