@@ -7667,18 +7667,44 @@ function lvlClearImg() {
 
 async function lvlUploadImg(file) {
   if (!file) return '';
+  // Try Supabase Storage first
   var sb = window._tdSB;
   var uid = localStorage.getItem('td_user_id');
-  if (!sb || !uid) return '';
-  var ext = file.name.split('.').pop() || 'png';
-  var path = 'levels/' + uid + '/' + Date.now() + '.' + ext;
-  try {
-    var { data, error } = await sb.storage.from('chart-screenshots').upload(path, file, { upsert: true });
-    if (error) { console.warn('[lvl-img] Upload error:', error.message); return ''; }
-    var { data: urlData } = sb.storage.from('chart-screenshots').getPublicUrl(path);
-    console.log('[lvl-img] Uploaded:', urlData.publicUrl);
-    return urlData.publicUrl || '';
-  } catch(e) { console.warn('[lvl-img] Upload failed:', e.message); return ''; }
+  if (sb && uid) {
+    var ext = file.name.split('.').pop() || 'png';
+    var path = 'levels/' + uid + '/' + Date.now() + '.' + ext;
+    try {
+      var { data, error } = await sb.storage.from('chart-screenshots').upload(path, file, { upsert: true });
+      if (!error && data) {
+        var { data: urlData } = sb.storage.from('chart-screenshots').getPublicUrl(path);
+        if (urlData && urlData.publicUrl) {
+          console.log('[lvl-img] Uploaded to Supabase:', urlData.publicUrl);
+          return urlData.publicUrl;
+        }
+      }
+      console.warn('[lvl-img] Supabase upload failed:', error ? error.message : 'no data');
+    } catch(e) { console.warn('[lvl-img] Supabase error:', e.message); }
+  }
+  // Fallback: compress and store as data URL
+  return new Promise(function(resolve) {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var img = new Image();
+      img.onload = function() {
+        var canvas = document.createElement('canvas');
+        var maxW = 600;
+        var scale = Math.min(1, maxW / img.width);
+        canvas.width = img.width * scale;
+        canvas.height = img.height * scale;
+        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+        var dataUrl = canvas.toDataURL('image/jpeg', 0.6);
+        console.log('[lvl-img] Stored as data URL (' + Math.round(dataUrl.length/1024) + 'KB)');
+        resolve(dataUrl);
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
 }
 
 // Paste support — listen for Ctrl+V anywhere on the page
