@@ -20781,8 +20781,16 @@ async function tjAnalyze() {
       body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 600, messages: [{ role: 'user', content: prompt }], _userKey: apiKey })
     });
     var data = await res.json();
+    if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
     var text = (data.content && data.content[0] && data.content[0].text) || '';
-    var parsed = JSON.parse(text.replace(/^```json\s*/,'').replace(/\s*```$/,'').trim());
+    console.log('[tj] Raw AI response:', text.slice(0, 300));
+    if (!text) throw new Error('Empty response from AI');
+    var cleaned = text.replace(/^```json\s*/,'').replace(/\s*```$/,'').trim();
+    // Find JSON object in response
+    var jsonStart = cleaned.indexOf('{');
+    var jsonEnd = cleaned.lastIndexOf('}');
+    if (jsonStart === -1 || jsonEnd === -1) throw new Error('No JSON found in response: ' + cleaned.slice(0, 100));
+    var parsed = JSON.parse(cleaned.slice(jsonStart, jsonEnd + 1));
 
     // Save to Supabase profile
     var sb = window._tdSB;
