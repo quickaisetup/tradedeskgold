@@ -6827,18 +6827,18 @@ function _tdSaveAnalysisTickers(list) {
   try { localStorage.setItem(TD_ANALYSIS_TICKERS_KEY, JSON.stringify(list)); } catch(e) {}
 }
 function _tdTodayBKK() {
-  // Trading day rolls over at NY market close (17:00 ET).
-  // We check NY time directly so it auto-adjusts for EDT/EST.
+  // Trading day = Bangkok date, but rolls over at NY close (17:00 ET).
+  // Before NY close: today's Bangkok date. After NY close: tomorrow's Bangkok date.
   var now = new Date();
   var nyStr = now.toLocaleString('sv-SE', {timeZone:'America/New_York'});
   var nyTime = (nyStr.split(' ')[1] || '00:00:00').slice(0, 5);
-  var nyDate = nyStr.split(' ')[0];
+  var bkkDate = now.toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
   if (nyTime >= '17:00') {
-    // After NY close — this is the NEXT trading day
+    // After NY close — roll to next Bangkok date
     var next = new Date(now.getTime() + 86400000);
-    return next.toLocaleDateString('sv-SE', {timeZone:'America/New_York'});
+    return next.toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
   }
-  return nyDate;
+  return bkkDate;
 }
 
 // On a new Bangkok day: clear stale tf_state + watermarks so the slate is truly clean
