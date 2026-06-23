@@ -12820,10 +12820,16 @@ function leoRenderKLBar() {
   var myUser = localStorage.getItem('td_username') || 'me';
   var allEntries = [];
 
-  // My levels — filter by current instrument
+  // My levels — filter by current instrument, deduplicate by price+direction
+  var _seenKeys = {};
   (levels || []).filter(function(l){
     return l.price && !isNaN(parseFloat(l.price)) && (l.instrument || 'XAUUSD') === _lvlInstrument;
-  }).forEach(function(l){ allEntries.push({ l: l, user: myUser, mine: true }); });
+  }).forEach(function(l){
+    var key = parseFloat(l.price).toFixed(2) + '_' + (l.direction || l.type || 'long');
+    if (_seenKeys[key]) return;
+    _seenKeys[key] = true;
+    allEntries.push({ l: l, user: myUser, mine: true });
+  });
 
   // Other traders' levels — filter by current instrument
   (_klAllLevels || []).filter(function(e){
