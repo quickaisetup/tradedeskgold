@@ -4494,6 +4494,15 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
       <div style="font-family:var(--mono);font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px">Notes <span style="color:var(--text3);font-size:8px;letter-spacing:0">(optional)</span></div>
       <input id="lvl-in-notes" class="li" style="width:100%;margin-bottom:14px" placeholder="e.g. Strong rejection from 0.764 fib, clean daily high...">
 
+      <!-- Chart screenshot upload -->
+      <div style="font-family:var(--mono);font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px">Chart screenshot <span style="font-size:8px;letter-spacing:0;color:var(--text3)">(optional — use 📷 on chart, then paste here)</span></div>
+      <div id="lvl-img-drop" onclick="document.getElementById('lvl-img-input').click()" style="width:100%;min-height:48px;border:1.5px dashed rgba(255,255,255,0.12);border-radius:8px;background:rgba(255,255,255,0.02);cursor:pointer;display:flex;align-items:center;justify-content:center;margin-bottom:14px;transition:border-color 0.15s;overflow:hidden;position:relative" onmouseover="this.style.borderColor='rgba(240,188,78,0.4)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.12)'" ondragover="event.preventDefault();this.style.borderColor='rgba(240,188,78,0.6)'" ondragleave="this.style.borderColor='rgba(255,255,255,0.12)'" ondrop="event.preventDefault();this.style.borderColor='rgba(255,255,255,0.12)';lvlHandleImgFile(event.dataTransfer.files[0])">
+        <div id="lvl-img-placeholder" style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.2);padding:12px;text-align:center">📷 Click, paste (Ctrl+V), or drag image here</div>
+        <img id="lvl-img-preview" style="display:none;max-width:100%;max-height:180px;border-radius:6px">
+        <button id="lvl-img-clear" onclick="event.stopPropagation();lvlClearImg()" style="display:none;position:absolute;top:4px;right:4px;background:rgba(0,0,0,0.7);border:none;color:rgba(255,255,255,0.6);font-size:14px;width:24px;height:24px;border-radius:50%;cursor:pointer;line-height:1">✕</button>
+      </div>
+      <input type="file" id="lvl-img-input" accept="image/*" style="display:none" onchange="lvlHandleImgFile(this.files[0])">
+
       <!-- Add button -->
       <button onclick="lvlAddFromForm()" style="width:100%;padding:11px;border-radius:8px;font-family:var(--display);font-size:13px;letter-spacing:0.08em;cursor:pointer;border:1px solid rgba(78,214,138,0.5);color:var(--green);background:rgba(78,214,138,0.1);transition:all 0.15s" id="lvl-add-btn" onmouseover="this.style.background='rgba(78,214,138,0.2)'" onmouseout="this.style.background='rgba(78,214,138,0.1)'">+ Add Level</button>
     </div>
@@ -7626,6 +7635,67 @@ function lvlSetConf(level) {
   });
 }
 
+// ── LEVEL IMAGE UPLOAD ──────────────────────────────
+var _lvlFormImgUrl = '';
+var _lvlFormImgFile = null;
+
+function lvlHandleImgFile(file) {
+  if (!file || !file.type.startsWith('image/')) return;
+  _lvlFormImgFile = file;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var preview = document.getElementById('lvl-img-preview');
+    var placeholder = document.getElementById('lvl-img-placeholder');
+    var clearBtn = document.getElementById('lvl-img-clear');
+    if (preview) { preview.src = e.target.result; preview.style.display = 'block'; }
+    if (placeholder) placeholder.style.display = 'none';
+    if (clearBtn) clearBtn.style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+
+function lvlClearImg() {
+  _lvlFormImgFile = null;
+  _lvlFormImgUrl = '';
+  var preview = document.getElementById('lvl-img-preview');
+  var placeholder = document.getElementById('lvl-img-placeholder');
+  var clearBtn = document.getElementById('lvl-img-clear');
+  if (preview) { preview.src = ''; preview.style.display = 'none'; }
+  if (placeholder) placeholder.style.display = '';
+  if (clearBtn) clearBtn.style.display = 'none';
+}
+
+async function lvlUploadImg(file) {
+  if (!file) return '';
+  var sb = window._tdSB;
+  var uid = localStorage.getItem('td_user_id');
+  if (!sb || !uid) return '';
+  var ext = file.name.split('.').pop() || 'png';
+  var path = 'levels/' + uid + '/' + Date.now() + '.' + ext;
+  try {
+    var { data, error } = await sb.storage.from('chart-screenshots').upload(path, file, { upsert: true });
+    if (error) { console.warn('[lvl-img] Upload error:', error.message); return ''; }
+    var { data: urlData } = sb.storage.from('chart-screenshots').getPublicUrl(path);
+    console.log('[lvl-img] Uploaded:', urlData.publicUrl);
+    return urlData.publicUrl || '';
+  } catch(e) { console.warn('[lvl-img] Upload failed:', e.message); return ''; }
+}
+
+// Paste support — listen for Ctrl+V anywhere on the page
+document.addEventListener('paste', function(e) {
+  var drop = document.getElementById('lvl-img-drop');
+  if (!drop || drop.offsetParent === null) return;
+  var items = e.clipboardData && e.clipboardData.items;
+  if (!items) return;
+  for (var i = 0; i < items.length; i++) {
+    if (items[i].type.indexOf('image') > -1) {
+      var file = items[i].getAsFile();
+      if (file) { lvlHandleImgFile(file); e.preventDefault(); }
+      break;
+    }
+  }
+});
+
 function lvlAddFromForm() {
   var price = (document.getElementById('lvl-in-price')||{}).value || '';
   var sl    = (document.getElementById('lvl-in-sl')||{}).value || '';
@@ -7640,9 +7710,22 @@ function lvlAddFromForm() {
 
   levelCount++;
   var id = levelCount;
-  var lvl = { id: id, direction: _lvlFormDir, type: _lvlFormDir, price: price, sl: sl, tp: tp, tp2: tp2, confluence: _lvlFormConf.slice(), confidence: _lvlFormConfidence, notes: notes, instrument: _lvlInstrument };
+  var lvl = { id: id, direction: _lvlFormDir, type: _lvlFormDir, price: price, sl: sl, tp: tp, tp2: tp2, confluence: _lvlFormConf.slice(), confidence: _lvlFormConfidence, notes: notes, instrument: _lvlInstrument, chartImg: '' };
   levels.push(lvl);
   window.levels = levels;
+
+  // Upload image if present (async — card renders immediately, image fills in later)
+  if (_lvlFormImgFile) {
+    var _imgLvl = lvl;
+    lvlUploadImg(_lvlFormImgFile).then(function(url) {
+      if (url) {
+        _imgLvl.chartImg = url;
+        var imgEl = document.querySelector('#lvl-' + _imgLvl.id + ' .lvl-chart-img');
+        if (imgEl) { imgEl.src = url; imgEl.style.display = 'block'; }
+        scheduleLevelsSave();
+      }
+    });
+  }
 
   // Render card
   lvlRenderCard(lvl);
@@ -7655,6 +7738,7 @@ function lvlAddFromForm() {
   var tp2El = document.getElementById('lvl-in-tp2'); if (tp2El) tp2El.value = '';
   document.getElementById('lvl-in-tp').value = '';
   document.getElementById('lvl-in-notes').value = '';
+  lvlClearImg();
   _lvlFormConf = [];
   _lvlFormConfidence = 0;
   document.querySelectorAll('#lvl-conf-btns .lvl-cf').forEach(function(b){ b.classList.remove('on'); b.style.borderColor=''; b.style.color=''; b.style.background=''; });
@@ -7756,7 +7840,9 @@ function lvlRenderCard(lvl) {
       '</div>';
     })() : '') +
     // ── Notes ──
-    (lvl.notes ? '<div style="font-size:10px;color:var(--text3);font-style:italic;line-height:1.4">' + lvl.notes + '</div>' : '');
+    (lvl.notes ? '<div style="font-size:10px;color:var(--text3);font-style:italic;line-height:1.4">' + lvl.notes + '</div>' : '') +
+    // Chart screenshot
+    '<img class="lvl-chart-img" src="' + (lvl.chartImg || '') + '" style="' + (lvl.chartImg ? 'display:block' : 'display:none') + ';width:100%;border-radius:6px;margin-top:8px;border:1px solid rgba(255,255,255,0.06);cursor:pointer" onclick="if(this.src)window.open(this.src,\'_blank\')">';
 
   list.appendChild(d);
 }
@@ -12936,6 +13022,7 @@ function klhShow(idx, el) {
     (confs.length ? '<div style="margin-top:14px;display:flex;align-items:center;gap:5px;flex-wrap:wrap"><span style="font-family:var(--mono);font-size:7px;letter-spacing:0.08em;color:rgba(255,255,255,0.25);text-transform:uppercase">Confluence:</span>' + confs.map(function(c){ return '<span style="font-family:var(--mono);font-size:8px;padding:2px 9px;border-radius:4px;background:'+gc2+';color:'+gc+';letter-spacing:0.02em">'+c+'</span>'; }).join('') + '</div>' : '') +
     // Notes
     (l.notes ? '<div style="margin-top:10px;font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.35);font-style:italic">'+l.notes+'</div>' : '') +
+    (l.chartImg ? '<img src="'+l.chartImg+'" style="width:100%;border-radius:6px;margin-top:10px;border:1px solid rgba(255,255,255,0.08);cursor:pointer" onclick="event.stopPropagation();window.open(\''+l.chartImg+'\',\'_blank\')">' : '') +
     // Send to calc button
     '<div style="margin-top:14px;border-top:1px solid rgba(255,255,255,0.06);padding-top:12px;pointer-events:all">' +
       '<button onclick="klSendToCalc('+idx+')" style="width:100%;font-family:var(--mono);font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:'+gc+';background:'+gc2+';border:1px solid '+gborder+';border-radius:6px;padding:7px 0;cursor:pointer;transition:filter 0.12s" onmouseover="this.style.filter=\'brightness(1.3)\'" onmouseout="this.style.filter=\'\'">⊞ Load into calculator</button>' +
@@ -13662,7 +13749,7 @@ function initTVChart(forceInstrument) {
     backgroundColor: document.body.classList.contains('light-mode') ? 'rgba(242,244,247,0)' : 'rgba(14,15,17,0)',
     gridColor: document.body.classList.contains('light-mode') ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.04)',
     hide_top_toolbar: false, hide_legend: true,
-    allow_symbol_change: false, save_image: false,
+    allow_symbol_change: false, save_image: true,
     hide_side_toolbar: !_tvShowDrawingTools,
     hide_volume: true,
     studies: [
