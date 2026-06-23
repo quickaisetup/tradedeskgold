@@ -7722,6 +7722,21 @@ document.addEventListener('paste', function(e) {
   }
 });
 
+function lvlShowLightbox(src, user) {
+  var old = document.getElementById('lvl-lightbox');
+  if (old) old.remove();
+  var ov = document.createElement('div');
+  ov.id = 'lvl-lightbox';
+  ov.style.cssText = 'position:fixed;inset:0;z-index:300000;background:rgba(0,0,0,0.92);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;cursor:pointer;animation:eodFadeIn 0.2s ease';
+  ov.onclick = function() { ov.remove(); };
+  ov.innerHTML =
+    (user ? '<div style="font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:10px;letter-spacing:0.06em">📷 Chart by @' + user + '</div>' : '') +
+    '<img src="' + src + '" style="max-width:90vw;max-height:80vh;border-radius:10px;border:1px solid rgba(255,255,255,0.1);box-shadow:0 20px 60px rgba(0,0,0,0.5)">' +
+    '<div style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.2);margin-top:12px">Click anywhere to close</div>';
+  document.body.appendChild(ov);
+}
+window.lvlShowLightbox = lvlShowLightbox;
+
 function lvlAddFromForm() {
   var price = (document.getElementById('lvl-in-price')||{}).value || '';
   var sl    = (document.getElementById('lvl-in-sl')||{}).value || '';
@@ -7868,7 +7883,7 @@ function lvlRenderCard(lvl) {
     // ── Notes ──
     (lvl.notes ? '<div style="font-size:10px;color:var(--text3);font-style:italic;line-height:1.4">' + lvl.notes + '</div>' : '') +
     // Chart screenshot
-    '<img class="lvl-chart-img" src="' + (lvl.chartImg || '') + '" style="' + (lvl.chartImg ? 'display:block' : 'display:none') + ';width:100%;border-radius:6px;margin-top:8px;border:1px solid rgba(255,255,255,0.06);cursor:pointer" onclick="if(this.src)window.open(this.src,\'_blank\')">';
+    '<img class="lvl-chart-img" src="' + (lvl.chartImg || '') + '" style="' + (lvl.chartImg ? 'display:block' : 'display:none') + ';width:100%;border-radius:6px;margin-top:8px;border:1px solid rgba(255,255,255,0.06);cursor:pointer" onclick="lvlShowLightbox(this.src,\'\')">';
 
   list.appendChild(d);
 }
@@ -13048,7 +13063,7 @@ function klhShow(idx, el) {
     (confs.length ? '<div style="margin-top:14px;display:flex;align-items:center;gap:5px;flex-wrap:wrap"><span style="font-family:var(--mono);font-size:7px;letter-spacing:0.08em;color:rgba(255,255,255,0.25);text-transform:uppercase">Confluence:</span>' + confs.map(function(c){ return '<span style="font-family:var(--mono);font-size:8px;padding:2px 9px;border-radius:4px;background:'+gc2+';color:'+gc+';letter-spacing:0.02em">'+c+'</span>'; }).join('') + '</div>' : '') +
     // Notes
     (l.notes ? '<div style="margin-top:10px;font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.35);font-style:italic">'+l.notes+'</div>' : '') +
-    (l.chartImg ? '<img src="'+l.chartImg+'" style="width:100%;border-radius:6px;margin-top:10px;border:1px solid rgba(255,255,255,0.08);cursor:pointer" onclick="event.stopPropagation();window.open(\''+l.chartImg+'\',\'_blank\')">' : '') +
+    (l.chartImg ? '<img src="'+l.chartImg+'" style="width:100%;border-radius:6px;margin-top:10px;border:1px solid rgba(255,255,255,0.08);cursor:pointer" onclick="event.stopPropagation();lvlShowLightbox(this.src,\''+user+'\')">' : '') +
     // Send to calc button
     '<div style="margin-top:14px;border-top:1px solid rgba(255,255,255,0.06);padding-top:12px;pointer-events:all">' +
       '<button onclick="klSendToCalc('+idx+')" style="width:100%;font-family:var(--mono);font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:'+gc+';background:'+gc2+';border:1px solid '+gborder+';border-radius:6px;padding:7px 0;cursor:pointer;transition:filter 0.12s" onmouseover="this.style.filter=\'brightness(1.3)\'" onmouseout="this.style.filter=\'\'">⊞ Load into calculator</button>' +
@@ -20394,15 +20409,18 @@ function _wizKlClick(idx) {
     if (typeof lvlSetConf === 'function') lvlSetConf(l.confidence);
   }
   if (l.notes) { var nEl = document.getElementById('lvl-in-notes'); if (nEl) nEl.value = l.notes; }
-  // Load chart screenshot if present
+  // Show chart screenshot as lightbox if present
   if (l.chartImg) {
+    _lvlFormImgUrl = l.chartImg;
+    // Also fill the small preview
     var preview = document.getElementById('lvl-img-preview');
     var placeholder = document.getElementById('lvl-img-placeholder');
     var clearBtn = document.getElementById('lvl-img-clear');
     if (preview) { preview.src = l.chartImg; preview.style.display = 'block'; }
     if (placeholder) placeholder.style.display = 'none';
     if (clearBtn) clearBtn.style.display = 'block';
-    _lvlFormImgUrl = l.chartImg;
+    // Show lightbox
+    lvlShowLightbox(l.chartImg, entry.user || '');
   } else {
     lvlClearImg();
   }
