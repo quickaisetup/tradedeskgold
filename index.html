@@ -6157,7 +6157,7 @@ window._appState = state; // expose to Supabase layer (const is not on window)
 var _TD_LOCAL_KEY = 'td_trades_local';
 window._persistTradesToLocal = function() {
   try {
-    var today = new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
+    var today = _tdTodayBKK();
     // Only persist trades whose date matches today — never mix in previous-day trades
     // (trades logged with a future time get _dateISO = yesterday, so exclude those too)
     var saved = state.trades.filter(function(t){ return t.saved && t._dateISO === today; });
@@ -6188,7 +6188,7 @@ window._persistTradesToLocal = function() {
 // Only restores if the stored date matches today (Bangkok).
 window._restoreTradesFromLocal = function() {
   try {
-    var today = new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
+    var today = _tdTodayBKK();
     var raw = localStorage.getItem(_TD_LOCAL_KEY);
     if (!raw) return false;
     var store = JSON.parse(raw);
@@ -6330,7 +6330,7 @@ window._syncUnsavedTradesToDB = async function() {
     var t = unsynced[i];
     try {
       var accts = t.accounts && t.accounts.length ? t.accounts : (t.account ? [t.account] : ['unknown']);
-      var today = t._dateISO || new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
+      var today = t._dateISO || _tdTodayBKK();
       var basePayload = {
         type:'trade', dateISO: today,
         time:t.time, session:t.session,
@@ -6557,7 +6557,7 @@ function _saveGateDefs(defs) {
 }
 
 function renderGateItems() {
-  var today = new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
+  var today = _tdTodayBKK();
   var states = {}; try { states = JSON.parse(localStorage.getItem('td_gates_' + today) || '{}'); } catch(e){}
   var defs = _getGateDefs();
   var container = document.getElementById('gate-items');
@@ -6612,7 +6612,7 @@ function deleteGateItem(id) {
   _saveGateDefs(defs);
   // Also clear its saved state for today
   try {
-    var today = new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
+    var today = _tdTodayBKK();
     var states = JSON.parse(localStorage.getItem('td_gates_' + today) || '{}');
     delete states[id];
     localStorage.setItem('td_gates_' + today, JSON.stringify(states));
@@ -6627,7 +6627,7 @@ function toggleGate(el, id) {
   if (badge) badge.textContent = el.classList.contains('done') ? 'Done ✓' : 'Pending';
   checkGate();
   try {
-    var today = new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
+    var today = _tdTodayBKK();
     var gates = JSON.parse(localStorage.getItem('td_gates_' + today) || '{}');
     gates[id] = el.classList.contains('done');
     localStorage.setItem('td_gates_' + today, JSON.stringify(gates));
@@ -8084,7 +8084,7 @@ function _tradeUsdValue(t) {
 
 function _getBalApplied() {
   try {
-    var today = new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
+    var today = _tdTodayBKK();
     var raw = JSON.parse(localStorage.getItem('td_bal_applied') || '{}');
     // Reset if it's from a previous day
     if (raw._date !== today) return {};
@@ -8093,7 +8093,7 @@ function _getBalApplied() {
 }
 function _setBalApplied(map) {
   try {
-    var today = new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
+    var today = _tdTodayBKK();
     map._date = today;
     localStorage.setItem('td_bal_applied', JSON.stringify(map));
   } catch(e) {}
@@ -8818,7 +8818,7 @@ async function saveTrade(id) {
   if (!t._sbId) { // only auto-date brand-new trades, not edits
     var _bkkNow = new Date().toLocaleString('en-GB', {timeZone:'Asia/Bangkok',hour:'2-digit',minute:'2-digit',hour12:false});
     var _tradeTime = (t.time || '00:00').substring(0,5);
-    var _todayISO2 = new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
+    var _todayISO2 = _tdTodayBKK();
     var _yesterdayISO = new Date(Date.now()-86400000).toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
     t._dateISO = (_tradeTime > _bkkNow) ? _yesterdayISO : _todayISO2;
   }
@@ -9108,7 +9108,7 @@ window._morningSaved = false;
 
 window.clearMorningAnalysis = function() {
   if (!confirm('Clear all bias/trend for today and start fresh?')) return;
-  var today = new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
+  var today = _tdTodayBKK();
   localStorage.removeItem('td_tfstate_' + today);
   // Deactivate all bias + trend buttons without re-triggering saves
   document.querySelectorAll('.bias-btn.active, .trend-btn.active').forEach(function(b) { b.click(); });
@@ -9226,7 +9226,7 @@ async function loadYesterdaySession() {
     var sb  = window._tdSB;
     if (!uid || !sb) throw new Error('Not logged in');
     // Compute yesterday in Bangkok timezone reliably
-    var todayBKK = new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
+    var todayBKK = _tdTodayBKK();
     var d = new Date(todayBKK + 'T12:00:00');
     d.setDate(d.getDate() - 1);
     var yISO = d.toISOString().slice(0,10);
@@ -9408,7 +9408,7 @@ async function loadYesterdaySession() {
 async function saveAllYesterday() {
   var tradeCount = state.trades.filter(function(t){ return t.saved; }).length;
   if (!confirm('Save ' + tradeCount + ' trade(s) as yesterday and reset today\'s session?\n\nThis will clear the current UI. Your trades are already saved in Supabase and will remain there.')) return;
-  var todayBKK = new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
+  var todayBKK = _tdTodayBKK();
   var d = new Date(todayBKK + 'T12:00:00');
   d.setDate(d.getDate() - 1);
   var iso = d.toISOString().slice(0,10);
@@ -9921,7 +9921,7 @@ function setRulesFollowed(val, btn) {
 function checkReflection() {
   // Save EOD notes to localStorage on every keystroke
   try {
-    var today = new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
+    var today = _tdTodayBKK();
     var rulesBtn = document.querySelector('#rules-btn-group .tgl.sel');
     localStorage.setItem('td_eod_' + today, JSON.stringify({
       q1: (document.getElementById('reflection-well')||{}).value || '',
@@ -10313,7 +10313,7 @@ function computeAndSetStreak(history) {
   console.log('4. sorted rows:', sorted.length, sorted.map(function(n){ return n.dateKey + '=' + n.rules; }));
 
   // Today's session doesn't count yet — only locks in tomorrow
-  var todayBKK = new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
+  var todayBKK = _tdTodayBKK();
 
   var rankScore = 0;
   sorted.forEach(function(n) {
@@ -12642,7 +12642,7 @@ function ptgEditSave() {
 }
 
 function _ptgTodayKey() {
-  return 'ptg_passed_' + new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
+  return 'ptg_passed_' + _tdTodayBKK();
 }
 function _ptgLog(entry) {
   try {
@@ -12653,7 +12653,7 @@ function _ptgLog(entry) {
   } catch(e) {}
 }
 function _ptgCompletedKey() {
-  return 'ptg_completed_' + new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
+  return 'ptg_completed_' + _tdTodayBKK();
 }
 function ptgShouldShow() {
   return true; // always show — reminder mode if already done today, interactive if not
@@ -13117,7 +13117,7 @@ async function leoFetchAllLevels() {
   var sb = window._tdSB || (window.getSB && getSB());
   if (!sb) return;
   var myId = localStorage.getItem('td_user_id');
-  var today = new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
+  var today = _tdTodayBKK();
   try {
     var res = await sb.from('morning_analysis')
       .select('user_id,levels_json')
@@ -15581,7 +15581,7 @@ window.loadEdgePanel = async function(forceAI) {
     // Today's news events
     var newsCtx = 'none';
     try {
-      var _todayBkkStr = new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
+      var _todayBkkStr = _tdTodayBKK();
       if (window._ffRaw && Array.isArray(window._ffRaw)) {
         var _todayEvs = window._ffRaw.filter(function(ev) {
           var d = (ev.date||'').slice(0,10); return d === _todayBkkStr && (ev.impact||'').match(/high|medium/i);
@@ -16780,8 +16780,7 @@ window.autoRestoreToday = async function(source) {
 
   // Bangkok today string
   // Use the same reliable BKK date as the rest of the app
-  var todayISO = typeof tdlTodayBKK === 'function' ? tdlTodayBKK()
-    : new Date().toLocaleDateString('sv-SE', {timeZone: 'Asia/Bangkok'});
+  var todayISO = _tdTodayBKK();
 
   try {
     // ── 1. Fetch all three tables in parallel ─────────────
@@ -17400,7 +17399,7 @@ async function tdlOnAuth(user) {
           var _uid = localStorage.getItem('td_user_id');
           var _sb  = window._tdSB;
           if (!_uid || !_sb) return;
-          var _today = new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
+          var _today = _tdTodayBKK();
           // Skip if trades already loaded
           if (window._appState && window._appState.trades && window._appState.trades.filter(function(t){return t.saved;}).length > 0) return;
           var _r = await _sb.from('trades').select('*').eq('user_id',_uid).eq('date',_today).order('created_at',{ascending:true});
@@ -18168,7 +18167,7 @@ window.tdSaveLevels = async function() {
   // Always use the authenticated client — getSB() may lack the session
   var sb = window._tdSB || getSB();
   if (!sb) { console.warn('[levels] tdSaveLevels: no Supabase client'); return; }
-  var today   = new Date().toLocaleDateString('sv-SE', {timeZone: 'Asia/Bangkok'});
+  var today   = _tdTodayBKK();
   var levJson = JSON.stringify(window.levels || []);
   console.log('[levels] Saving', (window.levels||[]).length, 'level(s) to ALL morning_analysis rows. uid=', uid.slice(0,8), 'today=', today);
   try {
@@ -18203,8 +18202,7 @@ window.tdSaveLevels = async function() {
 
 // ── HELPER: today in YYYY-MM-DD Bangkok time ──────────
 function tdlTodayBKK() {
-  // Use toLocaleDateString — always correct for Bangkok regardless of system timezone
-  return new Date().toLocaleDateString('sv-SE', {timeZone: 'Asia/Bangkok'});
+  return _tdTodayBKK();
 }
 
 // ── PRESENCE HEARTBEAT ───────────────────────────────────
@@ -18317,7 +18315,7 @@ window.diagTrades = async function() {
   var uid = localStorage.getItem('td_user_id');
   var sb = window._tdSB;
   if (!uid || !sb) { console.error('[diag] Not logged in'); return; }
-  var today = new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
+  var today = _tdTodayBKK();
   console.log('[diag] uid:', uid, '| today (BKK):', today);
   // Fetch ALL trades (no date filter)
   var all = await sb.from('trades').select('id,date,direction,result,instrument').eq('user_id', uid).order('date', {ascending:false}).limit(50);
@@ -18334,7 +18332,7 @@ window.forceRestoreTrades = async function() {
   var uid = localStorage.getItem('td_user_id');
   var sb = window._tdSB;
   if (!uid || !sb) { alert('Not logged in — please refresh and try again.'); return; }
-  var today = new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
+  var today = _tdTodayBKK();
 
   var btn = document.getElementById('restore-trades-btn');
   if (btn) { btn.textContent = '⟳ Loading...'; btn.style.pointerEvents = 'none'; }
