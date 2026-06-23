@@ -3293,6 +3293,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
       <button id="session-splash-btn" onclick="sessionSplashStart()">▶ Start Session</button>
       <div id="splash-secondary-btns">
         <button id="session-splash-live" onclick="sessionSplashDismiss();window._leoChartsEntered=true;if(typeof openLiveExec==='function')openLiveExec();"><div class="btn-dot"></div>Live Execution</button>
+        <button onclick="sessionSplashDismiss();wizOpenSingle('levels')" style="padding:10px 22px;font-family:var(--display);font-size:13px;letter-spacing:0.1em;color:rgba(240,188,78,0.7);background:rgba(240,188,78,0.06);border:1px solid rgba(240,188,78,0.25);border-radius:10px;cursor:pointer;transition:all 0.15s" onmouseover="this.style.background='rgba(240,188,78,0.14)';this.style.borderColor='rgba(240,188,78,0.5)'" onmouseout="this.style.background='rgba(240,188,78,0.06)';this.style.borderColor='rgba(240,188,78,0.25)'">📌 Key Levels</button>
         <button id="session-splash-skip" onclick="sessionSplashDismiss()">Skip guide</button>
       </div>
     </div>
@@ -16351,8 +16352,20 @@ document.addEventListener('DOMContentLoaded', function() {
   var btnEl   = document.getElementById('session-splash-btn');
   var dateEl  = document.getElementById('session-splash-date');
   if (dateEl) dateEl.textContent = new Date().toLocaleDateString('en-GB', {weekday:'long',day:'numeric',month:'long',year:'numeric',timeZone:'Asia/Bangkok'});
+  // Smart splash: detect session state and adapt buttons/text
+  var _hasMorning = !!localStorage.getItem('td_tfstate_' + _tdTodayBKK());
+  var _hasEod = typeof _eodDaySavedKey === 'function' && !!localStorage.getItem(_eodDaySavedKey());
   var saved = _wtLoadProgress();
-  if (saved && saved.step > 0) {
+
+  if (_hasEod) {
+    if (titleEl) titleEl.textContent = 'Session complete ✓';
+    if (subEl) subEl.textContent = 'Your day is saved. Review key levels or jump into live execution.';
+    if (btnEl) { btnEl.textContent = '📌 Key Levels Guide'; btnEl.onclick = function(){ sessionSplashDismiss(); wizOpenSingle('levels'); }; }
+  } else if (_hasMorning) {
+    if (titleEl) titleEl.textContent = 'Continue your session';
+    if (subEl) subEl.textContent = 'Analysis done — save your end of day notes or mark key levels.';
+    if (btnEl) { btnEl.textContent = '💾 Save Day'; btnEl.onclick = function(){ sessionSplashDismiss(); if(typeof eodNudgeOpen==='function') eodNudgeOpen(); else { var r=document.getElementById('reflection'); if(r) r.scrollIntoView({behavior:'smooth'}); } }; }
+  } else if (saved && saved.step > 0) {
     var s = _wtSteps[saved.step];
     if (titleEl) titleEl.textContent = 'Continue your session';
     if (subEl)   subEl.textContent   = 'Pick up where you left off — ' + (s ? s.label : 'Step ' + (saved.step + 1));
