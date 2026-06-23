@@ -20283,10 +20283,8 @@ function _wizRenderLevels(s, body) {
   body.style.padding = '0';
   body.style.alignItems = 'stretch';
 
-  // Enable drawing tools for Key Levels chart
+  // Drawing tools flag — chart rebuilt after it's placed in the wizard layout
   _tvShowDrawingTools = true;
-  _tvChartCreated = false;
-  if (typeof initTVChart === 'function') initTVChart(true);
 
   var lvScoreEl = document.getElementById('score-num');
   var lvVtEl = document.getElementById('vt-main');
@@ -20344,6 +20342,10 @@ function _wizRenderLevels(s, body) {
   layout.appendChild(formWrap);
 
   body.appendChild(layout);
+
+  // Rebuild chart with drawing tools now that it's in the wizard layout
+  _tvChartCreated = false;
+  setTimeout(function() { if (typeof initTVChart === 'function') initTVChart(true); }, 100);
 
   // Move hover card into wizard overlay so it renders on top
   var hoverCard = document.getElementById('kl-hover-card');
