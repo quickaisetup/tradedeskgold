@@ -6827,18 +6827,21 @@ function _tdSaveAnalysisTickers(list) {
   try { localStorage.setItem(TD_ANALYSIS_TICKERS_KEY, JSON.stringify(list)); } catch(e) {}
 }
 function _tdTodayBKK() {
-  // Trading day = Bangkok date, but rolls over at NY close (17:00 ET).
-  // Before NY close: today's Bangkok date. After NY close: tomorrow's Bangkok date.
+  // Trading day rolls over at NY close (17:00 ET).
+  // The "trading date" is the NY calendar date when the session STARTED.
+  // NY session runs ~17:00 to 17:00, so:
+  //   - Before 17:00 ET → trading date = today's NY date
+  //   - After 17:00 ET  → trading date = tomorrow's NY date (new session)
+  // We convert NY trading date to Bangkok date format for storage compat.
   var now = new Date();
   var nyStr = now.toLocaleString('sv-SE', {timeZone:'America/New_York'});
   var nyTime = (nyStr.split(' ')[1] || '00:00:00').slice(0, 5);
-  var bkkDate = now.toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
+  var nyDate = nyStr.split(' ')[0];
   if (nyTime >= '17:00') {
-    // After NY close — roll to next Bangkok date
     var next = new Date(now.getTime() + 86400000);
-    return next.toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
+    nyDate = next.toLocaleDateString('sv-SE', {timeZone:'America/New_York'});
   }
-  return bkkDate;
+  return nyDate;
 }
 
 // On a new Bangkok day: clear stale tf_state + watermarks so the slate is truly clean
