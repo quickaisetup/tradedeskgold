@@ -3117,6 +3117,11 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
         ⚙ Admin
       </a>
     </div>
+    <button onclick="if(confirm('Log out?'))tdlSignOut().then(function(){location.reload()})" title="Log out"
+      style="display:flex;align-items:center;gap:4px;font-family:var(--mono);font-size:7px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.25);background:transparent;border:1px solid rgba(255,255,255,0.06);border-radius:20px;padding:3px 10px;cursor:pointer;transition:all 0.15s;flex-shrink:0"
+      onmouseover="this.style.color='rgba(240,96,96,0.7)';this.style.borderColor='rgba(240,96,96,0.3)'" onmouseout="this.style.color='rgba(255,255,255,0.25)';this.style.borderColor='rgba(255,255,255,0.06)'">
+      ↪ Logout
+    </button>
   </div>
 
 </div>
