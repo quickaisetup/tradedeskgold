@@ -20880,21 +20880,62 @@ function tjSetResultTitle() {
   var s = document.getElementById('tj-subtitle'); if (s) s.textContent = 'AI insights from your journal, saved to your profile.';
 }
 
+// Trim older/verbose saved insights down to short phrases so legacy data
+// (analyzed before the prompt was tightened) still renders cleanly.
+function _tjShorten(str, maxWords) {
+  if (!str) return '';
+  var words = String(str).split(/\s+/);
+  if (words.length <= maxWords) return str;
+  return words.slice(0, maxWords).join(' ') + '…';
+}
+
 function tjInsightsHTML(p) {
-  var strengths = (p.strengths || []).slice(0, 3);
-  var weaknesses = (p.weaknesses || []).slice(0, 3);
-  var recs = (p.recommendations || []).slice(0, 2);
+  var strengths = (p.strengths || []).slice(0, 3).map(function(s){ return _tjShorten(s, 9); });
+  var weaknesses = (p.weaknesses || []).slice(0, 3).map(function(s){ return _tjShorten(s, 9); });
+  var recs = (p.recommendations || []).slice(0, 2).map(function(s){ return _tjShorten(s, 11); });
+  var summary = _tjShorten(p.summary, 22);
+
   return (
-    '<div style="font-family:var(--display);font-size:20px;color:var(--gold);margin-bottom:10px">' + (p.personality || 'Trader') + ' · ' + (p.risk_level || '') + '</div>' +
-    '<div style="margin-bottom:16px;font-size:15px;color:rgba(255,255,255,0.85);line-height:1.6">' + (p.summary || '') + '</div>' +
-    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">' +
-      '<div style="background:rgba(78,214,138,0.06);border:1px solid rgba(78,214,138,0.15);border-radius:10px;padding:12px"><div style="font-size:10px;color:var(--green);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px">Strengths</div>' + strengths.map(function(s){return '<div style="font-size:13px;color:rgba(255,255,255,0.75);margin-bottom:5px;line-height:1.4">✓ '+s+'</div>';}).join('') + '</div>' +
-      '<div style="background:rgba(240,96,96,0.06);border:1px solid rgba(240,96,96,0.15);border-radius:10px;padding:12px"><div style="font-size:10px;color:var(--red);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px">Weaknesses</div>' + weaknesses.map(function(s){return '<div style="font-size:13px;color:rgba(255,255,255,0.75);margin-bottom:5px;line-height:1.4">✗ '+s+'</div>';}).join('') + '</div>' +
+    // Header: avatar + personality/risk pills
+    '<div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid rgba(255,255,255,0.07)">' +
+      '<div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,rgba(240,188,78,0.18),rgba(240,188,78,0.04));border:1px solid rgba(240,188,78,0.3);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">🧠</div>' +
+      '<div>' +
+        '<div style="font-family:var(--display);font-size:19px;color:#fff;letter-spacing:0.02em;line-height:1.2">' + (p.personality || 'Trader') + '</div>' +
+        '<div style="display:inline-block;margin-top:4px;font-family:var(--mono);font-size:10px;letter-spacing:0.06em;text-transform:uppercase;color:var(--gold);background:rgba(240,188,78,0.1);border:1px solid rgba(240,188,78,0.25);border-radius:5px;padding:2px 8px">' + (p.risk_level || '—') + ' risk</div>' +
+      '</div>' +
     '</div>' +
-    '<div style="background:rgba(240,188,78,0.06);border:1px solid rgba(240,188,78,0.15);border-radius:10px;padding:12px;margin-bottom:12px"><div style="font-size:10px;color:var(--gold);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px">Focus on</div>' + recs.map(function(s){return '<div style="font-size:13px;color:rgba(255,255,255,0.75);margin-bottom:5px;line-height:1.4">→ '+s+'</div>';}).join('') + '</div>' +
-    '<div style="display:flex;gap:16px;margin-bottom:14px;font-size:11px;color:rgba(255,255,255,0.35)">' +
-      '<span>Win rate: <strong style="color:rgba(255,255,255,0.7)">' + (p.win_rate_est || '—') + '</strong></span>' +
-      '<span>Avg R:R: <strong style="color:rgba(255,255,255,0.7)">' + (p.avg_rr_est || '—') + '</strong></span>' +
+
+    // Summary as a quote callout
+    '<div style="border-left:2px solid var(--gold);padding:2px 0 2px 14px;margin-bottom:18px;font-size:14px;color:rgba(255,255,255,0.8);line-height:1.55;font-style:italic">' + summary + '</div>' +
+
+    // Strengths / Weaknesses
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">' +
+      '<div style="background:rgba(78,214,138,0.05);border:1px solid rgba(78,214,138,0.18);border-radius:12px;padding:14px">' +
+        '<div style="display:flex;align-items:center;gap:6px;margin-bottom:10px"><span style="color:var(--green);font-size:13px">●</span><span style="font-family:var(--mono);font-size:10px;color:var(--green);letter-spacing:0.1em;text-transform:uppercase">Strengths</span></div>' +
+        strengths.map(function(s){return '<div style="font-size:13px;color:rgba(255,255,255,0.78);margin-bottom:7px;line-height:1.4;padding-left:14px;position:relative"><span style="position:absolute;left:0;color:var(--green)">✓</span>'+s+'</div>';}).join('') +
+      '</div>' +
+      '<div style="background:rgba(240,96,96,0.05);border:1px solid rgba(240,96,96,0.18);border-radius:12px;padding:14px">' +
+        '<div style="display:flex;align-items:center;gap:6px;margin-bottom:10px"><span style="color:var(--red);font-size:13px">●</span><span style="font-family:var(--mono);font-size:10px;color:var(--red);letter-spacing:0.1em;text-transform:uppercase">Weaknesses</span></div>' +
+        weaknesses.map(function(s){return '<div style="font-size:13px;color:rgba(255,255,255,0.78);margin-bottom:7px;line-height:1.4;padding-left:14px;position:relative"><span style="position:absolute;left:0;color:var(--red)">✗</span>'+s+'</div>';}).join('') +
+      '</div>' +
+    '</div>' +
+
+    // Focus on / recommendations — numbered
+    '<div style="background:rgba(240,188,78,0.05);border:1px solid rgba(240,188,78,0.18);border-radius:12px;padding:14px;margin-bottom:14px">' +
+      '<div style="display:flex;align-items:center;gap:6px;margin-bottom:10px"><span style="color:var(--gold);font-size:13px">●</span><span style="font-family:var(--mono);font-size:10px;color:var(--gold);letter-spacing:0.1em;text-transform:uppercase">Focus on next</span></div>' +
+      recs.map(function(s, i){return '<div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:8px"><span style="flex-shrink:0;width:18px;height:18px;border-radius:50%;background:rgba(240,188,78,0.15);color:var(--gold);font-family:var(--mono);font-size:10px;display:flex;align-items:center;justify-content:center;margin-top:1px">'+(i+1)+'</span><span style="font-size:13px;color:rgba(255,255,255,0.78);line-height:1.4">'+s+'</span></div>';}).join('') +
+    '</div>' +
+
+    // Stat pills
+    '<div style="display:flex;gap:10px;margin-bottom:18px">' +
+      '<div style="flex:1;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:10px 12px;text-align:center">' +
+        '<div style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.35);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:3px">Win rate</div>' +
+        '<div style="font-family:var(--display);font-size:17px;color:#fff">' + (p.win_rate_est || '—') + '</div>' +
+      '</div>' +
+      '<div style="flex:1;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:10px 12px;text-align:center">' +
+        '<div style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.35);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:3px">Avg R:R</div>' +
+        '<div style="font-family:var(--display);font-size:17px;color:#fff">' + (p.avg_rr_est || '—') + '</div>' +
+      '</div>' +
     '</div>'
   );
 }
