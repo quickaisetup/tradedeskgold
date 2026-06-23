@@ -20975,7 +20975,7 @@ async function tjAnalyze() {
     var resultEl = document.getElementById('tj-result');
     var bodyEl = document.getElementById('tj-result-body');
     if (resultEl && bodyEl) {
-      resultEl.style.display = '';
+      resultEl.style.display = 'block';
       // Hide upload area, show results prominently
       var fileArea = document.getElementById('tj-file-area'); if (fileArea) fileArea.style.display = 'none';
       var textArea = document.getElementById('tj-text-area'); if (textArea) textArea.style.display = 'none';
@@ -21071,7 +21071,7 @@ function tjOpen() {
         if (textArea) textArea.style.display = 'none';
         document.querySelectorAll('.tj-tab').forEach(function(t){ t.style.display = 'none'; });
         if (btn) btn.style.display = 'none';
-        resultEl.style.display = '';
+        resultEl.style.display = 'block';
         if (instStep) instStep.style.display = 'none';
         if (uploadStep) uploadStep.style.display = '';
         var badgeEl = document.getElementById('tj-instrument-badge');
