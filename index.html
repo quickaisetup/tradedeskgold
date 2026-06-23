@@ -796,7 +796,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 .ai-dot:nth-child(3){animation-delay:0.4s}
 @keyframes pulse{0%,100%{opacity:0.3}50%{opacity:1}}
 @keyframes expPulse{0%,100%{box-shadow:0 0 0 0 rgba(240,188,78,0.5)}60%{box-shadow:0 0 0 7px rgba(240,188,78,0)}}
-.td-explainer{background:rgba(240,188,78,0.08);border:1px solid rgba(240,188,78,0.35);border-left:3px solid var(--gold);border-radius:8px;padding:12px 14px 10px;margin-bottom:14px;position:relative;cursor:default}
+.td-explainer{display:none!important}
 .td-explainer-body{font-family:var(--sans);font-size:12px;color:rgba(255,255,255,0.85);line-height:1.55;padding-right:36px}
 .td-explainer-body b{color:#f0bc4e;font-weight:600}
 .td-explainer-body ul{margin:6px 0 0 0;padding-left:14px;list-style:none}
@@ -16377,10 +16377,14 @@ document.addEventListener('DOMContentLoaded', function() {
     if (subEl)   subEl.textContent   = 'Pick up where you left off — ' + (s ? s.label : 'Step ' + (saved.step + 1));
     if (btnEl)   btnEl.textContent   = '▶ Continue Day';
   }
-  // Don't show splash for first-time users — the walkthrough handles onboarding
-  var _isFirstTime = typeof fwShouldShow === 'function' && fwShouldShow();
-  if (_isFirstTime) { if (splash) splash.style.display = 'none'; return; }
-  if (splash && !_isFirstTime) setTimeout(function(){
+  // First-time user → new onboarding flow
+  var _isFirstTime = !localStorage.getItem('td_onboarded');
+  if (_isFirstTime) {
+    if (splash) splash.style.display = 'none';
+    setTimeout(function() { if (typeof onboardingOpen === 'function') onboardingOpen(); }, 800);
+    return;
+  }
+  if (splash) setTimeout(function(){
     splash.classList.add('show');
     var leoOv = document.getElementById('live-exec-overlay');
     if (leoOv) leoOv.classList.remove('show');
@@ -19186,7 +19190,7 @@ var _fwSteps = [
 ];
 
 // ── Core ───────────────────────────────────────────────
-function fwShouldShow() { return !localStorage.getItem('fw_done'); }
+function fwShouldShow() { return false; }
 
 function fwOpen() {
   _fwStep = 0;
@@ -20831,6 +20835,129 @@ function tjOpen() {
   document.getElementById('tj-overlay').classList.add('show');
 }
 window.tjOpen = tjOpen;
+</script>
+
+<!-- NEW ONBOARDING FLOW -->
+<style>
+#onboard-overlay{display:none;position:fixed;inset:0;z-index:200020;background:#060810;align-items:center;justify-content:center;padding:24px}
+#onboard-overlay.show{display:flex;animation:eodFadeIn 0.3s ease}
+#onboard-card{width:100%;max-width:520px;text-align:center}
+.ob-step{display:none}
+.ob-step.active{display:block;animation:eodFadeIn 0.3s ease}
+</style>
+<div id="onboard-overlay">
+  <div id="onboard-card">
+    <!-- Step 1: Welcome + Upload -->
+    <div class="ob-step active" id="ob-step-1">
+      <div style="font-size:48px;margin-bottom:12px">⚡</div>
+      <div style="font-family:var(--display);font-size:32px;color:#fff;letter-spacing:0.04em;margin-bottom:6px">Welcome to TradeDesk</div>
+      <div style="font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.4);line-height:1.7;max-width:420px;margin:0 auto 24px">Your professional trading cockpit.<br>Let's set you up in under 2 minutes.</div>
+
+      <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:20px;margin-bottom:16px;text-align:left">
+        <div style="font-family:var(--display);font-size:15px;color:var(--gold);margin-bottom:8px">📊 Got a trading journal?</div>
+        <div style="font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.4);line-height:1.6;margin-bottom:12px">Upload your prop firm CSV, personal spreadsheet, or paste your notes. AI gives you a one-time analysis of your strengths, weaknesses, and what to focus on.</div>
+        <div style="display:flex;gap:8px">
+          <button onclick="onboardUpload()" style="flex:1;padding:10px;font-family:var(--display);font-size:12px;letter-spacing:0.06em;color:#0a0b0d;background:var(--gold);border:none;border-radius:8px;cursor:pointer;transition:all 0.15s">📎 Upload / Paste</button>
+          <button onclick="onboardNext(2)" style="flex:1;padding:10px;font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.4);background:transparent;border:1px solid rgba(255,255,255,0.1);border-radius:8px;cursor:pointer;transition:all 0.15s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.4)'">Skip for now →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2: AI Summary (shown after upload, or skipped) -->
+    <div class="ob-step" id="ob-step-2">
+      <div style="font-size:48px;margin-bottom:12px">🧠</div>
+      <div style="font-family:var(--display);font-size:28px;color:#fff;letter-spacing:0.04em;margin-bottom:6px" id="ob-summary-title">Your Trading Profile</div>
+      <div style="font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.35);margin-bottom:20px" id="ob-summary-sub">Based on your uploaded data</div>
+
+      <div id="ob-insights" style="text-align:left;margin-bottom:20px">
+        <!-- Filled by JS after AI analysis -->
+      </div>
+
+      <button onclick="onboardNext(3)" style="width:100%;padding:14px;font-family:var(--display);font-size:15px;letter-spacing:0.08em;color:#0a0b0d;background:var(--gold);border:none;border-radius:10px;cursor:pointer">Let's Start Your First Session →</button>
+    </div>
+
+    <!-- Step 3: Ready to go -->
+    <div class="ob-step" id="ob-step-3">
+      <div style="font-size:48px;margin-bottom:12px">🚀</div>
+      <div style="font-family:var(--display);font-size:28px;color:#fff;letter-spacing:0.04em;margin-bottom:6px">Let's Do This Together</div>
+      <div style="font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.4);line-height:1.7;max-width:420px;margin:0 auto 24px">I'll guide you step by step through your morning routine — checking the market, setting your bias, marking key levels, and getting ready to trade.</div>
+
+      <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:16px;margin-bottom:20px;text-align:left">
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;align-items:center;gap:10px"><span style="font-family:var(--mono);font-size:8px;color:var(--gold);background:rgba(240,188,78,0.1);border:1px solid rgba(240,188,78,0.3);padding:2px 8px;border-radius:4px">01</span><span style="font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.6)">Morning checks — news & calendar</span></div>
+          <div style="display:flex;align-items:center;gap:10px"><span style="font-family:var(--mono);font-size:8px;color:var(--gold);background:rgba(240,188,78,0.1);border:1px solid rgba(240,188,78,0.3);padding:2px 8px;border-radius:4px">02</span><span style="font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.6)">Top-down analysis — read the chart</span></div>
+          <div style="display:flex;align-items:center;gap:10px"><span style="font-family:var(--mono);font-size:8px;color:var(--gold);background:rgba(240,188,78,0.1);border:1px solid rgba(240,188,78,0.3);padding:2px 8px;border-radius:4px">03</span><span style="font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.6)">Trading style — pick your mode</span></div>
+          <div style="display:flex;align-items:center;gap:10px"><span style="font-family:var(--mono);font-size:8px;color:var(--gold);background:rgba(240,188,78,0.1);border:1px solid rgba(240,188,78,0.3);padding:2px 8px;border-radius:4px">04</span><span style="font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.6)">Key levels — mark where you'd trade</span></div>
+          <div style="display:flex;align-items:center;gap:10px"><span style="font-family:var(--mono);font-size:8px;color:var(--gold);background:rgba(240,188,78,0.1);border:1px solid rgba(240,188,78,0.3);padding:2px 8px;border-radius:4px">05</span><span style="font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.6)">Go live — execute your plan</span></div>
+        </div>
+      </div>
+
+      <button onclick="onboardDone()" style="width:100%;padding:14px;font-family:var(--display);font-size:15px;letter-spacing:0.08em;color:#0a0b0d;background:var(--gold);border:none;border-radius:10px;cursor:pointer">▶ Start Session</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function onboardingOpen() {
+  document.querySelectorAll('.ob-step').forEach(function(s){ s.classList.remove('active'); });
+  document.getElementById('ob-step-1').classList.add('active');
+  document.getElementById('onboard-overlay').classList.add('show');
+}
+window.onboardingOpen = onboardingOpen;
+
+function onboardNext(step) {
+  document.querySelectorAll('.ob-step').forEach(function(s){ s.classList.remove('active'); });
+  var el = document.getElementById('ob-step-' + step);
+  if (el) el.classList.add('active');
+  // If going to step 2 without data, show generic message
+  if (step === 2 && !localStorage.getItem('td_trading_insights')) {
+    document.getElementById('ob-summary-title').textContent = 'Ready to Build Your Profile';
+    document.getElementById('ob-summary-sub').textContent = 'You can upload your journal anytime from the main app';
+    document.getElementById('ob-insights').innerHTML =
+      '<div style="background:rgba(240,188,78,0.06);border:1px solid rgba(240,188,78,0.15);border-radius:10px;padding:14px;font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.5);line-height:1.7">' +
+      'No worries — the app learns from every session you log.<br>Your AI briefing gets smarter each day you use it.</div>';
+  }
+}
+
+function onboardUpload() {
+  // Open the journal upload modal
+  document.getElementById('onboard-overlay').classList.remove('show');
+  tjOpen();
+  // When they close tj-overlay, show onboard step 2
+  var _obWatcher = setInterval(function() {
+    var tjOv = document.getElementById('tj-overlay');
+    if (tjOv && !tjOv.classList.contains('show')) {
+      clearInterval(_obWatcher);
+      // Check if insights were saved
+      var insights = localStorage.getItem('td_trading_insights');
+      if (insights) {
+        try {
+          var p = JSON.parse(insights);
+          document.getElementById('ob-insights').innerHTML =
+            '<div style="font-family:var(--display);font-size:14px;color:var(--gold);margin-bottom:8px">' + (p.personality || '') + ' · ' + (p.risk_level || '') + '</div>' +
+            '<div style="font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.6);line-height:1.7;margin-bottom:12px">' + (p.summary || '') + '</div>' +
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">' +
+              '<div style="background:rgba(78,214,138,0.06);border:1px solid rgba(78,214,138,0.15);border-radius:8px;padding:8px 10px"><div style="font-family:var(--mono);font-size:7px;color:#4ed68a;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:4px">Strengths</div>' + (p.strengths||[]).map(function(s){return '<div style="font-size:9px;color:rgba(255,255,255,0.55);margin-bottom:2px">✓ '+s+'</div>';}).join('') + '</div>' +
+              '<div style="background:rgba(240,96,96,0.06);border:1px solid rgba(240,96,96,0.15);border-radius:8px;padding:8px 10px"><div style="font-family:var(--mono);font-size:7px;color:#f06060;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:4px">Fix these</div>' + (p.weaknesses||[]).map(function(s){return '<div style="font-size:9px;color:rgba(255,255,255,0.55);margin-bottom:2px">✗ '+s+'</div>';}).join('') + '</div>' +
+            '</div>';
+        } catch(e) {}
+      }
+      document.getElementById('onboard-overlay').classList.add('show');
+      onboardNext(2);
+    }
+  }, 300);
+}
+
+function onboardDone() {
+  localStorage.setItem('td_onboarded', '1');
+  localStorage.setItem('fw_done', '1');
+  document.getElementById('onboard-overlay').classList.remove('show');
+  // Start the wizard
+  setTimeout(function() {
+    wizOpen();
+  }, 300);
+}
+window.onboardDone = onboardDone;
 </script>
 </body>
 </html>
