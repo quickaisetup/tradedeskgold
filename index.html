@@ -6827,18 +6827,18 @@ function _tdSaveAnalysisTickers(list) {
   try { localStorage.setItem(TD_ANALYSIS_TICKERS_KEY, JSON.stringify(list)); } catch(e) {}
 }
 function _tdTodayBKK() {
-  // Trading day rolls over 30 min after NY close (05:30 AM Bangkok = 22:30 UTC).
-  // Before 05:30 AM Bangkok we are still in the previous session.
+  // Trading day rolls over at NY market close (17:00 ET).
+  // We check NY time directly so it auto-adjusts for EDT/EST.
   var now = new Date();
-  var bkkStr = now.toLocaleString('sv-SE', {timeZone:'Asia/Bangkok'}); // "YYYY-MM-DD HH:MM:SS"
-  var timePart = (bkkStr.split(' ')[1] || '00:00:00').slice(0, 5); // "HH:MM"
-  var datePart = bkkStr.split(' ')[0]; // "YYYY-MM-DD"
-  if (timePart < '05:30') {
-    // Still previous trading session — return yesterday's date
-    var prev = new Date(now.getTime() - 86400000);
-    return prev.toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
+  var nyStr = now.toLocaleString('sv-SE', {timeZone:'America/New_York'});
+  var nyTime = (nyStr.split(' ')[1] || '00:00:00').slice(0, 5);
+  var nyDate = nyStr.split(' ')[0];
+  if (nyTime >= '17:00') {
+    // After NY close — this is the NEXT trading day
+    var next = new Date(now.getTime() + 86400000);
+    return next.toLocaleDateString('sv-SE', {timeZone:'America/New_York'});
   }
-  return datePart;
+  return nyDate;
 }
 
 // On a new Bangkok day: clear stale tf_state + watermarks so the slate is truly clean
