@@ -20763,7 +20763,9 @@ async function tjAnalyze() {
   if (combined.length > 3000) combined = combined.slice(0, 3000) + '\n...(truncated)';
 
   var btn = document.getElementById('tj-analyze-btn');
-  if (btn) { btn.disabled = true; btn.textContent = '⏳ Analyzing...'; btn.style.opacity = '0.6'; }
+  if (btn) { btn.disabled = true; btn.style.opacity = '0.6'; btn.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;gap:10px"><div style="width:16px;height:16px;border:2px solid rgba(10,11,13,0.3);border-top-color:#0a0b0d;border-radius:50%;animation:obSpin 0.8s linear infinite"></div> Analyzing your data...</div>'; }
+  // Add spinner keyframe if not present
+  if (!document.getElementById('ob-spin-style')) { var ss=document.createElement('style'); ss.id='ob-spin-style'; ss.textContent='@keyframes obSpin{to{transform:rotate(360deg)}}'; document.head.appendChild(ss); }
 
   try {
     var prompt = 'You are a trading performance analyst. Analyze this trading data/notes and provide insights.\n\n' +
@@ -20811,9 +20813,16 @@ async function tjAnalyze() {
     }
   } catch(err) {
     console.error('[tj] Analysis failed:', err);
-    alert('Analysis failed: ' + err.message);
+    var errEl = document.getElementById('tj-result');
+    var errBody = document.getElementById('tj-result-body');
+    if (errEl && errBody) {
+      errEl.style.display = '';
+      errBody.innerHTML = '<div style="background:rgba(240,96,96,0.08);border:1px solid rgba(240,96,96,0.2);border-radius:8px;padding:14px;text-align:center">' +
+        '<div style="font-family:var(--display);font-size:14px;color:#f06060;margin-bottom:6px">Analysis Failed</div>' +
+        '<div style="font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.4);line-height:1.6">' + (err.message || 'Unknown error') + '<br>Check the browser console for details, or try again.</div></div>';
+    }
   } finally {
-    if (btn) { btn.disabled = false; btn.textContent = '✨ Analyze with AI (one-time)'; btn.style.opacity = ''; }
+    if (btn) { btn.disabled = false; btn.innerHTML = '✨ Analyze with AI (one-time)'; btn.style.opacity = ''; }
   }
 }
 
