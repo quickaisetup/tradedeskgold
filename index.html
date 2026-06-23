@@ -7098,7 +7098,7 @@ function setPivot(val, btn) {
   var btns = document.querySelectorAll('#pivot-btns .bb');
   var wasActive = btn.classList.contains('sel-bull') || btn.classList.contains('sel-bear') || btn.classList.contains('sel-range');
   btns.forEach(function(b) { b.classList.remove('sel','sel-bull','sel-bear','sel-range'); b.style.color=''; b.style.borderColor=''; b.style.background=''; });
-  if (!wasActive || (typeof _wizSingleMode !== 'undefined' && _wizSingleMode)) {
+  if (!wasActive || (typeof _wizSingleMode !== 'undefined' && _wizSingleMode) || (document.getElementById('wiz-overlay') && document.getElementById('wiz-overlay').classList.contains('show'))) {
     pivotState = val;
     var cls = { bull: 'sel-bull', bear: 'sel-bear', neu: 'sel-range' };
     btn.classList.add(cls[val] || 'sel');
@@ -7114,7 +7114,7 @@ function toggleMarketDir(val, btn) {
   const btns = document.querySelectorAll('#market-direction .bb');
   const wasActive = btn.classList.contains('sel-bull') || btn.classList.contains('sel-bear') || btn.classList.contains('sel-range');
   btns.forEach(b => { b.classList.remove('sel','sel-bull','sel-bear','sel-range'); b.style.color=''; b.style.borderColor=''; b.style.background=''; });
-  if (!wasActive || (typeof _wizSingleMode !== 'undefined' && _wizSingleMode)) {
+  if (!wasActive || (typeof _wizSingleMode !== 'undefined' && _wizSingleMode) || (document.getElementById('wiz-overlay') && document.getElementById('wiz-overlay').classList.contains('show'))) {
     const cls = { up: 'sel-bull', down: 'sel-bear', range: 'sel-range' };
     btn.classList.add(cls[val] || 'sel');
   }
@@ -7230,7 +7230,7 @@ function setLondonBias(val, btn) {
   var btns = document.querySelectorAll('#london-btns .bb');
   var wasActive = btn.classList.contains('sel-bull') || btn.classList.contains('sel-bear') || btn.classList.contains('sel-range');
   btns.forEach(function(b) { b.classList.remove('sel','sel-bull','sel-bear','sel-range'); b.style.color=''; b.style.borderColor=''; b.style.background=''; });
-  if (!wasActive || (typeof _wizSingleMode !== 'undefined' && _wizSingleMode)) {
+  if (!wasActive || (typeof _wizSingleMode !== 'undefined' && _wizSingleMode) || (document.getElementById('wiz-overlay') && document.getElementById('wiz-overlay').classList.contains('show'))) {
     londonBiasState = val;
     var cls = { bull: 'sel-bull', bear: 'sel-bear', range: 'sel-range' };
     btn.classList.add(cls[val] || 'sel');
