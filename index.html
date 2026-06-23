@@ -20663,8 +20663,8 @@ window.wizBack = wizBack;
 <div id="tj-overlay">
   <div id="tj-card">
     <button id="tj-close" onclick="document.getElementById('tj-overlay').classList.remove('show')">✕</button>
-    <div style="font-family:var(--display);font-size:22px;color:#fff;letter-spacing:0.04em;margin-bottom:4px">📊 Upload Trading Data</div>
-    <div style="font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.35);margin-bottom:18px;line-height:1.6">Upload your prop firm statement, personal spreadsheet, or paste notes.<br>AI analyzes once and saves insights to your profile — no repeated costs.</div>
+    <div id="tj-title" style="font-family:var(--display);font-size:22px;color:#fff;letter-spacing:0.04em;margin-bottom:4px">📊 Upload Trading Data</div>
+    <div id="tj-subtitle" style="font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.35);margin-bottom:18px;line-height:1.6">Upload your prop firm statement, personal spreadsheet, or paste notes.<br>AI analyzes once and saves insights to your profile — no repeated costs.</div>
 
     <!-- STEP 1: Instrument select -->
     <div id="tj-instrument-step">
@@ -20713,8 +20713,8 @@ window.wizBack = wizBack;
 
       <!-- Results -->
       <div id="tj-result">
-        <div style="font-family:var(--mono);font-size:8px;color:rgba(255,255,255,0.3);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px">AI Insights — saved to your profile</div>
-        <div id="tj-result-body" style="font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.7);line-height:1.7"></div>
+        <div style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px">✓ Saved to your profile</div>
+        <div id="tj-result-body" style="font-family:var(--mono);font-size:13px;color:rgba(255,255,255,0.75);line-height:1.7"></div>
       </div>
     </div>
   </div>
@@ -20875,6 +20875,30 @@ var _tjParsedData = '';
 var _tjNotes = '';
 var _tjMode = 'file';
 
+function tjSetResultTitle() {
+  var t = document.getElementById('tj-title'); if (t) t.textContent = '🧠 Your Trading Profile';
+  var s = document.getElementById('tj-subtitle'); if (s) s.textContent = 'AI insights from your journal, saved to your profile.';
+}
+
+function tjInsightsHTML(p) {
+  var strengths = (p.strengths || []).slice(0, 3);
+  var weaknesses = (p.weaknesses || []).slice(0, 3);
+  var recs = (p.recommendations || []).slice(0, 2);
+  return (
+    '<div style="font-family:var(--display);font-size:20px;color:var(--gold);margin-bottom:10px">' + (p.personality || 'Trader') + ' · ' + (p.risk_level || '') + '</div>' +
+    '<div style="margin-bottom:16px;font-size:15px;color:rgba(255,255,255,0.85);line-height:1.6">' + (p.summary || '') + '</div>' +
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">' +
+      '<div style="background:rgba(78,214,138,0.06);border:1px solid rgba(78,214,138,0.15);border-radius:10px;padding:12px"><div style="font-size:10px;color:var(--green);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px">Strengths</div>' + strengths.map(function(s){return '<div style="font-size:13px;color:rgba(255,255,255,0.75);margin-bottom:5px;line-height:1.4">✓ '+s+'</div>';}).join('') + '</div>' +
+      '<div style="background:rgba(240,96,96,0.06);border:1px solid rgba(240,96,96,0.15);border-radius:10px;padding:12px"><div style="font-size:10px;color:var(--red);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px">Weaknesses</div>' + weaknesses.map(function(s){return '<div style="font-size:13px;color:rgba(255,255,255,0.75);margin-bottom:5px;line-height:1.4">✗ '+s+'</div>';}).join('') + '</div>' +
+    '</div>' +
+    '<div style="background:rgba(240,188,78,0.06);border:1px solid rgba(240,188,78,0.15);border-radius:10px;padding:12px;margin-bottom:12px"><div style="font-size:10px;color:var(--gold);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px">Focus on</div>' + recs.map(function(s){return '<div style="font-size:13px;color:rgba(255,255,255,0.75);margin-bottom:5px;line-height:1.4">→ '+s+'</div>';}).join('') + '</div>' +
+    '<div style="display:flex;gap:16px;margin-bottom:14px;font-size:11px;color:rgba(255,255,255,0.35)">' +
+      '<span>Win rate: <strong style="color:rgba(255,255,255,0.7)">' + (p.win_rate_est || '—') + '</strong></span>' +
+      '<span>Avg R:R: <strong style="color:rgba(255,255,255,0.7)">' + (p.avg_rr_est || '—') + '</strong></span>' +
+    '</div>'
+  );
+}
+
 function tjTab(mode, btn) {
   _tjMode = mode;
   document.querySelectorAll('.tj-tab').forEach(function(b){ b.classList.remove('active'); });
@@ -20936,10 +20960,10 @@ async function tjAnalyze() {
   var inst = _tjSelectedInstrument || tjLoadInstruments()[0];
 
   try {
-    var prompt = 'You are a trading performance analyst. Analyze this trading data/notes for the instrument "' + (inst ? inst.name : 'Gold') + '" and provide insights.\n\n' +
+    var prompt = 'You are a trading performance analyst. Analyze this trading data/notes for the instrument "' + (inst ? inst.name : 'Gold') + '" and provide insights. Be concise — short, punchy phrases, not paragraphs.\n\n' +
       '=== DATA ===\n' + combined + '\n\n' +
       'Output JSON only:\n' +
-      '{"summary":"2-3 sentence overview of trader profile","strengths":["strength 1","strength 2"],"weaknesses":["weakness 1","weakness 2"],"recommendations":["specific actionable rec 1","specific actionable rec 2","specific actionable rec 3"],"win_rate_est":"estimated %","avg_rr_est":"estimated R:R","personality":"1 word trading personality type","risk_level":"conservative/moderate/aggressive"}\n' +
+      '{"summary":"ONE concise sentence, max 20 words, overview of trader profile","strengths":["short phrase, max 8 words","short phrase, max 8 words","short phrase, max 8 words"],"weaknesses":["short phrase, max 8 words","short phrase, max 8 words","short phrase, max 8 words"],"recommendations":["short actionable phrase, max 10 words","short actionable phrase, max 10 words"],"win_rate_est":"estimated %","avg_rr_est":"estimated R:R","personality":"1 word trading personality type","risk_level":"conservative/moderate/aggressive"}\n' +
       'ONLY valid JSON.';
 
     var apiKey = localStorage.getItem('td_api_key') || '';
@@ -20982,19 +21006,9 @@ async function tjAnalyze() {
       var summaryArea = document.getElementById('tj-summary'); if (summaryArea) summaryArea.style.display = 'none';
       document.querySelectorAll('.tj-tab').forEach(function(t){ t.style.display = 'none'; });
       if (btn) btn.style.display = 'none';
-      bodyEl.innerHTML =
-        '<div style="font-family:var(--display);font-size:15px;color:var(--gold);margin-bottom:10px">' + (parsed.personality || 'Trader') + ' · ' + (parsed.risk_level || '') + '</div>' +
-        '<div style="margin-bottom:12px">' + (parsed.summary || '') + '</div>' +
-        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">' +
-          '<div style="background:rgba(78,214,138,0.06);border:1px solid rgba(78,214,138,0.15);border-radius:8px;padding:8px 10px"><div style="font-size:8px;color:var(--green);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:4px">Strengths</div>' + (parsed.strengths||[]).map(function(s){return '<div style="font-size:10px;color:rgba(255,255,255,0.6);margin-bottom:3px">✓ '+s+'</div>';}).join('') + '</div>' +
-          '<div style="background:rgba(240,96,96,0.06);border:1px solid rgba(240,96,96,0.15);border-radius:8px;padding:8px 10px"><div style="font-size:8px;color:var(--red);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:4px">Weaknesses</div>' + (parsed.weaknesses||[]).map(function(s){return '<div style="font-size:10px;color:rgba(255,255,255,0.6);margin-bottom:3px">✗ '+s+'</div>';}).join('') + '</div>' +
-        '</div>' +
-        '<div style="background:rgba(240,188,78,0.06);border:1px solid rgba(240,188,78,0.15);border-radius:8px;padding:10px"><div style="font-size:8px;color:var(--gold);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px">Recommendations</div>' + (parsed.recommendations||[]).map(function(s){return '<div style="font-size:10px;color:rgba(255,255,255,0.6);margin-bottom:4px">→ '+s+'</div>';}).join('') + '</div>' +
-        '<div style="display:flex;gap:12px;margin-top:10px;font-size:9px;color:rgba(255,255,255,0.3);margin-bottom:14px">' +
-          '<span>Win rate: <strong style="color:rgba(255,255,255,0.6)">' + (parsed.win_rate_est || '—') + '</strong></span>' +
-          '<span>Avg R:R: <strong style="color:rgba(255,255,255,0.6)">' + (parsed.avg_rr_est || '—') + '</strong></span>' +
-        '</div>' +
-        '<button onclick="document.getElementById(\'tj-overlay\').classList.remove(\'show\')" style="width:100%;padding:13px;font-family:var(--display);font-size:14px;letter-spacing:0.08em;color:#0a0b0d;background:linear-gradient(135deg,#f0bc4e,#ffd070);border:none;border-radius:10px;cursor:pointer;margin-top:4px">✓ Done — Insights Saved</button>';
+      tjSetResultTitle();
+      bodyEl.innerHTML = tjInsightsHTML(parsed) +
+        '<button onclick="document.getElementById(\'tj-overlay\').classList.remove(\'show\')" style="width:100%;padding:14px;font-family:var(--display);font-size:15px;letter-spacing:0.08em;color:#0a0b0d;background:linear-gradient(135deg,#f0bc4e,#ffd070);border:none;border-radius:10px;cursor:pointer;margin-top:4px">✓ Done — Insights Saved</button>';
       // Scroll to results
       resultEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
@@ -21015,6 +21029,9 @@ async function tjAnalyze() {
 
 function tjOpen() {
   console.log('[tjOpen] called. localStorage insights:', !!localStorage.getItem('td_trading_insights'));
+  // Reset title/subtitle to default upload copy (overridden below if showing saved insights)
+  var titleEl = document.getElementById('tj-title'); if (titleEl) titleEl.textContent = '📊 Upload Trading Data';
+  var subtitleEl = document.getElementById('tj-subtitle'); if (subtitleEl) subtitleEl.textContent = 'Upload your prop firm statement, personal spreadsheet, or paste notes.';
   // Reset UI state
   var fileArea = document.getElementById('tj-file-area'); if (fileArea) fileArea.style.display = '';
   var textArea = document.getElementById('tj-text-area');
@@ -21076,16 +21093,11 @@ function tjOpen() {
         if (uploadStep) uploadStep.style.display = '';
         var badgeEl = document.getElementById('tj-instrument-badge');
         if (badgeEl) badgeEl.textContent = (p.instrument_id === 'gold' ? '🥇 ' : '') + (p.instrument_name || 'Gold');
-        bodyEl.innerHTML =
-          '<div style="font-family:var(--display);font-size:15px;color:var(--gold);margin-bottom:10px">' + (p.personality || 'Trader') + ' · ' + (p.risk_level || '') + '</div>' +
-          '<div style="margin-bottom:12px;font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.6);line-height:1.7">' + (p.summary || '') + '</div>' +
-          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">' +
-            '<div style="background:rgba(78,214,138,0.06);border:1px solid rgba(78,214,138,0.15);border-radius:8px;padding:8px 10px"><div style="font-size:8px;color:#4ed68a;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:4px">Strengths</div>' + (p.strengths||[]).map(function(s){return '<div style="font-size:10px;color:rgba(255,255,255,0.6);margin-bottom:3px">✓ '+s+'</div>';}).join('') + '</div>' +
-            '<div style="background:rgba(240,96,96,0.06);border:1px solid rgba(240,96,96,0.15);border-radius:8px;padding:8px 10px"><div style="font-size:8px;color:#f06060;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:4px">Weaknesses</div>' + (p.weaknesses||[]).map(function(s){return '<div style="font-size:10px;color:rgba(255,255,255,0.6);margin-bottom:3px">✗ '+s+'</div>';}).join('') + '</div>' +
-          '</div>' +
-          '<div style="display:flex;gap:8px">' +
-            '<button onclick="document.getElementById(\'tj-overlay\').classList.remove(\'show\')" style="flex:1;padding:11px;font-family:var(--display);font-size:13px;letter-spacing:0.06em;color:#0a0b0d;background:var(--gold);border:none;border-radius:8px;cursor:pointer">✓ Close</button>' +
-            '<button onclick="localStorage.removeItem(\'td_trading_insights\');tjOpen()" style="flex:1;padding:11px;font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.4);background:transparent;border:1px solid rgba(255,255,255,0.1);border-radius:8px;cursor:pointer">↻ Re-analyze</button>' +
+        tjSetResultTitle();
+        bodyEl.innerHTML = tjInsightsHTML(p) +
+          '<div style="display:flex;gap:8px;margin-top:4px">' +
+            '<button onclick="document.getElementById(\'tj-overlay\').classList.remove(\'show\')" style="flex:1;padding:13px;font-family:var(--display);font-size:14px;letter-spacing:0.06em;color:#0a0b0d;background:var(--gold);border:none;border-radius:8px;cursor:pointer">✓ Close</button>' +
+            '<button onclick="localStorage.removeItem(\'td_trading_insights\');tjOpen()" style="flex:1;padding:13px;font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.4);background:transparent;border:1px solid rgba(255,255,255,0.1);border-radius:8px;cursor:pointer">↻ Re-analyze</button>' +
           '</div>';
       }
     } catch(e){}
