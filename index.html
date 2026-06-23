@@ -16378,8 +16378,8 @@ document.addEventListener('DOMContentLoaded', function() {
     if (btnEl)   btnEl.textContent   = '▶ Continue Day';
   }
   // First-time user → new onboarding flow
-  // ?reset=onboarding in URL forces first-time experience
-  if (location.search.includes('reset=onboarding')) { localStorage.removeItem('td_onboarded'); localStorage.removeItem('fw_done'); history.replaceState(null,'',location.pathname); }
+  // ?reset=onboarding in URL forces first-time experience (keeps auth + insights)
+  if (location.search.includes('reset=onboarding')) { localStorage.removeItem('td_onboarded'); localStorage.removeItem('fw_done'); localStorage.removeItem('td_trading_insights'); history.replaceState(null,'',location.pathname); }
   var _isFirstTime = !localStorage.getItem('td_onboarded');
   if (_isFirstTime) {
     if (splash) splash.style.display = 'none';
