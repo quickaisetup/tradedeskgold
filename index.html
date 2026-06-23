@@ -3945,6 +3945,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
     <!-- INSTRUMENT TABS — do top-down analysis on more than one pair -->
     <div id="td-instr-tabs" class="toggle-group" style="margin-bottom:10px">
       <button class="tgl sel" onclick="switchAnalysisInstrument('Gold',this)">Gold</button>
+      <button id="gold-provider-btn" onclick="gpOpen()" title="Choose which broker/provider feeds Gold's chart — candles can differ slightly between providers" style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.4);background:transparent;border:1px solid rgba(255,255,255,0.12);border-radius:6px;padding:0 10px;cursor:pointer">⚙ <span id="gold-provider-label">CAPITALCOM</span></button>
       <button class="tgl" data-role="add-instr" onclick="addAnalysisInstrument()" style="color:rgba(240,188,78,0.6)" title="Add another instrument to run top-down analysis on (saved locally per day)">+ Add</button>
     </div>
 
@@ -6832,6 +6833,8 @@ function _tdLoadAnalysisTickers() {
 }
 function _tdSaveAnalysisTickers(list) {
   try { localStorage.setItem(TD_ANALYSIS_TICKERS_KEY, JSON.stringify(list)); } catch(e) {}
+  var sb = window._tdSB; var uid = localStorage.getItem('td_user_id');
+  if (sb && uid) { sb.from('profiles').update({ analysis_tickers: list }).eq('id', uid).then(function(){}, function(){}); }
 }
 function _tdTodayBKK() {
   // Trading day rolls over at NY close (17:00 ET).
@@ -6896,15 +6899,8 @@ function renderAnalysisInstrumentTabs() {
   });
 }
 
-async function addAnalysisInstrument() {
-  var raw = await tdPrompt('Add Instrument', '', 'e.g. BTCUSD, EURUSD, US30, NAS100');
-  if (!raw) return;
-  raw = raw.trim().toUpperCase();
-  if (!raw || raw === 'GOLD') return;
-  var list = _tdLoadAnalysisTickers();
-  if (list.indexOf(raw) === -1) { list.push(raw); _tdSaveAnalysisTickers(list); }
-  renderAnalysisInstrumentTabs();
-  switchAnalysisInstrument(raw, _tdFindInstrTabBtn(raw));
+function addAnalysisInstrument() {
+  if (typeof aaiOpen === 'function') aaiOpen();
 }
 
 function removeAnalysisInstrument(name) {
@@ -13746,14 +13742,29 @@ document.addEventListener('DOMContentLoaded', async function() {
 var _tvInterval = '240';
 
 // Resolve a TradingView symbol string for the active analysis instrument.
-// "Gold" keeps its known-good symbol; custom tickers are passed through as
-// typed (TradingView resolves common tickers like BTCUSD/EURUSD/US30 directly).
+// "Gold" uses whichever provider the user picked (default CAPITALCOM —
+// different brokers/providers can show slightly different candles on gold);
+// custom tickers are passed through as typed (TradingView resolves common
+// tickers like BTCUSD/EURUSD/US30 directly).
+var TD_GOLD_SYMBOL_KEY = 'td_gold_symbol_v1';
+function tdGoldSymbol() {
+  try { return localStorage.getItem(TD_GOLD_SYMBOL_KEY) || 'CAPITALCOM:XAUUSD'; }
+  catch(e) { return 'CAPITALCOM:XAUUSD'; }
+}
+function tdSetGoldSymbol(sym) {
+  try { localStorage.setItem(TD_GOLD_SYMBOL_KEY, sym); } catch(e) {}
+  var sb = window._tdSB; var uid = localStorage.getItem('td_user_id');
+  if (sb && uid) { sb.from('profiles').update({ gold_symbol: sym }).eq('id', uid).then(function(){}, function(){}); }
+  var lbl = document.getElementById('gold-provider-label');
+  if (lbl) lbl.textContent = (sym.split(':')[0] || sym);
+  if (_tdActiveInstrument === 'Gold' && typeof initTVChart === 'function') initTVChart(true);
+}
 function _tdChartSymbolFor(name) {
-  if (!name || name === 'Gold') return 'CAPITALCOM:XAUUSD';
+  if (!name || name === 'Gold') return tdGoldSymbol();
   return name;
 }
 function _tdChartTitleFor(name) {
-  if (!name || name === 'Gold') return 'XAUUSD · Gold Spot';
+  if (!name || name === 'Gold') return tdGoldSymbol() + ' · Gold Spot';
   return name;
 }
 
@@ -19546,6 +19557,7 @@ window.fwFinish = fwFinish;
 var _wizSteps = [
   { key:'morning',   label:'Morning Routine',     type:'section', sourceId:'gate-items',  doneCheck:'gates' },
   { key:'news',      label:'Economic Calendar',   type:'section', sourceId:'_econ_card'  },
+  { key:'instrument', label:'Select Instrument',  type:'section', sourceId:'td-instr-tabs' },
   { key:'tf-1M',     label:'1M — Monthly',        type:'tf', tfKey:'1M', tvTF:'M',   hasMacd:false },
   { key:'tf-1W',     label:'1W — Weekly',         type:'tf', tfKey:'1W', tvTF:'W',   hasMacd:false },
   { key:'tf-D',      label:'Daily',               type:'tf', tfKey:'D',  tvTF:'D',   hasMacd:false },
@@ -19684,6 +19696,17 @@ function _wizRenderSection(s, body) {
       '<div style="font-family:var(--display);font-size:28px;color:#fff;letter-spacing:0.04em;margin-bottom:6px">Check Today\'s News & Set Alerts</div>' +
       '<div style="font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.4);line-height:1.6;max-width:440px;margin:0 auto">Big news can make the market jump suddenly — look at the times below.<br>Click the <span style="color:rgba(240,188,78,0.7)">clock button</span> next to a risky one to get an alert before it happens.</div>';
     wrap.appendChild(newsHeader);
+  }
+
+  // Instrument selection gets a header explaining Gold is the default
+  if (s.key === 'instrument') {
+    var instrHeader = document.createElement('div');
+    instrHeader.style.cssText = 'text-align:center;margin-bottom:20px;width:100%';
+    instrHeader.innerHTML =
+      '<div style="font-size:36px;margin-bottom:8px">🥇</div>' +
+      '<div style="font-family:var(--display);font-size:28px;color:#fff;letter-spacing:0.04em;margin-bottom:6px">Which Instrument Today?</div>' +
+      '<div style="font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.4);line-height:1.6;max-width:460px;margin:0 auto"><span style="color:rgba(240,188,78,0.7)">Gold</span> is set as your default. Add another pair with <span style="color:rgba(240,188,78,0.7)">+ Add</span>, or use <span style="color:rgba(240,188,78,0.7)">⚙</span> to change which broker/provider feeds Gold\'s chart — candles can differ slightly between providers.</div>';
+    wrap.appendChild(instrHeader);
   }
 
   // AI Briefing — just header + cards (score/mode already chosen in overview step)
@@ -20725,6 +20748,9 @@ window.wizBack = wizBack;
 <style>
 #tji-overlay{display:none;position:fixed;inset:0;z-index:200020;background:rgba(4,5,7,0.94);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:24px}
 #tji-overlay.show{display:flex;animation:eodFadeIn 0.2s ease}
+#gp-overlay.show{display:flex !important;animation:eodFadeIn 0.2s ease}
+#aai-overlay{display:none;position:fixed;inset:0;z-index:200020;background:rgba(4,5,7,0.94);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:24px}
+#aai-overlay.show{display:flex;animation:eodFadeIn 0.2s ease}
 .tji-input{width:100%;box-sizing:border-box;background:rgba(255,255,255,0.06);border:1.5px solid rgba(240,188,78,0.35);border-radius:8px;padding:12px 14px;font-family:var(--mono);font-size:12px;color:#fff;outline:none;margin-bottom:12px}
 .tji-label{font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.4);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px}
 .tji-provider-btn{flex:1;font-family:var(--mono);font-size:10px;padding:9px 0;border-radius:7px;border:1px solid rgba(255,255,255,0.12);background:transparent;color:rgba(255,255,255,0.5);cursor:pointer;transition:all 0.15s}
@@ -20755,6 +20781,47 @@ window.wizBack = wizBack;
     <div style="display:flex;gap:10px;margin-top:6px">
       <button onclick="document.getElementById('tji-overlay').classList.remove('show')" style="flex:1;font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.4);background:transparent;border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:12px 0;cursor:pointer">Cancel</button>
       <button onclick="tjiSave()" style="flex:1;font-family:var(--display);font-size:14px;color:#0a0b0d;background:#f0bc4e;border:none;border-radius:8px;padding:12px 0;cursor:pointer;font-weight:700">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- GOLD PROVIDER MODAL -->
+<div id="gp-overlay" style="display:none;position:fixed;inset:0;z-index:200020;background:rgba(4,5,7,0.94);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:24px">
+  <div style="background:linear-gradient(160deg,#14130d,#0c0d10);border:1px solid rgba(240,188,78,0.3);border-radius:14px;padding:26px;width:420px;max-width:90vw;box-shadow:0 24px 80px rgba(0,0,0,0.7)">
+    <div style="font-family:var(--display);font-size:18px;color:#fff;margin-bottom:4px">⚙ Gold Chart Provider</div>
+    <div style="font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.35);margin-bottom:16px">Different brokers feed slightly different candles for gold — pick whichever matches your broker, or paste a TradingView chart URL.</div>
+
+    <div class="tji-label">Presets</div>
+    <div id="gp-presets" style="display:flex;flex-direction:column;gap:6px;margin-bottom:16px"></div>
+
+    <div class="tji-label">— or paste a TradingView chart URL —</div>
+    <input id="gp-url" type="text" class="tji-input" placeholder="https://www.tradingview.com/chart/?symbol=OANDA:XAUUSD" oninput="gpUrlChanged(this.value)">
+
+    <div style="display:flex;gap:10px;margin-top:6px">
+      <button onclick="document.getElementById('gp-overlay').classList.remove('show')" style="flex:1;font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.4);background:transparent;border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:12px 0;cursor:pointer">Cancel</button>
+      <button onclick="gpSaveCustom()" style="flex:1;font-family:var(--display);font-size:14px;color:#0a0b0d;background:#f0bc4e;border:none;border-radius:8px;padding:12px 0;cursor:pointer;font-weight:700">Use URL</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD ANALYSIS INSTRUMENT MODAL (top-down analysis tabs / morning wizard) -->
+<div id="aai-overlay">
+  <div style="background:linear-gradient(160deg,#14130d,#0c0d10);border:1px solid rgba(240,188,78,0.3);border-radius:14px;padding:26px;width:420px;max-width:90vw;box-shadow:0 24px 80px rgba(0,0,0,0.7)">
+    <div style="font-family:var(--display);font-size:18px;color:#fff;margin-bottom:4px">➕ Add Instrument</div>
+    <div style="font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.35);margin-bottom:16px">Pick a provider, type a TradingView symbol, or paste a chart URL</div>
+
+    <div class="tji-label">Provider</div>
+    <div id="aai-providers" style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap"></div>
+
+    <div class="tji-label">TradingView symbol</div>
+    <input id="aai-symbol" type="text" class="tji-input" placeholder="e.g. XAGUSD, EURUSD, BTCUSD">
+
+    <div class="tji-label">— or paste a TradingView chart URL —</div>
+    <input id="aai-url" type="text" class="tji-input" placeholder="https://www.tradingview.com/chart/?symbol=OANDA:XAGUSD" oninput="aaiUrlChanged(this.value)">
+
+    <div style="display:flex;gap:10px;margin-top:6px">
+      <button onclick="document.getElementById('aai-overlay').classList.remove('show')" style="flex:1;font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.4);background:transparent;border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:12px 0;cursor:pointer">Cancel</button>
+      <button onclick="aaiSave()" style="flex:1;font-family:var(--display);font-size:14px;color:#0a0b0d;background:#f0bc4e;border:none;border-radius:8px;padding:12px 0;cursor:pointer;font-weight:700">Add</button>
     </div>
   </div>
 </div>
@@ -20844,13 +20911,15 @@ function tjiSetProvider(btn) {
 window.tjiSetProvider = tjiSetProvider;
 
 // Extract a TradingView symbol (EXCHANGE:TICKER) from a pasted chart URL
-function tjiUrlChanged(url) {
-  if (!url) return;
+function _tdExtractTVSymbol(url) {
+  if (!url) return '';
   var m = url.match(/symbol=([A-Za-z0-9_.:%-]+)/i);
-  if (m && m[1]) {
-    var sym = decodeURIComponent(m[1]).toUpperCase();
-    document.getElementById('tji-symbol').value = sym;
-  }
+  return m && m[1] ? decodeURIComponent(m[1]).toUpperCase() : '';
+}
+
+function tjiUrlChanged(url) {
+  var sym = _tdExtractTVSymbol(url);
+  if (sym) document.getElementById('tji-symbol').value = sym;
 }
 window.tjiUrlChanged = tjiUrlChanged;
 
@@ -20870,6 +20939,112 @@ function tjiSave() {
   tjRenderInstrumentChips();
 }
 window.tjiSave = tjiSave;
+
+// ── GOLD CHART PROVIDER ────────────────────────────────
+var GP_PRESETS = [
+  { label: 'Capital.com (default)', symbol: 'CAPITALCOM:XAUUSD' },
+  { label: 'OANDA',                  symbol: 'OANDA:XAUUSD' },
+  { label: 'FOREX.com',              symbol: 'FOREXCOM:XAUUSD' },
+  { label: 'Pepperstone',            symbol: 'PEPPERSTONE:XAUUSD' },
+  { label: 'TVC (spot gold index)',  symbol: 'TVC:GOLD' }
+];
+
+function gpRenderPresets() {
+  var wrap = document.getElementById('gp-presets');
+  if (!wrap) return;
+  var current = tdGoldSymbol();
+  wrap.innerHTML = '';
+  GP_PRESETS.forEach(function(p) {
+    var isActive = p.symbol === current;
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.style.cssText = 'display:flex;justify-content:space-between;align-items:center;width:100%;text-align:left;font-family:var(--mono);font-size:11px;padding:10px 12px;border-radius:8px;cursor:pointer;border:1.5px solid ' + (isActive ? 'var(--gold)' : 'rgba(255,255,255,0.1)') + ';background:' + (isActive ? 'rgba(240,188,78,0.1)' : 'transparent') + ';color:' + (isActive ? 'var(--gold)' : 'rgba(255,255,255,0.6)');
+    b.innerHTML = '<span>' + p.label + '</span><span style="opacity:0.5">' + p.symbol + '</span>';
+    b.onclick = function() { tdSetGoldSymbol(p.symbol); document.getElementById('gp-overlay').classList.remove('show'); };
+    wrap.appendChild(b);
+  });
+}
+
+function gpOpen() {
+  document.getElementById('gp-url').value = '';
+  gpRenderPresets();
+  document.getElementById('gp-overlay').classList.add('show');
+}
+window.gpOpen = gpOpen;
+
+function gpUrlChanged(url) {
+  // Just live-validate; actual save happens on "Use URL" click
+}
+window.gpUrlChanged = gpUrlChanged;
+
+function gpSaveCustom() {
+  var url = (document.getElementById('gp-url').value || '').trim();
+  var sym = _tdExtractTVSymbol(url);
+  if (!sym) { alert('Paste a full TradingView chart URL, e.g. https://www.tradingview.com/chart/?symbol=OANDA:XAUUSD'); return; }
+  tdSetGoldSymbol(sym);
+  document.getElementById('gp-overlay').classList.remove('show');
+}
+window.gpSaveCustom = gpSaveCustom;
+
+(function() {
+  var lbl = document.getElementById('gold-provider-label');
+  if (lbl) lbl.textContent = tdGoldSymbol().split(':')[0];
+})();
+
+// ── ADD ANALYSIS INSTRUMENT (top-down tabs / morning wizard) ──
+var AAI_PROVIDERS = ['OANDA', 'FOREXCOM', 'CAPITALCOM', 'PEPPERSTONE', 'BINANCE', 'NASDAQ'];
+var _aaiProvider = '';
+
+function aaiRenderProviders() {
+  var wrap = document.getElementById('aai-providers');
+  if (!wrap) return;
+  wrap.innerHTML = '';
+  AAI_PROVIDERS.forEach(function(p) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'tji-provider-btn' + (p === _aaiProvider ? ' active' : '');
+    b.style.flex = '0 1 auto'; b.style.padding = '7px 10px';
+    b.textContent = p;
+    b.onclick = function() {
+      _aaiProvider = (_aaiProvider === p) ? '' : p;
+      aaiRenderProviders();
+      var symEl = document.getElementById('aai-symbol');
+      if (symEl) {
+        var raw = symEl.value.replace(/^[A-Z.]+:/, '');
+        symEl.value = _aaiProvider ? (_aaiProvider + ':' + raw) : raw;
+      }
+    };
+    wrap.appendChild(b);
+  });
+}
+
+function aaiOpen() {
+  document.getElementById('aai-symbol').value = '';
+  document.getElementById('aai-url').value = '';
+  _aaiProvider = '';
+  aaiRenderProviders();
+  document.getElementById('aai-overlay').classList.add('show');
+  setTimeout(function(){ document.getElementById('aai-symbol').focus(); }, 50);
+}
+window.aaiOpen = aaiOpen;
+
+function aaiUrlChanged(url) {
+  var sym = _tdExtractTVSymbol(url);
+  if (sym) document.getElementById('aai-symbol').value = sym;
+}
+window.aaiUrlChanged = aaiUrlChanged;
+
+function aaiSave() {
+  var raw = (document.getElementById('aai-symbol').value || '').trim().toUpperCase();
+  if (!raw) { alert('Type a symbol (e.g. XAGUSD) or paste a TradingView chart URL'); return; }
+  if (raw === 'GOLD' || raw === 'XAUUSD' || raw.endsWith(':XAUUSD')) { alert('Gold already has its own tab — use the ⚙ button to change its provider instead.'); return; }
+  var list = _tdLoadAnalysisTickers();
+  if (list.indexOf(raw) === -1) { list.push(raw); _tdSaveAnalysisTickers(list); }
+  document.getElementById('aai-overlay').classList.remove('show');
+  renderAnalysisInstrumentTabs();
+  switchAnalysisInstrument(raw, _tdFindInstrTabBtn(raw));
+}
+window.aaiSave = aaiSave;
 
 // ── TRADE JOURNAL UPLOAD ──────────────────────────────
 var _tjParsedData = '';
