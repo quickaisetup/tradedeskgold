@@ -16379,7 +16379,7 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   // Don't show splash for first-time users — the walkthrough handles onboarding
   var _isFirstTime = typeof fwShouldShow === 'function' && fwShouldShow();
-  if (_isFirstTime && splash) { splash.style.display = 'none'; }
+  if (_isFirstTime) { if (splash) splash.style.display = 'none'; return; }
   if (splash && !_isFirstTime) setTimeout(function(){
     splash.classList.add('show');
     var leoOv = document.getElementById('live-exec-overlay');
