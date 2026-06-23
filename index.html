@@ -20666,46 +20666,210 @@ window.wizBack = wizBack;
     <div style="font-family:var(--display);font-size:22px;color:#fff;letter-spacing:0.04em;margin-bottom:4px">📊 Upload Trading Data</div>
     <div style="font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.35);margin-bottom:18px;line-height:1.6">Upload your prop firm statement, personal spreadsheet, or paste notes.<br>AI analyzes once and saves insights to your profile — no repeated costs.</div>
 
-    <!-- Tabs -->
-    <div style="display:flex;gap:6px;margin-bottom:16px">
-      <button class="tj-tab active" onclick="tjTab('file',this)">📎 File (CSV/XLSX)</button>
-      <button class="tj-tab" onclick="tjTab('text',this)">📝 Text / Notes</button>
-      <button class="tj-tab" onclick="tjTab('both',this)">📎 + 📝 Both</button>
+    <!-- STEP 1: Instrument select -->
+    <div id="tj-instrument-step">
+      <div style="font-family:var(--mono);font-size:8px;color:rgba(255,255,255,0.3);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px">Which instrument is this for?</div>
+      <div id="tj-instrument-chips" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px"></div>
+      <button onclick="tjAnalyzeStep()" style="width:100%;padding:13px;font-family:var(--display);font-size:14px;letter-spacing:0.08em;color:#0a0b0d;background:linear-gradient(135deg,#f0bc4e,#ffd070);border:none;border-radius:10px;cursor:pointer">Continue →</button>
     </div>
 
-    <!-- File upload -->
-    <div id="tj-file-area">
-      <div id="tj-drop" onclick="document.getElementById('tj-file-input').click()" ondragover="event.preventDefault();this.style.borderColor='rgba(240,188,78,0.6)'" ondragleave="this.style.borderColor='rgba(255,255,255,0.12)'" ondrop="event.preventDefault();this.style.borderColor='rgba(255,255,255,0.12)';tjHandleFile(event.dataTransfer.files[0])">
-        <div style="font-size:24px">📎</div>
-        <div id="tj-drop-text" style="font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.3)">Drop CSV or XLSX here, or click to browse</div>
-        <div style="font-family:var(--mono);font-size:8px;color:rgba(255,255,255,0.15)">Supports multi-tab spreadsheets</div>
+    <!-- STEP 2: upload -->
+    <div id="tj-upload-step" style="display:none">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+        <button onclick="tjBackToInstrument()" style="background:transparent;border:1px solid rgba(255,255,255,0.12);border-radius:6px;color:rgba(255,255,255,0.4);font-family:var(--mono);font-size:10px;padding:5px 10px;cursor:pointer">← Back</button>
+        <div id="tj-instrument-badge" style="font-family:var(--mono);font-size:10px;color:var(--gold);background:rgba(240,188,78,0.1);border:1px solid rgba(240,188,78,0.3);border-radius:6px;padding:5px 10px"></div>
       </div>
-      <input type="file" id="tj-file-input" accept=".csv,.xlsx,.xls,.ods,.tsv" style="display:none" onchange="tjHandleFile(this.files[0])">
+
+      <!-- Tabs -->
+      <div style="display:flex;gap:6px;margin-bottom:16px">
+        <button class="tj-tab active" onclick="tjTab('file',this)">📎 File (CSV/XLSX)</button>
+        <button class="tj-tab" onclick="tjTab('text',this)">📝 Text / Notes</button>
+        <button class="tj-tab" onclick="tjTab('both',this)">📎 + 📝 Both</button>
+      </div>
+
+      <!-- File upload -->
+      <div id="tj-file-area">
+        <div id="tj-drop" onclick="document.getElementById('tj-file-input').click()" ondragover="event.preventDefault();this.style.borderColor='rgba(240,188,78,0.6)'" ondragleave="this.style.borderColor='rgba(255,255,255,0.12)'" ondrop="event.preventDefault();this.style.borderColor='rgba(255,255,255,0.12)';tjHandleFile(event.dataTransfer.files[0])">
+          <div style="font-size:24px">📎</div>
+          <div id="tj-drop-text" style="font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.3)">Drop CSV or XLSX here, or click to browse</div>
+          <div style="font-family:var(--mono);font-size:8px;color:rgba(255,255,255,0.15)">Supports multi-tab spreadsheets</div>
+        </div>
+        <input type="file" id="tj-file-input" accept=".csv,.xlsx,.xls,.ods,.tsv" style="display:none" onchange="tjHandleFile(this.files[0])">
+      </div>
+
+      <!-- Text area -->
+      <div id="tj-text-area" style="display:none">
+        <textarea id="tj-notes" style="width:100%;box-sizing:border-box;min-height:120px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:12px;font-family:var(--mono);font-size:11px;color:var(--text);outline:none;resize:vertical;margin-bottom:14px" placeholder="Paste your trading notes, journal entries, or any text about your trading history...&#10;&#10;Examples:&#10;- I keep getting stopped out on reversals&#10;- My best trades are breakouts on 4H after news&#10;- I hold losers too long and cut winners short"></textarea>
+      </div>
+
+      <!-- Parse summary -->
+      <div id="tj-summary" style="display:none;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:12px;margin-bottom:14px">
+        <div style="font-family:var(--mono);font-size:8px;color:rgba(255,255,255,0.3);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px">Parsed data</div>
+        <div id="tj-summary-text" style="font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.6);line-height:1.6"></div>
+      </div>
+
+      <!-- Analyze button -->
+      <button id="tj-analyze-btn" onclick="tjAnalyze()" style="width:100%;padding:13px;font-family:var(--display);font-size:14px;letter-spacing:0.08em;color:#0a0b0d;background:linear-gradient(135deg,#f0bc4e,#ffd070);border:none;border-radius:10px;cursor:pointer;transition:all 0.15s" onmouseover="this.style.background='linear-gradient(135deg,#ffd070,#ffe0a0)'" onmouseout="this.style.background='linear-gradient(135deg,#f0bc4e,#ffd070)'">✨ Analyze with AI (one-time)</button>
+
+      <!-- Results -->
+      <div id="tj-result">
+        <div style="font-family:var(--mono);font-size:8px;color:rgba(255,255,255,0.3);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px">AI Insights — saved to your profile</div>
+        <div id="tj-result-body" style="font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.7);line-height:1.7"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADD INSTRUMENT MODAL -->
+<style>
+#tji-overlay{display:none;position:fixed;inset:0;z-index:200020;background:rgba(4,5,7,0.94);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:24px}
+#tji-overlay.show{display:flex;animation:eodFadeIn 0.2s ease}
+.tji-input{width:100%;box-sizing:border-box;background:rgba(255,255,255,0.06);border:1.5px solid rgba(240,188,78,0.35);border-radius:8px;padding:12px 14px;font-family:var(--mono);font-size:12px;color:#fff;outline:none;margin-bottom:12px}
+.tji-label{font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.4);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px}
+.tji-provider-btn{flex:1;font-family:var(--mono);font-size:10px;padding:9px 0;border-radius:7px;border:1px solid rgba(255,255,255,0.12);background:transparent;color:rgba(255,255,255,0.5);cursor:pointer;transition:all 0.15s}
+.tji-provider-btn.active{border-color:var(--gold);color:var(--gold);background:rgba(240,188,78,0.1)}
+</style>
+<div id="tji-overlay">
+  <div style="background:linear-gradient(160deg,#14130d,#0c0d10);border:1px solid rgba(240,188,78,0.3);border-radius:14px;padding:26px;width:420px;max-width:90vw;box-shadow:0 24px 80px rgba(0,0,0,0.7)">
+    <div style="font-family:var(--display);font-size:18px;color:#fff;margin-bottom:4px">➕ Add Instrument</div>
+    <div style="font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.35);margin-bottom:16px">Search TradingView, pick a provider, or paste a chart URL</div>
+
+    <div class="tji-label">Name</div>
+    <input id="tji-name" type="text" class="tji-input" placeholder="e.g. Silver, EUR/USD, Bitcoin">
+
+    <div class="tji-label">Chart provider</div>
+    <div style="display:flex;gap:6px;margin-bottom:12px">
+      <button class="tji-provider-btn active" data-provider="TradingView" onclick="tjiSetProvider(this)">TradingView</button>
+      <button class="tji-provider-btn" data-provider="OANDA" onclick="tjiSetProvider(this)">OANDA</button>
+      <button class="tji-provider-btn" data-provider="FXCM" onclick="tjiSetProvider(this)">FXCM</button>
+      <button class="tji-provider-btn" data-provider="Other" onclick="tjiSetProvider(this)">Other</button>
     </div>
 
-    <!-- Text area -->
-    <div id="tj-text-area" style="display:none">
-      <textarea id="tj-notes" style="width:100%;box-sizing:border-box;min-height:120px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:12px;font-family:var(--mono);font-size:11px;color:var(--text);outline:none;resize:vertical;margin-bottom:14px" placeholder="Paste your trading notes, journal entries, or any text about your trading history...&#10;&#10;Examples:&#10;- I keep getting stopped out on reversals&#10;- My best trades are breakouts on 4H after news&#10;- I hold losers too long and cut winners short"></textarea>
-    </div>
+    <div class="tji-label">TradingView symbol</div>
+    <input id="tji-symbol" type="text" class="tji-input" placeholder="e.g. OANDA:XAGUSD — search tradingview.com/symbols">
 
-    <!-- Parse summary -->
-    <div id="tj-summary" style="display:none;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:12px;margin-bottom:14px">
-      <div style="font-family:var(--mono);font-size:8px;color:rgba(255,255,255,0.3);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px">Parsed data</div>
-      <div id="tj-summary-text" style="font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.6);line-height:1.6"></div>
-    </div>
+    <div class="tji-label">— or paste a TradingView chart URL —</div>
+    <input id="tji-url" type="text" class="tji-input" placeholder="https://www.tradingview.com/chart/?symbol=OANDA:XAGUSD" oninput="tjiUrlChanged(this.value)">
 
-    <!-- Analyze button -->
-    <button id="tj-analyze-btn" onclick="tjAnalyze()" style="width:100%;padding:13px;font-family:var(--display);font-size:14px;letter-spacing:0.08em;color:#0a0b0d;background:linear-gradient(135deg,#f0bc4e,#ffd070);border:none;border-radius:10px;cursor:pointer;transition:all 0.15s" onmouseover="this.style.background='linear-gradient(135deg,#ffd070,#ffe0a0)'" onmouseout="this.style.background='linear-gradient(135deg,#f0bc4e,#ffd070)'">✨ Analyze with AI (one-time)</button>
-
-    <!-- Results -->
-    <div id="tj-result">
-      <div style="font-family:var(--mono);font-size:8px;color:rgba(255,255,255,0.3);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px">AI Insights — saved to your profile</div>
-      <div id="tj-result-body" style="font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.7);line-height:1.7"></div>
+    <div style="display:flex;gap:10px;margin-top:6px">
+      <button onclick="document.getElementById('tji-overlay').classList.remove('show')" style="flex:1;font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.4);background:transparent;border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:12px 0;cursor:pointer">Cancel</button>
+      <button onclick="tjiSave()" style="flex:1;font-family:var(--display);font-size:14px;color:#0a0b0d;background:#f0bc4e;border:none;border-radius:8px;padding:12px 0;cursor:pointer;font-weight:700">Save</button>
     </div>
   </div>
 </div>
 
 <script>
+// ── INSTRUMENTS ───────────────────────────────────────
+var TD_INSTRUMENTS_KEY = 'td_instruments_v1';
+var TD_ACTIVE_INSTRUMENT_KEY = 'td_active_instrument';
+var _tjDefaultInstruments = [
+  { id: 'gold', name: 'Gold', symbol: 'OANDA:XAUUSD', provider: 'TradingView' }
+];
+var _tjSelectedInstrument = null;
+
+function tjLoadInstruments() {
+  try {
+    var list = JSON.parse(localStorage.getItem(TD_INSTRUMENTS_KEY) || 'null');
+    if (!list || !list.length) { list = _tjDefaultInstruments.slice(); tjSaveInstruments(list); }
+    return list;
+  } catch(e) { return _tjDefaultInstruments.slice(); }
+}
+function tjSaveInstruments(list) {
+  try { localStorage.setItem(TD_INSTRUMENTS_KEY, JSON.stringify(list)); } catch(e) {}
+  var sb = window._tdSB; var uid = localStorage.getItem('td_user_id');
+  if (sb && uid) { sb.from('profiles').update({ instruments: list }).eq('id', uid).then(function(){}, function(){}); }
+}
+function tjSaveActiveInstrument(id) {
+  try { localStorage.setItem(TD_ACTIVE_INSTRUMENT_KEY, id); } catch(e) {}
+  var sb = window._tdSB; var uid = localStorage.getItem('td_user_id');
+  if (sb && uid) { sb.from('profiles').update({ active_instrument: id }).eq('id', uid).then(function(){}, function(){}); }
+}
+
+function tjRenderInstrumentChips() {
+  var wrap = document.getElementById('tj-instrument-chips');
+  if (!wrap) return;
+  wrap.innerHTML = '';
+  var list = tjLoadInstruments();
+  var activeId = localStorage.getItem(TD_ACTIVE_INSTRUMENT_KEY) || 'gold';
+  if (!_tjSelectedInstrument) _tjSelectedInstrument = list.find(function(i){ return i.id === activeId; }) || list[0];
+  list.forEach(function(inst) {
+    var chip = document.createElement('button');
+    var isActive = _tjSelectedInstrument && _tjSelectedInstrument.id === inst.id;
+    chip.type = 'button';
+    chip.style.cssText = 'font-family:var(--mono);font-size:11px;padding:9px 16px;border-radius:8px;cursor:pointer;transition:all 0.15s;border:1.5px solid ' + (isActive ? 'var(--gold)' : 'rgba(255,255,255,0.12)') + ';background:' + (isActive ? 'rgba(240,188,78,0.12)' : 'transparent') + ';color:' + (isActive ? 'var(--gold)' : 'rgba(255,255,255,0.55)');
+    chip.textContent = (inst.id === 'gold' ? '🥇 ' : '') + inst.name;
+    chip.onclick = function() { _tjSelectedInstrument = inst; tjRenderInstrumentChips(); };
+    wrap.appendChild(chip);
+  });
+  var addBtn = document.createElement('button');
+  addBtn.type = 'button';
+  addBtn.style.cssText = 'font-family:var(--mono);font-size:11px;padding:9px 16px;border-radius:8px;cursor:pointer;border:1.5px dashed rgba(255,255,255,0.2);background:transparent;color:rgba(255,255,255,0.4)';
+  addBtn.textContent = '+ Add Instrument';
+  addBtn.onclick = function() { tjiOpen(); };
+  wrap.appendChild(addBtn);
+}
+
+function tjAnalyzeStep() {
+  if (!_tjSelectedInstrument) { var list = tjLoadInstruments(); _tjSelectedInstrument = list[0]; }
+  tjSaveActiveInstrument(_tjSelectedInstrument.id);
+  document.getElementById('tj-instrument-step').style.display = 'none';
+  document.getElementById('tj-upload-step').style.display = '';
+  var badge = document.getElementById('tj-instrument-badge');
+  if (badge) badge.textContent = (_tjSelectedInstrument.id === 'gold' ? '🥇 ' : '') + _tjSelectedInstrument.name;
+}
+
+function tjBackToInstrument() {
+  document.getElementById('tj-upload-step').style.display = 'none';
+  document.getElementById('tj-instrument-step').style.display = '';
+}
+
+// ── ADD INSTRUMENT MODAL ──────────────────────────────
+var _tjiProvider = 'TradingView';
+function tjiOpen() {
+  document.getElementById('tji-name').value = '';
+  document.getElementById('tji-symbol').value = '';
+  document.getElementById('tji-url').value = '';
+  _tjiProvider = 'TradingView';
+  document.querySelectorAll('.tji-provider-btn').forEach(function(b){ b.classList.toggle('active', b.dataset.provider === 'TradingView'); });
+  document.getElementById('tji-overlay').classList.add('show');
+  setTimeout(function(){ document.getElementById('tji-name').focus(); }, 50);
+}
+window.tjiOpen = tjiOpen;
+
+function tjiSetProvider(btn) {
+  _tjiProvider = btn.dataset.provider;
+  document.querySelectorAll('.tji-provider-btn').forEach(function(b){ b.classList.toggle('active', b === btn); });
+}
+window.tjiSetProvider = tjiSetProvider;
+
+// Extract a TradingView symbol (EXCHANGE:TICKER) from a pasted chart URL
+function tjiUrlChanged(url) {
+  if (!url) return;
+  var m = url.match(/symbol=([A-Za-z0-9_.:%-]+)/i);
+  if (m && m[1]) {
+    var sym = decodeURIComponent(m[1]).toUpperCase();
+    document.getElementById('tji-symbol').value = sym;
+  }
+}
+window.tjiUrlChanged = tjiUrlChanged;
+
+function tjiSave() {
+  var name = (document.getElementById('tji-name').value || '').trim();
+  var symbol = (document.getElementById('tji-symbol').value || '').trim().toUpperCase();
+  var url = (document.getElementById('tji-url').value || '').trim();
+  if (!name) { alert('Give the instrument a name'); return; }
+  if (!symbol && !url) { alert('Add a TradingView symbol or paste a chart URL'); return; }
+  var id = name.toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'') || ('inst_' + Date.now());
+  var list = tjLoadInstruments().filter(function(i){ return i.id !== id; });
+  var inst = { id: id, name: name, symbol: symbol, provider: _tjiProvider, url: url };
+  list.push(inst);
+  tjSaveInstruments(list);
+  _tjSelectedInstrument = inst;
+  document.getElementById('tji-overlay').classList.remove('show');
+  tjRenderInstrumentChips();
+}
+window.tjiSave = tjiSave;
+
 // ── TRADE JOURNAL UPLOAD ──────────────────────────────
 var _tjParsedData = '';
 var _tjNotes = '';
@@ -20769,8 +20933,10 @@ async function tjAnalyze() {
   // Add spinner keyframe if not present
   if (!document.getElementById('ob-spin-style')) { var ss=document.createElement('style'); ss.id='ob-spin-style'; ss.textContent='@keyframes obSpin{to{transform:rotate(360deg)}}'; document.head.appendChild(ss); }
 
+  var inst = _tjSelectedInstrument || tjLoadInstruments()[0];
+
   try {
-    var prompt = 'You are a trading performance analyst. Analyze this trading data/notes and provide insights.\n\n' +
+    var prompt = 'You are a trading performance analyst. Analyze this trading data/notes for the instrument "' + (inst ? inst.name : 'Gold') + '" and provide insights.\n\n' +
       '=== DATA ===\n' + combined + '\n\n' +
       'Output JSON only:\n' +
       '{"summary":"2-3 sentence overview of trader profile","strengths":["strength 1","strength 2"],"weaknesses":["weakness 1","weakness 2"],"recommendations":["specific actionable rec 1","specific actionable rec 2","specific actionable rec 3"],"win_rate_est":"estimated %","avg_rr_est":"estimated R:R","personality":"1 word trading personality type","risk_level":"conservative/moderate/aggressive"}\n' +
@@ -20793,6 +20959,8 @@ async function tjAnalyze() {
     var jsonEnd = cleaned.lastIndexOf('}');
     if (jsonStart === -1 || jsonEnd === -1) throw new Error('No JSON found in response: ' + cleaned.slice(0, 100));
     var parsed = JSON.parse(cleaned.slice(jsonStart, jsonEnd + 1));
+    parsed.instrument_id = inst ? inst.id : 'gold';
+    parsed.instrument_name = inst ? inst.name : 'Gold';
 
     // Save to Supabase profile
     var sb = window._tdSB;
@@ -20855,6 +21023,25 @@ function tjOpen() {
   var btn = document.getElementById('tj-analyze-btn'); if (btn) { btn.style.display = ''; btn.disabled = false; btn.innerHTML = '✨ Analyze with AI (one-time)'; btn.style.opacity = ''; }
   document.querySelectorAll('.tj-tab').forEach(function(t){ t.style.display = ''; });
 
+  // Reset to instrument-pick step
+  _tjSelectedInstrument = null;
+  var instStep = document.getElementById('tj-instrument-step'); if (instStep) instStep.style.display = '';
+  var uploadStep = document.getElementById('tj-upload-step'); if (uploadStep) uploadStep.style.display = 'none';
+  tjRenderInstrumentChips();
+
+  // Pull instruments from Supabase in background (in case added on another device)
+  (function(){
+    var _sb = window._tdSB; var _uid = localStorage.getItem('td_user_id');
+    if (_sb && _uid) {
+      _sb.from('profiles').select('instruments').eq('id', _uid).single().then(function(r) {
+        if (r.data && r.data.instruments && r.data.instruments.length) {
+          localStorage.setItem(TD_INSTRUMENTS_KEY, JSON.stringify(r.data.instruments));
+          tjRenderInstrumentChips();
+        }
+      }, function(){});
+    }
+  })();
+
   // Check for existing insights — localStorage first, then Supabase
   var existing = localStorage.getItem('td_trading_insights');
 
@@ -20885,6 +21072,10 @@ function tjOpen() {
         document.querySelectorAll('.tj-tab').forEach(function(t){ t.style.display = 'none'; });
         if (btn) btn.style.display = 'none';
         resultEl.style.display = '';
+        if (instStep) instStep.style.display = 'none';
+        if (uploadStep) uploadStep.style.display = '';
+        var badgeEl = document.getElementById('tj-instrument-badge');
+        if (badgeEl) badgeEl.textContent = (p.instrument_id === 'gold' ? '🥇 ' : '') + (p.instrument_name || 'Gold');
         bodyEl.innerHTML =
           '<div style="font-family:var(--display);font-size:15px;color:var(--gold);margin-bottom:10px">' + (p.personality || 'Trader') + ' · ' + (p.risk_level || '') + '</div>' +
           '<div style="margin-bottom:12px;font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.6);line-height:1.7">' + (p.summary || '') + '</div>' +
