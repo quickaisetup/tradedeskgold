@@ -20368,10 +20368,25 @@ function _wizKlClick(idx) {
     if (typeof lvlSetConf === 'function') lvlSetConf(l.confidence);
   }
   if (l.notes) { var nEl = document.getElementById('lvl-in-notes'); if (nEl) nEl.value = l.notes; }
+  // Load chart screenshot if present
+  if (l.chartImg) {
+    var preview = document.getElementById('lvl-img-preview');
+    var placeholder = document.getElementById('lvl-img-placeholder');
+    var clearBtn = document.getElementById('lvl-img-clear');
+    if (preview) { preview.src = l.chartImg; preview.style.display = 'block'; }
+    if (placeholder) placeholder.style.display = 'none';
+    if (clearBtn) clearBtn.style.display = 'block';
+    _lvlFormImgUrl = l.chartImg;
+  } else {
+    lvlClearImg();
+  }
   // Also fill live exec calc
   klSendToCalc(idx);
   // Hide hover card
   var card = document.getElementById('kl-hover-card'); if (card) card.classList.remove('show');
+  // Scroll to form to show loaded data
+  var form = document.getElementById('lvl-form');
+  if (form) form.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 window._wizKlHover = _wizKlHover;
 window._wizKlClick = _wizKlClick;
