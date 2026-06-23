@@ -3294,6 +3294,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
       <div id="splash-secondary-btns">
         <button id="session-splash-live" onclick="sessionSplashDismiss();window._leoChartsEntered=true;if(typeof openLiveExec==='function')openLiveExec();"><div class="btn-dot"></div>Live Execution</button>
         <button onclick="sessionSplashDismiss();wizOpenSingle('levels')" style="padding:10px 22px;font-family:var(--display);font-size:13px;letter-spacing:0.1em;color:rgba(240,188,78,0.7);background:rgba(240,188,78,0.06);border:1px solid rgba(240,188,78,0.25);border-radius:10px;cursor:pointer;transition:all 0.15s" onmouseover="this.style.background='rgba(240,188,78,0.14)';this.style.borderColor='rgba(240,188,78,0.5)'" onmouseout="this.style.background='rgba(240,188,78,0.06)';this.style.borderColor='rgba(240,188,78,0.25)'">📌 Key Levels</button>
+        <button onclick="sessionSplashDismiss();tjOpen()" style="padding:10px 22px;font-family:var(--display);font-size:13px;letter-spacing:0.1em;color:rgba(168,139,250,0.7);background:rgba(168,139,250,0.06);border:1px solid rgba(168,139,250,0.25);border-radius:10px;cursor:pointer;transition:all 0.15s" onmouseover="this.style.background='rgba(168,139,250,0.14)';this.style.borderColor='rgba(168,139,250,0.5)'" onmouseout="this.style.background='rgba(168,139,250,0.06)';this.style.borderColor='rgba(168,139,250,0.25)'">📊 Upload Journal</button>
         <button id="session-splash-skip" onclick="sessionSplashDismiss()">Skip guide</button>
       </div>
     </div>
@@ -20631,6 +20632,199 @@ window.wizBack = wizBack;
   setTimeout(_checkUpdate, 10000);
   setInterval(_checkUpdate, 120000);
 })();
+</script>
+
+<!-- TRADE JOURNAL UPLOAD MODAL -->
+<script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+<style>
+#tj-overlay{display:none;position:fixed;inset:0;z-index:200010;background:rgba(4,5,7,0.94);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:24px}
+#tj-overlay.show{display:flex;animation:eodFadeIn 0.25s ease}
+#tj-card{width:100%;max-width:560px;background:#0d0f14;border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:28px;position:relative;max-height:90vh;overflow-y:auto}
+#tj-close{position:absolute;top:14px;right:14px;background:transparent;border:none;color:rgba(255,255,255,0.3);font-size:18px;cursor:pointer}
+#tj-close:hover{color:#fff}
+.tj-tab{font-family:var(--mono);font-size:9px;letter-spacing:0.08em;padding:6px 14px;border-radius:6px;border:1px solid rgba(255,255,255,0.08);background:transparent;color:rgba(255,255,255,0.4);cursor:pointer;transition:all 0.15s}
+.tj-tab.active{border-color:var(--gold);color:var(--gold);background:rgba(240,188,78,0.1)}
+#tj-drop{width:100%;min-height:100px;border:1.5px dashed rgba(255,255,255,0.12);border-radius:10px;background:rgba(255,255,255,0.02);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;transition:border-color 0.15s;margin-bottom:14px;padding:20px}
+#tj-drop:hover{border-color:rgba(240,188,78,0.4)}
+#tj-result{display:none;margin-top:16px}
+</style>
+<div id="tj-overlay">
+  <div id="tj-card">
+    <button id="tj-close" onclick="document.getElementById('tj-overlay').classList.remove('show')">✕</button>
+    <div style="font-family:var(--display);font-size:22px;color:#fff;letter-spacing:0.04em;margin-bottom:4px">📊 Upload Trading Data</div>
+    <div style="font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.35);margin-bottom:18px;line-height:1.6">Upload your prop firm statement, personal spreadsheet, or paste notes.<br>AI analyzes once and saves insights to your profile — no repeated costs.</div>
+
+    <!-- Tabs -->
+    <div style="display:flex;gap:6px;margin-bottom:16px">
+      <button class="tj-tab active" onclick="tjTab('file',this)">📎 File (CSV/XLSX)</button>
+      <button class="tj-tab" onclick="tjTab('text',this)">📝 Text / Notes</button>
+      <button class="tj-tab" onclick="tjTab('both',this)">📎 + 📝 Both</button>
+    </div>
+
+    <!-- File upload -->
+    <div id="tj-file-area">
+      <div id="tj-drop" onclick="document.getElementById('tj-file-input').click()" ondragover="event.preventDefault();this.style.borderColor='rgba(240,188,78,0.6)'" ondragleave="this.style.borderColor='rgba(255,255,255,0.12)'" ondrop="event.preventDefault();this.style.borderColor='rgba(255,255,255,0.12)';tjHandleFile(event.dataTransfer.files[0])">
+        <div style="font-size:24px">📎</div>
+        <div id="tj-drop-text" style="font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.3)">Drop CSV or XLSX here, or click to browse</div>
+        <div style="font-family:var(--mono);font-size:8px;color:rgba(255,255,255,0.15)">Supports multi-tab spreadsheets</div>
+      </div>
+      <input type="file" id="tj-file-input" accept=".csv,.xlsx,.xls" style="display:none" onchange="tjHandleFile(this.files[0])">
+    </div>
+
+    <!-- Text area -->
+    <div id="tj-text-area" style="display:none">
+      <textarea id="tj-notes" style="width:100%;box-sizing:border-box;min-height:120px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:12px;font-family:var(--mono);font-size:11px;color:var(--text);outline:none;resize:vertical;margin-bottom:14px" placeholder="Paste your trading notes, journal entries, or any text about your trading history...&#10;&#10;Examples:&#10;- I keep getting stopped out on reversals&#10;- My best trades are breakouts on 4H after news&#10;- I hold losers too long and cut winners short"></textarea>
+    </div>
+
+    <!-- Parse summary -->
+    <div id="tj-summary" style="display:none;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:12px;margin-bottom:14px">
+      <div style="font-family:var(--mono);font-size:8px;color:rgba(255,255,255,0.3);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px">Parsed data</div>
+      <div id="tj-summary-text" style="font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.6);line-height:1.6"></div>
+    </div>
+
+    <!-- Analyze button -->
+    <button id="tj-analyze-btn" onclick="tjAnalyze()" style="width:100%;padding:13px;font-family:var(--display);font-size:14px;letter-spacing:0.08em;color:#0a0b0d;background:linear-gradient(135deg,#f0bc4e,#ffd070);border:none;border-radius:10px;cursor:pointer;transition:all 0.15s" onmouseover="this.style.background='linear-gradient(135deg,#ffd070,#ffe0a0)'" onmouseout="this.style.background='linear-gradient(135deg,#f0bc4e,#ffd070)'">✨ Analyze with AI (one-time)</button>
+
+    <!-- Results -->
+    <div id="tj-result">
+      <div style="font-family:var(--mono);font-size:8px;color:rgba(255,255,255,0.3);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px">AI Insights — saved to your profile</div>
+      <div id="tj-result-body" style="font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.7);line-height:1.7"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── TRADE JOURNAL UPLOAD ──────────────────────────────
+var _tjParsedData = '';
+var _tjNotes = '';
+var _tjMode = 'file';
+
+function tjTab(mode, btn) {
+  _tjMode = mode;
+  document.querySelectorAll('.tj-tab').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  document.getElementById('tj-file-area').style.display = (mode === 'file' || mode === 'both') ? '' : 'none';
+  document.getElementById('tj-text-area').style.display = (mode === 'text' || mode === 'both') ? '' : 'none';
+}
+
+function tjHandleFile(file) {
+  if (!file) return;
+  var dropText = document.getElementById('tj-drop-text');
+  if (dropText) dropText.textContent = '📄 ' + file.name;
+
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      var data = new Uint8Array(e.target.result);
+      var wb = XLSX.read(data, {type:'array'});
+      var allText = '';
+      wb.SheetNames.forEach(function(name) {
+        var ws = wb.Sheets[name];
+        var csv = XLSX.utils.sheet_to_csv(ws, {blankrows:false});
+        if (csv.trim()) {
+          allText += '=== Sheet: ' + name + ' ===\n' + csv.trim() + '\n\n';
+        }
+      });
+      _tjParsedData = allText;
+      // Show summary
+      var lines = allText.split('\n').filter(function(l){ return l.trim(); });
+      var summaryEl = document.getElementById('tj-summary');
+      var summaryText = document.getElementById('tj-summary-text');
+      if (summaryEl && summaryText) {
+        summaryText.textContent = wb.SheetNames.length + ' sheet(s) · ' + lines.length + ' rows parsed from ' + file.name;
+        summaryEl.style.display = '';
+      }
+    } catch(err) {
+      console.warn('[tj] Parse error:', err.message);
+      if (dropText) dropText.textContent = '❌ Error parsing file — try CSV format';
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+async function tjAnalyze() {
+  var notes = (document.getElementById('tj-notes') || {}).value || '';
+  var combined = '';
+  if (_tjParsedData) combined += _tjParsedData;
+  if (notes.trim()) combined += '\n=== TRADER NOTES ===\n' + notes.trim();
+  if (!combined.trim()) { alert('Upload a file or paste some notes first'); return; }
+
+  // Truncate to ~3000 chars to save tokens
+  if (combined.length > 3000) combined = combined.slice(0, 3000) + '\n...(truncated)';
+
+  var btn = document.getElementById('tj-analyze-btn');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Analyzing...'; btn.style.opacity = '0.6'; }
+
+  try {
+    var prompt = 'You are a trading performance analyst. Analyze this trading data/notes and provide insights.\n\n' +
+      '=== DATA ===\n' + combined + '\n\n' +
+      'Output JSON only:\n' +
+      '{"summary":"2-3 sentence overview of trader profile","strengths":["strength 1","strength 2"],"weaknesses":["weakness 1","weakness 2"],"recommendations":["specific actionable rec 1","specific actionable rec 2","specific actionable rec 3"],"win_rate_est":"estimated %","avg_rr_est":"estimated R:R","personality":"1 word trading personality type","risk_level":"conservative/moderate/aggressive"}\n' +
+      'ONLY valid JSON.';
+
+    var apiKey = localStorage.getItem('td_api_key') || '';
+    var res = await fetch('/api/ai-proxy', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 600, messages: [{ role: 'user', content: prompt }], _userKey: apiKey })
+    });
+    var data = await res.json();
+    var text = (data.content && data.content[0] && data.content[0].text) || '';
+    var parsed = JSON.parse(text.replace(/^```json\s*/,'').replace(/\s*```$/,'').trim());
+
+    // Save to Supabase profile
+    var sb = window._tdSB;
+    var uid = localStorage.getItem('td_user_id');
+    if (sb && uid) {
+      await sb.from('profiles').update({ trading_insights: parsed }).eq('id', uid);
+      console.log('[tj] Insights saved to Supabase');
+    }
+    localStorage.setItem('td_trading_insights', JSON.stringify(parsed));
+
+    // Display results
+    var resultEl = document.getElementById('tj-result');
+    var bodyEl = document.getElementById('tj-result-body');
+    if (resultEl && bodyEl) {
+      resultEl.style.display = '';
+      bodyEl.innerHTML =
+        '<div style="font-family:var(--display);font-size:15px;color:var(--gold);margin-bottom:10px">' + (parsed.personality || 'Trader') + ' · ' + (parsed.risk_level || '') + '</div>' +
+        '<div style="margin-bottom:12px">' + (parsed.summary || '') + '</div>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">' +
+          '<div style="background:rgba(78,214,138,0.06);border:1px solid rgba(78,214,138,0.15);border-radius:8px;padding:8px 10px"><div style="font-size:8px;color:var(--green);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:4px">Strengths</div>' + (parsed.strengths||[]).map(function(s){return '<div style="font-size:10px;color:rgba(255,255,255,0.6);margin-bottom:3px">✓ '+s+'</div>';}).join('') + '</div>' +
+          '<div style="background:rgba(240,96,96,0.06);border:1px solid rgba(240,96,96,0.15);border-radius:8px;padding:8px 10px"><div style="font-size:8px;color:var(--red);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:4px">Weaknesses</div>' + (parsed.weaknesses||[]).map(function(s){return '<div style="font-size:10px;color:rgba(255,255,255,0.6);margin-bottom:3px">✗ '+s+'</div>';}).join('') + '</div>' +
+        '</div>' +
+        '<div style="background:rgba(240,188,78,0.06);border:1px solid rgba(240,188,78,0.15);border-radius:8px;padding:10px"><div style="font-size:8px;color:var(--gold);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px">Recommendations</div>' + (parsed.recommendations||[]).map(function(s){return '<div style="font-size:10px;color:rgba(255,255,255,0.6);margin-bottom:4px">→ '+s+'</div>';}).join('') + '</div>' +
+        '<div style="display:flex;gap:12px;margin-top:10px;font-size:9px;color:rgba(255,255,255,0.3)">' +
+          '<span>Win rate: <strong style="color:rgba(255,255,255,0.6)">' + (parsed.win_rate_est || '—') + '</strong></span>' +
+          '<span>Avg R:R: <strong style="color:rgba(255,255,255,0.6)">' + (parsed.avg_rr_est || '—') + '</strong></span>' +
+        '</div>';
+    }
+  } catch(err) {
+    console.error('[tj] Analysis failed:', err);
+    alert('Analysis failed: ' + err.message);
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '✨ Analyze with AI (one-time)'; btn.style.opacity = ''; }
+  }
+}
+
+function tjOpen() {
+  // Check if insights already exist
+  var existing = localStorage.getItem('td_trading_insights');
+  if (existing) {
+    try {
+      var p = JSON.parse(existing);
+      var bodyEl = document.getElementById('tj-result-body');
+      var resultEl = document.getElementById('tj-result');
+      if (bodyEl && resultEl && p.summary) {
+        resultEl.style.display = '';
+        // Trigger display same as after analysis
+        tjAnalyze._lastParsed = p;
+      }
+    } catch(e){}
+  }
+  document.getElementById('tj-overlay').classList.add('show');
+}
+window.tjOpen = tjOpen;
 </script>
 </body>
 </html>
