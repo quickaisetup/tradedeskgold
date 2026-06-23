@@ -20846,6 +20846,7 @@ async function tjAnalyze() {
 }
 
 function tjOpen() {
+  console.log('[tjOpen] called. localStorage insights:', !!localStorage.getItem('td_trading_insights'));
   // Reset UI state
   var fileArea = document.getElementById('tj-file-area'); if (fileArea) fileArea.style.display = '';
   var textArea = document.getElementById('tj-text-area');
@@ -20872,7 +20873,9 @@ function tjOpen() {
     }
   }
 
+  console.log('[tjOpen] existing?', !!existing, 'fileArea?', !!fileArea, 'fileArea.display:', fileArea?fileArea.style.display:'N/A');
   if (existing) {
+    console.log('[tjOpen] showing saved insights');
     try {
       var p = JSON.parse(existing);
       if (p.summary && resultEl) {
@@ -20896,6 +20899,7 @@ function tjOpen() {
       }
     } catch(e){}
   }
+  console.log('[tjOpen] Final state — fileArea:', document.getElementById('tj-file-area')?.style.display, 'tabs:', document.querySelector('.tj-tab')?.style.display, 'btn:', document.getElementById('tj-analyze-btn')?.style.display, 'result:', document.getElementById('tj-result')?.style.display);
   document.getElementById('tj-overlay').classList.add('show');
 }
 window.tjOpen = tjOpen;
