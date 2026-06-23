@@ -20806,6 +20806,12 @@ async function tjAnalyze() {
     var bodyEl = document.getElementById('tj-result-body');
     if (resultEl && bodyEl) {
       resultEl.style.display = '';
+      // Hide upload area, show results prominently
+      var fileArea = document.getElementById('tj-file-area'); if (fileArea) fileArea.style.display = 'none';
+      var textArea = document.getElementById('tj-text-area'); if (textArea) textArea.style.display = 'none';
+      var summaryArea = document.getElementById('tj-summary'); if (summaryArea) summaryArea.style.display = 'none';
+      document.querySelectorAll('.tj-tab').forEach(function(t){ t.style.display = 'none'; });
+      if (btn) btn.style.display = 'none';
       bodyEl.innerHTML =
         '<div style="font-family:var(--display);font-size:15px;color:var(--gold);margin-bottom:10px">' + (parsed.personality || 'Trader') + ' · ' + (parsed.risk_level || '') + '</div>' +
         '<div style="margin-bottom:12px">' + (parsed.summary || '') + '</div>' +
@@ -20814,10 +20820,13 @@ async function tjAnalyze() {
           '<div style="background:rgba(240,96,96,0.06);border:1px solid rgba(240,96,96,0.15);border-radius:8px;padding:8px 10px"><div style="font-size:8px;color:var(--red);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:4px">Weaknesses</div>' + (parsed.weaknesses||[]).map(function(s){return '<div style="font-size:10px;color:rgba(255,255,255,0.6);margin-bottom:3px">✗ '+s+'</div>';}).join('') + '</div>' +
         '</div>' +
         '<div style="background:rgba(240,188,78,0.06);border:1px solid rgba(240,188,78,0.15);border-radius:8px;padding:10px"><div style="font-size:8px;color:var(--gold);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px">Recommendations</div>' + (parsed.recommendations||[]).map(function(s){return '<div style="font-size:10px;color:rgba(255,255,255,0.6);margin-bottom:4px">→ '+s+'</div>';}).join('') + '</div>' +
-        '<div style="display:flex;gap:12px;margin-top:10px;font-size:9px;color:rgba(255,255,255,0.3)">' +
+        '<div style="display:flex;gap:12px;margin-top:10px;font-size:9px;color:rgba(255,255,255,0.3);margin-bottom:14px">' +
           '<span>Win rate: <strong style="color:rgba(255,255,255,0.6)">' + (parsed.win_rate_est || '—') + '</strong></span>' +
           '<span>Avg R:R: <strong style="color:rgba(255,255,255,0.6)">' + (parsed.avg_rr_est || '—') + '</strong></span>' +
-        '</div>';
+        '</div>' +
+        '<button onclick="document.getElementById(\'tj-overlay\').classList.remove(\'show\')" style="width:100%;padding:13px;font-family:var(--display);font-size:14px;letter-spacing:0.08em;color:#0a0b0d;background:linear-gradient(135deg,#f0bc4e,#ffd070);border:none;border-radius:10px;cursor:pointer;margin-top:4px">✓ Done — Insights Saved</button>';
+      // Scroll to results
+      resultEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   } catch(err) {
     console.error('[tj] Analysis failed:', err);
