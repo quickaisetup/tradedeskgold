@@ -20854,36 +20854,24 @@ function tjOpen() {
   var btn = document.getElementById('tj-analyze-btn'); if (btn) { btn.style.display = ''; btn.disabled = false; btn.innerHTML = '✨ Analyze with AI (one-time)'; btn.style.opacity = ''; }
   document.querySelectorAll('.tj-tab').forEach(function(t){ t.style.display = ''; });
 
-  // If insights already exist (localStorage or Supabase), show them instead of upload
+  // Check for existing insights — localStorage first, then Supabase
   var existing = localStorage.getItem('td_trading_insights');
+
+  // No local insights — try Supabase in background, but show upload form immediately
   if (!existing) {
-    // Try loading from Supabase — show loading state while fetching
     var _sb = window._tdSB; var _uid = localStorage.getItem('td_user_id');
     if (_sb && _uid) {
-      // Show a loading indicator
-      if (resultEl) { resultEl.style.display = ''; }
-      if (bodyEl) { bodyEl.innerHTML = '<div style="text-align:center;padding:20px"><div style="font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.3)">Checking for saved insights...</div></div>'; }
-      if (fileArea) fileArea.style.display = 'none';
-      document.querySelectorAll('.tj-tab').forEach(function(t){ t.style.display = 'none'; });
-      if (btn) btn.style.display = 'none';
-
       _sb.from('profiles').select('trading_insights').eq('id', _uid).single().then(function(r) {
         if (r.data && r.data.trading_insights && r.data.trading_insights.summary) {
           localStorage.setItem('td_trading_insights', JSON.stringify(r.data.trading_insights));
-          tjOpen(); // Re-open with data now loaded
-        } else {
-          // No insights anywhere — show normal upload UI
-          var _fa = document.getElementById('tj-file-area'); if (_fa) _fa.style.display = '';
-          var _ta = document.getElementById('tj-text-area');
-          document.querySelectorAll('.tj-tab').forEach(function(t){ t.style.display = ''; });
-          var _ab = document.getElementById('tj-analyze-btn'); if (_ab) { _ab.style.display = ''; _ab.disabled = false; _ab.innerHTML = '✨ Analyze with AI (one-time)'; _ab.style.opacity = ''; }
-          var _re = document.getElementById('tj-result'); if (_re) _re.style.display = 'none';
+          // If modal is still open, refresh it with the data
+          var ov = document.getElementById('tj-overlay');
+          if (ov && ov.classList.contains('show')) tjOpen();
         }
       });
-      document.getElementById('tj-overlay').classList.add('show');
-      return; // Don't continue — async will handle it
     }
   }
+
   if (existing) {
     try {
       var p = JSON.parse(existing);
