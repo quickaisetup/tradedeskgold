@@ -16377,7 +16377,10 @@ document.addEventListener('DOMContentLoaded', function() {
     if (subEl)   subEl.textContent   = 'Pick up where you left off — ' + (s ? s.label : 'Step ' + (saved.step + 1));
     if (btnEl)   btnEl.textContent   = '▶ Continue Day';
   }
-  if (splash) setTimeout(function(){
+  // Don't show splash for first-time users — the walkthrough handles onboarding
+  var _isFirstTime = typeof fwShouldShow === 'function' && fwShouldShow();
+  if (_isFirstTime && splash) { splash.style.display = 'none'; }
+  if (splash && !_isFirstTime) setTimeout(function(){
     splash.classList.add('show');
     var leoOv = document.getElementById('live-exec-overlay');
     if (leoOv) leoOv.classList.remove('show');
