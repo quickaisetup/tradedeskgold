@@ -7732,6 +7732,28 @@ function lvlRenderCard(lvl) {
           return '<span style="font-family:var(--mono);font-size:8px;padding:2px 8px;border-radius:4px;background:' + bg + ';color:' + clr + ';letter-spacing:0.02em">' + c + '</span>';
         }).join('') +
       '</div>' : '') +
+    // ── R:R + Lot size row ──
+    (rr || bal ? (function() {
+      var acctSize = typeof totalAccountSize === 'function' ? totalAccountSize() : 100000;
+      var riskPct = typeof BASE_RISK_PCT !== 'undefined' ? BASE_RISK_PCT : 0.5;
+      var riskUsd = acctSize * (riskPct / 100);
+      var slPips = slDist * 10;
+      var lots = slPips > 0 ? (riskUsd / slPips / 1).toFixed(2) : '—';
+      return '<div style="display:flex;gap:6px;margin-bottom:' + (lvl.notes ? '8' : '0') + 'px;padding-top:6px;border-top:1px solid rgba(255,255,255,0.04)">' +
+        (rr ? '<div style="flex:1;background:' + rrBg + ';border:1px solid ' + rrBdr + ';border-radius:5px;padding:4px 8px;text-align:center">' +
+          '<div style="' + MN + 'font-size:6px;color:rgba(255,255,255,0.3);letter-spacing:0.1em;text-transform:uppercase">R:R</div>' +
+          '<div style="' + MN + 'font-size:13px;font-weight:700;color:' + rrClr + '">' + rr + '</div>' +
+        '</div>' : '') +
+        (slPips > 0 ? '<div style="flex:1;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:5px;padding:4px 8px;text-align:center">' +
+          '<div style="' + MN + 'font-size:6px;color:rgba(255,255,255,0.3);letter-spacing:0.1em;text-transform:uppercase">Lot size</div>' +
+          '<div style="' + MN + 'font-size:13px;font-weight:700;color:rgba(255,255,255,0.7)">' + lots + '</div>' +
+        '</div>' : '') +
+        '<div style="flex:1;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:5px;padding:4px 8px;text-align:center">' +
+          '<div style="' + MN + 'font-size:6px;color:rgba(255,255,255,0.3);letter-spacing:0.1em;text-transform:uppercase">Risk</div>' +
+          '<div style="' + MN + 'font-size:13px;font-weight:700;color:rgba(240,188,78,0.8)">' + (slPips > 0 ? '$' + Math.round(riskUsd) : '—') + '</div>' +
+        '</div>' +
+      '</div>';
+    })() : '') +
     // ── Notes ──
     (lvl.notes ? '<div style="font-size:10px;color:var(--text3);font-style:italic;line-height:1.4">' + lvl.notes + '</div>' : '');
 
@@ -20212,20 +20234,18 @@ function _wizKlClick(idx) {
   var t2El = document.getElementById('lvl-in-tp2');  if (t2El) t2El.value = l.tp2 ? parseFloat(l.tp2).toFixed(1) : '';
   // Fill confluences
   if (l.confluence && l.confluence.length) {
+    // Reset first
+    document.querySelectorAll('#lvl-conf-btns .lvl-cf').forEach(function(b) { b.classList.remove('on'); b.style.borderColor=''; b.style.color=''; b.style.background=''; });
+    if (typeof _lvlFormConf !== 'undefined') _lvlFormConf = [];
     l.confluence.forEach(function(c) {
-      var cfBtn = document.querySelector('#lvl-form .lvl-cf-btn');
-      document.querySelectorAll('#lvl-form .lvl-cf-btn, #lvl-form .cf-btn').forEach(function(b) {
-        if (b.textContent.trim() === c && !b.classList.contains('sel')) b.click();
+      document.querySelectorAll('#lvl-conf-btns .lvl-cf').forEach(function(b) {
+        if (b.textContent.trim() === c) { if (typeof lvlToggleConf === 'function') lvlToggleConf(b, c); }
       });
     });
   }
   // Fill confidence
   if (l.confidence) {
-    document.querySelectorAll('#lvl-form .lvl-conf-btn, #lvl-form .conf-btn').forEach(function(b) {
-      if (b.dataset.val == l.confidence || b.textContent.trim().toLowerCase() === (['','low','med','high'][l.confidence]||'').toLowerCase()) {
-        if (!b.classList.contains('sel')) b.click();
-      }
-    });
+    if (typeof lvlSetConf === 'function') lvlSetConf(l.confidence);
   }
   if (l.notes) { var nEl = document.getElementById('lvl-in-notes'); if (nEl) nEl.value = l.notes; }
   // Also fill live exec calc
