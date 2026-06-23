@@ -4555,11 +4555,11 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
           <div style="display:flex;align-items:center;gap:8px">
             <span style="font-size:16px">🧠</span>
             <span class="ai-card-title">Your edge — all sessions</span>
-            <span style="font-family:var(--mono);font-size:8px;color:var(--gold);background:rgba(240,188,78,0.1);border:1px solid rgba(240,188,78,0.2);padding:2px 6px;border-radius:3px;letter-spacing:0.06em">AI</span>
+            <span style="font-family:var(--mono);font-size:8px;color:var(--green);background:rgba(78,214,138,0.1);border:1px solid rgba(78,214,138,0.25);padding:2px 6px;border-radius:3px;letter-spacing:0.06em" title="Computed from your trade history on-device — no AI tokens used">LOCAL STATS</span>
           </div>
         </div>
         <div id="ai-patterns-body">
-          <div class="ai-loading"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div><span style="margin-left:6px;font-family:var(--mono);font-size:10px;color:var(--text3)">Analysing history...</span></div>
+          <div class="ai-loading"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div><span style="margin-left:6px;font-family:var(--mono);font-size:10px;color:var(--text3)">Crunching your trades...</span></div>
         </div>
       </div>
 
@@ -5758,10 +5758,20 @@ async function _tdRefreshAllTradesCache() {
     var uid = localStorage.getItem('td_user_id');
     var sb = window._tdSB;
     if (!uid || !sb) return;
-    var res = await sb.from('trades').select('date,result,r_achieved,risk_pct,usd_achieved,account,accounts').eq('user_id', uid);
+    var res = await sb.from('trades').select('date,result,r_achieved,risk_pct,usd_achieved,account,accounts,setup,direction,session,mindset,mistakes').eq('user_id', uid);
     if (res && res.data) {
       window._tdAllTradesCache = res.data;
       if (typeof renderAccountsPanel === 'function') renderAccountsPanel();
+      // Refresh the locally-computed "Your Edge" panel too, if it's on screen
+      var patsEl = document.getElementById('ai-patterns-body');
+      if (patsEl && typeof computeLocalEdgeSummary === 'function') {
+        try {
+          var pp = computeLocalEdgeSummary();
+          patsEl.innerHTML = '<div style="margin-bottom:11px"><div style="font-family:var(--display);font-size:16px;letter-spacing:0.04em;color:var(--green);margin-bottom:4px">' + pp.works_headline + '</div><p style="font-size:13px;color:var(--text2);line-height:1.6">' + pp.works + '</p></div>' +
+            '<div style="padding-top:10px;border-top:1px solid var(--border);margin-bottom:10px"><div style="font-family:var(--display);font-size:16px;letter-spacing:0.04em;color:var(--red);margin-bottom:4px">' + pp.avoid_headline + '</div><p style="font-size:13px;color:var(--text2);line-height:1.6">' + pp.avoid + '</p></div>' +
+            '<div style="font-family:var(--mono);font-size:9px;color:var(--text3);padding-top:8px;border-top:1px solid var(--border)">' + pp.dataNote + '</div>';
+        } catch(e) {}
+      }
     }
   } catch(e) { console.warn('[accounts] trade history fetch failed:', e.message); }
 }
@@ -10906,6 +10916,85 @@ var TRADER_PROFILE = {
 };
 
 // ── AI PANELS ─────────────────────────────────────────
+// ── "Your edge" summary — computed locally from trade history, zero AI tokens.
+// Builds up automatically as more trades get logged (no caching needed since
+// it's free/instant — always reflects whatever's in window._tdAllTradesCache).
+function computeLocalEdgeSummary() {
+  var trades = window._tdAllTradesCache || [];
+  var n = trades.length;
+  if (n < 3) {
+    return {
+      works_headline: 'NOT ENOUGH DATA YET',
+      works: 'Log at least 3 trades and a pattern will show up here automatically — no AI call needed, just your own numbers.',
+      avoid_headline: 'KEEP LOGGING',
+      avoid: 'Every trade you save (setup, direction, mindset, mistakes) makes this summary sharper.',
+      dataNote: 'Based on ' + n + ' trade(s) — computed locally, no AI tokens used'
+    };
+  }
+
+  function avgR(rows) { return rows.length ? Math.round(rows.reduce(function(s,t){ return s + signedR(t.result, t.r_achieved, t.risk_pct); }, 0) / rows.length * 100) / 100 : 0; }
+  function winRate(rows) { return rows.length ? Math.round(rows.filter(function(t){ return t.result === 'Win'; }).length / rows.length * 100) : 0; }
+
+  // Best setup (min 2 trades, ranked by avg R)
+  var setupMap = {};
+  trades.forEach(function(t) {
+    var s = (t.setup || '').trim(); if (!s) return;
+    (setupMap[s] = setupMap[s] || []).push(t);
+  });
+  var setups = Object.keys(setupMap).map(function(s) { return { name: s, rows: setupMap[s] }; }).filter(function(s){ return s.rows.length >= 2; });
+  setups.sort(function(a,b) { return avgR(b.rows) - avgR(a.rows); });
+  var bestSetup = setups[0] || null;
+
+  // Most frequent mistake tag among losses
+  var mistakeTally = {};
+  trades.filter(function(t){ return t.result === 'Loss'; }).forEach(function(t) {
+    String(t.mistakes || '').split(',').map(function(m){ return m.trim(); }).filter(Boolean).forEach(function(m) {
+      mistakeTally[m] = (mistakeTally[m] || 0) + 1;
+    });
+  });
+  var topMistake = Object.keys(mistakeTally).sort(function(a,b){ return mistakeTally[b] - mistakeTally[a]; })[0];
+
+  // Long vs short
+  var longs = trades.filter(function(t){ return (t.direction||'').toLowerCase() === 'long'; });
+  var shorts = trades.filter(function(t){ return (t.direction||'').toLowerCase() === 'short'; });
+  var dirWinner = (longs.length >= 2 && shorts.length >= 2)
+    ? (winRate(longs) >= winRate(shorts) ? { label: 'Long', rows: longs } : { label: 'Short', rows: shorts })
+    : null;
+
+  // Works headline/body — prefer best setup, fall back to direction edge
+  var works_headline, works;
+  if (bestSetup && avgR(bestSetup.rows) > 0) {
+    works_headline = bestSetup.name.toUpperCase() + ' IS YOUR EDGE';
+    works = '"' + bestSetup.name + '" averages ' + (avgR(bestSetup.rows)>=0?'+':'') + avgR(bestSetup.rows) + 'R across ' + bestSetup.rows.length + ' trades (' + winRate(bestSetup.rows) + '% win rate).';
+  } else if (dirWinner) {
+    works_headline = dirWinner.label.toUpperCase() + 'S WORK BETTER FOR YOU';
+    works = dirWinner.label + ' trades win ' + winRate(dirWinner.rows) + '% of the time (' + dirWinner.rows.length + ' trades, ' + (avgR(dirWinner.rows)>=0?'+':'') + avgR(dirWinner.rows) + 'R avg).';
+  } else {
+    works_headline = 'STILL BUILDING THE PICTURE';
+    works = 'Win rate so far: ' + winRate(trades) + '% across ' + n + ' trades. Keep logging setup names consistently to surface a real edge.';
+  }
+
+  // Avoid headline/body — prefer the most frequent mistake, fall back to worst setup
+  var avoid_headline, avoid;
+  if (topMistake) {
+    avoid_headline = mistakeTally[topMistake] + 'x: ' + topMistake.toUpperCase();
+    avoid = '"' + topMistake + '" shows up on ' + mistakeTally[topMistake] + ' of your losses — the single most common leak in your journal.';
+  } else if (setups.length && avgR(setups[setups.length-1].rows) < 0) {
+    var worstSetup = setups[setups.length-1];
+    avoid_headline = worstSetup.name.toUpperCase() + ' IS COSTING YOU';
+    avoid = '"' + worstSetup.name + '" averages ' + avgR(worstSetup.rows) + 'R across ' + worstSetup.rows.length + ' trades — your weakest setup so far.';
+  } else {
+    avoid_headline = 'NO CLEAR LEAK YET';
+    avoid = 'Nothing stands out as a recurring problem yet — keep tagging mistakes honestly when you log trades.';
+  }
+
+  return {
+    works_headline: works_headline, works: works,
+    avoid_headline: avoid_headline, avoid: avoid,
+    dataNote: 'Based on ' + n + ' trade(s) — computed locally, no AI tokens used'
+  };
+}
+
 async function loadBriefing(force) {
   var focusEl = document.getElementById('ai-briefing-body');
   var patsEl = document.getElementById('ai-patterns-body');
@@ -10919,11 +11008,20 @@ async function loadBriefing(force) {
   var nowBkk = _tzNow();
   var todayStr = nowBkk.toISOString().slice(0,10);
   var cachedFocus = localStorage.getItem('td_brief_focus_' + todayStr);
-  var cachedEdge  = localStorage.getItem('td_brief_edge_'  + todayStr);
-  if (!force && cachedFocus && cachedEdge) {
+  // "Your Edge" (panel 2) is computed locally from trade history — free and
+  // instant, so it's never cached and always recomputed fresh, even when the
+  // AI-generated focus panel below is served from cache.
+  if (patsEl) {
+    try {
+      var ppFresh = computeLocalEdgeSummary();
+      patsEl.innerHTML = '<div style="margin-bottom:11px"><div style="font-family:var(--display);font-size:16px;letter-spacing:0.04em;color:var(--green);margin-bottom:4px">' + ppFresh.works_headline + '</div><p style="font-size:13px;color:var(--text2);line-height:1.6">' + ppFresh.works + '</p></div>' +
+        '<div style="padding-top:10px;border-top:1px solid var(--border);margin-bottom:10px"><div style="font-family:var(--display);font-size:16px;letter-spacing:0.04em;color:var(--red);margin-bottom:4px">' + ppFresh.avoid_headline + '</div><p style="font-size:13px;color:var(--text2);line-height:1.6">' + ppFresh.avoid + '</p></div>' +
+        '<div style="font-family:var(--mono);font-size:9px;color:var(--text3);padding-top:8px;border-top:1px solid var(--border)">' + ppFresh.dataNote + '</div>';
+    } catch(e) { console.warn('[edge] local summary failed:', e.message); }
+  }
+  if (!force && cachedFocus) {
     if (focusEl) focusEl.innerHTML = cachedFocus;
-    if (patsEl)  patsEl.innerHTML  = cachedEdge;
-    console.log('[briefing] Showing cached briefing for', todayStr);
+    console.log('[briefing] Showing cached focus for', todayStr);
     return;
   }
 
@@ -11032,7 +11130,9 @@ async function loadBriefing(force) {
 
   var loading = '<div class="ai-loading"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div><span style="margin-left:4px">Generating...</span></div>';
   if (focusEl) focusEl.innerHTML = loading;
-  if (patsEl) patsEl.innerHTML = loading;
+  // patsEl ("Your Edge") already has fresh, locally-computed content from
+  // above — don't clobber it with a loading spinner while only the AI focus
+  // panel is still working.
 
   function extractJSON(txt) {
     if (!txt) throw new Error('Empty response from Claude');
@@ -11096,29 +11196,8 @@ async function loadBriefing(force) {
     if (focusEl) focusEl.innerHTML = '<p style="font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.3)">' + (err.message === 'Failed to fetch' ? 'AI briefing requires the Vercel deployment — not available locally.' : 'Error: ' + err.message) + '</p>';
   }
 
-  // Panel 2: Your Edge — use recent sessions + knowledge base
-  try {
-    var patsPrompt = 'You are a trading performance analyst for a Gold prop trader.\n\n' +
-      '=== RECENT JOURNAL ENTRIES (priority) ===\n' +
-      recentCtx + '\n\n' +
-      ' ' +
-      'Total sessions logged: ' + sorted.length + '\n\n' +
-      'Identify what is ACTUALLY working and what is ACTUALLY hurting based on the real journal entries.\n' +
-      'Reference specific things they wrote if available.\n\n' +
-      'Output JSON only:\n' +
-      '{"works_headline":"5-6 word edge summary","works":"one sentence about what actually works for them","avoid_headline":"5-6 word leak summary","avoid":"one sentence about the biggest recurring real problem"}\n' +
-      'Respond with ONLY valid JSON.';
-    var patsText = await callClaude(patsPrompt, 400);
-    var pp = extractJSON(patsText);
-    var dataNote = 'Based on ' + sorted.length + ' session(s)';
-    var edgeHtml = '<div style="margin-bottom:11px"><div style="font-family:var(--display);font-size:16px;letter-spacing:0.04em;color:var(--green);margin-bottom:4px">' + pp.works_headline + '</div><p style="font-size:13px;color:var(--text2);line-height:1.6">' + pp.works + '</p></div>' +
-      '<div style="padding-top:10px;border-top:1px solid var(--border);margin-bottom:10px"><div style="font-family:var(--display);font-size:16px;letter-spacing:0.04em;color:var(--red);margin-bottom:4px">' + pp.avoid_headline + '</div><p style="font-size:13px;color:var(--text2);line-height:1.6">' + pp.avoid + '</p></div>' +
-      '<div style="font-family:var(--mono);font-size:9px;color:var(--text3);padding-top:8px;border-top:1px solid var(--border)">' + dataNote + '</div>';
-    if (patsEl) patsEl.innerHTML = edgeHtml;
-    try { localStorage.setItem('td_brief_edge_' + todayStr, edgeHtml); } catch(e) {}
-  } catch(err) {
-    if (patsEl) patsEl.innerHTML = '<p style="font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.3)">' + (err.message === 'Failed to fetch' ? 'AI edge analysis requires the Vercel deployment.' : 'Error: ' + err.message) + '</p>';
-  }
+  // Panel 2 ("Your Edge") was already filled in above, before the cache check —
+  // it's computed locally and doesn't depend on whether the AI focus panel ran.
 }
 
 // ── STICKY BAR (stubs — bar still in DOM but simplified) ──
