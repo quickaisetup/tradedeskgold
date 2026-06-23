@@ -19869,6 +19869,9 @@ function _wizRenderTF(s, body) {
   // Switch to correct TF
   if (typeof setTVInterval === 'function') setTVInterval(s.tvTF);
 
+  // Force TradingView widget to resize after being moved to wizard layout
+  setTimeout(function() { window.dispatchEvent(new Event('resize')); }, 200);
+
   // Question area — render below in footer as the sub-step prompt
   var qArea = document.createElement('div');
   qArea.id = 'wiz-tf-question';
