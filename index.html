@@ -12548,9 +12548,15 @@ function ptgOpen(forceInteractive) {
     }).join('');
     var rules = (window._currentRules && window._currentRules.length) ? window._currentRules
       : (window._defaultRules && window._defaultRules.length) ? window._defaultRules : [];
+    // Filter out rules that already appear in the checklist to avoid duplication
+    var ptgTexts = _ptgQs.map(function(q) { return q.main.toLowerCase().replace(/[^a-z0-9]/g, ''); });
+    var uniqueRules = rules.filter(function(r) {
+      var rNorm = _rText(r).toLowerCase().replace(/[^a-z0-9]/g, '');
+      return !ptgTexts.some(function(pt) { return pt.indexOf(rNorm) > -1 || rNorm.indexOf(pt) > -1 || (rNorm.length > 8 && pt.length > 8 && (rNorm.slice(0,10) === pt.slice(0,10))); });
+    });
     var rgSection = document.getElementById('rg-section');
-    if (rules.length && rgSection) {
-      document.getElementById('rg-list').innerHTML = rules.map(function(r) {
+    if (uniqueRules.length && rgSection) {
+      document.getElementById('rg-list').innerHTML = uniqueRules.map(function(r) {
         var gold = _rGold(r) ? ' rg-item-gold' : '';
         return '<div class="rg-item checked' + gold + '" style="pointer-events:none">' +
           '<div class="rg-cb">✓</div><div class="rg-text">' + _rText(r) + '</div></div>';
@@ -12576,6 +12582,12 @@ function ptgOpen(forceInteractive) {
     // Build interactive rules list (hidden until PTG complete)
     var rules = (window._currentRules && window._currentRules.length) ? window._currentRules
       : (window._defaultRules && window._defaultRules.length) ? window._defaultRules : [];
+    // Filter out rules already in checklist
+    var _ptgTexts2 = _ptgQs.map(function(q) { return q.main.toLowerCase().replace(/[^a-z0-9]/g, ''); });
+    rules = rules.filter(function(r) {
+      var rNorm = _rText(r).toLowerCase().replace(/[^a-z0-9]/g, '');
+      return !_ptgTexts2.some(function(pt) { return pt.indexOf(rNorm) > -1 || rNorm.indexOf(pt) > -1 || (rNorm.length > 8 && pt.length > 8 && rNorm.slice(0,10) === pt.slice(0,10)); });
+    });
     _rgChecked = new Array(rules.length).fill(false);
     var rgSection = document.getElementById('rg-section');
     var rgList = document.getElementById('rg-list');
