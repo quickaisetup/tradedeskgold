@@ -20839,61 +20839,129 @@ window.tjOpen = tjOpen;
 
 <!-- NEW ONBOARDING FLOW -->
 <style>
-#onboard-overlay{display:none;position:fixed;inset:0;z-index:200020;background:#060810;align-items:center;justify-content:center;padding:24px}
-#onboard-overlay.show{display:flex;animation:eodFadeIn 0.3s ease}
-#onboard-card{width:100%;max-width:520px;text-align:center}
+#onboard-overlay{display:none;position:fixed;inset:0;z-index:200020;background:radial-gradient(ellipse at 50% 30%,#0c1020 0%,#040608 70%);align-items:center;justify-content:center;padding:24px;overflow-y:auto}
+#onboard-overlay.show{display:flex;animation:eodFadeIn 0.4s ease}
+#onboard-card{width:100%;max-width:560px;text-align:center}
 .ob-step{display:none}
-.ob-step.active{display:block;animation:eodFadeIn 0.3s ease}
+.ob-step.active{display:block;animation:obSlideUp 0.5s cubic-bezier(0.16,1,0.3,1)}
+@keyframes obSlideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+@keyframes obGlow{0%,100%{box-shadow:0 0 30px rgba(240,188,78,0.15)}50%{box-shadow:0 0 60px rgba(240,188,78,0.3)}}
+.ob-hero-btn{width:100%;padding:18px;font-family:var(--display);font-size:18px;letter-spacing:0.1em;color:#0a0b0d;background:linear-gradient(135deg,#f0bc4e,#ffd070);border:none;border-radius:14px;cursor:pointer;transition:all 0.2s;animation:obGlow 2s ease-in-out infinite}
+.ob-hero-btn:hover{transform:translateY(-2px);box-shadow:0 8px 40px rgba(240,188,78,0.4)}
+.ob-secondary-btn{width:100%;padding:14px;font-family:var(--mono);font-size:10px;letter-spacing:0.06em;color:rgba(255,255,255,0.35);background:transparent;border:1px solid rgba(255,255,255,0.08);border-radius:12px;cursor:pointer;transition:all 0.15s}
+.ob-secondary-btn:hover{color:#fff;border-color:rgba(255,255,255,0.2);background:rgba(255,255,255,0.03)}
+.ob-benefit{display:flex;align-items:flex-start;gap:14px;text-align:left;padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
+.ob-benefit:last-child{border-bottom:none}
+.ob-benefit-icon{font-size:24px;flex-shrink:0;width:40px;text-align:center}
+.ob-benefit-text{flex:1}
+.ob-benefit-title{font-family:var(--display);font-size:14px;color:#fff;letter-spacing:0.03em;margin-bottom:3px}
+.ob-benefit-desc{font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.4);line-height:1.6}
+.ob-step-pill{display:inline-flex;align-items:center;gap:8px;padding:6px 16px;border-radius:20px;background:rgba(240,188,78,0.08);border:1px solid rgba(240,188,78,0.2);margin-bottom:20px}
+.ob-step-pill span{font-family:var(--mono);font-size:8px;letter-spacing:0.12em;color:var(--gold);text-transform:uppercase}
 </style>
 <div id="onboard-overlay">
   <div id="onboard-card">
-    <!-- Step 1: Welcome + Upload -->
+
+    <!-- Step 1: Epic Welcome -->
     <div class="ob-step active" id="ob-step-1">
-      <div style="font-size:48px;margin-bottom:12px">⚡</div>
-      <div style="font-family:var(--display);font-size:32px;color:#fff;letter-spacing:0.04em;margin-bottom:6px">Welcome to TradeDesk</div>
-      <div style="font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.4);line-height:1.7;max-width:420px;margin:0 auto 24px">Your professional trading cockpit.<br>Let's set you up in under 2 minutes.</div>
-
-      <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:20px;margin-bottom:16px;text-align:left">
-        <div style="font-family:var(--display);font-size:15px;color:var(--gold);margin-bottom:8px">📊 Got a trading journal?</div>
-        <div style="font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.4);line-height:1.6;margin-bottom:12px">Upload your prop firm CSV, personal spreadsheet, or paste your notes. AI gives you a one-time analysis of your strengths, weaknesses, and what to focus on.</div>
-        <div style="display:flex;gap:8px">
-          <button onclick="onboardUpload()" style="flex:1;padding:10px;font-family:var(--display);font-size:12px;letter-spacing:0.06em;color:#0a0b0d;background:var(--gold);border:none;border-radius:8px;cursor:pointer;transition:all 0.15s">📎 Upload / Paste</button>
-          <button onclick="onboardNext(2)" style="flex:1;padding:10px;font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.4);background:transparent;border:1px solid rgba(255,255,255,0.1);border-radius:8px;cursor:pointer;transition:all 0.15s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.4)'">Skip for now →</button>
-        </div>
+      <div style="font-size:64px;margin-bottom:16px;filter:drop-shadow(0 0 20px rgba(240,188,78,0.4))">⚡</div>
+      <div style="font-family:var(--display);font-size:42px;color:#fff;letter-spacing:0.04em;line-height:1.1;margin-bottom:8px">Welcome to<br><span style="color:var(--gold)">TradeDesk</span></div>
+      <div style="font-family:var(--mono);font-size:13px;color:rgba(255,255,255,0.5);line-height:1.7;max-width:400px;margin:0 auto 32px">Your edge starts here. Professional tools,<br>AI coaching, and zero guesswork.</div>
+      <div style="max-width:380px;margin:0 auto 32px">
+        <button class="ob-hero-btn" onclick="onboardNext(2)">LET'S GO</button>
       </div>
+      <div style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.2);letter-spacing:0.06em">Takes about 2 minutes</div>
     </div>
 
-    <!-- Step 2: AI Summary (shown after upload, or skipped) -->
+    <!-- Step 2: Upload Journal -->
     <div class="ob-step" id="ob-step-2">
-      <div style="font-size:48px;margin-bottom:12px">🧠</div>
-      <div style="font-family:var(--display);font-size:28px;color:#fff;letter-spacing:0.04em;margin-bottom:6px" id="ob-summary-title">Your Trading Profile</div>
-      <div style="font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.35);margin-bottom:20px" id="ob-summary-sub">Based on your uploaded data</div>
+      <div class="ob-step-pill"><span>Step 1 of 3</span></div>
+      <div style="font-size:48px;margin-bottom:12px">📊</div>
+      <div style="font-family:var(--display);font-size:30px;color:#fff;letter-spacing:0.04em;margin-bottom:6px">Unlock Your Edge</div>
+      <div style="font-family:var(--mono);font-size:12px;color:rgba(255,255,255,0.45);line-height:1.7;max-width:420px;margin:0 auto 28px">Upload your trading history and get <strong style="color:var(--gold)">instant AI-powered insights</strong> — your strengths, blind spots, and exactly what to fix.</div>
 
-      <div id="ob-insights" style="text-align:left;margin-bottom:20px">
-        <!-- Filled by JS after AI analysis -->
-      </div>
-
-      <button onclick="onboardNext(3)" style="width:100%;padding:14px;font-family:var(--display);font-size:15px;letter-spacing:0.08em;color:#0a0b0d;background:var(--gold);border:none;border-radius:10px;cursor:pointer">Let's Start Your First Session →</button>
-    </div>
-
-    <!-- Step 3: Ready to go -->
-    <div class="ob-step" id="ob-step-3">
-      <div style="font-size:48px;margin-bottom:12px">🚀</div>
-      <div style="font-family:var(--display);font-size:28px;color:#fff;letter-spacing:0.04em;margin-bottom:6px">Let's Do This Together</div>
-      <div style="font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.4);line-height:1.7;max-width:420px;margin:0 auto 24px">I'll guide you step by step through your morning routine — checking the market, setting your bias, marking key levels, and getting ready to trade.</div>
-
-      <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:16px;margin-bottom:20px;text-align:left">
-        <div style="display:flex;flex-direction:column;gap:8px">
-          <div style="display:flex;align-items:center;gap:10px"><span style="font-family:var(--mono);font-size:8px;color:var(--gold);background:rgba(240,188,78,0.1);border:1px solid rgba(240,188,78,0.3);padding:2px 8px;border-radius:4px">01</span><span style="font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.6)">Morning checks — news & calendar</span></div>
-          <div style="display:flex;align-items:center;gap:10px"><span style="font-family:var(--mono);font-size:8px;color:var(--gold);background:rgba(240,188,78,0.1);border:1px solid rgba(240,188,78,0.3);padding:2px 8px;border-radius:4px">02</span><span style="font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.6)">Top-down analysis — read the chart</span></div>
-          <div style="display:flex;align-items:center;gap:10px"><span style="font-family:var(--mono);font-size:8px;color:var(--gold);background:rgba(240,188,78,0.1);border:1px solid rgba(240,188,78,0.3);padding:2px 8px;border-radius:4px">03</span><span style="font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.6)">Trading style — pick your mode</span></div>
-          <div style="display:flex;align-items:center;gap:10px"><span style="font-family:var(--mono);font-size:8px;color:var(--gold);background:rgba(240,188,78,0.1);border:1px solid rgba(240,188,78,0.3);padding:2px 8px;border-radius:4px">04</span><span style="font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.6)">Key levels — mark where you'd trade</span></div>
-          <div style="display:flex;align-items:center;gap:10px"><span style="font-family:var(--mono);font-size:8px;color:var(--gold);background:rgba(240,188,78,0.1);border:1px solid rgba(240,188,78,0.3);padding:2px 8px;border-radius:4px">05</span><span style="font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.6)">Go live — execute your plan</span></div>
+      <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:20px;margin-bottom:20px;text-align:left">
+        <div class="ob-benefit">
+          <div class="ob-benefit-icon">🎯</div>
+          <div class="ob-benefit-text">
+            <div class="ob-benefit-title">Know Your Strengths</div>
+            <div class="ob-benefit-desc">See what's actually working in your trading — backed by data, not feelings</div>
+          </div>
+        </div>
+        <div class="ob-benefit">
+          <div class="ob-benefit-icon">🔍</div>
+          <div class="ob-benefit-text">
+            <div class="ob-benefit-title">Spot Your Leaks</div>
+            <div class="ob-benefit-desc">Find the patterns that cost you money — the ones you can't see yourself</div>
+          </div>
+        </div>
+        <div class="ob-benefit">
+          <div class="ob-benefit-icon">🤖</div>
+          <div class="ob-benefit-text">
+            <div class="ob-benefit-title">Daily AI Coaching</div>
+            <div class="ob-benefit-desc">Your briefing gets personal — specific advice based on YOUR real data</div>
+          </div>
         </div>
       </div>
 
-      <button onclick="onboardDone()" style="width:100%;padding:14px;font-family:var(--display);font-size:15px;letter-spacing:0.08em;color:#0a0b0d;background:var(--gold);border:none;border-radius:10px;cursor:pointer">▶ Start Session</button>
+      <div style="display:flex;flex-direction:column;gap:10px;max-width:380px;margin:0 auto">
+        <button class="ob-hero-btn" onclick="onboardUpload()" style="font-size:16px">📎 UPLOAD MY DATA</button>
+        <button class="ob-secondary-btn" onclick="onboardNext(3)">I'll do this later — skip for now</button>
+      </div>
+      <div style="font-family:var(--mono);font-size:8px;color:rgba(255,255,255,0.15);margin-top:12px">Supports CSV, XLSX, or just paste your notes</div>
     </div>
+
+    <!-- Step 3: AI Summary / Skip summary -->
+    <div class="ob-step" id="ob-step-3">
+      <div class="ob-step-pill"><span>Step 2 of 3</span></div>
+      <div style="font-size:48px;margin-bottom:12px" id="ob-s3-icon">🧠</div>
+      <div style="font-family:var(--display);font-size:28px;color:#fff;letter-spacing:0.04em;margin-bottom:6px" id="ob-summary-title">Your Trading DNA</div>
+      <div style="font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.35);margin-bottom:20px" id="ob-summary-sub">Here's what the AI found in your data</div>
+
+      <div id="ob-insights" style="text-align:left;margin-bottom:24px"></div>
+
+      <div style="max-width:380px;margin:0 auto">
+        <button class="ob-hero-btn" onclick="onboardNext(4)" style="font-size:16px">NEXT →</button>
+      </div>
+    </div>
+
+    <!-- Step 4: Let's trade -->
+    <div class="ob-step" id="ob-step-4">
+      <div class="ob-step-pill"><span>Step 3 of 3</span></div>
+      <div style="font-size:56px;margin-bottom:12px">🚀</div>
+      <div style="font-family:var(--display);font-size:32px;color:#fff;letter-spacing:0.04em;line-height:1.1;margin-bottom:8px">Ready to<br><span style="color:var(--gold)">Elevate Your Game?</span></div>
+      <div style="font-family:var(--mono);font-size:12px;color:rgba(255,255,255,0.45);line-height:1.7;max-width:400px;margin:0 auto 28px">I'll walk you through your first session — step by step.<br>No guesswork. Just follow the flow.</div>
+
+      <div style="background:linear-gradient(145deg,rgba(240,188,78,0.04),rgba(255,255,255,0.01));border:1px solid rgba(240,188,78,0.12);border-radius:14px;padding:18px 20px;margin-bottom:24px;text-align:left">
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:32px;height:32px;border-radius:8px;background:rgba(240,188,78,0.1);border:1px solid rgba(240,188,78,0.2);display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:13px;color:var(--gold);flex-shrink:0">01</div>
+            <div><div style="font-family:var(--display);font-size:13px;color:#fff">Morning Checks</div><div style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.3)">News, calendar, risk limits</div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:32px;height:32px;border-radius:8px;background:rgba(240,188,78,0.1);border:1px solid rgba(240,188,78,0.2);display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:13px;color:var(--gold);flex-shrink:0">02</div>
+            <div><div style="font-family:var(--display);font-size:13px;color:#fff">Read the Market</div><div style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.3)">Top-down bias on every timeframe</div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:32px;height:32px;border-radius:8px;background:rgba(240,188,78,0.1);border:1px solid rgba(240,188,78,0.2);display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:13px;color:var(--gold);flex-shrink:0">03</div>
+            <div><div style="font-family:var(--display);font-size:13px;color:#fff">Pick Your Style</div><div style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.3)">AI recommends based on your score</div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:32px;height:32px;border-radius:8px;background:rgba(240,188,78,0.1);border:1px solid rgba(240,188,78,0.2);display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:13px;color:var(--gold);flex-shrink:0">04</div>
+            <div><div style="font-family:var(--display);font-size:13px;color:#fff">Mark Key Levels</div><div style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.3)">Fibonacci, S/R, order blocks</div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:32px;height:32px;border-radius:8px;background:rgba(78,214,138,0.15);border:1px solid rgba(78,214,138,0.3);display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:13px;color:#4ed68a;flex-shrink:0">05</div>
+            <div><div style="font-family:var(--display);font-size:13px;color:#4ed68a">Go Live</div><div style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.3)">Execute your plan with confidence</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="max-width:380px;margin:0 auto">
+        <button class="ob-hero-btn" onclick="onboardDone()" style="font-size:18px">▶ START MY SESSION</button>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -20909,13 +20977,16 @@ function onboardNext(step) {
   document.querySelectorAll('.ob-step').forEach(function(s){ s.classList.remove('active'); });
   var el = document.getElementById('ob-step-' + step);
   if (el) el.classList.add('active');
-  // If going to step 2 without data, show generic message
-  if (step === 2 && !localStorage.getItem('td_trading_insights')) {
-    document.getElementById('ob-summary-title').textContent = 'Ready to Build Your Profile';
-    document.getElementById('ob-summary-sub').textContent = 'You can upload your journal anytime from the main app';
+  // If going to step 3 without data, show motivational skip message
+  if (step === 3 && !localStorage.getItem('td_trading_insights')) {
+    document.getElementById('ob-s3-icon').textContent = '💪';
+    document.getElementById('ob-summary-title').textContent = 'No Problem';
+    document.getElementById('ob-summary-sub').textContent = 'You can upload anytime — the app gets smarter every day you use it';
     document.getElementById('ob-insights').innerHTML =
-      '<div style="background:rgba(240,188,78,0.06);border:1px solid rgba(240,188,78,0.15);border-radius:10px;padding:14px;font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.5);line-height:1.7">' +
-      'No worries — the app learns from every session you log.<br>Your AI briefing gets smarter each day you use it.</div>';
+      '<div style="background:linear-gradient(145deg,rgba(78,214,138,0.04),rgba(255,255,255,0.01));border:1px solid rgba(78,214,138,0.12);border-radius:12px;padding:16px;text-align:center">' +
+        '<div style="font-family:var(--display);font-size:16px;color:#4ed68a;margin-bottom:6px">Your AI coaching starts now</div>' +
+        '<div style="font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.45);line-height:1.7">Every session you log makes your morning briefing sharper.<br>After a few days, the AI knows your patterns better than you do.</div>' +
+      '</div>';
   }
 }
 
@@ -20933,17 +21004,21 @@ function onboardUpload() {
       if (insights) {
         try {
           var p = JSON.parse(insights);
+          document.getElementById('ob-s3-icon').textContent = '🧠';
+          document.getElementById('ob-summary-title').textContent = 'Your Trading DNA';
+          document.getElementById('ob-summary-sub').textContent = 'Here\'s what the AI found';
           document.getElementById('ob-insights').innerHTML =
-            '<div style="font-family:var(--display);font-size:14px;color:var(--gold);margin-bottom:8px">' + (p.personality || '') + ' · ' + (p.risk_level || '') + '</div>' +
-            '<div style="font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.6);line-height:1.7;margin-bottom:12px">' + (p.summary || '') + '</div>' +
-            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">' +
-              '<div style="background:rgba(78,214,138,0.06);border:1px solid rgba(78,214,138,0.15);border-radius:8px;padding:8px 10px"><div style="font-family:var(--mono);font-size:7px;color:#4ed68a;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:4px">Strengths</div>' + (p.strengths||[]).map(function(s){return '<div style="font-size:9px;color:rgba(255,255,255,0.55);margin-bottom:2px">✓ '+s+'</div>';}).join('') + '</div>' +
-              '<div style="background:rgba(240,96,96,0.06);border:1px solid rgba(240,96,96,0.15);border-radius:8px;padding:8px 10px"><div style="font-family:var(--mono);font-size:7px;color:#f06060;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:4px">Fix these</div>' + (p.weaknesses||[]).map(function(s){return '<div style="font-size:9px;color:rgba(255,255,255,0.55);margin-bottom:2px">✗ '+s+'</div>';}).join('') + '</div>' +
-            '</div>';
+            '<div style="text-align:center;margin-bottom:16px"><span style="font-family:var(--display);font-size:20px;color:var(--gold);letter-spacing:0.04em">' + (p.personality || 'Trader') + '</span><span style="font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.3);margin-left:8px">' + (p.risk_level || '') + '</span></div>' +
+            '<div style="font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.55);line-height:1.7;text-align:center;margin-bottom:16px">' + (p.summary || '') + '</div>' +
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">' +
+              '<div style="background:rgba(78,214,138,0.05);border:1px solid rgba(78,214,138,0.12);border-radius:10px;padding:12px"><div style="font-family:var(--display);font-size:11px;color:#4ed68a;letter-spacing:0.08em;margin-bottom:6px">YOUR STRENGTHS</div>' + (p.strengths||[]).map(function(s){return '<div style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.55);margin-bottom:3px;line-height:1.5">✓ '+s+'</div>';}).join('') + '</div>' +
+              '<div style="background:rgba(240,96,96,0.05);border:1px solid rgba(240,96,96,0.12);border-radius:10px;padding:12px"><div style="font-family:var(--display);font-size:11px;color:#f06060;letter-spacing:0.08em;margin-bottom:6px">FIX THESE</div>' + (p.weaknesses||[]).map(function(s){return '<div style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.55);margin-bottom:3px;line-height:1.5">✗ '+s+'</div>';}).join('') + '</div>' +
+            '</div>' +
+            (p.recommendations && p.recommendations.length ? '<div style="background:rgba(240,188,78,0.04);border:1px solid rgba(240,188,78,0.1);border-radius:10px;padding:12px"><div style="font-family:var(--display);font-size:11px;color:var(--gold);letter-spacing:0.08em;margin-bottom:6px">FOCUS ON</div>' + p.recommendations.slice(0,2).map(function(s){return '<div style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.55);margin-bottom:3px;line-height:1.5">→ '+s+'</div>';}).join('') + '</div>' : '');
         } catch(e) {}
       }
       document.getElementById('onboard-overlay').classList.add('show');
-      onboardNext(2);
+      onboardNext(3);
     }
   }, 300);
 }
