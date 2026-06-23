@@ -4922,6 +4922,13 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
           onfocus="this.style.borderColor='rgba(240,188,78,0.4)'" onblur="this.style.borderColor='rgba(255,255,255,0.12)'">
       </div>
     </div>
+    <!-- Profit target (Challenge/Eval accounts only) -->
+    <div id="as-target-wrap" style="margin-bottom:18px">
+      <div style="font-family:var(--mono);font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3);margin-bottom:6px">Profit target %</div>
+      <input id="as-target" type="number" placeholder="10" min="0" step="1" value="10"
+        style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);border-radius:6px;color:var(--text);font-family:var(--mono);font-size:11px;padding:8px 10px;outline:none;-moz-appearance:textfield"
+        onfocus="this.style.borderColor='rgba(240,188,78,0.4)'" onblur="this.style.borderColor='rgba(255,255,255,0.12)'">
+    </div>
     <!-- Currency -->
     <div style="font-family:var(--mono);font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3);margin-bottom:8px">Currency</div>
     <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:22px" id="as-cur-btns">
@@ -5739,6 +5746,80 @@ function totalAccountSize() { return _tdAccounts.reduce(function(s,a){ return s+
 var _acctSetupType = 'Challenge';
 var _acctSetupCur  = '$';
 
+// ── ACCOUNT BALANCE — computed fresh from trade history, not stored deltas ──
+// The old approach kept a running `balance` number on each account and nudged it
+// by +/- usd every time a trade was added/removed. Any missed match, double
+// application, or cross-device sync glitch left it permanently wrong ("balance
+// is always incorrect"). Instead: cache the user's full trade history once,
+// then derive balance = size + sum(matched trades' $) fresh on every render.
+window._tdAllTradesCache = null;
+async function _tdRefreshAllTradesCache() {
+  try {
+    var uid = localStorage.getItem('td_user_id');
+    var sb = window._tdSB;
+    if (!uid || !sb) return;
+    var res = await sb.from('trades').select('date,result,r_achieved,risk_pct,usd_achieved,account,accounts').eq('user_id', uid);
+    if (res && res.data) {
+      window._tdAllTradesCache = res.data;
+      if (typeof renderAccountsPanel === 'function') renderAccountsPanel();
+    }
+  } catch(e) { console.warn('[accounts] trade history fetch failed:', e.message); }
+}
+window._tdRefreshAllTradesCache = _tdRefreshAllTradesCache;
+
+function _tdTradeMatchesAccount(t, acc) {
+  var n = (acc.name || acc.id || '').toLowerCase();
+  if (!n) return false;
+  var list = (t.accounts && t.accounts.length) ? t.accounts : [t.account || ''];
+  return list.some(function(raw) {
+    var a = String(raw || '').toLowerCase();
+    if (!a) return false;
+    if (a.indexOf(n) > -1 || n.indexOf(a) > -1) return true;
+    var keywords = ['1-step','2-step','1step','2step','funded','challenge'];
+    return keywords.some(function(k){ return a.indexOf(k) > -1 && n.indexOf(k) > -1; });
+  });
+}
+
+function _tdTradeUsdForAccount(t, acc) {
+  var usd = parseFloat(t.usd_achieved !== undefined ? t.usd_achieved : t.usdAchieved) || 0;
+  if (!usd) {
+    var r  = parseFloat(t.r_achieved !== undefined ? t.r_achieved : t.rAchieved) || 0;
+    var rp = parseFloat(t.risk_pct   !== undefined ? t.risk_pct   : t.riskPct)   || BASE_RISK_PCT || 0.5;
+    var sz = parseFloat(acc.size) || 100000;
+    usd = r * (rp / 100) * sz;
+  }
+  return (t.result === 'Loss') ? -Math.abs(usd) : Math.abs(usd);
+}
+
+// Bangkok-local Monday-of-this-week as a YYYY-MM-DD string (mirrors updatePALFromRows' week boundary)
+function _tdWeekStartKey() {
+  var bkkTodayStr = new Date().toLocaleDateString('sv-SE', { timeZone: (window._tdTZ && _tdTZ.iana) || 'Asia/Bangkok' });
+  var parts = bkkTodayStr.split('-').map(Number);
+  var d = new Date(parts[0], parts[1]-1, parts[2]);
+  var dow = d.getDay();
+  var mOff = dow === 0 ? -6 : 1 - dow;
+  var wk = new Date(parts[0], parts[1]-1, parts[2] + mOff);
+  return wk.getFullYear() + '-' + ('0'+(wk.getMonth()+1)).slice(-2) + '-' + ('0'+wk.getDate()).slice(-2);
+}
+
+// Returns { balance, weeklyUsd } for one account, derived from the cached trade
+// history. Returns null if the cache hasn't loaded yet (caller should fall back).
+function _tdComputeAccountStats(acc) {
+  var all = window._tdAllTradesCache;
+  if (!all) return null;
+  var size = parseFloat(acc.size) || 100000;
+  var wkKey = _tdWeekStartKey();
+  var totalUsd = 0, weeklyUsd = 0;
+  all.forEach(function(t) {
+    if (!_tdTradeMatchesAccount(t, acc)) return;
+    var usd = _tdTradeUsdForAccount(t, acc);
+    totalUsd += usd;
+    var dk = String(t.date || '').slice(0, 10);
+    if (dk >= wkKey) weeklyUsd += usd;
+  });
+  return { balance: Math.round(size + totalUsd), weeklyUsd: Math.round(weeklyUsd) };
+}
+
 function addTradingAccount() {
   // Reset modal state
   _acctSetupType = 'Challenge';
@@ -5750,6 +5831,8 @@ function addTradingAccount() {
   if (ob) { ob.style.background='transparent'; ob.style.color='var(--text2)'; ob.style.borderColor='rgba(255,255,255,0.1)'; }
   // Reset currency buttons
   document.querySelectorAll('.as-cur').forEach(function(b){ b.classList.toggle('sel', b.dataset.cur==='$'); });
+  var tgtEl = document.getElementById('as-target'); if (tgtEl) tgtEl.value = '10';
+  var tgtWrap = document.getElementById('as-target-wrap'); if (tgtWrap) tgtWrap.style.display = '';
   // Show modal
   var ov = document.getElementById('acct-setup-overlay');
   if (ov) { ov.style.display='flex'; }
@@ -5759,12 +5842,15 @@ function acctSetupType(t) {
   _acctSetupType = t;
   var cb = document.getElementById('as-type-challenge');
   var ob = document.getElementById('as-type-ownfund');
+  var tgtWrap = document.getElementById('as-target-wrap');
   if (t === 'Challenge') {
     if (cb) { cb.style.background='rgba(240,188,78,0.15)'; cb.style.color='var(--gold)'; cb.style.borderColor='rgba(240,188,78,0.4)'; }
     if (ob) { ob.style.background='transparent'; ob.style.color='var(--text2)'; ob.style.borderColor='rgba(255,255,255,0.1)'; }
+    if (tgtWrap) tgtWrap.style.display = '';
   } else {
     if (ob) { ob.style.background='rgba(139,92,246,0.15)'; ob.style.color='#a78bfa'; ob.style.borderColor='rgba(139,92,246,0.4)'; }
     if (cb) { cb.style.background='transparent'; cb.style.color='var(--text2)'; cb.style.borderColor='rgba(255,255,255,0.1)'; }
+    if (tgtWrap) tgtWrap.style.display = 'none';
   }
 }
 
@@ -5781,12 +5867,14 @@ function closeAcctSetup() {
 function confirmAcctSetup() {
   var nameEl = document.getElementById('as-name');
   var sizeEl = document.getElementById('as-size');
+  var tgtEl  = document.getElementById('as-target');
   var used = _tdAccounts.map(function(a){ return a.id; });
   var next = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').find(function(c){ return used.indexOf(c)<0; }) || ('ACC'+(Date.now()%1000));
   var name = (nameEl && nameEl.value.trim()) || next;
   var size = (sizeEl && parseFloat(sizeEl.value)) || 100000;
   var phase = _acctSetupType === 'OwnFund' ? 'Own Fund' : 'Evaluation';
-  _tdAccounts.push({ id: next, name: name, size: size, currency: _acctSetupCur, phase: phase, accountType: _acctSetupType });
+  var profitTargetPct = _acctSetupType === 'Challenge' ? ((tgtEl && parseFloat(tgtEl.value)) || 10) : null;
+  _tdAccounts.push({ id: next, name: name, size: size, currency: _acctSetupCur, phase: phase, accountType: _acctSetupType, profitTargetPct: profitTargetPct });
   saveAccounts(); renderAccountsPanel(); refreshTradeFormAccounts();
   updatePALFromRows(window._tdLastPalRows||[], window._tdLastPalRank||'DEGENERATE');
   closeAcctSetup();
@@ -5814,32 +5902,24 @@ function fmtUsd(n) {
   return '$' + Math.abs(Math.round(n)).toLocaleString();
 }
 function acctToggleSizeEdit(id) {
+  // Note: balance is no longer manually editable here — it's derived from
+  // trade history (size + sum of matched trades' $), so editing it directly
+  // would just get overwritten on the next render. Only account size + profit
+  // target are user-editable.
   var disp    = document.getElementById('acct-size-disp-'+id);
   var inp     = document.getElementById('acct-size-inp-'+id);
   var btn     = document.getElementById('acct-size-btn-'+id);
-  var balWrap = document.getElementById('acct-bal-wrap-'+id);
   if (!disp||!inp) return;
   var editing = inp.style.display !== 'none';
   if (editing) {
     var v = parseFloat(inp.value)||0;
     if (v) updateAccount(id,'size',v);
-    var balInp = document.getElementById('acct-bal-inp-'+id);
-    if (balInp) {
-      var bv = parseFloat(balInp.value)||0;
-      if (bv) updateAccount(id,'balance',bv);
-    }
-    if (balWrap) balWrap.style.display = 'none';
     renderAccountsPanel();
   } else {
     var acc = _tdAccounts.find(function(a){return a.id===id;}) || {};
     inp.value = acc.size||100000;
     inp.style.display=''; disp.style.display='none';
     if(btn){btn.textContent='Save';btn.style.color='var(--green)';}
-    if (balWrap) {
-      var balInp2 = document.getElementById('acct-bal-inp-'+id);
-      if (balInp2) balInp2.value = acc.balance||'';
-      balWrap.style.display = 'block';
-    }
     inp.focus(); inp.select();
   }
 }
@@ -6032,17 +6112,21 @@ function renderAccountsPanel() {
     var isFunded   = phase === 'Funded';
     var dayUsd     = Math.round(_perAcctPnl[acc.name||acc.id]||0);
     var dayClr     = dayUsd>0?'#4ed68a':dayUsd<0?'#f06060':'#505070';
-    var bal        = parseFloat(acc.balance)||0;
-    // FTMO profit target = 10%, max drawdown floor = 90%
-    var targetPct  = 0.10;
-    // The stored balance IS the current account balance (what the user enters/what
-    // _updateAccountBalance maintains on trade removal) — it already reflects today's
-    // closed trades. Do NOT add dayUsd on top, or today's P&L gets double-counted
-    // (this was the "balance looks right for a second then goes wrong on refresh" bug).
-    var effectiveBal = bal ? Math.round(bal) : 0;
-    var profit     = effectiveBal ? Math.round(effectiveBal - size) : 0;
+    // Balance + weekly P&L are derived fresh from the full trade-history cache
+    // (size + sum of every matched trade's $) rather than a stored number nudged
+    // by +/- deltas — that incremental approach was the source of "balance is
+    // always incorrect" (any missed match or sync hiccup left it permanently wrong).
+    // Falls back to the old stored balance only until the cache has loaded once.
+    var computed   = _tdComputeAccountStats(acc);
+    var effectiveBal = computed ? computed.balance : Math.round(parseFloat(acc.balance) || size);
+    var weeklyUsd  = computed ? computed.weeklyUsd : 0;
+    var weeklyClr  = weeklyUsd>0?'#4ed68a':weeklyUsd<0?'#f06060':'#505070';
+    var weeklyDisp = (weeklyUsd>=0?'+':'-')+(acc.currency||'$')+Math.abs(weeklyUsd).toLocaleString();
+    // User-set profit target (default 10%, FTMO-style) — set when adding the account
+    var targetPct  = (parseFloat(acc.profitTargetPct) || 10) / 100;
+    var profit     = Math.round(effectiveBal - size);
     var targetUsd  = Math.round(size * targetPct);
-    var progPct    = effectiveBal && size ? Math.min(100, Math.max(0, profit / targetUsd * 100)) : 0;
+    var progPct    = size ? Math.min(100, Math.max(0, profit / targetUsd * 100)) : 0;
     var progClr    = profit>=0 ? '#4ed68a' : '#f06060';
     var cur        = acc.currency || '$';
     var profitDisp = profit>=0 ? '+'+cur+profit.toLocaleString() : '-'+cur+Math.abs(profit).toLocaleString();
@@ -6073,14 +6157,7 @@ function renderAccountsPanel() {
               '<div style="'+MN+'font-size:14px;font-weight:700;color:'+dayClr+'">'+(dayUsd>=0?'+'+cur:'-'+cur)+Math.abs(dayUsd).toLocaleString()+'</div>' +
             '</div>' +
           '</div>' +
-          // Hidden edit rows
-          '<div id="acct-bal-wrap-'+acc.id+'" style="display:none;margin-bottom:8px">' +
-            '<div style="'+MN+'font-size:7px;letter-spacing:0.1em;text-transform:uppercase;color:'+_CDim2+';margin-bottom:3px">Update balance</div>' +
-            '<input id="acct-bal-inp-'+acc.id+'" type="number" step="1" value="'+(parseFloat(acc.balance)||size)+'" placeholder="'+(parseFloat(acc.balance)||size)+'" '+
-              'style="width:100%;background:rgba(240,188,78,0.07);border:1px solid rgba(240,188,78,0.3);border-radius:4px;color:var(--gold);'+MN+'font-size:13px;padding:5px 8px;outline:none;box-sizing:border-box;-moz-appearance:textfield;font-weight:700" '+
-              'onchange="if(parseFloat(this.value)){updateAccount(\''+acc.id+'\',\'balance\',parseFloat(this.value));renderAccountsPanel();}" '+
-              'onkeydown="if(event.key===\'Enter\'){event.preventDefault();if(parseFloat(this.value)){updateAccount(\''+acc.id+'\',\'balance\',parseFloat(this.value));}acctToggleSizeEdit(\''+acc.id+'\');}">' +
-          '</div>' +
+          // Hidden edit row (account size only — balance is derived from trade history)
           '<span id="acct-size-disp-'+acc.id+'" style="display:none">'+fmtK(size)+'</span>' +
           '<input id="acct-size-inp-'+acc.id+'" type="number" min="0" step="10000" style="display:none;width:1px" ' +
             'onkeydown="if(event.key===\'Enter\')acctToggleSizeEdit(\''+acc.id+'\')">' +
@@ -6088,32 +6165,36 @@ function renderAccountsPanel() {
             'style="'+MN+'font-size:7px;text-transform:uppercase;letter-spacing:0.06em;color:'+_CDim2+';background:'+_Cdiv+';border:1px solid '+_CBd2+';border-radius:3px;padding:1px 5px;cursor:pointer;transition:all 0.15s;margin-bottom:4px" '+
             'onmouseover="this.style.color=\'var(--gold)\';this.style.borderColor=\'rgba(240,188,78,0.3)\'" '+
             'onmouseout="this.style.color=\''+_CDim2+'\';this.style.borderColor=\''+_CBd2+'\'">✎ edit</button>' +
-          // Stats row: % to funded + weekly P&L
-          (bal ? (
-            isFunded ? (
-              '<div style="display:flex;gap:8px;margin-top:7px">' +
-                '<div style="flex:1;background:'+_Cdiv+';border-radius:6px;padding:6px 8px;text-align:center">' +
-                  '<div style="'+MN+'font-size:7px;color:'+_CDim2+';letter-spacing:0.08em;text-transform:uppercase;margin-bottom:2px">Withdrawable</div>' +
-                  '<div style="'+MN+'font-size:12px;font-weight:700;color:#4ed68a">'+cur+withdrawable.toLocaleString()+'</div>' +
-                '</div>' +
-                '<div style="flex:1;background:'+_Cdiv+';border-radius:6px;padding:6px 8px;text-align:center">' +
-                  '<div style="'+MN+'font-size:7px;color:'+_CDim2+';letter-spacing:0.08em;text-transform:uppercase;margin-bottom:2px">Profit</div>' +
-                  '<div style="'+MN+'font-size:12px;font-weight:700;color:'+progClr+'">'+profitDisp+'</div>' +
-                '</div>' +
+          // Progress bar — to-funded for Eval, withdrawal progress for Funded (Challenge accounts only)
+          (acc.accountType !== 'OwnFund' ?
+            '<div style="margin-top:7px">' +
+              '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px">' +
+                '<span style="'+MN+'font-size:7px;color:'+_CDim2+';letter-spacing:0.08em;text-transform:uppercase">'+(isFunded?'Withdrawal progress':'To funded')+'</span>' +
+                '<span style="'+MN+'font-size:9px;font-weight:700;color:'+((isFunded?withdrawPct:progPct)>=80?'#4ed68a':(isFunded?withdrawPct:progPct)>=50?'#f0bc4e':'rgba(255,255,255,0.5)')+'">'+(isFunded?withdrawPct:progPct).toFixed(0)+'%</span>' +
+              '</div>' +
+              '<div style="width:100%;height:7px;border-radius:4px;background:'+_Cdiv+';overflow:hidden">' +
+                '<div style="height:100%;border-radius:4px;width:'+(isFunded?withdrawPct:progPct).toFixed(0)+'%;background:'+(profit>=0?'linear-gradient(90deg,#3ab873,#4ed68a)':'linear-gradient(90deg,#c94040,#f06060)')+';transition:width 0.3s"></div>' +
+              '</div>' +
+            '</div>'
+          : '') +
+          // Stats row: withdrawable/weekly (Funded), target/weekly (Eval), or just weekly (Own Fund)
+          '<div style="display:flex;gap:8px;margin-top:7px">' +
+            (acc.accountType === 'OwnFund' ? '' : isFunded ?
+              '<div style="flex:1;background:'+_Cdiv+';border-radius:6px;padding:6px 8px;text-align:center">' +
+                '<div style="'+MN+'font-size:7px;color:'+_CDim2+';letter-spacing:0.08em;text-transform:uppercase;margin-bottom:2px">Withdrawable</div>' +
+                '<div style="'+MN+'font-size:12px;font-weight:700;color:#4ed68a">'+cur+withdrawable.toLocaleString()+'</div>' +
               '</div>'
-            ) : (
-              '<div style="display:flex;gap:8px;margin-top:7px">' +
-                '<div style="flex:1;background:'+_Cdiv+';border-radius:6px;padding:6px 8px;text-align:center">' +
-                  '<div style="'+MN+'font-size:7px;color:'+_CDim2+';letter-spacing:0.08em;text-transform:uppercase;margin-bottom:2px">To funded</div>' +
-                  '<div style="'+MN+'font-size:12px;font-weight:700;color:'+(progPct>=80?'#4ed68a':progPct>=50?'#f0bc4e':'rgba(255,255,255,0.5)')+'">'+progPct.toFixed(0)+'%</div>' +
-                '</div>' +
-                '<div style="flex:1;background:'+_Cdiv+';border-radius:6px;padding:6px 8px;text-align:center">' +
-                  '<div style="'+MN+'font-size:7px;color:'+_CDim2+';letter-spacing:0.08em;text-transform:uppercase;margin-bottom:2px">Profit</div>' +
-                  '<div style="'+MN+'font-size:12px;font-weight:700;color:'+progClr+'">'+profitDisp+'</div>' +
-                '</div>' +
+            :
+              '<div style="flex:1;background:'+_Cdiv+';border-radius:6px;padding:6px 8px;text-align:center">' +
+                '<div style="'+MN+'font-size:7px;color:'+_CDim2+';letter-spacing:0.08em;text-transform:uppercase;margin-bottom:2px">Target</div>' +
+                '<div style="'+MN+'font-size:12px;font-weight:700;color:rgba(255,255,255,0.6)">'+cur+targetUsd.toLocaleString()+'</div>' +
               '</div>'
-            )
-          ) : '') +
+            ) +
+            '<div style="flex:1;background:'+_Cdiv+';border-radius:6px;padding:6px 8px;text-align:center">' +
+              '<div style="'+MN+'font-size:7px;color:'+_CDim2+';letter-spacing:0.08em;text-transform:uppercase;margin-bottom:2px">This week</div>' +
+              '<div style="'+MN+'font-size:12px;font-weight:700;color:'+weeklyClr+'">'+weeklyDisp+'</div>' +
+            '</div>' +
+          '</div>' +
           // Phase toggle — only for Challenge accounts
           (acc.accountType !== 'OwnFund' ?
             '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:7px;padding-top:6px;border-top:1px solid '+_Cdiv+'">' +
@@ -8166,7 +8247,11 @@ function removeTrade(id) {
     if (t.saved) _updateAccountBalance(t, -1);
     window._tdSB.from('trades').delete().eq('id', t._sbId).then(function(res){
       if (res.error) console.warn('[removeTrade] DB delete error:', res.error.message);
-      else { console.log('[removeTrade] Deleted from DB:', t._sbId); if(window.renderAccountsPanel) renderAccountsPanel(); }
+      else {
+        console.log('[removeTrade] Deleted from DB:', t._sbId);
+        if (typeof _tdRefreshAllTradesCache === 'function') _tdRefreshAllTradesCache();
+        else if (window.renderAccountsPanel) renderAccountsPanel();
+      }
     });
   }
   var el = document.getElementById('tf-' + id);
@@ -17400,6 +17485,10 @@ async function tdlOnAuth(user) {
   // Pull trading accounts from the cloud (profiles.accounts) so they follow you
   // across browsers/devices instead of being stuck in this browser's localStorage
   pullAccountsFromCloud(_userId);
+  // Load full trade history once so account balances/weekly P&L can be computed
+  // fresh from source data instead of an incrementally-mutated stored number
+  // (the old approach drifted out of sync over time).
+  if (typeof _tdRefreshAllTradesCache === 'function') _tdRefreshAllTradesCache();
 
   // Override save + fetch BEFORE hiding login screen
   tdlPatchApp();
@@ -18052,6 +18141,8 @@ function tdlPatchApp() {
           if (_ins.data && _ins.data[0] && payload._stateRef) payload._stateRef._sbId = _ins.data[0].id;
           console.log('[supabase] Trade inserted');
         }
+        // Account balances/weekly P&L are derived from trade history — refresh the cache
+        if (typeof _tdRefreshAllTradesCache === 'function') _tdRefreshAllTradesCache();
 
       } else if (type === 'full_day') {
         var _dayRes = await sb.from('daily_summaries').upsert({
