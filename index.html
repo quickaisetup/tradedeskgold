@@ -6071,31 +6071,28 @@ function renderAccountsPanel() {
             'style="'+MN+'font-size:7px;text-transform:uppercase;letter-spacing:0.06em;color:'+_CDim2+';background:'+_Cdiv+';border:1px solid '+_CBd2+';border-radius:3px;padding:1px 5px;cursor:pointer;transition:all 0.15s;margin-bottom:4px" '+
             'onmouseover="this.style.color=\'var(--gold)\';this.style.borderColor=\'rgba(240,188,78,0.3)\'" '+
             'onmouseout="this.style.color=\''+_CDim2+'\';this.style.borderColor=\''+_CBd2+'\'">✎ edit</button>' +
-          // Progress bar — eval: toward profit target | funded: withdrawable
+          // Stats row: % to funded + weekly P&L
           (bal ? (
             isFunded ? (
-              '<div style="margin-top:7px">' +
-                '<div style="'+MN+'font-size:7px;letter-spacing:0.1em;text-transform:uppercase;color:'+_CDim2+';margin-bottom:4px">Withdrawable</div>' +
-                '<div style="position:relative;height:4px;background:'+_Cdiv+';border-radius:2px;overflow:hidden;margin-bottom:4px">' +
-                  '<div style="position:absolute;top:0;left:0;height:100%;width:'+withdrawPct.toFixed(1)+'%;background:#4ed68a;border-radius:2px;transition:width 0.5s ease"></div>' +
+              '<div style="display:flex;gap:8px;margin-top:7px">' +
+                '<div style="flex:1;background:'+_Cdiv+';border-radius:6px;padding:6px 8px;text-align:center">' +
+                  '<div style="'+MN+'font-size:7px;color:'+_CDim2+';letter-spacing:0.08em;text-transform:uppercase;margin-bottom:2px">Withdrawable</div>' +
+                  '<div style="'+MN+'font-size:12px;font-weight:700;color:#4ed68a">'+cur+withdrawable.toLocaleString()+'</div>' +
                 '</div>' +
-                '<div style="display:flex;justify-content:space-between;align-items:center">' +
-                  '<span style="'+MN+'font-size:7px;color:'+_CDim2+'">'+cur+'0</span>' +
-                  '<span style="'+MN+'font-size:9px;font-weight:700;color:#4ed68a">'+cur+withdrawable.toLocaleString()+'</span>' +
-                  '<span style="'+MN+'font-size:7px;color:'+_CDim2+'">'+cur+fmtK(targetUsd)+' max</span>' +
+                '<div style="flex:1;background:'+_Cdiv+';border-radius:6px;padding:6px 8px;text-align:center">' +
+                  '<div style="'+MN+'font-size:7px;color:'+_CDim2+';letter-spacing:0.08em;text-transform:uppercase;margin-bottom:2px">Profit</div>' +
+                  '<div style="'+MN+'font-size:12px;font-weight:700;color:'+progClr+'">'+profitDisp+'</div>' +
                 '</div>' +
               '</div>'
             ) : (
-              '<div style="margin-top:7px">' +
-                '<div style="position:relative;height:4px;background:'+_Cdiv+';border-radius:2px;overflow:hidden;margin-bottom:4px">' +
-                  '<div style="position:absolute;top:0;left:0;height:100%;width:'+progPct.toFixed(1)+'%;background:'+progClr+';border-radius:2px;transition:width 0.5s ease"></div>' +
+              '<div style="display:flex;gap:8px;margin-top:7px">' +
+                '<div style="flex:1;background:'+_Cdiv+';border-radius:6px;padding:6px 8px;text-align:center">' +
+                  '<div style="'+MN+'font-size:7px;color:'+_CDim2+';letter-spacing:0.08em;text-transform:uppercase;margin-bottom:2px">To funded</div>' +
+                  '<div style="'+MN+'font-size:12px;font-weight:700;color:'+(progPct>=80?'#4ed68a':progPct>=50?'#f0bc4e':'rgba(255,255,255,0.5)')+'">'+progPct.toFixed(0)+'%</div>' +
                 '</div>' +
-                '<div style="display:flex;justify-content:space-between;align-items:center">' +
-                  '<span style="'+MN+'font-size:7px;color:'+_CDim2+'">'+fmtK(size)+'</span>' +
-                  '<span style="'+MN+'font-size:9px;font-weight:700;color:'+progClr+'">' +
-                    cur+effectiveBal.toLocaleString()+' &nbsp;·&nbsp; '+progPct.toFixed(0)+'%' +
-                  '</span>' +
-                  '<span style="'+MN+'font-size:7px;color:'+_CDim2+'">'+fmtK(size+targetUsd)+'</span>' +
+                '<div style="flex:1;background:'+_Cdiv+';border-radius:6px;padding:6px 8px;text-align:center">' +
+                  '<div style="'+MN+'font-size:7px;color:'+_CDim2+';letter-spacing:0.08em;text-transform:uppercase;margin-bottom:2px">Profit</div>' +
+                  '<div style="'+MN+'font-size:12px;font-weight:700;color:'+progClr+'">'+profitDisp+'</div>' +
                 '</div>' +
               '</div>'
             )
@@ -20068,7 +20065,8 @@ function _wizRenderChoice(s, body) {
     choiceHeader.innerHTML =
       '<div style="font-size:24px;margin-bottom:2px">' + ch.icon + '</div>' +
       '<div style="font-family:var(--display);font-size:21px;color:#fff;letter-spacing:0.04em;margin-bottom:3px">' + ch.title + '</div>' +
-      '<div style="font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.4);line-height:1.6;max-width:440px;margin:0 auto">' + ch.text + '</div>';
+      '<div style="font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.4);line-height:1.6;max-width:440px;margin:0 auto">' + ch.text + '</div>' +
+      '<button onclick="wizShowStep()" style="margin-top:8px;font-family:var(--mono);font-size:8px;color:rgba(255,255,255,0.3);background:transparent;border:1px solid rgba(255,255,255,0.1);border-radius:5px;padding:4px 12px;cursor:pointer;transition:all 0.15s;letter-spacing:0.04em" onmouseover="this.style.color=\'#fff\';this.style.borderColor=\'rgba(255,255,255,0.25)\'" onmouseout="this.style.color=\'rgba(255,255,255,0.3)\';this.style.borderColor=\'rgba(255,255,255,0.1)\'">↻ Refresh charts</button>';
     wrap.appendChild(choiceHeader);
   }
 
@@ -20280,7 +20278,10 @@ function _wizRenderLevels(s, body) {
       '<span style="font-family:var(--mono);font-size:7px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.25);flex-shrink:0">👥</span>' +
       clPills +
     '</div>' +
-    '<div style="font-family:var(--display);font-size:13px;color:rgba(255,255,255,0.3);letter-spacing:0.04em;padding-right:20px;flex-shrink:0">📌 KEY LEVELS</div>';
+    '<div style="display:flex;align-items:center;gap:8px;padding-right:20px;flex-shrink:0">' +
+      '<button onclick="if(typeof initTVChart===\'function\')initTVChart(true)" style="font-family:var(--mono);font-size:8px;color:rgba(255,255,255,0.3);background:transparent;border:1px solid rgba(255,255,255,0.1);border-radius:5px;padding:4px 10px;cursor:pointer;transition:all 0.15s" onmouseover="this.style.color=\'#fff\';this.style.borderColor=\'rgba(255,255,255,0.25)\'" onmouseout="this.style.color=\'rgba(255,255,255,0.3)\';this.style.borderColor=\'rgba(255,255,255,0.1)\'">↻</button>' +
+      '<span style="font-family:var(--display);font-size:13px;color:rgba(255,255,255,0.3);letter-spacing:0.04em">📌 KEY LEVELS</span>' +
+    '</div>';
   body.appendChild(levelsHeader);
   // Sync entries for hover cards
   window._klAllEntries = window._wizKlEntries;
