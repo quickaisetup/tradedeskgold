@@ -17961,8 +17961,10 @@ function profShowOk(msg) {
 // ── SIGN OUT ──────────────────────────────────────────
 window.tdlSignOut = async function() {
   try { await getSB().auth.signOut(); } catch(e) {}
-  // Clear ALL app data from localStorage to prevent data leaking between accounts
-  Object.keys(localStorage).filter(function(k){ return k.startsWith('td_') || k.startsWith('ptg_'); }).forEach(function(k){ localStorage.removeItem(k); });
+  // Clear ALL app data + Supabase auth from localStorage
+  Object.keys(localStorage).filter(function(k){
+    return k.startsWith('td_') || k.startsWith('ptg_') || k.startsWith('sb-') || k.startsWith('supabase');
+  }).forEach(function(k){ localStorage.removeItem(k); });
   _user = null; _userId = null;
   // Reset top-down save/gate state for a fresh session
   window._morningSaved = false;
