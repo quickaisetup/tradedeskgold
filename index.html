@@ -20853,8 +20853,20 @@ function tjOpen() {
   var btn = document.getElementById('tj-analyze-btn'); if (btn) { btn.style.display = ''; btn.disabled = false; btn.innerHTML = '✨ Analyze with AI (one-time)'; btn.style.opacity = ''; }
   document.querySelectorAll('.tj-tab').forEach(function(t){ t.style.display = ''; });
 
-  // If insights already exist, show them instead of upload
+  // If insights already exist (localStorage or Supabase), show them instead of upload
   var existing = localStorage.getItem('td_trading_insights');
+  if (!existing) {
+    // Try loading from Supabase
+    var _sb = window._tdSB; var _uid = localStorage.getItem('td_user_id');
+    if (_sb && _uid) {
+      _sb.from('profiles').select('trading_insights').eq('id', _uid).single().then(function(r) {
+        if (r.data && r.data.trading_insights && r.data.trading_insights.summary) {
+          localStorage.setItem('td_trading_insights', JSON.stringify(r.data.trading_insights));
+          tjOpen(); // Re-open with data now loaded
+        }
+      });
+    }
+  }
   if (existing) {
     try {
       var p = JSON.parse(existing);
