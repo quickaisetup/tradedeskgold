@@ -20857,15 +20857,30 @@ function tjOpen() {
   // If insights already exist (localStorage or Supabase), show them instead of upload
   var existing = localStorage.getItem('td_trading_insights');
   if (!existing) {
-    // Try loading from Supabase
+    // Try loading from Supabase — show loading state while fetching
     var _sb = window._tdSB; var _uid = localStorage.getItem('td_user_id');
     if (_sb && _uid) {
+      // Show a loading indicator
+      if (resultEl) { resultEl.style.display = ''; }
+      if (bodyEl) { bodyEl.innerHTML = '<div style="text-align:center;padding:20px"><div style="font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.3)">Checking for saved insights...</div></div>'; }
+      if (fileArea) fileArea.style.display = 'none';
+      document.querySelectorAll('.tj-tab').forEach(function(t){ t.style.display = 'none'; });
+      if (btn) btn.style.display = 'none';
+
       _sb.from('profiles').select('trading_insights').eq('id', _uid).single().then(function(r) {
         if (r.data && r.data.trading_insights && r.data.trading_insights.summary) {
           localStorage.setItem('td_trading_insights', JSON.stringify(r.data.trading_insights));
           tjOpen(); // Re-open with data now loaded
+        } else {
+          // No insights anywhere — show normal upload UI
+          if (fileArea) fileArea.style.display = '';
+          document.querySelectorAll('.tj-tab').forEach(function(t){ t.style.display = ''; });
+          if (btn) { btn.style.display = ''; }
+          if (resultEl) resultEl.style.display = 'none';
         }
       });
+      document.getElementById('tj-overlay').classList.add('show');
+      return; // Don't continue — async will handle it
     }
   }
   if (existing) {
