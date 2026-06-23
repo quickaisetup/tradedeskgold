@@ -13598,6 +13598,7 @@ function _tdChartTitleFor(name) {
 
 var _tvChartCreated = false;
 var _tvChartInstrument = null;
+var _tvShowDrawingTools = false;
 function initTVChart(forceInstrument) {
   // Guard: create the TradingView widget only once per page load UNLESS the
   // instrument has changed (tab switch) — in that case force a full rebuild.
@@ -13639,7 +13640,7 @@ function initTVChart(forceInstrument) {
     gridColor: document.body.classList.contains('light-mode') ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.04)',
     hide_top_toolbar: false, hide_legend: true,
     allow_symbol_change: false, save_image: false,
-    hide_side_toolbar: true,
+    hide_side_toolbar: !_tvShowDrawingTools,
     hide_volume: true,
     studies: [
       // NOTE: the widget appears to silently cap how many auto-loaded studies
@@ -19414,6 +19415,12 @@ function wizReturnAll() {
   var hc = document.getElementById('kl-hover-card');
   if (hc && hc.closest('#wiz-overlay')) document.body.appendChild(hc);
   if (hc) hc.classList.remove('show');
+  // Rebuild chart without drawing tools if they were enabled
+  if (_tvShowDrawingTools) {
+    _tvShowDrawingTools = false;
+    _tvChartCreated = false;
+    setTimeout(function() { if (typeof initTVChart === 'function') initTVChart(true); }, 200);
+  }
 }
 
 function wizShowStep() {
@@ -20268,6 +20275,11 @@ function _wizUpdateLevelPills() {
 function _wizRenderLevels(s, body) {
   body.style.padding = '0';
   body.style.alignItems = 'stretch';
+
+  // Enable drawing tools for Key Levels chart
+  _tvShowDrawingTools = true;
+  _tvChartCreated = false;
+  if (typeof initTVChart === 'function') initTVChart(true);
 
   var lvScoreEl = document.getElementById('score-num');
   var lvVtEl = document.getElementById('vt-main');
