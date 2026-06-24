@@ -18728,15 +18728,30 @@ window.diagTrades = async function() {
   var sb = window._tdSB;
   if (!uid || !sb) { console.error('[diag] Not logged in'); return; }
   var today = _tdTodayBKK();
-  console.log('[diag] uid:', uid, '| today (BKK):', today);
-  // Fetch ALL trades (no date filter)
-  var all = await sb.from('trades').select('id,date,direction,result,instrument').eq('user_id', uid).order('date', {ascending:false}).limit(50);
-  console.log('[diag] ALL trades in DB (last 50):', all.error || all.data);
-  // Fetch today's trades
-  var tod = await sb.from('trades').select('id,date,direction,result').eq('user_id', uid).eq('date', today);
-  console.log('[diag] Trades for today (' + today + '):', tod.error || tod.data);
-  // State
-  console.log('[diag] state.trades in UI:', state.trades.length, 'items, saved:', state.trades.filter(function(t){return t.saved;}).length);
+  var wkKey = _tdWeekStartKey();
+  console.log('[diag] uid:', uid, '| today:', today, '| week start:', wkKey);
+  var all = await sb.from('trades').select('date,account,direction,result,r_achieved,risk_pct,usd_achieved').eq('user_id', uid).gte('date', wkKey).order('date', {ascending:true}).order('created_at', {ascending:true});
+  if (all.error) { console.error('[diag] query error:', all.error.message); return; }
+  var trades = all.data || [];
+  console.log('[diag] This week trades (' + wkKey + ' → ' + today + '):', trades.length);
+  console.table(trades.map(function(t) {
+    var usd = parseFloat(t.usd_achieved) || 0;
+    if (!usd && t.r_achieved && t.risk_pct) usd = parseFloat(t.r_achieved) * (parseFloat(t.risk_pct)/100) * 100000;
+    var signed = t.result === 'Loss' ? -Math.abs(usd) : Math.abs(usd);
+    return { date: t.date, account: t.account, dir: t.direction, result: t.result, R: t.r_achieved, risk: t.risk_pct, usd_db: t.usd_achieved, usd_calc: Math.round(signed) };
+  }));
+  var byAcct = {};
+  trades.forEach(function(t) {
+    var a = t.account || 'no-account';
+    var usd = parseFloat(t.usd_achieved) || 0;
+    if (!usd && t.r_achieved && t.risk_pct) usd = parseFloat(t.r_achieved) * (parseFloat(t.risk_pct)/100) * 100000;
+    var signed = t.result === 'Loss' ? -Math.abs(usd) : Math.abs(usd);
+    byAcct[a] = (byAcct[a]||0) + signed;
+  });
+  console.log('[diag] Weekly USD by account:', byAcct);
+  console.log('[diag] UI state.trades:', state.trades.filter(function(t){return t.saved;}).length, 'saved');
+  console.log('[diag] _tdAllTradesCache:', window._tdAllTradesCache ? window._tdAllTradesCache.length + ' trades' : 'NOT LOADED');
+  console.log('[diag] Accounts:', _tdAccounts.map(function(a){ return a.name + ' (size:'+a.size+', bal:'+a.balance+')'; }));
 };
 
 // ── ACCOUNT BALANCE/WEEKLY-P&L DIAGNOSTIC (call window.diagAccounts() in console) ──
