@@ -6005,11 +6005,9 @@ function acctToggleSizeEdit(id) {
 function calcTodayPnl() {
   // When viewing yesterday's session, don't count those trades as today's P&L
   if (window._viewingYesterday) return { total: 0, funded: 0, hasTrades: false };
-  var dbTrades = window._tdTodayTrades || [];
-  // Always fall back to saved UI trades when DB has no results — covers the case
-  // where Supabase hasn't synced yet or trades were restored from localStorage.
   var uiSaved = (state && state.trades) ? state.trades.filter(function(t){ return t.saved; }) : [];
-  var tradeSrc = dbTrades.length ? dbTrades : uiSaved;
+  var dbTrades = window._tdTodayTrades || [];
+  var tradeSrc = uiSaved.length ? uiSaved : dbTrades;
   if (!tradeSrc.length) return { total: 0, funded: 0, hasTrades: false };
 
   var fundedNames = _tdAccounts.filter(function(a){ return a.phase==='Funded'; }).map(function(a){ return a.name||a.id; });
@@ -6177,10 +6175,10 @@ function renderAccountsPanel() {
   }
   // Use DB trades if available, otherwise fall back to saved UI trades
   // When viewing yesterday's session, show $0 per account (those aren't today's trades)
+  var _uiSaved2 = (state && state.trades) ? state.trades.filter(function(t){ return t.saved; }) : [];
   var _perAcctSrc = window._viewingYesterday ? [] :
-    ((window._tdTodayTrades && window._tdTodayTrades.length)
-      ? window._tdTodayTrades
-      : (state && state.trades ? state.trades.filter(function(t){ return t.saved; }) : []));
+    (_uiSaved2.length ? _uiSaved2
+      : (window._tdTodayTrades && window._tdTodayTrades.length ? window._tdTodayTrades : []));
   _perAcctSrc.forEach(function(t) {
     var r    = parseFloat(t.r_achieved !== undefined ? t.r_achieved : t.rAchieved)||0;
     var rp   = parseFloat(t.risk_pct   !== undefined ? t.risk_pct   : t.riskPct)||BASE_RISK_PCT;
