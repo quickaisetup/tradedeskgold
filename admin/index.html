@@ -1457,7 +1457,7 @@ function renderAnalysis() {
       levelsHtml = '<div class="tc-detail-section">' +
         '<div style="font-family:var(--mono);font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px">Key Levels</div>' +
         '<div style="display:flex;flex-direction:column;gap:8px">' +
-          lvls.map(function(lv){ return priceLadderCard(null, lv, true); }).join('') +
+          lvls.map(function(lv){ return priceLadderCard(null, lv, true, morning.user_id); }).join('') +
         '</div>' +
       '</div>';
     }
@@ -1733,7 +1733,8 @@ function perfRow(lbl, val, color) {
 // Shared renderer used by Key Levels page and the Analysis card expand section.
 // Long: TP (green, top) → ENTRY (white, mid) → SL (red, bottom)
 // Short: SL (red, top) → ENTRY (white, mid) → TP (green, bottom)
-function priceLadderCard(trader, lv, compact) {
+function priceLadderCard(trader, lv, compact, ownerId) {
+  ownerId = ownerId || (trader && trader.id);
   var isLong  = (lv.direction || lv.type || '').toLowerCase() === 'long';
   var clr     = isLong ? 'var(--green)' : 'var(--red)';
   var bg      = isLong ? 'rgba(78,214,138,0.06)' : 'rgba(240,96,96,0.06)';
@@ -1804,8 +1805,15 @@ function priceLadderCard(trader, lv, compact) {
     ? '<div style="font-size:10px;color:var(--text3);font-style:italic;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + lv.notes + '</div>'
     : '';
 
-  return '<div style="background:' + bg + ';border:1px solid ' + br + ';border-radius:10px;padding:' + (compact ? '10px 12px' : '12px 14px') + '">' +
-    header +
+  var delBtn = (ownerId && lv.id !== undefined && lv.id !== null)
+    ? '<button onclick="admDeleteLevel(\''+ownerId+'\','+JSON.stringify(lv.id)+',this)" title="Delete this level from Supabase — permanent, for this trader too" style="margin-left:6px;flex-shrink:0;font-family:var(--mono);font-size:9px;color:rgba(248,113,113,0.55);background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);border-radius:6px;width:22px;height:22px;cursor:pointer;line-height:1;display:flex;align-items:center;justify-content:center;transition:all 0.15s" onmouseover="this.style.background=\'rgba(248,113,113,0.22)\';this.style.color=\'#f87171\'" onmouseout="this.style.background=\'rgba(248,113,113,0.08)\';this.style.color=\'rgba(248,113,113,0.55)\'">✕</button>'
+    : '';
+
+  return '<div style="background:' + bg + ';border:1px solid ' + br + ';border-radius:10px;padding:' + (compact ? '10px 12px' : '12px 14px') + ';position:relative">' +
+    '<div style="display:flex;align-items:flex-start">' +
+      '<div style="flex:1;min-width:0">' + header + '</div>' +
+      delBtn +
+    '</div>' +
     '<div style="display:flex;gap:10px">' +
       '<div style="width:2px;border-radius:2px;background:' + barGrad + ';flex-shrink:0"></div>' +
       '<div style="flex:1">' +
@@ -1817,6 +1825,40 @@ function priceLadderCard(trader, lv, compact) {
     conf + notes +
   '</div>';
 }
+
+// ── ADMIN: DELETE A SPECIFIC TRADER'S KEY LEVEL ──────────────────────────
+// Removes one level from levels_json on EVERY morning_analysis row that
+// trader has (the main app keeps the same full levels array synced across
+// all of a trader's rows, not just today's), so this deletes it for them
+// permanently — not just hidden from the admin's own view.
+async function admDeleteLevel(traderId, levelId, btn) {
+  if (!confirm('Delete this key level from Supabase?\n\nThis removes it permanently for this trader too — not just from your admin view.')) return;
+  if (btn) { btn.disabled = true; btn.style.opacity = '0.5'; btn.textContent = '…'; }
+  try {
+    var sb = getSB();
+    if (!sb) throw new Error('Not connected to Supabase');
+    var rows = (_allData && _allData.mornings || []).filter(function(m) { return m.user_id === traderId && m.levels_json; });
+    var touched = 0;
+    for (var i = 0; i < rows.length; i++) {
+      var row = rows[i];
+      var lvls = [];
+      try { lvls = JSON.parse(row.levels_json || '[]'); } catch(e) { continue; }
+      if (!lvls.some(function(l){ return l.id === levelId; })) continue;
+      var filtered = lvls.filter(function(l){ return l.id !== levelId; });
+      var newJson = JSON.stringify(filtered);
+      var upd = await sb.from('morning_analysis').update({ levels_json: newJson }).eq('user_id', traderId).eq('date', row.date);
+      if (upd.error) { console.warn('[admin] delete level failed for', row.date, upd.error.message); continue; }
+      row.levels_json = newJson; // keep local cache in sync so re-render reflects it
+      touched++;
+    }
+    if (!touched) console.warn('[admin] Level', levelId, 'not found in any row for trader', traderId);
+    renderLevelsPage();
+  } catch(e) {
+    alert('Delete failed: ' + e.message);
+    if (btn) { btn.disabled = false; btn.style.opacity = ''; btn.textContent = '✕'; }
+  }
+}
+window.admDeleteLevel = admDeleteLevel;
 
 // ── PAGE SWITCHING ─────────────────────────────────────────────────────────
 function showPage(name, btn) {
