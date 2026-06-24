@@ -5882,22 +5882,41 @@ function _tdWeekStartKey() {
   return wk.getFullYear() + '-' + ('0'+(wk.getMonth()+1)).slice(-2) + '-' + ('0'+wk.getDate()).slice(-2);
 }
 
-// Returns { balance, weeklyUsd } for one account, derived from the cached trade
-// history. Returns null if the cache hasn't loaded yet (caller should fall back).
 function _tdComputeAccountStats(acc) {
-  var all = window._tdAllTradesCache;
-  if (!all) return null;
-  var size = parseFloat(acc.size) || 100000;
   var wkKey = _tdWeekStartKey();
-  var totalUsd = 0, weeklyUsd = 0;
-  all.forEach(function(t) {
-    if (!_tdTradeMatchesAccount(t, acc)) return;
-    var usd = _tdTradeUsdForAccount(t, acc);
-    totalUsd += usd;
-    var dk = String(t.date || '').slice(0, 10);
-    if (dk >= wkKey) weeklyUsd += usd;
-  });
-  return { balance: Math.round(size + totalUsd), weeklyUsd: Math.round(weeklyUsd) };
+  var weeklyUsd = 0;
+  // Sum from DB trade cache
+  var all = window._tdAllTradesCache;
+  if (all) {
+    all.forEach(function(t) {
+      if (!_tdTradeMatchesAccount(t, acc)) return;
+      var dk = String(t.date || '').slice(0, 10);
+      if (dk >= wkKey) weeklyUsd += _tdTradeUsdForAccount(t, acc);
+    });
+  }
+  // Also add today's UI trades (may not be in cache yet)
+  var todayISO = typeof _tdTodayBKK === 'function' ? _tdTodayBKK() : '';
+  if (todayISO >= wkKey && state && state.trades) {
+    var dbIds = {};
+    if (all) all.forEach(function(t){ if (t.id) dbIds[t.id] = true; });
+    state.trades.forEach(function(t) {
+      if (!t.saved || (t._sbId && dbIds[t._sbId])) return;
+      var acctStr = t.account || '';
+      var n = (acc.name || acc.id || '').toLowerCase();
+      var a = acctStr.toLowerCase();
+      if (!(a.indexOf(n) > -1 || n.indexOf(a) > -1 ||
+        (a.indexOf('1-step') > -1 && n.indexOf('1-step') > -1) ||
+        (a.indexOf('2-step') > -1 && n.indexOf('2-step') > -1) ||
+        (a.indexOf('b 1') > -1 && n.indexOf('1-step') > -1) ||
+        (a.indexOf('b 2') > -1 && n.indexOf('2-step') > -1))) return;
+      var usd = parseFloat(t.usdAchieved) || 0;
+      if (!usd && t.rAchieved && t.riskPct) {
+        usd = parseFloat(t.rAchieved) * (parseFloat(t.riskPct) / 100) * (parseFloat(acc.size) || 100000);
+      }
+      weeklyUsd += (t.result === 'Loss') ? -Math.abs(usd) : Math.abs(usd);
+    });
+  }
+  return { weeklyUsd: Math.round(weeklyUsd) };
 }
 
 function addTradingAccount() {
@@ -5992,7 +6011,6 @@ function acctToggleSizeEdit(id) {
     var v = parseFloat(inp.value)||0;
     if (v) {
       updateAccount(id,'balance',v);
-      if (!acc.size) updateAccount(id,'size',v);
     }
     renderAccountsPanel();
   } else {
