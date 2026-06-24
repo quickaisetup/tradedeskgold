@@ -13943,9 +13943,7 @@ async function loadTodayFromSheets() {
       var sb = window._tdSB;
       if (!sb) { var _lib = window.supabase||window.Supabase; if(_lib){sb=_lib.createClient('https://knbiytgrfzfqitibfxdv.supabase.co','sb_publishable_qjM-yWWxlTTMM0eTnlQyRA_zMYhXStv');window._tdSB=sb;} }
       if (!sb) return;
-      var _nowUtc = new Date();
-      var _bkk    = _tzNow();
-      var _todayISO = _bkk.getFullYear()+'-'+('0'+(_bkk.getMonth()+1)).slice(-2)+'-'+('0'+_bkk.getDate()).slice(-2);
+      var _todayISO = _tdTodayBKK();
       var _tRes   = await sb.from('trades').select('result,r_achieved,risk_pct,account,usd_achieved').eq('user_id',uid).eq('date',_todayISO);
       var _todayT = _tRes.data||[];
       window._tdTodayTrades = _todayT; // expose for calcTodayPnl
