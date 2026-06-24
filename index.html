@@ -752,12 +752,12 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 .lb-strip-title{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);font-weight:700}
 .lb-strip-title::before{content:'';width:3px;height:9px;border-radius:2px;background:var(--gold);opacity:0.6;display:inline-block}
 /* column header row */
-.lb-col-head{display:grid;grid-template-columns:28px 36px 1fr 90px 90px 60px;align-items:center;gap:0;padding:9px 16px 7px;border-bottom:1px solid rgba(255,255,255,0.05)}
+.lb-col-head{display:grid;grid-template-columns:28px 36px 1fr 80px 80px 80px 50px;align-items:center;gap:0;padding:9px 16px 7px;border-bottom:1px solid rgba(255,255,255,0.05)}
 .lb-col-lbl{font-family:var(--mono);font-size:7px;letter-spacing:0.14em;text-transform:uppercase;color:var(--text3)}
 .lb-col-lbl.right{text-align:right}
 /* table rows */
 .lb-row{display:flex;flex-direction:column}
-.lb-card{display:grid;grid-template-columns:28px 36px 1fr 90px 90px 60px;align-items:center;gap:0;padding:10px 16px;border-bottom:1px solid rgba(255,255,255,0.04);transition:background .12s;cursor:default}
+.lb-card{display:grid;grid-template-columns:28px 36px 1fr 80px 80px 80px 50px;align-items:center;gap:0;padding:10px 16px;border-bottom:1px solid rgba(255,255,255,0.04);transition:background .12s;cursor:default}
 .lb-card:last-child{border-bottom:none}
 .lb-card:hover{background:rgba(255,255,255,0.025)}
 .lb-card.me{background:rgba(240,188,78,0.045)}
@@ -2646,8 +2646,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 
   /* ── LEADERBOARD ── */
   .lb-strip{margin-bottom:10px}
-  .lb-col-head{grid-template-columns:24px 32px 1fr 72px 72px 44px;padding:7px 12px 6px}
-  .lb-card{grid-template-columns:24px 32px 1fr 72px 72px 44px;padding:9px 12px}
+  .lb-col-head{grid-template-columns:24px 32px 1fr 60px 60px 60px 36px;padding:7px 12px 6px}
+  .lb-card{grid-template-columns:24px 32px 1fr 60px 60px 60px 36px;padding:9px 12px}
   .lb-cell{font-size:11px}
   .lb-avatar{width:26px;height:26px;font-size:8px}
   .lb-name{font-size:11px}
@@ -3901,6 +3901,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
       <div class="lb-col-lbl">Trader</div>
       <div class="lb-col-lbl right">Today</div>
       <div class="lb-col-lbl right">This Week</div>
+      <div class="lb-col-lbl right">Month Est.</div>
       <div class="lb-col-lbl right">Streak</div>
     </div>
     <div class="lb-row" id="lb-row">
@@ -3910,6 +3911,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
         <div class="lb-trader"><span class="lb-name">@jmarlow_fx</span><span class="lb-tag">Legend</span></div>
         <div class="lb-cell" style="color:#4ed68a">+$1,240</div>
         <div class="lb-cell" style="color:#4ed68a">+$6,820</div>
+        <div class="lb-cell" style="color:#4ed68a">+$12k</div>
         <div class="lb-cell neutral">21d</div>
       </div>
       <div class="lb-card">
@@ -3918,6 +3920,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
         <div class="lb-trader"><span class="lb-name">@reyna_v</span><span class="lb-tag" style="color:#4ed68a;background:rgba(78,214,138,0.12);border-color:rgba(78,214,138,0.25)">Elite</span></div>
         <div class="lb-cell" style="color:#4ed68a">+$860</div>
         <div class="lb-cell" style="color:#4ed68a">+$4,930</div>
+        <div class="lb-cell" style="color:#4ed68a">+$9k</div>
         <div class="lb-cell neutral">18d</div>
       </div>
       <div class="lb-card">
@@ -3926,6 +3929,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
         <div class="lb-trader"><span class="lb-name">@tkimura</span><span class="lb-tag" style="color:#4ed68a;background:rgba(78,214,138,0.12);border-color:rgba(78,214,138,0.25)">Elite</span></div>
         <div class="lb-cell" style="color:#4ed68a">+$540</div>
         <div class="lb-cell" style="color:#4ed68a">+$4,180</div>
+        <div class="lb-cell" style="color:#4ed68a">+$7k</div>
         <div class="lb-cell neutral">16d</div>
       </div>
     </div>
@@ -17575,14 +17579,17 @@ function lbCardHtml(row, rank, isMe) {
   var meTag = isMe ? '<span class="lb-tag green">You</span>' : '';
   var yest = lbFmtUsd(row.yesterday_pnl);
   var week = lbFmtUsd(row.week_pnl);
+  var month = row.month_est != null ? lbFmtUsd(row.month_est) : '—';
   var yestColor = (Number(row.yesterday_pnl)||0) < 0 ? '#f06060' : '#4ed68a';
   var weekColor = (Number(row.week_pnl)||0) < 0 ? '#f06060' : '#4ed68a';
+  var monthColor = (Number(row.month_est)||0) < 0 ? '#f06060' : (Number(row.month_est)||0) > 0 ? '#4ed68a' : 'var(--text3)';
   return '<div class="lb-card' + rank1Cls + (isMe ? ' me' : '') + '">'
     + '<div class="lb-rank ' + rankCls + '">#' + rank + '</div>'
     + '<div class="lb-avatar" style="background:' + (row.avatar_url ? 'transparent' : color) + ';overflow:hidden">' + avatarInner + '</div>'
     + '<div class="lb-trader"><span class="lb-name">' + displayName + '</span>' + meTag + tierTag + '</div>'
     + '<div class="lb-cell" style="color:' + yestColor + '">' + yest + '</div>'
     + '<div class="lb-cell" style="color:' + weekColor + '">' + week + '</div>'
+    + '<div class="lb-cell" style="color:' + monthColor + '">' + month + '</div>'
     + '<div class="lb-cell neutral">' + score + 'd</div>'
     + '</div>';
 }
@@ -17618,8 +17625,13 @@ function renderLeaderboard(rows) {
     var liveWeek = palWeekUsd !== null ? palWeekUsd + todayExtra : dbWeek + todayExtra;
     live.week_pnl = liveWeek;
 
+    // Monthly estimate from PAL cache
+    var pal3 = window._tdPalCache || {};
+    live.month_est = typeof pal3.monthlyUsd === 'number' ? pal3.monthlyUsd : null;
+
     console.log('[leaderboard] MY ROW patch — DB today:', dbToday, '→ live:', liveToday,
       '| DB week:', dbWeek, '→ live:', liveWeek,
+      '| month est:', live.month_est,
       '| calcTodayPnl:', typeof calcTodayPnl === 'function' ? JSON.stringify(calcTodayPnl()) : 'n/a');
     return live;
   });
@@ -17631,7 +17643,7 @@ function renderLeaderboard(rows) {
   patchedRows.slice(0, 3).forEach(function(r, i) { html += lbCardHtml(r, i + 1, r.user_id === _userId); });
   wrap.innerHTML = html;
   var metaEl = document.getElementById('lb-meta');
-  if (metaEl) metaEl.textContent = rows.length + ' traders · today & weekly P&L';
+  if (metaEl) metaEl.textContent = rows.length + ' traders · today, weekly & monthly P&L';
 }
 async function loadLeaderboard() {
   try {
