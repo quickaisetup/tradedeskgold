@@ -6247,7 +6247,7 @@ function renderAccountsPanel() {
           '</div>' +
           // Hidden edit row (account size only — balance is derived from trade history)
           '<span id="acct-size-disp-'+acc.id+'" style="display:none">'+fmtK(size)+'</span>' +
-          '<input id="acct-size-inp-'+acc.id+'" type="number" min="0" step="10000" style="display:none;width:1px" ' +
+          '<input id="acct-size-inp-'+acc.id+'" type="number" min="0" step="10000" style="display:none;width:100%;max-width:160px;background:var(--bg3);border:1px solid rgba(240,188,78,0.3);border-radius:5px;color:var(--text);font-family:var(--mono);font-size:14px;padding:6px 10px;margin:4px 0;outline:none" ' +
             'onkeydown="if(event.key===\'Enter\')acctToggleSizeEdit(\''+acc.id+'\')">' +
           '<button id="acct-size-btn-'+acc.id+'" onclick="acctToggleSizeEdit(\''+acc.id+'\')" '+
             'style="'+MN+'font-size:7px;text-transform:uppercase;letter-spacing:0.06em;color:'+_CDim2+';background:'+_Cdiv+';border:1px solid '+_CBd2+';border-radius:3px;padding:1px 5px;cursor:pointer;transition:all 0.15s;margin-bottom:4px" '+
