@@ -5980,22 +5980,25 @@ function fmtUsd(n) {
   return '$' + Math.abs(Math.round(n)).toLocaleString();
 }
 function acctToggleSizeEdit(id) {
-  // Note: balance is no longer manually editable here — it's derived from
-  // trade history (size + sum of matched trades' $), so editing it directly
-  // would just get overwritten on the next render. Only account size + profit
-  // target are user-editable.
   var disp    = document.getElementById('acct-size-disp-'+id);
   var inp     = document.getElementById('acct-size-inp-'+id);
   var btn     = document.getElementById('acct-size-btn-'+id);
   if (!disp||!inp) return;
+  var acc = _tdAccounts.find(function(a){return a.id===id;}) || {};
   var editing = inp.style.display !== 'none';
   if (editing) {
-    var v = parseFloat(inp.value)||0;
-    if (v) updateAccount(id,'size',v);
+    var desired = parseFloat(inp.value)||0;
+    if (desired) {
+      var computed = _tdComputeAccountStats(acc);
+      var totalUsd = computed ? (computed.balance - (parseFloat(acc.size)||100000)) : 0;
+      var newSize = Math.round(desired - totalUsd);
+      updateAccount(id,'size',newSize);
+    }
     renderAccountsPanel();
   } else {
-    var acc = _tdAccounts.find(function(a){return a.id===id;}) || {};
-    inp.value = acc.size||100000;
+    var computed2 = _tdComputeAccountStats(acc);
+    var curBal = computed2 ? computed2.balance : (parseFloat(acc.balance) || parseFloat(acc.size) || 100000);
+    inp.value = curBal;
     inp.style.display=''; disp.style.display='none';
     if(btn){btn.textContent='Save';btn.style.color='var(--green)';}
     inp.focus(); inp.select();
