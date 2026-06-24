@@ -796,8 +796,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 .ai-dot:nth-child(3){animation-delay:0.4s}
 @keyframes pulse{0%,100%{opacity:0.3}50%{opacity:1}}
 @keyframes expPulse{0%,100%{box-shadow:0 0 0 0 rgba(240,188,78,0.5)}60%{box-shadow:0 0 0 7px rgba(240,188,78,0)}}
-.td-explainer{display:none!important}
-.wt-banner{display:none!important}
+.td-explainer{background:rgba(240,188,78,0.08);border:1px solid rgba(240,188,78,0.35);border-left:3px solid var(--gold);border-radius:8px;padding:12px 14px 10px;margin-bottom:14px;position:relative;cursor:default}
 .td-explainer-body{font-family:var(--sans);font-size:12px;color:rgba(255,255,255,0.85);line-height:1.55;padding-right:36px}
 .td-explainer-body b{color:#f0bc4e;font-weight:600}
 .td-explainer-body ul{margin:6px 0 0 0;padding-left:14px;list-style:none}
@@ -920,7 +919,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 .wt-section-active{outline:2px solid rgba(240,188,78,0.5)!important;outline-offset:4px;border-radius:6px;animation:wtPulse 2s ease-in-out infinite}
 /* ── Session Start Splash ── */
 #session-splash{position:fixed;inset:0;z-index:19999;
-  background:radial-gradient(ellipse at 50% 20%,#0c1020 0%,#040608 70%);
+  background:#040507;
   display:none;align-items:center;justify-content:center;
   animation:splashIn 0.6s ease both}
 #session-splash.show{display:flex}
@@ -930,45 +929,45 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 @keyframes splashIn{from{opacity:0;transform:scale(0.98)}to{opacity:1;transform:scale(1)}}
 @keyframes splashOut{from{opacity:1}to{opacity:0}}
 #session-splash-inner{display:grid;
-  grid-template-columns:1fr 380px;
+  grid-template-columns:1fr 400px;
   grid-template-areas:"left card" "btns card";
-  column-gap:56px;row-gap:16px;align-items:center;
+  column-gap:64px;row-gap:20px;align-items:start;
   padding:48px 72px;max-width:1000px;width:100%}
-#splash-left{grid-area:left;display:flex;flex-direction:column;align-items:flex-start;gap:16px;text-align:left}
+#splash-left{grid-area:left;display:flex;flex-direction:column;align-items:flex-start;gap:20px;text-align:left}
 #splash-btns{grid-area:btns;display:flex;flex-direction:column;gap:10px}
-#session-splash-date{font-family:var(--mono);font-size:9px;letter-spacing:0.28em;
-  text-transform:uppercase;color:rgba(240,188,78,0.6);
-  border:1px solid rgba(240,188,78,0.2);border-radius:20px;padding:5px 16px;
-  background:rgba(240,188,78,0.06);display:inline-block}
-#session-splash-title{font-family:var(--display);font-size:48px;letter-spacing:0.04em;
-  color:#fff;line-height:1.1;text-align:left}
-#session-splash-sub{font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.35);
-  letter-spacing:0.04em;line-height:1.7;text-align:left;max-width:340px}
-#session-splash-btn{padding:18px 40px;font-family:var(--display);
-  font-size:17px;letter-spacing:0.12em;text-transform:uppercase;
-  background:linear-gradient(135deg,rgba(240,188,78,0.18),rgba(240,188,78,0.06));
-  border:1.5px solid rgba(240,188,78,0.5);border-radius:14px;color:var(--gold);
+#session-splash-date{font-family:var(--mono);font-size:10px;letter-spacing:0.28em;
+  text-transform:uppercase;color:rgba(240,188,78,0.5);
+  border:1px solid rgba(240,188,78,0.15);border-radius:20px;padding:5px 14px;
+  background:rgba(240,188,78,0.04);display:inline-block}
+#session-splash-title{font-family:var(--display);font-size:56px;letter-spacing:0.04em;
+  color:#fff;line-height:1.05;text-align:left}
+#session-splash-sub{font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.3);
+  letter-spacing:0.06em;line-height:1.7;text-align:left;max-width:280px}
+#session-splash-btn{margin-top:4px;padding:17px 40px;font-family:var(--display);
+  font-size:16px;letter-spacing:0.14em;text-transform:uppercase;
+  background:rgba(240,188,78,0.12);
+  border:1.5px solid rgba(240,188,78,0.6);border-radius:12px;color:var(--gold);
   cursor:pointer;transition:all 0.2s;width:100%;
-  animation:splashPulse 2.4s ease-in-out infinite;backdrop-filter:blur(4px)}
-#session-splash-btn:hover{background:linear-gradient(135deg,rgba(240,188,78,0.3),rgba(240,188,78,0.12));
-  border-color:rgba(240,188,78,0.9);box-shadow:0 0 50px rgba(240,188,78,0.3);
-  transform:translateY(-2px)}
+  animation:splashPulse 2.4s ease-in-out infinite}
+#session-splash-btn:hover{background:rgba(240,188,78,0.22);
+  border-color:rgba(240,188,78,0.9);box-shadow:0 0 40px rgba(240,188,78,0.25);
+  transform:translateY(-1px)}
 @keyframes splashPulse{0%,100%{box-shadow:0 0 0 rgba(240,188,78,0)}
-  50%{box-shadow:0 0 30px rgba(240,188,78,0.2)}}
-#splash-secondary-btns{display:flex;align-items:center;gap:8px;width:100%;flex-wrap:wrap}
-#session-splash-skip{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:10px;
-  font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.25);cursor:pointer;letter-spacing:0.08em;
-  text-transform:uppercase;padding:10px 16px;transition:all 0.15s;flex:1}
-#session-splash-skip:hover{color:rgba(255,255,255,0.6);border-color:rgba(255,255,255,0.15);background:rgba(255,255,255,0.04)}
-#session-splash-live{padding:11px 20px;font-family:var(--display);font-size:12px;
+  50%{box-shadow:0 0 28px rgba(240,188,78,0.2)}}
+#splash-secondary-btns{display:flex;align-items:center;gap:10px;width:100%}
+#session-splash-skip{background:transparent;border:1px solid rgba(255,255,255,0.1);border-radius:10px;
+  font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.35);cursor:pointer;letter-spacing:0.1em;
+  text-transform:uppercase;padding:10px 18px;transition:all 0.15s;flex:1}
+#session-splash-skip:hover{color:rgba(255,255,255,0.7);border-color:rgba(255,255,255,0.22);background:rgba(255,255,255,0.04)}
+#session-splash-live{padding:10px 22px;font-family:var(--display);font-size:13px;
   letter-spacing:0.1em;text-transform:uppercase;flex:2;
-  background:linear-gradient(135deg,rgba(240,96,96,0.15),rgba(240,96,96,0.05));
-  border:1.5px solid rgba(240,96,96,0.45);border-radius:10px;color:rgba(255,255,255,0.85);
-  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;transition:all 0.2s;backdrop-filter:blur(4px)}
-#session-splash-live:hover{background:linear-gradient(135deg,rgba(240,96,96,0.28),rgba(240,96,96,0.1));
-  border-color:rgba(240,96,96,0.85);box-shadow:0 0 30px rgba(240,96,96,0.25);transform:translateY(-1px)}
+  background:rgba(240,96,96,0.12);
+  border:1.5px solid rgba(240,96,96,0.55);border-radius:10px;color:#fff;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;transition:all 0.2s}
+#session-splash-live:hover{background:rgba(240,96,96,0.22);
+  border-color:rgba(240,96,96,0.85);box-shadow:0 0 24px rgba(240,96,96,0.25);transform:translateY(-1px)}
 #session-splash-live .btn-dot{width:7px;height:7px;border-radius:50%;background:#f06060;
-  box-shadow:0 0 6px rgba(240,96,96,0.8);animation:livePulse 1.2s ease-in-out infinite}
+  box-shadow:0 0 5px rgba(240,96,96,0.7);animation:livePulse 1.2s ease-in-out infinite}
 @media(max-width:820px){
   #session-splash{overflow-y:auto;align-items:flex-start;justify-content:flex-start;padding:0}
   #session-splash-inner{display:flex!important;flex-direction:column;align-items:center;
@@ -3118,11 +3117,6 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
         ⚙ Admin
       </a>
     </div>
-    <button onclick="if(confirm('Log out?'))tdlSignOut().then(function(){location.reload()})" title="Log out"
-      style="display:flex;align-items:center;gap:4px;font-family:var(--mono);font-size:7px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.25);background:transparent;border:1px solid rgba(255,255,255,0.06);border-radius:20px;padding:3px 10px;cursor:pointer;transition:all 0.15s;flex-shrink:0"
-      onmouseover="this.style.color='rgba(240,96,96,0.7)';this.style.borderColor='rgba(240,96,96,0.3)'" onmouseout="this.style.color='rgba(255,255,255,0.25)';this.style.borderColor='rgba(255,255,255,0.06)'">
-      ↪ Logout
-    </button>
   </div>
 
 </div>
@@ -3209,7 +3203,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
     <div id="splash-left">
       <div id="session-splash-date"></div>
       <div id="session-splash-title">Ready to trade?</div>
-      <div id="session-splash-sub">Your cockpit is loaded. Pick up where you left off or start fresh.</div>
+      <div id="session-splash-sub">Follow the guide — morning routine to live execution.</div>
     </div>
     <!-- RIGHT: rank card -->
     <div id="splash-rank-card" class="hidden">
@@ -3299,7 +3293,6 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
       <button id="session-splash-btn" onclick="sessionSplashStart()">▶ Start Session</button>
       <div id="splash-secondary-btns">
         <button id="session-splash-live" onclick="sessionSplashDismiss();window._leoChartsEntered=true;if(typeof openLiveExec==='function')openLiveExec();"><div class="btn-dot"></div>Live Execution</button>
-        <button onclick="sessionSplashDismiss();wizOpenSingle('levels')" style="padding:11px 0;font-family:var(--display);font-size:11px;letter-spacing:0.08em;color:rgba(240,188,78,0.6);background:rgba(240,188,78,0.04);border:1px solid rgba(240,188,78,0.18);border-radius:10px;cursor:pointer;transition:all 0.15s;flex:1;text-align:center" onmouseover="this.style.background='rgba(240,188,78,0.12)';this.style.borderColor='rgba(240,188,78,0.4)';this.style.color='var(--gold)'" onmouseout="this.style.background='rgba(240,188,78,0.04)';this.style.borderColor='rgba(240,188,78,0.18)';this.style.color='rgba(240,188,78,0.6)'">📌 Key Levels</button>
         <button id="session-splash-skip" onclick="sessionSplashDismiss()">Skip guide</button>
       </div>
     </div>
@@ -3945,7 +3938,6 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
     <!-- INSTRUMENT TABS — do top-down analysis on more than one pair -->
     <div id="td-instr-tabs" class="toggle-group" style="margin-bottom:10px">
       <button class="tgl sel" onclick="switchAnalysisInstrument('Gold',this)">Gold</button>
-      <button id="gold-provider-btn" onclick="gpOpen()" title="Choose which broker/provider feeds Gold's chart — candles can differ slightly between providers" style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.4);background:transparent;border:1px solid rgba(255,255,255,0.12);border-radius:6px;padding:0 10px;cursor:pointer">⚙ <span id="gold-provider-label">CAPITALCOM</span></button>
       <button class="tgl" data-role="add-instr" onclick="addAnalysisInstrument()" style="color:rgba(240,188,78,0.6)" title="Add another instrument to run top-down analysis on (saved locally per day)">+ Add</button>
     </div>
 
@@ -4555,11 +4547,11 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
           <div style="display:flex;align-items:center;gap:8px">
             <span style="font-size:16px">🧠</span>
             <span class="ai-card-title">Your edge — all sessions</span>
-            <span style="font-family:var(--mono);font-size:8px;color:var(--green);background:rgba(78,214,138,0.1);border:1px solid rgba(78,214,138,0.25);padding:2px 6px;border-radius:3px;letter-spacing:0.06em" title="Computed from your trade history on-device — no AI tokens used">LOCAL STATS</span>
+            <span style="font-family:var(--mono);font-size:8px;color:var(--gold);background:rgba(240,188,78,0.1);border:1px solid rgba(240,188,78,0.2);padding:2px 6px;border-radius:3px;letter-spacing:0.06em">AI</span>
           </div>
         </div>
         <div id="ai-patterns-body">
-          <div class="ai-loading"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div><span style="margin-left:6px;font-family:var(--mono);font-size:10px;color:var(--text3)">Crunching your trades...</span></div>
+          <div class="ai-loading"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div><span style="margin-left:6px;font-family:var(--mono);font-size:10px;color:var(--text3)">Analysing history...</span></div>
         </div>
       </div>
 
@@ -4921,13 +4913,6 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
           style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);border-radius:6px;color:var(--gold);font-family:var(--mono);font-size:11px;font-weight:700;padding:8px 10px;outline:none;-moz-appearance:textfield"
           onfocus="this.style.borderColor='rgba(240,188,78,0.4)'" onblur="this.style.borderColor='rgba(255,255,255,0.12)'">
       </div>
-    </div>
-    <!-- Profit target (Challenge/Eval accounts only) -->
-    <div id="as-target-wrap" style="margin-bottom:18px">
-      <div style="font-family:var(--mono);font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3);margin-bottom:6px">Profit target %</div>
-      <input id="as-target" type="number" placeholder="10" min="0" step="1" value="10"
-        style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);border-radius:6px;color:var(--text);font-family:var(--mono);font-size:11px;padding:8px 10px;outline:none;-moz-appearance:textfield"
-        onfocus="this.style.borderColor='rgba(240,188,78,0.4)'" onblur="this.style.borderColor='rgba(255,255,255,0.12)'">
     </div>
     <!-- Currency -->
     <div style="font-family:var(--mono);font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3);margin-bottom:8px">Currency</div>
@@ -5746,90 +5731,6 @@ function totalAccountSize() { return _tdAccounts.reduce(function(s,a){ return s+
 var _acctSetupType = 'Challenge';
 var _acctSetupCur  = '$';
 
-// ── ACCOUNT BALANCE — computed fresh from trade history, not stored deltas ──
-// The old approach kept a running `balance` number on each account and nudged it
-// by +/- usd every time a trade was added/removed. Any missed match, double
-// application, or cross-device sync glitch left it permanently wrong ("balance
-// is always incorrect"). Instead: cache the user's full trade history once,
-// then derive balance = size + sum(matched trades' $) fresh on every render.
-window._tdAllTradesCache = null;
-async function _tdRefreshAllTradesCache() {
-  try {
-    var uid = localStorage.getItem('td_user_id');
-    var sb = window._tdSB;
-    if (!uid || !sb) return;
-    var res = await sb.from('trades').select('date,result,r_achieved,risk_pct,usd_achieved,account,accounts,setup,direction,session,mindset,mistakes').eq('user_id', uid);
-    if (res && res.data) {
-      window._tdAllTradesCache = res.data;
-      if (typeof renderAccountsPanel === 'function') renderAccountsPanel();
-      // Refresh the locally-computed "Your Edge" panel too, if it's on screen
-      var patsEl = document.getElementById('ai-patterns-body');
-      if (patsEl && typeof computeLocalEdgeSummary === 'function') {
-        try {
-          var pp = computeLocalEdgeSummary();
-          patsEl.innerHTML = '<div style="margin-bottom:11px"><div style="font-family:var(--display);font-size:16px;letter-spacing:0.04em;color:var(--green);margin-bottom:4px">' + pp.works_headline + '</div><p style="font-size:13px;color:var(--text2);line-height:1.6">' + pp.works + '</p></div>' +
-            '<div style="padding-top:10px;border-top:1px solid var(--border);margin-bottom:10px"><div style="font-family:var(--display);font-size:16px;letter-spacing:0.04em;color:var(--red);margin-bottom:4px">' + pp.avoid_headline + '</div><p style="font-size:13px;color:var(--text2);line-height:1.6">' + pp.avoid + '</p></div>' +
-            '<div style="font-family:var(--mono);font-size:9px;color:var(--text3);padding-top:8px;border-top:1px solid var(--border)">' + pp.dataNote + '</div>';
-        } catch(e) {}
-      }
-    }
-  } catch(e) { console.warn('[accounts] trade history fetch failed:', e.message); }
-}
-window._tdRefreshAllTradesCache = _tdRefreshAllTradesCache;
-
-function _tdTradeMatchesAccount(t, acc) {
-  var n = (acc.name || acc.id || '').toLowerCase();
-  if (!n) return false;
-  var list = (t.accounts && t.accounts.length) ? t.accounts : [t.account || ''];
-  return list.some(function(raw) {
-    var a = String(raw || '').toLowerCase();
-    if (!a) return false;
-    if (a.indexOf(n) > -1 || n.indexOf(a) > -1) return true;
-    var keywords = ['1-step','2-step','1step','2step','funded','challenge'];
-    return keywords.some(function(k){ return a.indexOf(k) > -1 && n.indexOf(k) > -1; });
-  });
-}
-
-function _tdTradeUsdForAccount(t, acc) {
-  var usd = parseFloat(t.usd_achieved !== undefined ? t.usd_achieved : t.usdAchieved) || 0;
-  if (!usd) {
-    var r  = parseFloat(t.r_achieved !== undefined ? t.r_achieved : t.rAchieved) || 0;
-    var rp = parseFloat(t.risk_pct   !== undefined ? t.risk_pct   : t.riskPct)   || BASE_RISK_PCT || 0.5;
-    var sz = parseFloat(acc.size) || 100000;
-    usd = r * (rp / 100) * sz;
-  }
-  return (t.result === 'Loss') ? -Math.abs(usd) : Math.abs(usd);
-}
-
-// Bangkok-local Monday-of-this-week as a YYYY-MM-DD string (mirrors updatePALFromRows' week boundary)
-function _tdWeekStartKey() {
-  var bkkTodayStr = new Date().toLocaleDateString('sv-SE', { timeZone: (window._tdTZ && _tdTZ.iana) || 'Asia/Bangkok' });
-  var parts = bkkTodayStr.split('-').map(Number);
-  var d = new Date(parts[0], parts[1]-1, parts[2]);
-  var dow = d.getDay();
-  var mOff = dow === 0 ? -6 : 1 - dow;
-  var wk = new Date(parts[0], parts[1]-1, parts[2] + mOff);
-  return wk.getFullYear() + '-' + ('0'+(wk.getMonth()+1)).slice(-2) + '-' + ('0'+wk.getDate()).slice(-2);
-}
-
-// Returns { balance, weeklyUsd } for one account, derived from the cached trade
-// history. Returns null if the cache hasn't loaded yet (caller should fall back).
-function _tdComputeAccountStats(acc) {
-  var all = window._tdAllTradesCache;
-  if (!all) return null;
-  var size = parseFloat(acc.size) || 100000;
-  var wkKey = _tdWeekStartKey();
-  var totalUsd = 0, weeklyUsd = 0;
-  all.forEach(function(t) {
-    if (!_tdTradeMatchesAccount(t, acc)) return;
-    var usd = _tdTradeUsdForAccount(t, acc);
-    totalUsd += usd;
-    var dk = String(t.date || '').slice(0, 10);
-    if (dk >= wkKey) weeklyUsd += usd;
-  });
-  return { balance: Math.round(size + totalUsd), weeklyUsd: Math.round(weeklyUsd) };
-}
-
 function addTradingAccount() {
   // Reset modal state
   _acctSetupType = 'Challenge';
@@ -5841,8 +5742,6 @@ function addTradingAccount() {
   if (ob) { ob.style.background='transparent'; ob.style.color='var(--text2)'; ob.style.borderColor='rgba(255,255,255,0.1)'; }
   // Reset currency buttons
   document.querySelectorAll('.as-cur').forEach(function(b){ b.classList.toggle('sel', b.dataset.cur==='$'); });
-  var tgtEl = document.getElementById('as-target'); if (tgtEl) tgtEl.value = '10';
-  var tgtWrap = document.getElementById('as-target-wrap'); if (tgtWrap) tgtWrap.style.display = '';
   // Show modal
   var ov = document.getElementById('acct-setup-overlay');
   if (ov) { ov.style.display='flex'; }
@@ -5852,15 +5751,12 @@ function acctSetupType(t) {
   _acctSetupType = t;
   var cb = document.getElementById('as-type-challenge');
   var ob = document.getElementById('as-type-ownfund');
-  var tgtWrap = document.getElementById('as-target-wrap');
   if (t === 'Challenge') {
     if (cb) { cb.style.background='rgba(240,188,78,0.15)'; cb.style.color='var(--gold)'; cb.style.borderColor='rgba(240,188,78,0.4)'; }
     if (ob) { ob.style.background='transparent'; ob.style.color='var(--text2)'; ob.style.borderColor='rgba(255,255,255,0.1)'; }
-    if (tgtWrap) tgtWrap.style.display = '';
   } else {
     if (ob) { ob.style.background='rgba(139,92,246,0.15)'; ob.style.color='#a78bfa'; ob.style.borderColor='rgba(139,92,246,0.4)'; }
     if (cb) { cb.style.background='transparent'; cb.style.color='var(--text2)'; cb.style.borderColor='rgba(255,255,255,0.1)'; }
-    if (tgtWrap) tgtWrap.style.display = 'none';
   }
 }
 
@@ -5877,14 +5773,12 @@ function closeAcctSetup() {
 function confirmAcctSetup() {
   var nameEl = document.getElementById('as-name');
   var sizeEl = document.getElementById('as-size');
-  var tgtEl  = document.getElementById('as-target');
   var used = _tdAccounts.map(function(a){ return a.id; });
   var next = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').find(function(c){ return used.indexOf(c)<0; }) || ('ACC'+(Date.now()%1000));
   var name = (nameEl && nameEl.value.trim()) || next;
   var size = (sizeEl && parseFloat(sizeEl.value)) || 100000;
   var phase = _acctSetupType === 'OwnFund' ? 'Own Fund' : 'Evaluation';
-  var profitTargetPct = _acctSetupType === 'Challenge' ? ((tgtEl && parseFloat(tgtEl.value)) || 10) : null;
-  _tdAccounts.push({ id: next, name: name, size: size, currency: _acctSetupCur, phase: phase, accountType: _acctSetupType, profitTargetPct: profitTargetPct });
+  _tdAccounts.push({ id: next, name: name, size: size, currency: _acctSetupCur, phase: phase, accountType: _acctSetupType });
   saveAccounts(); renderAccountsPanel(); refreshTradeFormAccounts();
   updatePALFromRows(window._tdLastPalRows||[], window._tdLastPalRank||'DEGENERATE');
   closeAcctSetup();
@@ -5912,24 +5806,32 @@ function fmtUsd(n) {
   return '$' + Math.abs(Math.round(n)).toLocaleString();
 }
 function acctToggleSizeEdit(id) {
-  // Note: balance is no longer manually editable here — it's derived from
-  // trade history (size + sum of matched trades' $), so editing it directly
-  // would just get overwritten on the next render. Only account size + profit
-  // target are user-editable.
   var disp    = document.getElementById('acct-size-disp-'+id);
   var inp     = document.getElementById('acct-size-inp-'+id);
   var btn     = document.getElementById('acct-size-btn-'+id);
+  var balWrap = document.getElementById('acct-bal-wrap-'+id);
   if (!disp||!inp) return;
   var editing = inp.style.display !== 'none';
   if (editing) {
     var v = parseFloat(inp.value)||0;
     if (v) updateAccount(id,'size',v);
+    var balInp = document.getElementById('acct-bal-inp-'+id);
+    if (balInp) {
+      var bv = parseFloat(balInp.value)||0;
+      if (bv) updateAccount(id,'balance',bv);
+    }
+    if (balWrap) balWrap.style.display = 'none';
     renderAccountsPanel();
   } else {
     var acc = _tdAccounts.find(function(a){return a.id===id;}) || {};
     inp.value = acc.size||100000;
     inp.style.display=''; disp.style.display='none';
     if(btn){btn.textContent='Save';btn.style.color='var(--green)';}
+    if (balWrap) {
+      var balInp2 = document.getElementById('acct-bal-inp-'+id);
+      if (balInp2) balInp2.value = acc.balance||'';
+      balWrap.style.display = 'block';
+    }
     inp.focus(); inp.select();
   }
 }
@@ -6122,21 +6024,17 @@ function renderAccountsPanel() {
     var isFunded   = phase === 'Funded';
     var dayUsd     = Math.round(_perAcctPnl[acc.name||acc.id]||0);
     var dayClr     = dayUsd>0?'#4ed68a':dayUsd<0?'#f06060':'#505070';
-    // Balance + weekly P&L are derived fresh from the full trade-history cache
-    // (size + sum of every matched trade's $) rather than a stored number nudged
-    // by +/- deltas — that incremental approach was the source of "balance is
-    // always incorrect" (any missed match or sync hiccup left it permanently wrong).
-    // Falls back to the old stored balance only until the cache has loaded once.
-    var computed   = _tdComputeAccountStats(acc);
-    var effectiveBal = computed ? computed.balance : Math.round(parseFloat(acc.balance) || size);
-    var weeklyUsd  = computed ? computed.weeklyUsd : 0;
-    var weeklyClr  = weeklyUsd>0?'#4ed68a':weeklyUsd<0?'#f06060':'#505070';
-    var weeklyDisp = (weeklyUsd>=0?'+':'-')+(acc.currency||'$')+Math.abs(weeklyUsd).toLocaleString();
-    // User-set profit target (default 10%, FTMO-style) — set when adding the account
-    var targetPct  = (parseFloat(acc.profitTargetPct) || 10) / 100;
-    var profit     = Math.round(effectiveBal - size);
+    var bal        = parseFloat(acc.balance)||0;
+    // FTMO profit target = 10%, max drawdown floor = 90%
+    var targetPct  = 0.10;
+    // The stored balance IS the current account balance (what the user enters/what
+    // _updateAccountBalance maintains on trade removal) — it already reflects today's
+    // closed trades. Do NOT add dayUsd on top, or today's P&L gets double-counted
+    // (this was the "balance looks right for a second then goes wrong on refresh" bug).
+    var effectiveBal = bal ? Math.round(bal) : 0;
+    var profit     = effectiveBal ? Math.round(effectiveBal - size) : 0;
     var targetUsd  = Math.round(size * targetPct);
-    var progPct    = size ? Math.min(100, Math.max(0, profit / targetUsd * 100)) : 0;
+    var progPct    = effectiveBal && size ? Math.min(100, Math.max(0, profit / targetUsd * 100)) : 0;
     var progClr    = profit>=0 ? '#4ed68a' : '#f06060';
     var cur        = acc.currency || '$';
     var profitDisp = profit>=0 ? '+'+cur+profit.toLocaleString() : '-'+cur+Math.abs(profit).toLocaleString();
@@ -6167,7 +6065,14 @@ function renderAccountsPanel() {
               '<div style="'+MN+'font-size:14px;font-weight:700;color:'+dayClr+'">'+(dayUsd>=0?'+'+cur:'-'+cur)+Math.abs(dayUsd).toLocaleString()+'</div>' +
             '</div>' +
           '</div>' +
-          // Hidden edit row (account size only — balance is derived from trade history)
+          // Hidden edit rows
+          '<div id="acct-bal-wrap-'+acc.id+'" style="display:none;margin-bottom:8px">' +
+            '<div style="'+MN+'font-size:7px;letter-spacing:0.1em;text-transform:uppercase;color:'+_CDim2+';margin-bottom:3px">Update balance</div>' +
+            '<input id="acct-bal-inp-'+acc.id+'" type="number" step="1" value="'+(parseFloat(acc.balance)||size)+'" placeholder="'+(parseFloat(acc.balance)||size)+'" '+
+              'style="width:100%;background:rgba(240,188,78,0.07);border:1px solid rgba(240,188,78,0.3);border-radius:4px;color:var(--gold);'+MN+'font-size:13px;padding:5px 8px;outline:none;box-sizing:border-box;-moz-appearance:textfield;font-weight:700" '+
+              'onchange="if(parseFloat(this.value)){updateAccount(\''+acc.id+'\',\'balance\',parseFloat(this.value));renderAccountsPanel();}" '+
+              'onkeydown="if(event.key===\'Enter\'){event.preventDefault();if(parseFloat(this.value)){updateAccount(\''+acc.id+'\',\'balance\',parseFloat(this.value));}acctToggleSizeEdit(\''+acc.id+'\');}">' +
+          '</div>' +
           '<span id="acct-size-disp-'+acc.id+'" style="display:none">'+fmtK(size)+'</span>' +
           '<input id="acct-size-inp-'+acc.id+'" type="number" min="0" step="10000" style="display:none;width:1px" ' +
             'onkeydown="if(event.key===\'Enter\')acctToggleSizeEdit(\''+acc.id+'\')">' +
@@ -6175,36 +6080,32 @@ function renderAccountsPanel() {
             'style="'+MN+'font-size:7px;text-transform:uppercase;letter-spacing:0.06em;color:'+_CDim2+';background:'+_Cdiv+';border:1px solid '+_CBd2+';border-radius:3px;padding:1px 5px;cursor:pointer;transition:all 0.15s;margin-bottom:4px" '+
             'onmouseover="this.style.color=\'var(--gold)\';this.style.borderColor=\'rgba(240,188,78,0.3)\'" '+
             'onmouseout="this.style.color=\''+_CDim2+'\';this.style.borderColor=\''+_CBd2+'\'">✎ edit</button>' +
-          // Progress bar — to-funded for Eval, withdrawal progress for Funded (Challenge accounts only)
-          (acc.accountType !== 'OwnFund' ?
-            '<div style="margin-top:7px">' +
-              '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px">' +
-                '<span style="'+MN+'font-size:7px;color:'+_CDim2+';letter-spacing:0.08em;text-transform:uppercase">'+(isFunded?'Withdrawal progress':'To funded')+'</span>' +
-                '<span style="'+MN+'font-size:9px;font-weight:700;color:'+((isFunded?withdrawPct:progPct)>=80?'#4ed68a':(isFunded?withdrawPct:progPct)>=50?'#f0bc4e':'rgba(255,255,255,0.5)')+'">'+(isFunded?withdrawPct:progPct).toFixed(0)+'%</span>' +
-              '</div>' +
-              '<div style="width:100%;height:7px;border-radius:4px;background:'+_Cdiv+';overflow:hidden">' +
-                '<div style="height:100%;border-radius:4px;width:'+(isFunded?withdrawPct:progPct).toFixed(0)+'%;background:'+(profit>=0?'linear-gradient(90deg,#3ab873,#4ed68a)':'linear-gradient(90deg,#c94040,#f06060)')+';transition:width 0.3s"></div>' +
-              '</div>' +
-            '</div>'
-          : '') +
-          // Stats row: withdrawable/weekly (Funded), target/weekly (Eval), or just weekly (Own Fund)
-          '<div style="display:flex;gap:8px;margin-top:7px">' +
-            (acc.accountType === 'OwnFund' ? '' : isFunded ?
-              '<div style="flex:1;background:'+_Cdiv+';border-radius:6px;padding:6px 8px;text-align:center">' +
-                '<div style="'+MN+'font-size:7px;color:'+_CDim2+';letter-spacing:0.08em;text-transform:uppercase;margin-bottom:2px">Withdrawable</div>' +
-                '<div style="'+MN+'font-size:12px;font-weight:700;color:#4ed68a">'+cur+withdrawable.toLocaleString()+'</div>' +
+          // Stats row: % to funded + weekly P&L
+          (bal ? (
+            isFunded ? (
+              '<div style="display:flex;gap:8px;margin-top:7px">' +
+                '<div style="flex:1;background:'+_Cdiv+';border-radius:6px;padding:6px 8px;text-align:center">' +
+                  '<div style="'+MN+'font-size:7px;color:'+_CDim2+';letter-spacing:0.08em;text-transform:uppercase;margin-bottom:2px">Withdrawable</div>' +
+                  '<div style="'+MN+'font-size:12px;font-weight:700;color:#4ed68a">'+cur+withdrawable.toLocaleString()+'</div>' +
+                '</div>' +
+                '<div style="flex:1;background:'+_Cdiv+';border-radius:6px;padding:6px 8px;text-align:center">' +
+                  '<div style="'+MN+'font-size:7px;color:'+_CDim2+';letter-spacing:0.08em;text-transform:uppercase;margin-bottom:2px">Profit</div>' +
+                  '<div style="'+MN+'font-size:12px;font-weight:700;color:'+progClr+'">'+profitDisp+'</div>' +
+                '</div>' +
               '</div>'
-            :
-              '<div style="flex:1;background:'+_Cdiv+';border-radius:6px;padding:6px 8px;text-align:center">' +
-                '<div style="'+MN+'font-size:7px;color:'+_CDim2+';letter-spacing:0.08em;text-transform:uppercase;margin-bottom:2px">Target</div>' +
-                '<div style="'+MN+'font-size:12px;font-weight:700;color:rgba(255,255,255,0.6)">'+cur+targetUsd.toLocaleString()+'</div>' +
+            ) : (
+              '<div style="display:flex;gap:8px;margin-top:7px">' +
+                '<div style="flex:1;background:'+_Cdiv+';border-radius:6px;padding:6px 8px;text-align:center">' +
+                  '<div style="'+MN+'font-size:7px;color:'+_CDim2+';letter-spacing:0.08em;text-transform:uppercase;margin-bottom:2px">To funded</div>' +
+                  '<div style="'+MN+'font-size:12px;font-weight:700;color:'+(progPct>=80?'#4ed68a':progPct>=50?'#f0bc4e':'rgba(255,255,255,0.5)')+'">'+progPct.toFixed(0)+'%</div>' +
+                '</div>' +
+                '<div style="flex:1;background:'+_Cdiv+';border-radius:6px;padding:6px 8px;text-align:center">' +
+                  '<div style="'+MN+'font-size:7px;color:'+_CDim2+';letter-spacing:0.08em;text-transform:uppercase;margin-bottom:2px">Profit</div>' +
+                  '<div style="'+MN+'font-size:12px;font-weight:700;color:'+progClr+'">'+profitDisp+'</div>' +
+                '</div>' +
               '</div>'
-            ) +
-            '<div style="flex:1;background:'+_Cdiv+';border-radius:6px;padding:6px 8px;text-align:center">' +
-              '<div style="'+MN+'font-size:7px;color:'+_CDim2+';letter-spacing:0.08em;text-transform:uppercase;margin-bottom:2px">This week</div>' +
-              '<div style="'+MN+'font-size:12px;font-weight:700;color:'+weeklyClr+'">'+weeklyDisp+'</div>' +
-            '</div>' +
-          '</div>' +
+            )
+          ) : '') +
           // Phase toggle — only for Challenge accounts
           (acc.accountType !== 'OwnFund' ?
             '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:7px;padding-top:6px;border-top:1px solid '+_Cdiv+'">' +
@@ -6256,7 +6157,7 @@ window._appState = state; // expose to Supabase layer (const is not on window)
 var _TD_LOCAL_KEY = 'td_trades_local';
 window._persistTradesToLocal = function() {
   try {
-    var today = _tdTodayBKK();
+    var today = new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
     // Only persist trades whose date matches today — never mix in previous-day trades
     // (trades logged with a future time get _dateISO = yesterday, so exclude those too)
     var saved = state.trades.filter(function(t){ return t.saved && t._dateISO === today; });
@@ -6287,7 +6188,7 @@ window._persistTradesToLocal = function() {
 // Only restores if the stored date matches today (Bangkok).
 window._restoreTradesFromLocal = function() {
   try {
-    var today = _tdTodayBKK();
+    var today = new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
     var raw = localStorage.getItem(_TD_LOCAL_KEY);
     if (!raw) return false;
     var store = JSON.parse(raw);
@@ -6429,7 +6330,7 @@ window._syncUnsavedTradesToDB = async function() {
     var t = unsynced[i];
     try {
       var accts = t.accounts && t.accounts.length ? t.accounts : (t.account ? [t.account] : ['unknown']);
-      var today = t._dateISO || _tdTodayBKK();
+      var today = t._dateISO || new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
       var basePayload = {
         type:'trade', dateISO: today,
         time:t.time, session:t.session,
@@ -6656,7 +6557,7 @@ function _saveGateDefs(defs) {
 }
 
 function renderGateItems() {
-  var today = _tdTodayBKK();
+  var today = new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
   var states = {}; try { states = JSON.parse(localStorage.getItem('td_gates_' + today) || '{}'); } catch(e){}
   var defs = _getGateDefs();
   var container = document.getElementById('gate-items');
@@ -6711,7 +6612,7 @@ function deleteGateItem(id) {
   _saveGateDefs(defs);
   // Also clear its saved state for today
   try {
-    var today = _tdTodayBKK();
+    var today = new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
     var states = JSON.parse(localStorage.getItem('td_gates_' + today) || '{}');
     delete states[id];
     localStorage.setItem('td_gates_' + today, JSON.stringify(states));
@@ -6726,7 +6627,7 @@ function toggleGate(el, id) {
   if (badge) badge.textContent = el.classList.contains('done') ? 'Done ✓' : 'Pending';
   checkGate();
   try {
-    var today = _tdTodayBKK();
+    var today = new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
     var gates = JSON.parse(localStorage.getItem('td_gates_' + today) || '{}');
     gates[id] = el.classList.contains('done');
     localStorage.setItem('td_gates_' + today, JSON.stringify(gates));
@@ -6924,25 +6825,20 @@ function _tdLoadAnalysisTickers() {
 }
 function _tdSaveAnalysisTickers(list) {
   try { localStorage.setItem(TD_ANALYSIS_TICKERS_KEY, JSON.stringify(list)); } catch(e) {}
-  var sb = window._tdSB; var uid = localStorage.getItem('td_user_id');
-  if (sb && uid) { sb.from('profiles').update({ analysis_tickers: list }).eq('id', uid).then(function(){}, function(){}); }
 }
 function _tdTodayBKK() {
-  // Trading day rolls over at NY close (17:00 ET).
-  // The "trading date" is the NY calendar date when the session STARTED.
-  // NY session runs ~17:00 to 17:00, so:
-  //   - Before 17:00 ET → trading date = today's NY date
-  //   - After 17:00 ET  → trading date = tomorrow's NY date (new session)
-  // We convert NY trading date to Bangkok date format for storage compat.
+  // Trading day rolls over 30 min after NY close (05:30 AM Bangkok = 22:30 UTC).
+  // Before 05:30 AM Bangkok we are still in the previous session.
   var now = new Date();
-  var nyStr = now.toLocaleString('sv-SE', {timeZone:'America/New_York'});
-  var nyTime = (nyStr.split(' ')[1] || '00:00:00').slice(0, 5);
-  var nyDate = nyStr.split(' ')[0];
-  if (nyTime >= '17:00') {
-    var next = new Date(now.getTime() + 86400000);
-    nyDate = next.toLocaleDateString('sv-SE', {timeZone:'America/New_York'});
+  var bkkStr = now.toLocaleString('sv-SE', {timeZone:'Asia/Bangkok'}); // "YYYY-MM-DD HH:MM:SS"
+  var timePart = (bkkStr.split(' ')[1] || '00:00:00').slice(0, 5); // "HH:MM"
+  var datePart = bkkStr.split(' ')[0]; // "YYYY-MM-DD"
+  if (timePart < '05:30') {
+    // Still previous trading session — return yesterday's date
+    var prev = new Date(now.getTime() - 86400000);
+    return prev.toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
   }
-  return nyDate;
+  return datePart;
 }
 
 // On a new Bangkok day: clear stale tf_state + watermarks so the slate is truly clean
@@ -6990,8 +6886,15 @@ function renderAnalysisInstrumentTabs() {
   });
 }
 
-function addAnalysisInstrument() {
-  if (typeof aaiOpen === 'function') aaiOpen();
+async function addAnalysisInstrument() {
+  var raw = await tdPrompt('Add Instrument', '', 'e.g. BTCUSD, EURUSD, US30, NAS100');
+  if (!raw) return;
+  raw = raw.trim().toUpperCase();
+  if (!raw || raw === 'GOLD') return;
+  var list = _tdLoadAnalysisTickers();
+  if (list.indexOf(raw) === -1) { list.push(raw); _tdSaveAnalysisTickers(list); }
+  renderAnalysisInstrumentTabs();
+  switchAnalysisInstrument(raw, _tdFindInstrTabBtn(raw));
 }
 
 function removeAnalysisInstrument(name) {
@@ -7764,44 +7667,18 @@ function lvlClearImg() {
 
 async function lvlUploadImg(file) {
   if (!file) return '';
-  // Try Supabase Storage first
   var sb = window._tdSB;
   var uid = localStorage.getItem('td_user_id');
-  if (sb && uid) {
-    var ext = file.name.split('.').pop() || 'png';
-    var path = 'levels/' + uid + '/' + Date.now() + '.' + ext;
-    try {
-      var { data, error } = await sb.storage.from('chart-screenshots').upload(path, file, { upsert: true });
-      if (!error && data) {
-        var { data: urlData } = sb.storage.from('chart-screenshots').getPublicUrl(path);
-        if (urlData && urlData.publicUrl) {
-          console.log('[lvl-img] Uploaded to Supabase:', urlData.publicUrl);
-          return urlData.publicUrl;
-        }
-      }
-      console.warn('[lvl-img] Supabase upload failed:', error ? error.message : 'no data');
-    } catch(e) { console.warn('[lvl-img] Supabase error:', e.message); }
-  }
-  // Fallback: compress and store as data URL
-  return new Promise(function(resolve) {
-    var reader = new FileReader();
-    reader.onload = function(e) {
-      var img = new Image();
-      img.onload = function() {
-        var canvas = document.createElement('canvas');
-        var maxW = 600;
-        var scale = Math.min(1, maxW / img.width);
-        canvas.width = img.width * scale;
-        canvas.height = img.height * scale;
-        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-        var dataUrl = canvas.toDataURL('image/jpeg', 0.6);
-        console.log('[lvl-img] Stored as data URL (' + Math.round(dataUrl.length/1024) + 'KB)');
-        resolve(dataUrl);
-      };
-      img.src = e.target.result;
-    };
-    reader.readAsDataURL(file);
-  });
+  if (!sb || !uid) return '';
+  var ext = file.name.split('.').pop() || 'png';
+  var path = 'levels/' + uid + '/' + Date.now() + '.' + ext;
+  try {
+    var { data, error } = await sb.storage.from('chart-screenshots').upload(path, file, { upsert: true });
+    if (error) { console.warn('[lvl-img] Upload error:', error.message); return ''; }
+    var { data: urlData } = sb.storage.from('chart-screenshots').getPublicUrl(path);
+    console.log('[lvl-img] Uploaded:', urlData.publicUrl);
+    return urlData.publicUrl || '';
+  } catch(e) { console.warn('[lvl-img] Upload failed:', e.message); return ''; }
 }
 
 // Paste support — listen for Ctrl+V anywhere on the page
@@ -7818,21 +7695,6 @@ document.addEventListener('paste', function(e) {
     }
   }
 });
-
-function lvlShowLightbox(src, user) {
-  var old = document.getElementById('lvl-lightbox');
-  if (old) old.remove();
-  var ov = document.createElement('div');
-  ov.id = 'lvl-lightbox';
-  ov.style.cssText = 'position:fixed;inset:0;z-index:300000;background:rgba(0,0,0,0.92);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;cursor:pointer;animation:eodFadeIn 0.2s ease';
-  ov.onclick = function() { ov.remove(); };
-  ov.innerHTML =
-    (user ? '<div style="font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:10px;letter-spacing:0.06em">📷 Chart by @' + user + '</div>' : '') +
-    '<img src="' + src + '" style="max-width:90vw;max-height:80vh;border-radius:10px;border:1px solid rgba(255,255,255,0.1);box-shadow:0 20px 60px rgba(0,0,0,0.5)">' +
-    '<div style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.2);margin-top:12px">Click anywhere to close</div>';
-  document.body.appendChild(ov);
-}
-window.lvlShowLightbox = lvlShowLightbox;
 
 function lvlAddFromForm() {
   var price = (document.getElementById('lvl-in-price')||{}).value || '';
@@ -7980,7 +7842,7 @@ function lvlRenderCard(lvl) {
     // ── Notes ──
     (lvl.notes ? '<div style="font-size:10px;color:var(--text3);font-style:italic;line-height:1.4">' + lvl.notes + '</div>' : '') +
     // Chart screenshot
-    '<img class="lvl-chart-img" src="' + (lvl.chartImg || '') + '" style="' + (lvl.chartImg ? 'display:block' : 'display:none') + ';width:100%;border-radius:6px;margin-top:8px;border:1px solid rgba(255,255,255,0.06);cursor:pointer" onclick="lvlShowLightbox(this.src,\'\')">';
+    '<img class="lvl-chart-img" src="' + (lvl.chartImg || '') + '" style="' + (lvl.chartImg ? 'display:block' : 'display:none') + ';width:100%;border-radius:6px;margin-top:8px;border:1px solid rgba(255,255,255,0.06);cursor:pointer" onclick="if(this.src)window.open(this.src,\'_blank\')">';
 
   list.appendChild(d);
 }
@@ -8178,7 +8040,7 @@ function _tradeUsdValue(t) {
 
 function _getBalApplied() {
   try {
-    var today = _tdTodayBKK();
+    var today = new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
     var raw = JSON.parse(localStorage.getItem('td_bal_applied') || '{}');
     // Reset if it's from a previous day
     if (raw._date !== today) return {};
@@ -8187,7 +8049,7 @@ function _getBalApplied() {
 }
 function _setBalApplied(map) {
   try {
-    var today = _tdTodayBKK();
+    var today = new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
     map._date = today;
     localStorage.setItem('td_bal_applied', JSON.stringify(map));
   } catch(e) {}
@@ -8257,11 +8119,7 @@ function removeTrade(id) {
     if (t.saved) _updateAccountBalance(t, -1);
     window._tdSB.from('trades').delete().eq('id', t._sbId).then(function(res){
       if (res.error) console.warn('[removeTrade] DB delete error:', res.error.message);
-      else {
-        console.log('[removeTrade] Deleted from DB:', t._sbId);
-        if (typeof _tdRefreshAllTradesCache === 'function') _tdRefreshAllTradesCache();
-        else if (window.renderAccountsPanel) renderAccountsPanel();
-      }
+      else { console.log('[removeTrade] Deleted from DB:', t._sbId); if(window.renderAccountsPanel) renderAccountsPanel(); }
     });
   }
   var el = document.getElementById('tf-' + id);
@@ -8916,7 +8774,7 @@ async function saveTrade(id) {
   if (!t._sbId) { // only auto-date brand-new trades, not edits
     var _bkkNow = new Date().toLocaleString('en-GB', {timeZone:'Asia/Bangkok',hour:'2-digit',minute:'2-digit',hour12:false});
     var _tradeTime = (t.time || '00:00').substring(0,5);
-    var _todayISO2 = _tdTodayBKK();
+    var _todayISO2 = new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
     var _yesterdayISO = new Date(Date.now()-86400000).toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
     t._dateISO = (_tradeTime > _bkkNow) ? _yesterdayISO : _todayISO2;
   }
@@ -9206,7 +9064,7 @@ window._morningSaved = false;
 
 window.clearMorningAnalysis = function() {
   if (!confirm('Clear all bias/trend for today and start fresh?')) return;
-  var today = _tdTodayBKK();
+  var today = new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
   localStorage.removeItem('td_tfstate_' + today);
   // Deactivate all bias + trend buttons without re-triggering saves
   document.querySelectorAll('.bias-btn.active, .trend-btn.active').forEach(function(b) { b.click(); });
@@ -9324,7 +9182,7 @@ async function loadYesterdaySession() {
     var sb  = window._tdSB;
     if (!uid || !sb) throw new Error('Not logged in');
     // Compute yesterday in Bangkok timezone reliably
-    var todayBKK = _tdTodayBKK();
+    var todayBKK = new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
     var d = new Date(todayBKK + 'T12:00:00');
     d.setDate(d.getDate() - 1);
     var yISO = d.toISOString().slice(0,10);
@@ -9506,7 +9364,7 @@ async function loadYesterdaySession() {
 async function saveAllYesterday() {
   var tradeCount = state.trades.filter(function(t){ return t.saved; }).length;
   if (!confirm('Save ' + tradeCount + ' trade(s) as yesterday and reset today\'s session?\n\nThis will clear the current UI. Your trades are already saved in Supabase and will remain there.')) return;
-  var todayBKK = _tdTodayBKK();
+  var todayBKK = new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
   var d = new Date(todayBKK + 'T12:00:00');
   d.setDate(d.getDate() - 1);
   var iso = d.toISOString().slice(0,10);
@@ -10019,7 +9877,7 @@ function setRulesFollowed(val, btn) {
 function checkReflection() {
   // Save EOD notes to localStorage on every keystroke
   try {
-    var today = _tdTodayBKK();
+    var today = new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
     var rulesBtn = document.querySelector('#rules-btn-group .tgl.sel');
     localStorage.setItem('td_eod_' + today, JSON.stringify({
       q1: (document.getElementById('reflection-well')||{}).value || '',
@@ -10411,7 +10269,7 @@ function computeAndSetStreak(history) {
   console.log('4. sorted rows:', sorted.length, sorted.map(function(n){ return n.dateKey + '=' + n.rules; }));
 
   // Today's session doesn't count yet — only locks in tomorrow
-  var todayBKK = _tdTodayBKK();
+  var todayBKK = new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
 
   var rankScore = 0;
   sorted.forEach(function(n) {
@@ -10916,85 +10774,6 @@ var TRADER_PROFILE = {
 };
 
 // ── AI PANELS ─────────────────────────────────────────
-// ── "Your edge" summary — computed locally from trade history, zero AI tokens.
-// Builds up automatically as more trades get logged (no caching needed since
-// it's free/instant — always reflects whatever's in window._tdAllTradesCache).
-function computeLocalEdgeSummary() {
-  var trades = window._tdAllTradesCache || [];
-  var n = trades.length;
-  if (n < 3) {
-    return {
-      works_headline: 'NOT ENOUGH DATA YET',
-      works: 'Log at least 3 trades and a pattern will show up here automatically — no AI call needed, just your own numbers.',
-      avoid_headline: 'KEEP LOGGING',
-      avoid: 'Every trade you save (setup, direction, mindset, mistakes) makes this summary sharper.',
-      dataNote: 'Based on ' + n + ' trade(s) — computed locally, no AI tokens used'
-    };
-  }
-
-  function avgR(rows) { return rows.length ? Math.round(rows.reduce(function(s,t){ return s + signedR(t.result, t.r_achieved, t.risk_pct); }, 0) / rows.length * 100) / 100 : 0; }
-  function winRate(rows) { return rows.length ? Math.round(rows.filter(function(t){ return t.result === 'Win'; }).length / rows.length * 100) : 0; }
-
-  // Best setup (min 2 trades, ranked by avg R)
-  var setupMap = {};
-  trades.forEach(function(t) {
-    var s = (t.setup || '').trim(); if (!s) return;
-    (setupMap[s] = setupMap[s] || []).push(t);
-  });
-  var setups = Object.keys(setupMap).map(function(s) { return { name: s, rows: setupMap[s] }; }).filter(function(s){ return s.rows.length >= 2; });
-  setups.sort(function(a,b) { return avgR(b.rows) - avgR(a.rows); });
-  var bestSetup = setups[0] || null;
-
-  // Most frequent mistake tag among losses
-  var mistakeTally = {};
-  trades.filter(function(t){ return t.result === 'Loss'; }).forEach(function(t) {
-    String(t.mistakes || '').split(',').map(function(m){ return m.trim(); }).filter(Boolean).forEach(function(m) {
-      mistakeTally[m] = (mistakeTally[m] || 0) + 1;
-    });
-  });
-  var topMistake = Object.keys(mistakeTally).sort(function(a,b){ return mistakeTally[b] - mistakeTally[a]; })[0];
-
-  // Long vs short
-  var longs = trades.filter(function(t){ return (t.direction||'').toLowerCase() === 'long'; });
-  var shorts = trades.filter(function(t){ return (t.direction||'').toLowerCase() === 'short'; });
-  var dirWinner = (longs.length >= 2 && shorts.length >= 2)
-    ? (winRate(longs) >= winRate(shorts) ? { label: 'Long', rows: longs } : { label: 'Short', rows: shorts })
-    : null;
-
-  // Works headline/body — prefer best setup, fall back to direction edge
-  var works_headline, works;
-  if (bestSetup && avgR(bestSetup.rows) > 0) {
-    works_headline = bestSetup.name.toUpperCase() + ' IS YOUR EDGE';
-    works = '"' + bestSetup.name + '" averages ' + (avgR(bestSetup.rows)>=0?'+':'') + avgR(bestSetup.rows) + 'R across ' + bestSetup.rows.length + ' trades (' + winRate(bestSetup.rows) + '% win rate).';
-  } else if (dirWinner) {
-    works_headline = dirWinner.label.toUpperCase() + 'S WORK BETTER FOR YOU';
-    works = dirWinner.label + ' trades win ' + winRate(dirWinner.rows) + '% of the time (' + dirWinner.rows.length + ' trades, ' + (avgR(dirWinner.rows)>=0?'+':'') + avgR(dirWinner.rows) + 'R avg).';
-  } else {
-    works_headline = 'STILL BUILDING THE PICTURE';
-    works = 'Win rate so far: ' + winRate(trades) + '% across ' + n + ' trades. Keep logging setup names consistently to surface a real edge.';
-  }
-
-  // Avoid headline/body — prefer the most frequent mistake, fall back to worst setup
-  var avoid_headline, avoid;
-  if (topMistake) {
-    avoid_headline = mistakeTally[topMistake] + 'x: ' + topMistake.toUpperCase();
-    avoid = '"' + topMistake + '" shows up on ' + mistakeTally[topMistake] + ' of your losses — the single most common leak in your journal.';
-  } else if (setups.length && avgR(setups[setups.length-1].rows) < 0) {
-    var worstSetup = setups[setups.length-1];
-    avoid_headline = worstSetup.name.toUpperCase() + ' IS COSTING YOU';
-    avoid = '"' + worstSetup.name + '" averages ' + avgR(worstSetup.rows) + 'R across ' + worstSetup.rows.length + ' trades — your weakest setup so far.';
-  } else {
-    avoid_headline = 'NO CLEAR LEAK YET';
-    avoid = 'Nothing stands out as a recurring problem yet — keep tagging mistakes honestly when you log trades.';
-  }
-
-  return {
-    works_headline: works_headline, works: works,
-    avoid_headline: avoid_headline, avoid: avoid,
-    dataNote: 'Based on ' + n + ' trade(s) — computed locally, no AI tokens used'
-  };
-}
-
 async function loadBriefing(force) {
   var focusEl = document.getElementById('ai-briefing-body');
   var patsEl = document.getElementById('ai-patterns-body');
@@ -11008,20 +10787,11 @@ async function loadBriefing(force) {
   var nowBkk = _tzNow();
   var todayStr = nowBkk.toISOString().slice(0,10);
   var cachedFocus = localStorage.getItem('td_brief_focus_' + todayStr);
-  // "Your Edge" (panel 2) is computed locally from trade history — free and
-  // instant, so it's never cached and always recomputed fresh, even when the
-  // AI-generated focus panel below is served from cache.
-  if (patsEl) {
-    try {
-      var ppFresh = computeLocalEdgeSummary();
-      patsEl.innerHTML = '<div style="margin-bottom:11px"><div style="font-family:var(--display);font-size:16px;letter-spacing:0.04em;color:var(--green);margin-bottom:4px">' + ppFresh.works_headline + '</div><p style="font-size:13px;color:var(--text2);line-height:1.6">' + ppFresh.works + '</p></div>' +
-        '<div style="padding-top:10px;border-top:1px solid var(--border);margin-bottom:10px"><div style="font-family:var(--display);font-size:16px;letter-spacing:0.04em;color:var(--red);margin-bottom:4px">' + ppFresh.avoid_headline + '</div><p style="font-size:13px;color:var(--text2);line-height:1.6">' + ppFresh.avoid + '</p></div>' +
-        '<div style="font-family:var(--mono);font-size:9px;color:var(--text3);padding-top:8px;border-top:1px solid var(--border)">' + ppFresh.dataNote + '</div>';
-    } catch(e) { console.warn('[edge] local summary failed:', e.message); }
-  }
-  if (!force && cachedFocus) {
+  var cachedEdge  = localStorage.getItem('td_brief_edge_'  + todayStr);
+  if (!force && cachedFocus && cachedEdge) {
     if (focusEl) focusEl.innerHTML = cachedFocus;
-    console.log('[briefing] Showing cached focus for', todayStr);
+    if (patsEl)  patsEl.innerHTML  = cachedEdge;
+    console.log('[briefing] Showing cached briefing for', todayStr);
     return;
   }
 
@@ -11130,9 +10900,7 @@ async function loadBriefing(force) {
 
   var loading = '<div class="ai-loading"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div><span style="margin-left:4px">Generating...</span></div>';
   if (focusEl) focusEl.innerHTML = loading;
-  // patsEl ("Your Edge") already has fresh, locally-computed content from
-  // above — don't clobber it with a loading spinner while only the AI focus
-  // panel is still working.
+  if (patsEl) patsEl.innerHTML = loading;
 
   function extractJSON(txt) {
     if (!txt) throw new Error('Empty response from Claude');
@@ -11196,8 +10964,29 @@ async function loadBriefing(force) {
     if (focusEl) focusEl.innerHTML = '<p style="font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.3)">' + (err.message === 'Failed to fetch' ? 'AI briefing requires the Vercel deployment — not available locally.' : 'Error: ' + err.message) + '</p>';
   }
 
-  // Panel 2 ("Your Edge") was already filled in above, before the cache check —
-  // it's computed locally and doesn't depend on whether the AI focus panel ran.
+  // Panel 2: Your Edge — use recent sessions + knowledge base
+  try {
+    var patsPrompt = 'You are a trading performance analyst for a Gold prop trader.\n\n' +
+      '=== RECENT JOURNAL ENTRIES (priority) ===\n' +
+      recentCtx + '\n\n' +
+      ' ' +
+      'Total sessions logged: ' + sorted.length + '\n\n' +
+      'Identify what is ACTUALLY working and what is ACTUALLY hurting based on the real journal entries.\n' +
+      'Reference specific things they wrote if available.\n\n' +
+      'Output JSON only:\n' +
+      '{"works_headline":"5-6 word edge summary","works":"one sentence about what actually works for them","avoid_headline":"5-6 word leak summary","avoid":"one sentence about the biggest recurring real problem"}\n' +
+      'Respond with ONLY valid JSON.';
+    var patsText = await callClaude(patsPrompt, 400);
+    var pp = extractJSON(patsText);
+    var dataNote = 'Based on ' + sorted.length + ' session(s)';
+    var edgeHtml = '<div style="margin-bottom:11px"><div style="font-family:var(--display);font-size:16px;letter-spacing:0.04em;color:var(--green);margin-bottom:4px">' + pp.works_headline + '</div><p style="font-size:13px;color:var(--text2);line-height:1.6">' + pp.works + '</p></div>' +
+      '<div style="padding-top:10px;border-top:1px solid var(--border);margin-bottom:10px"><div style="font-family:var(--display);font-size:16px;letter-spacing:0.04em;color:var(--red);margin-bottom:4px">' + pp.avoid_headline + '</div><p style="font-size:13px;color:var(--text2);line-height:1.6">' + pp.avoid + '</p></div>' +
+      '<div style="font-family:var(--mono);font-size:9px;color:var(--text3);padding-top:8px;border-top:1px solid var(--border)">' + dataNote + '</div>';
+    if (patsEl) patsEl.innerHTML = edgeHtml;
+    try { localStorage.setItem('td_brief_edge_' + todayStr, edgeHtml); } catch(e) {}
+  } catch(err) {
+    if (patsEl) patsEl.innerHTML = '<p style="font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.3)">' + (err.message === 'Failed to fetch' ? 'AI edge analysis requires the Vercel deployment.' : 'Error: ' + err.message) + '</p>';
+  }
 }
 
 // ── STICKY BAR (stubs — bar still in DOM but simplified) ──
@@ -12809,7 +12598,7 @@ function ptgEditSave() {
 }
 
 function _ptgTodayKey() {
-  return 'ptg_passed_' + _tdTodayBKK();
+  return 'ptg_passed_' + new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
 }
 function _ptgLog(entry) {
   try {
@@ -12820,7 +12609,7 @@ function _ptgLog(entry) {
   } catch(e) {}
 }
 function _ptgCompletedKey() {
-  return 'ptg_completed_' + _tdTodayBKK();
+  return 'ptg_completed_' + new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
 }
 function ptgShouldShow() {
   return true; // always show — reminder mode if already done today, interactive if not
@@ -13233,7 +13022,7 @@ function klhShow(idx, el) {
     (confs.length ? '<div style="margin-top:14px;display:flex;align-items:center;gap:5px;flex-wrap:wrap"><span style="font-family:var(--mono);font-size:7px;letter-spacing:0.08em;color:rgba(255,255,255,0.25);text-transform:uppercase">Confluence:</span>' + confs.map(function(c){ return '<span style="font-family:var(--mono);font-size:8px;padding:2px 9px;border-radius:4px;background:'+gc2+';color:'+gc+';letter-spacing:0.02em">'+c+'</span>'; }).join('') + '</div>' : '') +
     // Notes
     (l.notes ? '<div style="margin-top:10px;font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.35);font-style:italic">'+l.notes+'</div>' : '') +
-    (l.chartImg ? '<img src="'+l.chartImg+'" style="width:100%;border-radius:6px;margin-top:10px;border:1px solid rgba(255,255,255,0.08);cursor:pointer" onclick="event.stopPropagation();lvlShowLightbox(this.src,\''+user+'\')">' : '') +
+    (l.chartImg ? '<img src="'+l.chartImg+'" style="width:100%;border-radius:6px;margin-top:10px;border:1px solid rgba(255,255,255,0.08);cursor:pointer" onclick="event.stopPropagation();window.open(\''+l.chartImg+'\',\'_blank\')">' : '') +
     // Send to calc button
     '<div style="margin-top:14px;border-top:1px solid rgba(255,255,255,0.06);padding-top:12px;pointer-events:all">' +
       '<button onclick="klSendToCalc('+idx+')" style="width:100%;font-family:var(--mono);font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:'+gc+';background:'+gc2+';border:1px solid '+gborder+';border-radius:6px;padding:7px 0;cursor:pointer;transition:filter 0.12s" onmouseover="this.style.filter=\'brightness(1.3)\'" onmouseout="this.style.filter=\'\'">⊞ Load into calculator</button>' +
@@ -13284,7 +13073,7 @@ async function leoFetchAllLevels() {
   var sb = window._tdSB || (window.getSB && getSB());
   if (!sb) return;
   var myId = localStorage.getItem('td_user_id');
-  var today = _tdTodayBKK();
+  var today = new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
   try {
     var res = await sb.from('morning_analysis')
       .select('user_id,levels_json')
@@ -13906,29 +13695,14 @@ document.addEventListener('DOMContentLoaded', async function() {
 var _tvInterval = '240';
 
 // Resolve a TradingView symbol string for the active analysis instrument.
-// "Gold" uses whichever provider the user picked (default CAPITALCOM —
-// different brokers/providers can show slightly different candles on gold);
-// custom tickers are passed through as typed (TradingView resolves common
-// tickers like BTCUSD/EURUSD/US30 directly).
-var TD_GOLD_SYMBOL_KEY = 'td_gold_symbol_v1';
-function tdGoldSymbol() {
-  try { return localStorage.getItem(TD_GOLD_SYMBOL_KEY) || 'CAPITALCOM:XAUUSD'; }
-  catch(e) { return 'CAPITALCOM:XAUUSD'; }
-}
-function tdSetGoldSymbol(sym) {
-  try { localStorage.setItem(TD_GOLD_SYMBOL_KEY, sym); } catch(e) {}
-  var sb = window._tdSB; var uid = localStorage.getItem('td_user_id');
-  if (sb && uid) { sb.from('profiles').update({ gold_symbol: sym }).eq('id', uid).then(function(){}, function(){}); }
-  var lbl = document.getElementById('gold-provider-label');
-  if (lbl) lbl.textContent = (sym.split(':')[0] || sym);
-  if (_tdActiveInstrument === 'Gold' && typeof initTVChart === 'function') initTVChart(true);
-}
+// "Gold" keeps its known-good symbol; custom tickers are passed through as
+// typed (TradingView resolves common tickers like BTCUSD/EURUSD/US30 directly).
 function _tdChartSymbolFor(name) {
-  if (!name || name === 'Gold') return tdGoldSymbol();
+  if (!name || name === 'Gold') return 'CAPITALCOM:XAUUSD';
   return name;
 }
 function _tdChartTitleFor(name) {
-  if (!name || name === 'Gold') return tdGoldSymbol() + ' · Gold Spot';
+  if (!name || name === 'Gold') return 'XAUUSD · Gold Spot';
   return name;
 }
 
@@ -13989,12 +13763,10 @@ function initTVChart(forceInstrument) {
       // On-screen order: Price → AO → MACD (top to bottom).
       'STD;MACD',
       'STD;Awesome_Oscillator',
-      // Explicit colors/widths so the EMAs are actually visible against the
-      // candles — matches the Live Execution chart's EMA styling exactly.
-      { id: 'MAExp@tv-basicstudies', inputs: { length: 9 },   styles: { 'Plot.color': '#a855f7', 'Plot.linewidth': 1 } },
-      { id: 'MAExp@tv-basicstudies', inputs: { length: 20 },  styles: { 'Plot.color': '#f0bc4e', 'Plot.linewidth': 1 } },
-      { id: 'MAExp@tv-basicstudies', inputs: { length: 50 },  styles: { 'Plot.color': '#6aa3f5', 'Plot.linewidth': 1 } },
-      { id: 'MAExp@tv-basicstudies', inputs: { length: 200 }, styles: { 'Plot.color': '#ffffff', 'Plot.linewidth': 2 } }
+      { id: 'MAExp@tv-basicstudies', inputs: { length: 9 } },
+      { id: 'MAExp@tv-basicstudies', inputs: { length: 20 } },
+      { id: 'MAExp@tv-basicstudies', inputs: { length: 50 } },
+      { id: 'MAExp@tv-basicstudies', inputs: { length: 200 } }
     ],
     support_host: 'https://www.tradingview.com'
   });
@@ -15765,7 +15537,7 @@ window.loadEdgePanel = async function(forceAI) {
     // Today's news events
     var newsCtx = 'none';
     try {
-      var _todayBkkStr = _tdTodayBKK();
+      var _todayBkkStr = new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
       if (window._ffRaw && Array.isArray(window._ffRaw)) {
         var _todayEvs = window._ffRaw.filter(function(ev) {
           var d = (ev.date||'').slice(0,10); return d === _todayBkkStr && (ev.impact||'').match(/high|medium/i);
@@ -16535,33 +16307,12 @@ document.addEventListener('DOMContentLoaded', function() {
   var btnEl   = document.getElementById('session-splash-btn');
   var dateEl  = document.getElementById('session-splash-date');
   if (dateEl) dateEl.textContent = new Date().toLocaleDateString('en-GB', {weekday:'long',day:'numeric',month:'long',year:'numeric',timeZone:'Asia/Bangkok'});
-  // Smart splash: detect session state and adapt buttons/text
-  var _hasMorning = !!localStorage.getItem('td_tfstate_' + _tdTodayBKK());
-  var _hasEod = typeof _eodDaySavedKey === 'function' && !!localStorage.getItem(_eodDaySavedKey());
   var saved = _wtLoadProgress();
-
-  if (_hasEod) {
-    if (titleEl) titleEl.textContent = 'Session complete ✓';
-    if (subEl) subEl.textContent = 'Your day is saved. Review key levels or jump into live execution.';
-    if (btnEl) { btnEl.textContent = '📌 Key Levels Guide'; btnEl.onclick = function(){ sessionSplashDismiss(); wizOpenSingle('levels'); }; }
-  } else if (_hasMorning) {
-    if (titleEl) titleEl.textContent = 'Continue your session';
-    if (subEl) subEl.textContent = 'Analysis done — save your end of day notes or mark key levels.';
-    if (btnEl) { btnEl.textContent = '💾 Save Day'; btnEl.onclick = function(){ sessionSplashDismiss(); if(typeof eodNudgeOpen==='function') eodNudgeOpen(); else { var r=document.getElementById('reflection'); if(r) r.scrollIntoView({behavior:'smooth'}); } }; }
-  } else if (saved && saved.step > 0) {
+  if (saved && saved.step > 0) {
     var s = _wtSteps[saved.step];
     if (titleEl) titleEl.textContent = 'Continue your session';
     if (subEl)   subEl.textContent   = 'Pick up where you left off — ' + (s ? s.label : 'Step ' + (saved.step + 1));
     if (btnEl)   btnEl.textContent   = '▶ Continue Day';
-  }
-  // First-time user → new onboarding flow
-  // ?reset=onboarding in URL forces first-time experience (keeps auth + insights)
-  if (location.search.includes('reset=onboarding')) { localStorage.removeItem('td_onboarded'); localStorage.removeItem('fw_done'); localStorage.removeItem('td_trading_insights'); history.replaceState(null,'',location.pathname); }
-  var _isFirstTime = !localStorage.getItem('td_onboarded');
-  if (_isFirstTime) {
-    if (splash) splash.style.display = 'none';
-    setTimeout(function() { if (typeof onboardingOpen === 'function') onboardingOpen(); }, 800);
-    return;
   }
   if (splash) setTimeout(function(){
     splash.classList.add('show');
@@ -16985,7 +16736,8 @@ window.autoRestoreToday = async function(source) {
 
   // Bangkok today string
   // Use the same reliable BKK date as the rest of the app
-  var todayISO = _tdTodayBKK();
+  var todayISO = typeof tdlTodayBKK === 'function' ? tdlTodayBKK()
+    : new Date().toLocaleDateString('sv-SE', {timeZone: 'Asia/Bangkok'});
 
   try {
     // ── 1. Fetch all three tables in parallel ─────────────
@@ -17564,10 +17316,6 @@ async function tdlOnAuth(user) {
   // Pull trading accounts from the cloud (profiles.accounts) so they follow you
   // across browsers/devices instead of being stuck in this browser's localStorage
   pullAccountsFromCloud(_userId);
-  // Load full trade history once so account balances/weekly P&L can be computed
-  // fresh from source data instead of an incrementally-mutated stored number
-  // (the old approach drifted out of sync over time).
-  if (typeof _tdRefreshAllTradesCache === 'function') _tdRefreshAllTradesCache();
 
   // Override save + fetch BEFORE hiding login screen
   tdlPatchApp();
@@ -17608,7 +17356,7 @@ async function tdlOnAuth(user) {
           var _uid = localStorage.getItem('td_user_id');
           var _sb  = window._tdSB;
           if (!_uid || !_sb) return;
-          var _today = _tdTodayBKK();
+          var _today = new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
           // Skip if trades already loaded
           if (window._appState && window._appState.trades && window._appState.trades.filter(function(t){return t.saved;}).length > 0) return;
           var _r = await _sb.from('trades').select('*').eq('user_id',_uid).eq('date',_today).order('created_at',{ascending:true});
@@ -18151,10 +17899,12 @@ function profShowOk(msg) {
 // ── SIGN OUT ──────────────────────────────────────────
 window.tdlSignOut = async function() {
   try { await getSB().auth.signOut(); } catch(e) {}
-  // Clear ALL app data + Supabase auth from localStorage
-  Object.keys(localStorage).filter(function(k){
-    return k.startsWith('td_') || k.startsWith('ptg_') || k.startsWith('sb-') || k.startsWith('supabase');
-  }).forEach(function(k){ localStorage.removeItem(k); });
+  localStorage.removeItem('td_user_id');
+  localStorage.removeItem('td_username');
+  localStorage.removeItem('td_user_email');
+  localStorage.removeItem('td_is_admin');
+  // Clear AI caches on sign out
+  Object.keys(localStorage).filter(function(k){ return k.startsWith('td_brief_') || k.startsWith('td_edge_ai_cache') || k.startsWith('td_edge_ai_ts'); }).forEach(function(k){ localStorage.removeItem(k); });
   _user = null; _userId = null;
   // Reset top-down save/gate state for a fresh session
   window._morningSaved = false;
@@ -18220,8 +17970,6 @@ function tdlPatchApp() {
           if (_ins.data && _ins.data[0] && payload._stateRef) payload._stateRef._sbId = _ins.data[0].id;
           console.log('[supabase] Trade inserted');
         }
-        // Account balances/weekly P&L are derived from trade history — refresh the cache
-        if (typeof _tdRefreshAllTradesCache === 'function') _tdRefreshAllTradesCache();
 
       } else if (type === 'full_day') {
         var _dayRes = await sb.from('daily_summaries').upsert({
@@ -18376,7 +18124,7 @@ window.tdSaveLevels = async function() {
   // Always use the authenticated client — getSB() may lack the session
   var sb = window._tdSB || getSB();
   if (!sb) { console.warn('[levels] tdSaveLevels: no Supabase client'); return; }
-  var today   = _tdTodayBKK();
+  var today   = new Date().toLocaleDateString('sv-SE', {timeZone: 'Asia/Bangkok'});
   var levJson = JSON.stringify(window.levels || []);
   console.log('[levels] Saving', (window.levels||[]).length, 'level(s) to ALL morning_analysis rows. uid=', uid.slice(0,8), 'today=', today);
   try {
@@ -18411,7 +18159,8 @@ window.tdSaveLevels = async function() {
 
 // ── HELPER: today in YYYY-MM-DD Bangkok time ──────────
 function tdlTodayBKK() {
-  return _tdTodayBKK();
+  // Use toLocaleDateString — always correct for Bangkok regardless of system timezone
+  return new Date().toLocaleDateString('sv-SE', {timeZone: 'Asia/Bangkok'});
 }
 
 // ── PRESENCE HEARTBEAT ───────────────────────────────────
@@ -18524,7 +18273,7 @@ window.diagTrades = async function() {
   var uid = localStorage.getItem('td_user_id');
   var sb = window._tdSB;
   if (!uid || !sb) { console.error('[diag] Not logged in'); return; }
-  var today = _tdTodayBKK();
+  var today = new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
   console.log('[diag] uid:', uid, '| today (BKK):', today);
   // Fetch ALL trades (no date filter)
   var all = await sb.from('trades').select('id,date,direction,result,instrument').eq('user_id', uid).order('date', {ascending:false}).limit(50);
@@ -18541,7 +18290,7 @@ window.forceRestoreTrades = async function() {
   var uid = localStorage.getItem('td_user_id');
   var sb = window._tdSB;
   if (!uid || !sb) { alert('Not logged in — please refresh and try again.'); return; }
-  var today = _tdTodayBKK();
+  var today = new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
 
   var btn = document.getElementById('restore-trades-btn');
   if (btn) { btn.textContent = '⟳ Loading...'; btn.style.pointerEvents = 'none'; }
@@ -19375,7 +19124,7 @@ var _fwSteps = [
 ];
 
 // ── Core ───────────────────────────────────────────────
-function fwShouldShow() { return false; }
+function fwShouldShow() { return !localStorage.getItem('fw_done'); }
 
 function fwOpen() {
   _fwStep = 0;
@@ -19729,7 +19478,6 @@ window.fwFinish = fwFinish;
 var _wizSteps = [
   { key:'morning',   label:'Morning Routine',     type:'section', sourceId:'gate-items',  doneCheck:'gates' },
   { key:'news',      label:'Economic Calendar',   type:'section', sourceId:'_econ_card'  },
-  { key:'instrument', label:'Select Instrument',  type:'section', sourceId:'td-instr-tabs' },
   { key:'tf-1M',     label:'1M — Monthly',        type:'tf', tfKey:'1M', tvTF:'M',   hasMacd:false },
   { key:'tf-1W',     label:'1W — Weekly',         type:'tf', tfKey:'1W', tvTF:'W',   hasMacd:false },
   { key:'tf-D',      label:'Daily',               type:'tf', tfKey:'D',  tvTF:'D',   hasMacd:false },
@@ -19868,17 +19616,6 @@ function _wizRenderSection(s, body) {
       '<div style="font-family:var(--display);font-size:28px;color:#fff;letter-spacing:0.04em;margin-bottom:6px">Check Today\'s News & Set Alerts</div>' +
       '<div style="font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.4);line-height:1.6;max-width:440px;margin:0 auto">Big news can make the market jump suddenly — look at the times below.<br>Click the <span style="color:rgba(240,188,78,0.7)">clock button</span> next to a risky one to get an alert before it happens.</div>';
     wrap.appendChild(newsHeader);
-  }
-
-  // Instrument selection gets a header explaining Gold is the default
-  if (s.key === 'instrument') {
-    var instrHeader = document.createElement('div');
-    instrHeader.style.cssText = 'text-align:center;margin-bottom:20px;width:100%';
-    instrHeader.innerHTML =
-      '<div style="font-size:36px;margin-bottom:8px">🥇</div>' +
-      '<div style="font-family:var(--display);font-size:28px;color:#fff;letter-spacing:0.04em;margin-bottom:6px">Which Instrument Today?</div>' +
-      '<div style="font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.4);line-height:1.6;max-width:460px;margin:0 auto"><span style="color:rgba(240,188,78,0.7)">Gold</span> is set as your default. Add another pair with <span style="color:rgba(240,188,78,0.7)">+ Add</span>, or use <span style="color:rgba(240,188,78,0.7)">⚙</span> to change which broker/provider feeds Gold\'s chart — candles can differ slightly between providers.</div>';
-    wrap.appendChild(instrHeader);
   }
 
   // AI Briefing — just header + cards (score/mode already chosen in overview step)
@@ -20482,10 +20219,10 @@ function _wizRenderChoice(s, body) {
   if (s.key === 'direction') {
     // 4H, 1H, 15m side by side — EMAs only, no other indicators
     var emaStudies = [
-      { id: 'MAExp@tv-basicstudies', inputs: { length: 9 },   styles: { 'Plot.color': '#a855f7', 'Plot.linewidth': 1 } },
-      { id: 'MAExp@tv-basicstudies', inputs: { length: 20 },  styles: { 'Plot.color': '#f0bc4e', 'Plot.linewidth': 1 } },
-      { id: 'MAExp@tv-basicstudies', inputs: { length: 50 },  styles: { 'Plot.color': '#6aa3f5', 'Plot.linewidth': 1 } },
-      { id: 'MAExp@tv-basicstudies', inputs: { length: 200 }, styles: { 'Plot.color': '#ffffff', 'Plot.linewidth': 2 } }
+      { id: 'MAExp@tv-basicstudies', inputs: { length: 9 } },
+      { id: 'MAExp@tv-basicstudies', inputs: { length: 20 } },
+      { id: 'MAExp@tv-basicstudies', inputs: { length: 50 } },
+      { id: 'MAExp@tv-basicstudies', inputs: { length: 200 } }
     ];
     var dirGrid = document.createElement('div');
     dirGrid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;width:100%;max-width:1400px;height:420px;margin-bottom:14px';
@@ -20631,28 +20368,10 @@ function _wizKlClick(idx) {
     if (typeof lvlSetConf === 'function') lvlSetConf(l.confidence);
   }
   if (l.notes) { var nEl = document.getElementById('lvl-in-notes'); if (nEl) nEl.value = l.notes; }
-  // Show chart screenshot as lightbox if present
-  if (l.chartImg) {
-    _lvlFormImgUrl = l.chartImg;
-    // Also fill the small preview
-    var preview = document.getElementById('lvl-img-preview');
-    var placeholder = document.getElementById('lvl-img-placeholder');
-    var clearBtn = document.getElementById('lvl-img-clear');
-    if (preview) { preview.src = l.chartImg; preview.style.display = 'block'; }
-    if (placeholder) placeholder.style.display = 'none';
-    if (clearBtn) clearBtn.style.display = 'block';
-    // Show lightbox
-    lvlShowLightbox(l.chartImg, entry.user || '');
-  } else {
-    lvlClearImg();
-  }
   // Also fill live exec calc
   klSendToCalc(idx);
   // Hide hover card
   var card = document.getElementById('kl-hover-card'); if (card) card.classList.remove('show');
-  // Scroll to form to show loaded data
-  var form = document.getElementById('lvl-form');
-  if (form) form.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 window._wizKlHover = _wizKlHover;
 window._wizKlClick = _wizKlClick;
@@ -20839,861 +20558,6 @@ window.wizBack = wizBack;
   setTimeout(_checkUpdate, 10000);
   setInterval(_checkUpdate, 120000);
 })();
-</script>
-
-<!-- TRADE JOURNAL UPLOAD MODAL -->
-<script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
-<style>
-#tj-overlay{display:none;position:fixed;inset:0;z-index:200010;background:rgba(4,5,7,0.94);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:24px}
-#tj-overlay.show{display:flex;animation:eodFadeIn 0.25s ease}
-#tj-card{width:100%;max-width:560px;background:#0d0f14;border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:28px;position:relative;max-height:90vh;overflow-y:auto;transition:max-width 0.15s}
-#tj-card.tj-wide{max-width:920px}
-#tj-close{position:absolute;top:14px;right:14px;background:transparent;border:none;color:rgba(255,255,255,0.3);font-size:18px;cursor:pointer}
-#tj-close:hover{color:#fff}
-.tj-tab{font-family:var(--mono);font-size:9px;letter-spacing:0.08em;padding:6px 14px;border-radius:6px;border:1px solid rgba(255,255,255,0.08);background:transparent;color:rgba(255,255,255,0.4);cursor:pointer;transition:all 0.15s}
-.tj-tab.active{border-color:var(--gold);color:var(--gold);background:rgba(240,188,78,0.1)}
-#tj-drop{width:100%;min-height:100px;border:1.5px dashed rgba(255,255,255,0.12);border-radius:10px;background:rgba(255,255,255,0.02);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;transition:border-color 0.15s;margin-bottom:14px;padding:20px}
-#tj-drop:hover{border-color:rgba(240,188,78,0.4)}
-#tj-result{display:none;margin-top:16px}
-</style>
-<div id="tj-overlay">
-  <div id="tj-card">
-    <button id="tj-close" onclick="document.getElementById('tj-overlay').classList.remove('show')">✕</button>
-    <div id="tj-title" style="font-family:var(--display);font-size:22px;color:#fff;letter-spacing:0.04em;margin-bottom:4px">📊 Upload Trading Data</div>
-    <div id="tj-subtitle" style="font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.35);margin-bottom:18px;line-height:1.6">Upload your prop firm statement, personal spreadsheet, or paste notes.<br>AI analyzes once and saves insights to your profile — no repeated costs.</div>
-
-    <!-- STEP 1: Instrument select -->
-    <div id="tj-instrument-step">
-      <div style="font-family:var(--mono);font-size:8px;color:rgba(255,255,255,0.3);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px">Which instrument is this for?</div>
-      <div id="tj-instrument-chips" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px"></div>
-      <button onclick="tjAnalyzeStep()" style="width:100%;padding:13px;font-family:var(--display);font-size:14px;letter-spacing:0.08em;color:#0a0b0d;background:linear-gradient(135deg,#f0bc4e,#ffd070);border:none;border-radius:10px;cursor:pointer">Continue →</button>
-    </div>
-
-    <!-- STEP 2: upload -->
-    <div id="tj-upload-step" style="display:none">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
-        <button onclick="tjBackToInstrument()" style="background:transparent;border:1px solid rgba(255,255,255,0.12);border-radius:6px;color:rgba(255,255,255,0.4);font-family:var(--mono);font-size:10px;padding:5px 10px;cursor:pointer">← Back</button>
-        <div id="tj-instrument-badge" style="font-family:var(--mono);font-size:10px;color:var(--gold);background:rgba(240,188,78,0.1);border:1px solid rgba(240,188,78,0.3);border-radius:6px;padding:5px 10px"></div>
-      </div>
-
-      <!-- Tabs -->
-      <div style="display:flex;gap:6px;margin-bottom:16px">
-        <button class="tj-tab active" onclick="tjTab('file',this)">📎 File (CSV/XLSX)</button>
-        <button class="tj-tab" onclick="tjTab('text',this)">📝 Text / Notes</button>
-        <button class="tj-tab" onclick="tjTab('both',this)">📎 + 📝 Both</button>
-      </div>
-
-      <!-- File upload -->
-      <div id="tj-file-area">
-        <div id="tj-drop" onclick="document.getElementById('tj-file-input').click()" ondragover="event.preventDefault();this.style.borderColor='rgba(240,188,78,0.6)'" ondragleave="this.style.borderColor='rgba(255,255,255,0.12)'" ondrop="event.preventDefault();this.style.borderColor='rgba(255,255,255,0.12)';tjHandleFile(event.dataTransfer.files[0])">
-          <div style="font-size:24px">📎</div>
-          <div id="tj-drop-text" style="font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.3)">Drop CSV or XLSX here, or click to browse</div>
-          <div style="font-family:var(--mono);font-size:8px;color:rgba(255,255,255,0.15)">Supports multi-tab spreadsheets</div>
-        </div>
-        <input type="file" id="tj-file-input" accept=".csv,.xlsx,.xls,.ods,.tsv" style="display:none" onchange="tjHandleFile(this.files[0])">
-      </div>
-
-      <!-- Text area -->
-      <div id="tj-text-area" style="display:none">
-        <textarea id="tj-notes" style="width:100%;box-sizing:border-box;min-height:120px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:12px;font-family:var(--mono);font-size:11px;color:var(--text);outline:none;resize:vertical;margin-bottom:14px" placeholder="Paste your trading notes, journal entries, or any text about your trading history...&#10;&#10;Examples:&#10;- I keep getting stopped out on reversals&#10;- My best trades are breakouts on 4H after news&#10;- I hold losers too long and cut winners short"></textarea>
-      </div>
-
-      <!-- Parse summary -->
-      <div id="tj-summary" style="display:none;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:12px;margin-bottom:14px">
-        <div style="font-family:var(--mono);font-size:8px;color:rgba(255,255,255,0.3);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px">Parsed data</div>
-        <div id="tj-summary-text" style="font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.6);line-height:1.6"></div>
-      </div>
-
-      <!-- Analyze button -->
-      <button id="tj-analyze-btn" onclick="tjAnalyze()" style="width:100%;padding:13px;font-family:var(--display);font-size:14px;letter-spacing:0.08em;color:#0a0b0d;background:linear-gradient(135deg,#f0bc4e,#ffd070);border:none;border-radius:10px;cursor:pointer;transition:all 0.15s" onmouseover="this.style.background='linear-gradient(135deg,#ffd070,#ffe0a0)'" onmouseout="this.style.background='linear-gradient(135deg,#f0bc4e,#ffd070)'">✨ Analyze with AI (one-time)</button>
-
-      <!-- Results -->
-      <div id="tj-result">
-        <div style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px">✓ Saved to your profile</div>
-        <div id="tj-result-body" style="font-family:var(--mono);font-size:13px;color:rgba(255,255,255,0.75);line-height:1.7"></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ADD INSTRUMENT MODAL -->
-<style>
-#tji-overlay{display:none;position:fixed;inset:0;z-index:200020;background:rgba(4,5,7,0.94);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:24px}
-#tji-overlay.show{display:flex;animation:eodFadeIn 0.2s ease}
-#gp-overlay.show{display:flex !important;animation:eodFadeIn 0.2s ease}
-#aai-overlay{display:none;position:fixed;inset:0;z-index:200020;background:rgba(4,5,7,0.94);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:24px}
-#aai-overlay.show{display:flex;animation:eodFadeIn 0.2s ease}
-.tji-input{width:100%;box-sizing:border-box;background:rgba(255,255,255,0.06);border:1.5px solid rgba(240,188,78,0.35);border-radius:8px;padding:12px 14px;font-family:var(--mono);font-size:12px;color:#fff;outline:none;margin-bottom:12px}
-.tji-label{font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.4);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px}
-.tji-provider-btn{flex:1;font-family:var(--mono);font-size:10px;padding:9px 0;border-radius:7px;border:1px solid rgba(255,255,255,0.12);background:transparent;color:rgba(255,255,255,0.5);cursor:pointer;transition:all 0.15s}
-.tji-provider-btn.active{border-color:var(--gold);color:var(--gold);background:rgba(240,188,78,0.1)}
-</style>
-<div id="tji-overlay">
-  <div style="background:linear-gradient(160deg,#14130d,#0c0d10);border:1px solid rgba(240,188,78,0.3);border-radius:14px;padding:26px;width:420px;max-width:90vw;box-shadow:0 24px 80px rgba(0,0,0,0.7)">
-    <div style="font-family:var(--display);font-size:18px;color:#fff;margin-bottom:4px">➕ Add Instrument</div>
-    <div style="font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.35);margin-bottom:16px">Search TradingView, pick a provider, or paste a chart URL</div>
-
-    <div class="tji-label">Name</div>
-    <input id="tji-name" type="text" class="tji-input" placeholder="e.g. Silver, EUR/USD, Bitcoin">
-
-    <div class="tji-label">Chart provider</div>
-    <div style="display:flex;gap:6px;margin-bottom:12px">
-      <button class="tji-provider-btn active" data-provider="TradingView" onclick="tjiSetProvider(this)">TradingView</button>
-      <button class="tji-provider-btn" data-provider="OANDA" onclick="tjiSetProvider(this)">OANDA</button>
-      <button class="tji-provider-btn" data-provider="FXCM" onclick="tjiSetProvider(this)">FXCM</button>
-      <button class="tji-provider-btn" data-provider="Other" onclick="tjiSetProvider(this)">Other</button>
-    </div>
-
-    <div class="tji-label">TradingView symbol</div>
-    <input id="tji-symbol" type="text" class="tji-input" placeholder="e.g. OANDA:XAGUSD — search tradingview.com/symbols">
-
-    <div class="tji-label">— or paste a TradingView chart URL —</div>
-    <input id="tji-url" type="text" class="tji-input" placeholder="https://www.tradingview.com/chart/?symbol=OANDA:XAGUSD" oninput="tjiUrlChanged(this.value)">
-
-    <div style="display:flex;gap:10px;margin-top:6px">
-      <button onclick="document.getElementById('tji-overlay').classList.remove('show')" style="flex:1;font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.4);background:transparent;border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:12px 0;cursor:pointer">Cancel</button>
-      <button onclick="tjiSave()" style="flex:1;font-family:var(--display);font-size:14px;color:#0a0b0d;background:#f0bc4e;border:none;border-radius:8px;padding:12px 0;cursor:pointer;font-weight:700">Save</button>
-    </div>
-  </div>
-</div>
-
-<!-- GOLD PROVIDER MODAL -->
-<div id="gp-overlay" style="display:none;position:fixed;inset:0;z-index:200020;background:rgba(4,5,7,0.94);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:24px">
-  <div style="background:linear-gradient(160deg,#14130d,#0c0d10);border:1px solid rgba(240,188,78,0.3);border-radius:14px;padding:26px;width:420px;max-width:90vw;box-shadow:0 24px 80px rgba(0,0,0,0.7)">
-    <div style="font-family:var(--display);font-size:18px;color:#fff;margin-bottom:4px">⚙ Gold Chart Provider</div>
-    <div style="font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.35);margin-bottom:16px">Different brokers feed slightly different candles for gold — pick whichever matches your broker, or paste a TradingView chart URL.</div>
-
-    <div class="tji-label">Presets</div>
-    <div id="gp-presets" style="display:flex;flex-direction:column;gap:6px;margin-bottom:16px"></div>
-
-    <div class="tji-label">— or paste a TradingView chart URL —</div>
-    <input id="gp-url" type="text" class="tji-input" placeholder="https://www.tradingview.com/chart/?symbol=OANDA:XAUUSD" oninput="gpUrlChanged(this.value)">
-
-    <div style="display:flex;gap:10px;margin-top:6px">
-      <button onclick="document.getElementById('gp-overlay').classList.remove('show')" style="flex:1;font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.4);background:transparent;border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:12px 0;cursor:pointer">Cancel</button>
-      <button onclick="gpSaveCustom()" style="flex:1;font-family:var(--display);font-size:14px;color:#0a0b0d;background:#f0bc4e;border:none;border-radius:8px;padding:12px 0;cursor:pointer;font-weight:700">Use URL</button>
-    </div>
-  </div>
-</div>
-
-<!-- ADD ANALYSIS INSTRUMENT MODAL (top-down analysis tabs / morning wizard) -->
-<div id="aai-overlay">
-  <div style="background:linear-gradient(160deg,#14130d,#0c0d10);border:1px solid rgba(240,188,78,0.3);border-radius:14px;padding:26px;width:420px;max-width:90vw;box-shadow:0 24px 80px rgba(0,0,0,0.7)">
-    <div style="font-family:var(--display);font-size:18px;color:#fff;margin-bottom:4px">➕ Add Instrument</div>
-    <div style="font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.35);margin-bottom:16px">Pick a provider, type a TradingView symbol, or paste a chart URL</div>
-
-    <div class="tji-label">Provider</div>
-    <div id="aai-providers" style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap"></div>
-
-    <div class="tji-label">TradingView symbol</div>
-    <input id="aai-symbol" type="text" class="tji-input" placeholder="e.g. XAGUSD, EURUSD, BTCUSD">
-
-    <div class="tji-label">— or paste a TradingView chart URL —</div>
-    <input id="aai-url" type="text" class="tji-input" placeholder="https://www.tradingview.com/chart/?symbol=OANDA:XAGUSD" oninput="aaiUrlChanged(this.value)">
-
-    <div style="display:flex;gap:10px;margin-top:6px">
-      <button onclick="document.getElementById('aai-overlay').classList.remove('show')" style="flex:1;font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.4);background:transparent;border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:12px 0;cursor:pointer">Cancel</button>
-      <button onclick="aaiSave()" style="flex:1;font-family:var(--display);font-size:14px;color:#0a0b0d;background:#f0bc4e;border:none;border-radius:8px;padding:12px 0;cursor:pointer;font-weight:700">Add</button>
-    </div>
-  </div>
-</div>
-
-<script>
-// ── INSTRUMENTS ───────────────────────────────────────
-var TD_INSTRUMENTS_KEY = 'td_instruments_v1';
-var TD_ACTIVE_INSTRUMENT_KEY = 'td_active_instrument';
-var _tjDefaultInstruments = [
-  { id: 'gold', name: 'Gold', symbol: 'OANDA:XAUUSD', provider: 'TradingView' }
-];
-var _tjSelectedInstrument = null;
-
-function tjLoadInstruments() {
-  try {
-    var list = JSON.parse(localStorage.getItem(TD_INSTRUMENTS_KEY) || 'null');
-    if (!list || !list.length) { list = _tjDefaultInstruments.slice(); tjSaveInstruments(list); }
-    return list;
-  } catch(e) { return _tjDefaultInstruments.slice(); }
-}
-function tjSaveInstruments(list) {
-  try { localStorage.setItem(TD_INSTRUMENTS_KEY, JSON.stringify(list)); } catch(e) {}
-  var sb = window._tdSB; var uid = localStorage.getItem('td_user_id');
-  if (sb && uid) { sb.from('profiles').update({ instruments: list }).eq('id', uid).then(function(){}, function(){}); }
-}
-function tjSaveActiveInstrument(id) {
-  try { localStorage.setItem(TD_ACTIVE_INSTRUMENT_KEY, id); } catch(e) {}
-  var sb = window._tdSB; var uid = localStorage.getItem('td_user_id');
-  if (sb && uid) { sb.from('profiles').update({ active_instrument: id }).eq('id', uid).then(function(){}, function(){}); }
-}
-
-function tjRenderInstrumentChips() {
-  var wrap = document.getElementById('tj-instrument-chips');
-  if (!wrap) return;
-  wrap.innerHTML = '';
-  var list = tjLoadInstruments();
-  var activeId = localStorage.getItem(TD_ACTIVE_INSTRUMENT_KEY) || 'gold';
-  if (!_tjSelectedInstrument) _tjSelectedInstrument = list.find(function(i){ return i.id === activeId; }) || list[0];
-  list.forEach(function(inst) {
-    var chip = document.createElement('button');
-    var isActive = _tjSelectedInstrument && _tjSelectedInstrument.id === inst.id;
-    chip.type = 'button';
-    chip.style.cssText = 'font-family:var(--mono);font-size:11px;padding:9px 16px;border-radius:8px;cursor:pointer;transition:all 0.15s;border:1.5px solid ' + (isActive ? 'var(--gold)' : 'rgba(255,255,255,0.12)') + ';background:' + (isActive ? 'rgba(240,188,78,0.12)' : 'transparent') + ';color:' + (isActive ? 'var(--gold)' : 'rgba(255,255,255,0.55)');
-    chip.textContent = (inst.id === 'gold' ? '🥇 ' : '') + inst.name;
-    chip.onclick = function() { _tjSelectedInstrument = inst; tjRenderInstrumentChips(); };
-    wrap.appendChild(chip);
-  });
-  var addBtn = document.createElement('button');
-  addBtn.type = 'button';
-  addBtn.style.cssText = 'font-family:var(--mono);font-size:11px;padding:9px 16px;border-radius:8px;cursor:pointer;border:1.5px dashed rgba(255,255,255,0.2);background:transparent;color:rgba(255,255,255,0.4)';
-  addBtn.textContent = '+ Add Instrument';
-  addBtn.onclick = function() { tjiOpen(); };
-  wrap.appendChild(addBtn);
-}
-
-function tjAnalyzeStep() {
-  if (!_tjSelectedInstrument) { var list = tjLoadInstruments(); _tjSelectedInstrument = list[0]; }
-  tjSaveActiveInstrument(_tjSelectedInstrument.id);
-  document.getElementById('tj-instrument-step').style.display = 'none';
-  document.getElementById('tj-upload-step').style.display = '';
-  var badge = document.getElementById('tj-instrument-badge');
-  if (badge) badge.textContent = (_tjSelectedInstrument.id === 'gold' ? '🥇 ' : '') + _tjSelectedInstrument.name;
-}
-
-function tjBackToInstrument() {
-  document.getElementById('tj-upload-step').style.display = 'none';
-  document.getElementById('tj-instrument-step').style.display = '';
-}
-
-// ── ADD INSTRUMENT MODAL ──────────────────────────────
-var _tjiProvider = 'TradingView';
-function tjiOpen() {
-  document.getElementById('tji-name').value = '';
-  document.getElementById('tji-symbol').value = '';
-  document.getElementById('tji-url').value = '';
-  _tjiProvider = 'TradingView';
-  document.querySelectorAll('.tji-provider-btn').forEach(function(b){ b.classList.toggle('active', b.dataset.provider === 'TradingView'); });
-  document.getElementById('tji-overlay').classList.add('show');
-  setTimeout(function(){ document.getElementById('tji-name').focus(); }, 50);
-}
-window.tjiOpen = tjiOpen;
-
-function tjiSetProvider(btn) {
-  _tjiProvider = btn.dataset.provider;
-  document.querySelectorAll('.tji-provider-btn').forEach(function(b){ b.classList.toggle('active', b === btn); });
-}
-window.tjiSetProvider = tjiSetProvider;
-
-// Extract a TradingView symbol (EXCHANGE:TICKER) from a pasted chart URL
-function _tdExtractTVSymbol(url) {
-  if (!url) return '';
-  var m = url.match(/symbol=([A-Za-z0-9_.:%-]+)/i);
-  return m && m[1] ? decodeURIComponent(m[1]).toUpperCase() : '';
-}
-
-function tjiUrlChanged(url) {
-  var sym = _tdExtractTVSymbol(url);
-  if (sym) document.getElementById('tji-symbol').value = sym;
-}
-window.tjiUrlChanged = tjiUrlChanged;
-
-function tjiSave() {
-  var name = (document.getElementById('tji-name').value || '').trim();
-  var symbol = (document.getElementById('tji-symbol').value || '').trim().toUpperCase();
-  var url = (document.getElementById('tji-url').value || '').trim();
-  if (!name) { alert('Give the instrument a name'); return; }
-  if (!symbol && !url) { alert('Add a TradingView symbol or paste a chart URL'); return; }
-  var id = name.toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'') || ('inst_' + Date.now());
-  var list = tjLoadInstruments().filter(function(i){ return i.id !== id; });
-  var inst = { id: id, name: name, symbol: symbol, provider: _tjiProvider, url: url };
-  list.push(inst);
-  tjSaveInstruments(list);
-  _tjSelectedInstrument = inst;
-  document.getElementById('tji-overlay').classList.remove('show');
-  tjRenderInstrumentChips();
-}
-window.tjiSave = tjiSave;
-
-// ── GOLD CHART PROVIDER ────────────────────────────────
-var GP_PRESETS = [
-  { label: 'Capital.com (default)', symbol: 'CAPITALCOM:XAUUSD' },
-  { label: 'OANDA',                  symbol: 'OANDA:XAUUSD' },
-  { label: 'FOREX.com',              symbol: 'FOREXCOM:XAUUSD' },
-  { label: 'Pepperstone',            symbol: 'PEPPERSTONE:XAUUSD' },
-  { label: 'TVC (spot gold index)',  symbol: 'TVC:GOLD' }
-];
-
-function gpRenderPresets() {
-  var wrap = document.getElementById('gp-presets');
-  if (!wrap) return;
-  var current = tdGoldSymbol();
-  wrap.innerHTML = '';
-  GP_PRESETS.forEach(function(p) {
-    var isActive = p.symbol === current;
-    var b = document.createElement('button');
-    b.type = 'button';
-    b.style.cssText = 'display:flex;justify-content:space-between;align-items:center;width:100%;text-align:left;font-family:var(--mono);font-size:11px;padding:10px 12px;border-radius:8px;cursor:pointer;border:1.5px solid ' + (isActive ? 'var(--gold)' : 'rgba(255,255,255,0.1)') + ';background:' + (isActive ? 'rgba(240,188,78,0.1)' : 'transparent') + ';color:' + (isActive ? 'var(--gold)' : 'rgba(255,255,255,0.6)');
-    b.innerHTML = '<span>' + p.label + '</span><span style="opacity:0.5">' + p.symbol + '</span>';
-    b.onclick = function() { tdSetGoldSymbol(p.symbol); document.getElementById('gp-overlay').classList.remove('show'); };
-    wrap.appendChild(b);
-  });
-}
-
-function gpOpen() {
-  document.getElementById('gp-url').value = '';
-  gpRenderPresets();
-  document.getElementById('gp-overlay').classList.add('show');
-}
-window.gpOpen = gpOpen;
-
-function gpUrlChanged(url) {
-  // Just live-validate; actual save happens on "Use URL" click
-}
-window.gpUrlChanged = gpUrlChanged;
-
-function gpSaveCustom() {
-  var url = (document.getElementById('gp-url').value || '').trim();
-  var sym = _tdExtractTVSymbol(url);
-  if (!sym) { alert('Paste a full TradingView chart URL, e.g. https://www.tradingview.com/chart/?symbol=OANDA:XAUUSD'); return; }
-  tdSetGoldSymbol(sym);
-  document.getElementById('gp-overlay').classList.remove('show');
-}
-window.gpSaveCustom = gpSaveCustom;
-
-(function() {
-  var lbl = document.getElementById('gold-provider-label');
-  if (lbl) lbl.textContent = tdGoldSymbol().split(':')[0];
-})();
-
-// ── ADD ANALYSIS INSTRUMENT (top-down tabs / morning wizard) ──
-var AAI_PROVIDERS = ['OANDA', 'FOREXCOM', 'CAPITALCOM', 'PEPPERSTONE', 'BINANCE', 'NASDAQ'];
-var _aaiProvider = '';
-
-function aaiRenderProviders() {
-  var wrap = document.getElementById('aai-providers');
-  if (!wrap) return;
-  wrap.innerHTML = '';
-  AAI_PROVIDERS.forEach(function(p) {
-    var b = document.createElement('button');
-    b.type = 'button';
-    b.className = 'tji-provider-btn' + (p === _aaiProvider ? ' active' : '');
-    b.style.flex = '0 1 auto'; b.style.padding = '7px 10px';
-    b.textContent = p;
-    b.onclick = function() {
-      _aaiProvider = (_aaiProvider === p) ? '' : p;
-      aaiRenderProviders();
-      var symEl = document.getElementById('aai-symbol');
-      if (symEl) {
-        var raw = symEl.value.replace(/^[A-Z.]+:/, '');
-        symEl.value = _aaiProvider ? (_aaiProvider + ':' + raw) : raw;
-      }
-    };
-    wrap.appendChild(b);
-  });
-}
-
-function aaiOpen() {
-  document.getElementById('aai-symbol').value = '';
-  document.getElementById('aai-url').value = '';
-  _aaiProvider = '';
-  aaiRenderProviders();
-  document.getElementById('aai-overlay').classList.add('show');
-  setTimeout(function(){ document.getElementById('aai-symbol').focus(); }, 50);
-}
-window.aaiOpen = aaiOpen;
-
-function aaiUrlChanged(url) {
-  var sym = _tdExtractTVSymbol(url);
-  if (sym) document.getElementById('aai-symbol').value = sym;
-}
-window.aaiUrlChanged = aaiUrlChanged;
-
-function aaiSave() {
-  var raw = (document.getElementById('aai-symbol').value || '').trim().toUpperCase();
-  if (!raw) { alert('Type a symbol (e.g. XAGUSD) or paste a TradingView chart URL'); return; }
-  if (raw === 'GOLD' || raw === 'XAUUSD' || raw.endsWith(':XAUUSD')) { alert('Gold already has its own tab — use the ⚙ button to change its provider instead.'); return; }
-  var list = _tdLoadAnalysisTickers();
-  if (list.indexOf(raw) === -1) { list.push(raw); _tdSaveAnalysisTickers(list); }
-  document.getElementById('aai-overlay').classList.remove('show');
-  renderAnalysisInstrumentTabs();
-  switchAnalysisInstrument(raw, _tdFindInstrTabBtn(raw));
-}
-window.aaiSave = aaiSave;
-
-// ── TRADE JOURNAL UPLOAD ──────────────────────────────
-var _tjParsedData = '';
-var _tjNotes = '';
-var _tjMode = 'file';
-
-function tjSetResultTitle() {
-  var t = document.getElementById('tj-title'); if (t) t.textContent = '🧠 Your Trading Profile';
-  var s = document.getElementById('tj-subtitle'); if (s) s.textContent = 'AI insights from your journal, saved to your profile.';
-  var card = document.getElementById('tj-card'); if (card) card.classList.add('tj-wide');
-}
-
-// Trim older/verbose saved insights down to short phrases so legacy data
-// (analyzed before the prompt was tightened) still renders cleanly.
-function _tjShorten(str, maxWords) {
-  if (!str) return '';
-  var words = String(str).split(/\s+/);
-  if (words.length <= maxWords) return str;
-  return words.slice(0, maxWords).join(' ') + '…';
-}
-
-function tjInsightsHTML(p) {
-  var strengths = (p.strengths || []).slice(0, 3).map(function(s){ return _tjShorten(s, 7); });
-  var weaknesses = (p.weaknesses || []).slice(0, 3).map(function(s){ return _tjShorten(s, 7); });
-  var recs = (p.recommendations || []).slice(0, 2).map(function(s){ return _tjShorten(s, 8); });
-  var summary = _tjShorten(p.summary, 18);
-
-  return (
-    // Header row: avatar + personality/risk on the left, stat tiles on the right
-    '<div style="display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,0.07)">' +
-      '<div style="display:flex;align-items:center;gap:12px">' +
-        '<div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,rgba(240,188,78,0.18),rgba(240,188,78,0.04));border:1px solid rgba(240,188,78,0.3);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">🧠</div>' +
-        '<div>' +
-          '<div style="font-family:var(--display);font-size:18px;color:#fff;letter-spacing:0.02em;line-height:1.2">' + (p.personality || 'Trader') + '</div>' +
-          '<div style="display:inline-block;margin-top:3px;font-family:var(--mono);font-size:9px;letter-spacing:0.06em;text-transform:uppercase;color:var(--gold);background:rgba(240,188,78,0.1);border:1px solid rgba(240,188,78,0.25);border-radius:5px;padding:2px 7px">' + (p.risk_level || '—') + ' risk</div>' +
-        '</div>' +
-      '</div>' +
-      '<div style="display:flex;gap:8px;flex-shrink:0">' +
-        '<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:9px;padding:7px 14px;text-align:center">' +
-          '<div style="font-family:var(--mono);font-size:8px;color:rgba(255,255,255,0.35);letter-spacing:0.08em;text-transform:uppercase">Win rate</div>' +
-          '<div style="font-family:var(--display);font-size:15px;color:#fff">' + (p.win_rate_est || '—') + '</div>' +
-        '</div>' +
-        '<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:9px;padding:7px 14px;text-align:center">' +
-          '<div style="font-family:var(--mono);font-size:8px;color:rgba(255,255,255,0.35);letter-spacing:0.08em;text-transform:uppercase">Avg R:R</div>' +
-          '<div style="font-family:var(--display);font-size:15px;color:#fff">' + (p.avg_rr_est || '—') + '</div>' +
-        '</div>' +
-      '</div>' +
-    '</div>' +
-
-    // Summary as a quote callout
-    '<div style="border-left:2px solid var(--gold);padding:1px 0 1px 14px;margin-bottom:14px;font-size:13px;color:rgba(255,255,255,0.8);line-height:1.5;font-style:italic">' + summary + '</div>' +
-
-    // Strengths / Weaknesses / Focus on next — 3 columns side by side
-    '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">' +
-      '<div style="background:rgba(78,214,138,0.05);border:1px solid rgba(78,214,138,0.18);border-radius:12px;padding:12px">' +
-        '<div style="display:flex;align-items:center;gap:6px;margin-bottom:8px"><span style="color:var(--green);font-size:12px">●</span><span style="font-family:var(--mono);font-size:9px;color:var(--green);letter-spacing:0.1em;text-transform:uppercase">Strengths</span></div>' +
-        strengths.map(function(s){return '<div style="font-size:12px;color:rgba(255,255,255,0.78);margin-bottom:6px;line-height:1.35;padding-left:13px;position:relative"><span style="position:absolute;left:0;color:var(--green)">✓</span>'+s+'</div>';}).join('') +
-      '</div>' +
-      '<div style="background:rgba(240,96,96,0.05);border:1px solid rgba(240,96,96,0.18);border-radius:12px;padding:12px">' +
-        '<div style="display:flex;align-items:center;gap:6px;margin-bottom:8px"><span style="color:var(--red);font-size:12px">●</span><span style="font-family:var(--mono);font-size:9px;color:var(--red);letter-spacing:0.1em;text-transform:uppercase">Weaknesses</span></div>' +
-        weaknesses.map(function(s){return '<div style="font-size:12px;color:rgba(255,255,255,0.78);margin-bottom:6px;line-height:1.35;padding-left:13px;position:relative"><span style="position:absolute;left:0;color:var(--red)">✗</span>'+s+'</div>';}).join('') +
-      '</div>' +
-      '<div style="background:rgba(240,188,78,0.05);border:1px solid rgba(240,188,78,0.18);border-radius:12px;padding:12px">' +
-        '<div style="display:flex;align-items:center;gap:6px;margin-bottom:8px"><span style="color:var(--gold);font-size:12px">●</span><span style="font-family:var(--mono);font-size:9px;color:var(--gold);letter-spacing:0.1em;text-transform:uppercase">Focus next</span></div>' +
-        recs.map(function(s, i){return '<div style="display:flex;gap:7px;align-items:flex-start;margin-bottom:6px"><span style="flex-shrink:0;width:15px;height:15px;border-radius:50%;background:rgba(240,188,78,0.15);color:var(--gold);font-family:var(--mono);font-size:8px;display:flex;align-items:center;justify-content:center;margin-top:1px">'+(i+1)+'</span><span style="font-size:12px;color:rgba(255,255,255,0.78);line-height:1.35">'+s+'</span></div>';}).join('') +
-      '</div>' +
-    '</div>' +
-    '<div style="margin-top:16px"></div>'
-  );
-}
-
-function tjTab(mode, btn) {
-  _tjMode = mode;
-  document.querySelectorAll('.tj-tab').forEach(function(b){ b.classList.remove('active'); });
-  btn.classList.add('active');
-  document.getElementById('tj-file-area').style.display = (mode === 'file' || mode === 'both') ? '' : 'none';
-  document.getElementById('tj-text-area').style.display = (mode === 'text' || mode === 'both') ? '' : 'none';
-}
-
-function tjHandleFile(file) {
-  if (!file) return;
-  var dropText = document.getElementById('tj-drop-text');
-  if (dropText) dropText.textContent = '📄 ' + file.name;
-
-  var reader = new FileReader();
-  reader.onload = function(e) {
-    try {
-      var data = new Uint8Array(e.target.result);
-      var wb = XLSX.read(data, {type:'array'});
-      var allText = '';
-      wb.SheetNames.forEach(function(name) {
-        var ws = wb.Sheets[name];
-        var csv = XLSX.utils.sheet_to_csv(ws, {blankrows:false});
-        if (csv.trim()) {
-          allText += '=== Sheet: ' + name + ' ===\n' + csv.trim() + '\n\n';
-        }
-      });
-      _tjParsedData = allText;
-      // Show summary
-      var lines = allText.split('\n').filter(function(l){ return l.trim(); });
-      var summaryEl = document.getElementById('tj-summary');
-      var summaryText = document.getElementById('tj-summary-text');
-      if (summaryEl && summaryText) {
-        summaryText.textContent = wb.SheetNames.length + ' sheet(s) · ' + lines.length + ' rows parsed from ' + file.name;
-        summaryEl.style.display = '';
-      }
-    } catch(err) {
-      console.warn('[tj] Parse error:', err.message);
-      if (dropText) dropText.textContent = '❌ Error parsing file — try CSV format';
-    }
-  };
-  reader.readAsArrayBuffer(file);
-}
-
-async function tjAnalyze() {
-  var notes = (document.getElementById('tj-notes') || {}).value || '';
-  var combined = '';
-  if (_tjParsedData) combined += _tjParsedData;
-  if (notes.trim()) combined += '\n=== TRADER NOTES ===\n' + notes.trim();
-  if (!combined.trim()) { alert('Upload a file or paste some notes first'); return; }
-
-  // Truncate to ~3000 chars to save tokens
-  if (combined.length > 3000) combined = combined.slice(0, 3000) + '\n...(truncated)';
-
-  var btn = document.getElementById('tj-analyze-btn');
-  if (btn) { btn.disabled = true; btn.style.opacity = '0.6'; btn.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;gap:10px"><div style="width:16px;height:16px;border:2px solid rgba(10,11,13,0.3);border-top-color:#0a0b0d;border-radius:50%;animation:obSpin 0.8s linear infinite"></div> Analyzing your data...</div>'; }
-  // Add spinner keyframe if not present
-  if (!document.getElementById('ob-spin-style')) { var ss=document.createElement('style'); ss.id='ob-spin-style'; ss.textContent='@keyframes obSpin{to{transform:rotate(360deg)}}'; document.head.appendChild(ss); }
-
-  var inst = _tjSelectedInstrument || tjLoadInstruments()[0];
-
-  try {
-    var prompt = 'You are a trading performance analyst. Analyze this trading data/notes for the instrument "' + (inst ? inst.name : 'Gold') + '" and provide insights. Be concise — short, punchy phrases, not paragraphs.\n\n' +
-      '=== DATA ===\n' + combined + '\n\n' +
-      'Output JSON only:\n' +
-      '{"summary":"ONE concise sentence, max 20 words, overview of trader profile","strengths":["short phrase, max 8 words","short phrase, max 8 words","short phrase, max 8 words"],"weaknesses":["short phrase, max 8 words","short phrase, max 8 words","short phrase, max 8 words"],"recommendations":["short actionable phrase, max 10 words","short actionable phrase, max 10 words"],"win_rate_est":"estimated %","avg_rr_est":"estimated R:R","personality":"1 word trading personality type","risk_level":"conservative/moderate/aggressive"}\n' +
-      'ONLY valid JSON.';
-
-    var apiKey = localStorage.getItem('td_api_key') || '';
-    var res = await fetch('/api/ai-proxy', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 600, messages: [{ role: 'user', content: prompt }], _userKey: apiKey })
-    });
-    var data = await res.json();
-    if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
-    var text = (data.content && data.content[0] && data.content[0].text) || '';
-    console.log('[tj] Raw AI response:', text.slice(0, 300));
-    if (!text) throw new Error('Empty response from AI');
-    var cleaned = text.replace(/^```json\s*/,'').replace(/\s*```$/,'').trim();
-    // Find JSON object in response
-    var jsonStart = cleaned.indexOf('{');
-    var jsonEnd = cleaned.lastIndexOf('}');
-    if (jsonStart === -1 || jsonEnd === -1) throw new Error('No JSON found in response: ' + cleaned.slice(0, 100));
-    var parsed = JSON.parse(cleaned.slice(jsonStart, jsonEnd + 1));
-    parsed.instrument_id = inst ? inst.id : 'gold';
-    parsed.instrument_name = inst ? inst.name : 'Gold';
-
-    // Save to Supabase profile
-    var sb = window._tdSB;
-    var uid = localStorage.getItem('td_user_id');
-    if (sb && uid) {
-      await sb.from('profiles').update({ trading_insights: parsed }).eq('id', uid);
-      console.log('[tj] Insights saved to Supabase');
-    }
-    localStorage.setItem('td_trading_insights', JSON.stringify(parsed));
-
-    // Display results
-    var resultEl = document.getElementById('tj-result');
-    var bodyEl = document.getElementById('tj-result-body');
-    if (resultEl && bodyEl) {
-      resultEl.style.display = 'block';
-      // Hide upload area, show results prominently
-      var fileArea = document.getElementById('tj-file-area'); if (fileArea) fileArea.style.display = 'none';
-      var textArea = document.getElementById('tj-text-area'); if (textArea) textArea.style.display = 'none';
-      var summaryArea = document.getElementById('tj-summary'); if (summaryArea) summaryArea.style.display = 'none';
-      document.querySelectorAll('.tj-tab').forEach(function(t){ t.style.display = 'none'; });
-      if (btn) btn.style.display = 'none';
-      tjSetResultTitle();
-      bodyEl.innerHTML = tjInsightsHTML(parsed) +
-        '<button onclick="document.getElementById(\'tj-overlay\').classList.remove(\'show\')" style="width:100%;padding:14px;font-family:var(--display);font-size:15px;letter-spacing:0.08em;color:#0a0b0d;background:linear-gradient(135deg,#f0bc4e,#ffd070);border:none;border-radius:10px;cursor:pointer;margin-top:4px">✓ Done — Insights Saved</button>';
-      // Scroll to results
-      resultEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  } catch(err) {
-    console.error('[tj] Analysis failed:', err);
-    var errEl = document.getElementById('tj-result');
-    var errBody = document.getElementById('tj-result-body');
-    if (errEl && errBody) {
-      errEl.style.display = '';
-      errBody.innerHTML = '<div style="background:rgba(240,96,96,0.08);border:1px solid rgba(240,96,96,0.2);border-radius:8px;padding:14px;text-align:center">' +
-        '<div style="font-family:var(--display);font-size:14px;color:#f06060;margin-bottom:6px">Analysis Failed</div>' +
-        '<div style="font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.4);line-height:1.6">' + (err.message || 'Unknown error') + '<br>Check the browser console for details, or try again.</div></div>';
-    }
-  } finally {
-    if (btn) { btn.disabled = false; btn.innerHTML = '✨ Analyze with AI (one-time)'; btn.style.opacity = ''; }
-  }
-}
-
-function tjOpen() {
-  console.log('[tjOpen] called. localStorage insights:', !!localStorage.getItem('td_trading_insights'));
-  // Reset title/subtitle/width to default upload copy (overridden below if showing saved insights)
-  var titleEl = document.getElementById('tj-title'); if (titleEl) titleEl.textContent = '📊 Upload Trading Data';
-  var subtitleEl = document.getElementById('tj-subtitle'); if (subtitleEl) subtitleEl.textContent = 'Upload your prop firm statement, personal spreadsheet, or paste notes.';
-  var cardEl = document.getElementById('tj-card'); if (cardEl) cardEl.classList.remove('tj-wide');
-  // Reset UI state
-  var fileArea = document.getElementById('tj-file-area'); if (fileArea) fileArea.style.display = '';
-  var textArea = document.getElementById('tj-text-area');
-  var summaryArea = document.getElementById('tj-summary'); if (summaryArea) summaryArea.style.display = 'none';
-  var resultEl = document.getElementById('tj-result'); if (resultEl) resultEl.style.display = 'none';
-  var btn = document.getElementById('tj-analyze-btn'); if (btn) { btn.style.display = ''; btn.disabled = false; btn.innerHTML = '✨ Analyze with AI (one-time)'; btn.style.opacity = ''; }
-  document.querySelectorAll('.tj-tab').forEach(function(t){ t.style.display = ''; });
-
-  // Reset to instrument-pick step
-  _tjSelectedInstrument = null;
-  var instStep = document.getElementById('tj-instrument-step'); if (instStep) instStep.style.display = '';
-  var uploadStep = document.getElementById('tj-upload-step'); if (uploadStep) uploadStep.style.display = 'none';
-  tjRenderInstrumentChips();
-
-  // Pull instruments from Supabase in background (in case added on another device)
-  (function(){
-    var _sb = window._tdSB; var _uid = localStorage.getItem('td_user_id');
-    if (_sb && _uid) {
-      _sb.from('profiles').select('instruments').eq('id', _uid).single().then(function(r) {
-        if (r.data && r.data.instruments && r.data.instruments.length) {
-          localStorage.setItem(TD_INSTRUMENTS_KEY, JSON.stringify(r.data.instruments));
-          tjRenderInstrumentChips();
-        }
-      }, function(){});
-    }
-  })();
-
-  // Check for existing insights — localStorage first, then Supabase
-  var existing = localStorage.getItem('td_trading_insights');
-
-  // No local insights — try Supabase in background, but show upload form immediately
-  if (!existing) {
-    var _sb = window._tdSB; var _uid = localStorage.getItem('td_user_id');
-    if (_sb && _uid) {
-      _sb.from('profiles').select('trading_insights').eq('id', _uid).single().then(function(r) {
-        if (r.data && r.data.trading_insights && r.data.trading_insights.summary) {
-          localStorage.setItem('td_trading_insights', JSON.stringify(r.data.trading_insights));
-          // If modal is still open, refresh it with the data
-          var ov = document.getElementById('tj-overlay');
-          if (ov && ov.classList.contains('show')) tjOpen();
-        }
-      });
-    }
-  }
-
-  console.log('[tjOpen] existing?', !!existing, 'fileArea?', !!fileArea, 'fileArea.display:', fileArea?fileArea.style.display:'N/A');
-  if (existing) {
-    console.log('[tjOpen] showing saved insights');
-    try {
-      var p = JSON.parse(existing);
-      if (p.summary && resultEl) {
-        var bodyEl = document.getElementById('tj-result-body');
-        if (fileArea) fileArea.style.display = 'none';
-        if (textArea) textArea.style.display = 'none';
-        document.querySelectorAll('.tj-tab').forEach(function(t){ t.style.display = 'none'; });
-        if (btn) btn.style.display = 'none';
-        resultEl.style.display = 'block';
-        if (instStep) instStep.style.display = 'none';
-        if (uploadStep) uploadStep.style.display = '';
-        var badgeEl = document.getElementById('tj-instrument-badge');
-        if (badgeEl) badgeEl.textContent = (p.instrument_id === 'gold' ? '🥇 ' : '') + (p.instrument_name || 'Gold');
-        tjSetResultTitle();
-        bodyEl.innerHTML = tjInsightsHTML(p) +
-          '<div style="display:flex;gap:8px;margin-top:4px">' +
-            '<button onclick="document.getElementById(\'tj-overlay\').classList.remove(\'show\')" style="flex:1;padding:13px;font-family:var(--display);font-size:14px;letter-spacing:0.06em;color:#0a0b0d;background:var(--gold);border:none;border-radius:8px;cursor:pointer">✓ Close</button>' +
-            '<button onclick="localStorage.removeItem(\'td_trading_insights\');tjOpen()" style="flex:1;padding:13px;font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.4);background:transparent;border:1px solid rgba(255,255,255,0.1);border-radius:8px;cursor:pointer">↻ Re-analyze</button>' +
-          '</div>';
-      }
-    } catch(e){}
-  }
-  console.log('[tjOpen] Final state — fileArea:', document.getElementById('tj-file-area')?.style.display, 'tabs:', document.querySelector('.tj-tab')?.style.display, 'btn:', document.getElementById('tj-analyze-btn')?.style.display, 'result:', document.getElementById('tj-result')?.style.display);
-  document.getElementById('tj-overlay').classList.add('show');
-}
-window.tjOpen = tjOpen;
-</script>
-
-<!-- NEW ONBOARDING FLOW -->
-<style>
-#onboard-overlay{display:none;position:fixed;inset:0;z-index:200020;background:radial-gradient(ellipse at 50% 30%,#0c1020 0%,#040608 70%);align-items:center;justify-content:center;padding:24px;overflow-y:auto}
-#onboard-overlay.show{display:flex;animation:eodFadeIn 0.4s ease}
-#onboard-card{width:100%;max-width:560px;text-align:center}
-.ob-step{display:none}
-.ob-step.active{display:block;animation:obSlideUp 0.5s cubic-bezier(0.16,1,0.3,1)}
-@keyframes obSlideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
-@keyframes obGlow{0%,100%{box-shadow:0 0 30px rgba(240,188,78,0.15)}50%{box-shadow:0 0 60px rgba(240,188,78,0.3)}}
-.ob-hero-btn{width:100%;padding:18px;font-family:var(--display);font-size:18px;letter-spacing:0.1em;color:#0a0b0d;background:linear-gradient(135deg,#f0bc4e,#ffd070);border:none;border-radius:14px;cursor:pointer;transition:all 0.2s;animation:obGlow 2s ease-in-out infinite}
-.ob-hero-btn:hover{transform:translateY(-2px);box-shadow:0 8px 40px rgba(240,188,78,0.4)}
-.ob-secondary-btn{width:100%;padding:14px;font-family:var(--mono);font-size:10px;letter-spacing:0.06em;color:rgba(255,255,255,0.35);background:transparent;border:1px solid rgba(255,255,255,0.08);border-radius:12px;cursor:pointer;transition:all 0.15s}
-.ob-secondary-btn:hover{color:#fff;border-color:rgba(255,255,255,0.2);background:rgba(255,255,255,0.03)}
-.ob-benefit{display:flex;align-items:flex-start;gap:14px;text-align:left;padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
-.ob-benefit:last-child{border-bottom:none}
-.ob-benefit-icon{font-size:24px;flex-shrink:0;width:40px;text-align:center}
-.ob-benefit-text{flex:1}
-.ob-benefit-title{font-family:var(--display);font-size:14px;color:#fff;letter-spacing:0.03em;margin-bottom:3px}
-.ob-benefit-desc{font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.4);line-height:1.6}
-.ob-step-pill{display:inline-flex;align-items:center;gap:8px;padding:6px 16px;border-radius:20px;background:rgba(240,188,78,0.08);border:1px solid rgba(240,188,78,0.2);margin-bottom:20px}
-.ob-step-pill span{font-family:var(--mono);font-size:8px;letter-spacing:0.12em;color:var(--gold);text-transform:uppercase}
-</style>
-<div id="onboard-overlay">
-  <div id="onboard-card">
-
-    <!-- Step 1: Epic Welcome -->
-    <div class="ob-step active" id="ob-step-1">
-      <div style="font-size:64px;margin-bottom:16px;filter:drop-shadow(0 0 20px rgba(240,188,78,0.4))">⚡</div>
-      <div style="font-family:var(--display);font-size:42px;color:#fff;letter-spacing:0.04em;line-height:1.1;margin-bottom:8px">Welcome to<br><span style="color:var(--gold)">TradeDesk</span></div>
-      <div style="font-family:var(--mono);font-size:13px;color:rgba(255,255,255,0.5);line-height:1.7;max-width:400px;margin:0 auto 32px">Your edge starts here. Professional tools,<br>AI coaching, and zero guesswork.</div>
-      <div style="max-width:380px;margin:0 auto 32px">
-        <button class="ob-hero-btn" onclick="onboardNext(2)">LET'S GO</button>
-      </div>
-      <div style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.2);letter-spacing:0.06em">Takes about 2 minutes</div>
-    </div>
-
-    <!-- Step 2: Upload Journal -->
-    <div class="ob-step" id="ob-step-2">
-      <div class="ob-step-pill"><span>Step 1 of 3</span></div>
-      <div style="font-size:48px;margin-bottom:12px">📊</div>
-      <div style="font-family:var(--display);font-size:30px;color:#fff;letter-spacing:0.04em;margin-bottom:6px">Unlock Your Edge</div>
-      <div style="font-family:var(--mono);font-size:12px;color:rgba(255,255,255,0.45);line-height:1.7;max-width:420px;margin:0 auto 28px">Upload your trading history and get <strong style="color:var(--gold)">instant AI-powered insights</strong> — your strengths, blind spots, and exactly what to fix.</div>
-
-      <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:20px;margin-bottom:20px;text-align:left">
-        <div class="ob-benefit">
-          <div class="ob-benefit-icon">🎯</div>
-          <div class="ob-benefit-text">
-            <div class="ob-benefit-title">Know Your Strengths</div>
-            <div class="ob-benefit-desc">See what's actually working in your trading — backed by data, not feelings</div>
-          </div>
-        </div>
-        <div class="ob-benefit">
-          <div class="ob-benefit-icon">🔍</div>
-          <div class="ob-benefit-text">
-            <div class="ob-benefit-title">Spot Your Leaks</div>
-            <div class="ob-benefit-desc">Find the patterns that cost you money — the ones you can't see yourself</div>
-          </div>
-        </div>
-        <div class="ob-benefit">
-          <div class="ob-benefit-icon">🤖</div>
-          <div class="ob-benefit-text">
-            <div class="ob-benefit-title">Daily AI Coaching</div>
-            <div class="ob-benefit-desc">Your briefing gets personal — specific advice based on YOUR real data</div>
-          </div>
-        </div>
-      </div>
-
-      <div style="display:flex;flex-direction:column;gap:10px;max-width:380px;margin:0 auto">
-        <button class="ob-hero-btn" onclick="onboardUpload()" style="font-size:16px">📎 UPLOAD MY DATA</button>
-        <button class="ob-secondary-btn" onclick="onboardNext(3)">I'll do this later — skip for now</button>
-      </div>
-      <div style="font-family:var(--mono);font-size:8px;color:rgba(255,255,255,0.15);margin-top:12px">Supports CSV, XLSX, or just paste your notes</div>
-    </div>
-
-    <!-- Step 3: AI Summary / Skip summary -->
-    <div class="ob-step" id="ob-step-3">
-      <div class="ob-step-pill"><span>Step 2 of 3</span></div>
-      <div style="font-size:48px;margin-bottom:12px" id="ob-s3-icon">🧠</div>
-      <div style="font-family:var(--display);font-size:28px;color:#fff;letter-spacing:0.04em;margin-bottom:6px" id="ob-summary-title">Your Trading DNA</div>
-      <div style="font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.35);margin-bottom:20px" id="ob-summary-sub">Here's what the AI found in your data</div>
-
-      <div id="ob-insights" style="text-align:left;margin-bottom:24px"></div>
-
-      <div style="max-width:380px;margin:0 auto">
-        <button class="ob-hero-btn" onclick="onboardNext(4)" style="font-size:16px">NEXT →</button>
-      </div>
-    </div>
-
-    <!-- Step 4: Let's trade -->
-    <div class="ob-step" id="ob-step-4">
-      <div class="ob-step-pill"><span>Step 3 of 3</span></div>
-      <div style="font-size:56px;margin-bottom:12px">🚀</div>
-      <div style="font-family:var(--display);font-size:32px;color:#fff;letter-spacing:0.04em;line-height:1.1;margin-bottom:8px">Ready to<br><span style="color:var(--gold)">Elevate Your Game?</span></div>
-      <div style="font-family:var(--mono);font-size:12px;color:rgba(255,255,255,0.45);line-height:1.7;max-width:400px;margin:0 auto 28px">I'll walk you through your first session — step by step.<br>No guesswork. Just follow the flow.</div>
-
-      <div style="background:linear-gradient(145deg,rgba(240,188,78,0.04),rgba(255,255,255,0.01));border:1px solid rgba(240,188,78,0.12);border-radius:14px;padding:18px 20px;margin-bottom:24px;text-align:left">
-        <div style="display:flex;flex-direction:column;gap:12px">
-          <div style="display:flex;align-items:center;gap:12px">
-            <div style="width:32px;height:32px;border-radius:8px;background:rgba(240,188,78,0.1);border:1px solid rgba(240,188,78,0.2);display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:13px;color:var(--gold);flex-shrink:0">01</div>
-            <div><div style="font-family:var(--display);font-size:13px;color:#fff">Morning Checks</div><div style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.3)">News, calendar, risk limits</div></div>
-          </div>
-          <div style="display:flex;align-items:center;gap:12px">
-            <div style="width:32px;height:32px;border-radius:8px;background:rgba(240,188,78,0.1);border:1px solid rgba(240,188,78,0.2);display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:13px;color:var(--gold);flex-shrink:0">02</div>
-            <div><div style="font-family:var(--display);font-size:13px;color:#fff">Read the Market</div><div style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.3)">Top-down bias on every timeframe</div></div>
-          </div>
-          <div style="display:flex;align-items:center;gap:12px">
-            <div style="width:32px;height:32px;border-radius:8px;background:rgba(240,188,78,0.1);border:1px solid rgba(240,188,78,0.2);display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:13px;color:var(--gold);flex-shrink:0">03</div>
-            <div><div style="font-family:var(--display);font-size:13px;color:#fff">Pick Your Style</div><div style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.3)">AI recommends based on your score</div></div>
-          </div>
-          <div style="display:flex;align-items:center;gap:12px">
-            <div style="width:32px;height:32px;border-radius:8px;background:rgba(240,188,78,0.1);border:1px solid rgba(240,188,78,0.2);display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:13px;color:var(--gold);flex-shrink:0">04</div>
-            <div><div style="font-family:var(--display);font-size:13px;color:#fff">Mark Key Levels</div><div style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.3)">Fibonacci, S/R, order blocks</div></div>
-          </div>
-          <div style="display:flex;align-items:center;gap:12px">
-            <div style="width:32px;height:32px;border-radius:8px;background:rgba(78,214,138,0.15);border:1px solid rgba(78,214,138,0.3);display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:13px;color:#4ed68a;flex-shrink:0">05</div>
-            <div><div style="font-family:var(--display);font-size:13px;color:#4ed68a">Go Live</div><div style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.3)">Execute your plan with confidence</div></div>
-          </div>
-        </div>
-      </div>
-
-      <div style="max-width:380px;margin:0 auto">
-        <button class="ob-hero-btn" onclick="onboardDone()" style="font-size:18px">▶ START MY SESSION</button>
-      </div>
-    </div>
-
-  </div>
-</div>
-
-<script>
-function onboardingOpen() {
-  document.querySelectorAll('.ob-step').forEach(function(s){ s.classList.remove('active'); });
-  document.getElementById('ob-step-1').classList.add('active');
-  document.getElementById('onboard-overlay').classList.add('show');
-}
-window.onboardingOpen = onboardingOpen;
-
-function onboardNext(step) {
-  document.querySelectorAll('.ob-step').forEach(function(s){ s.classList.remove('active'); });
-  var el = document.getElementById('ob-step-' + step);
-  if (el) el.classList.add('active');
-  // If going to step 3 without data, show motivational skip message
-  if (step === 3 && !localStorage.getItem('td_trading_insights')) {
-    document.getElementById('ob-s3-icon').textContent = '💪';
-    document.getElementById('ob-summary-title').textContent = 'No Problem';
-    document.getElementById('ob-summary-sub').textContent = 'You can upload anytime — the app gets smarter every day you use it';
-    document.getElementById('ob-insights').innerHTML =
-      '<div style="background:linear-gradient(145deg,rgba(78,214,138,0.04),rgba(255,255,255,0.01));border:1px solid rgba(78,214,138,0.12);border-radius:12px;padding:16px;text-align:center">' +
-        '<div style="font-family:var(--display);font-size:16px;color:#4ed68a;margin-bottom:6px">Your AI coaching starts now</div>' +
-        '<div style="font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.45);line-height:1.7">Every session you log makes your morning briefing sharper.<br>After a few days, the AI knows your patterns better than you do.</div>' +
-      '</div>';
-  }
-}
-
-function onboardUpload() {
-  // Open the journal upload modal
-  document.getElementById('onboard-overlay').classList.remove('show');
-  tjOpen();
-  // When they close tj-overlay, show onboard step 2
-  var _obWatcher = setInterval(function() {
-    var tjOv = document.getElementById('tj-overlay');
-    if (tjOv && !tjOv.classList.contains('show')) {
-      clearInterval(_obWatcher);
-      // Check if insights were saved
-      var insights = localStorage.getItem('td_trading_insights');
-      if (insights) {
-        try {
-          var p = JSON.parse(insights);
-          document.getElementById('ob-s3-icon').textContent = '🧠';
-          document.getElementById('ob-summary-title').textContent = 'Your Trading DNA';
-          document.getElementById('ob-summary-sub').textContent = 'Here\'s what the AI found';
-          document.getElementById('ob-insights').innerHTML =
-            '<div style="text-align:center;margin-bottom:16px"><span style="font-family:var(--display);font-size:20px;color:var(--gold);letter-spacing:0.04em">' + (p.personality || 'Trader') + '</span><span style="font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.3);margin-left:8px">' + (p.risk_level || '') + '</span></div>' +
-            '<div style="font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.55);line-height:1.7;text-align:center;margin-bottom:16px">' + (p.summary || '') + '</div>' +
-            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">' +
-              '<div style="background:rgba(78,214,138,0.05);border:1px solid rgba(78,214,138,0.12);border-radius:10px;padding:12px"><div style="font-family:var(--display);font-size:11px;color:#4ed68a;letter-spacing:0.08em;margin-bottom:6px">YOUR STRENGTHS</div>' + (p.strengths||[]).map(function(s){return '<div style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.55);margin-bottom:3px;line-height:1.5">✓ '+s+'</div>';}).join('') + '</div>' +
-              '<div style="background:rgba(240,96,96,0.05);border:1px solid rgba(240,96,96,0.12);border-radius:10px;padding:12px"><div style="font-family:var(--display);font-size:11px;color:#f06060;letter-spacing:0.08em;margin-bottom:6px">FIX THESE</div>' + (p.weaknesses||[]).map(function(s){return '<div style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.55);margin-bottom:3px;line-height:1.5">✗ '+s+'</div>';}).join('') + '</div>' +
-            '</div>' +
-            (p.recommendations && p.recommendations.length ? '<div style="background:rgba(240,188,78,0.04);border:1px solid rgba(240,188,78,0.1);border-radius:10px;padding:12px"><div style="font-family:var(--display);font-size:11px;color:var(--gold);letter-spacing:0.08em;margin-bottom:6px">FOCUS ON</div>' + p.recommendations.slice(0,2).map(function(s){return '<div style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.55);margin-bottom:3px;line-height:1.5">→ '+s+'</div>';}).join('') + '</div>' : '');
-        } catch(e) {}
-      }
-      document.getElementById('onboard-overlay').classList.add('show');
-      onboardNext(3);
-    }
-  }, 300);
-}
-
-function onboardDone() {
-  localStorage.setItem('td_onboarded', '1');
-  localStorage.setItem('fw_done', '1');
-  document.getElementById('onboard-overlay').classList.remove('show');
-  // Start the wizard
-  setTimeout(function() {
-    wizOpen();
-  }, 300);
-}
-window.onboardDone = onboardDone;
 </script>
 </body>
 </html>
