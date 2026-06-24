@@ -2912,6 +2912,68 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 .rule-edit-input:focus{border-color:rgba(240,96,96,0.4)}
 .rule-edit-del{background:transparent;border:none;color:rgba(240,96,96,0.3);cursor:pointer;font-size:14px;padding:0 2px;line-height:1}
 .rule-edit-del:hover{color:var(--red)}
+
+/* ── HISTORY PANEL ─────────────────────────────── */
+#hist-overlay{display:none;position:fixed;inset:0;z-index:9000;background:var(--bg);overflow:hidden;flex-direction:column}
+#hist-overlay.open{display:flex}
+.hist-topbar{display:flex;align-items:center;gap:12px;padding:14px 20px;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--bg2)}
+.hist-topbar h2{font-family:var(--display);font-size:18px;color:var(--text);letter-spacing:0.04em;flex:1}
+.hist-close{background:none;border:1px solid var(--border);color:var(--text2);font-size:18px;width:36px;height:36px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s}
+.hist-close:hover{color:var(--text);border-color:var(--gold);background:rgba(240,188,78,0.08)}
+.hist-body{display:flex;flex:1;overflow:hidden}
+.hist-list{width:340px;flex-shrink:0;border-right:1px solid var(--border);overflow-y:auto;background:var(--bg2)}
+.hist-detail{flex:1;overflow-y:auto;padding:24px;background:var(--bg)}
+.hist-day{padding:14px 18px;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.12s}
+.hist-day:hover{background:rgba(240,188,78,0.04)}
+.hist-day.active{background:rgba(240,188,78,0.08);border-left:3px solid var(--gold)}
+.hist-day-date{font-family:var(--sans);font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px}
+.hist-day-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.hist-score-badge{font-family:var(--mono);font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;letter-spacing:0.04em}
+.hist-score-badge.bull{color:#4ed68a;background:rgba(78,214,138,0.12);border:1px solid rgba(78,214,138,0.25)}
+.hist-score-badge.bear{color:#f06060;background:rgba(240,96,96,0.12);border:1px solid rgba(240,96,96,0.25)}
+.hist-score-badge.neu{color:var(--text2);background:rgba(255,255,255,0.06);border:1px solid var(--border)}
+.hist-day-stat{font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.04em}
+.hist-day-pnl{font-family:var(--mono);font-size:11px;font-weight:600}
+.hist-day-verdict{font-family:var(--mono);font-size:9px;color:var(--text3);margin-top:4px;letter-spacing:0.03em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hist-empty{padding:40px 20px;text-align:center;color:var(--text3);font-family:var(--mono);font-size:12px}
+.hist-detail-empty{display:flex;align-items:center;justify-content:center;height:100%;color:var(--text3);font-family:var(--mono);font-size:12px;letter-spacing:0.04em}
+.hist-section{margin-bottom:24px}
+.hist-section-title{font-family:var(--display);font-size:14px;color:var(--gold);letter-spacing:0.06em;margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid rgba(240,188,78,0.15)}
+.hist-kv{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:12px}
+.hist-kv-item{background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:6px;padding:8px 10px}
+.hist-kv-label{font-family:var(--mono);font-size:8px;color:var(--text3);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:2px}
+.hist-kv-value{font-family:var(--mono);font-size:12px;color:var(--text);font-weight:600}
+.hist-tf-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
+.hist-tf-label{font-family:var(--mono);font-size:11px;color:var(--gold);width:28px;flex-shrink:0;font-weight:700}
+.hist-pill{font-family:var(--mono);font-size:9px;padding:2px 7px;border-radius:4px;letter-spacing:0.04em}
+.hist-pill.bull{color:#4ed68a;background:rgba(78,214,138,0.12);border:1px solid rgba(78,214,138,0.2)}
+.hist-pill.bear{color:#f06060;background:rgba(240,96,96,0.12);border:1px solid rgba(240,96,96,0.2)}
+.hist-pill.neu{color:var(--text3);background:rgba(255,255,255,0.04);border:1px solid var(--border)}
+.hist-pill.ind{color:#60a5fa;background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.2)}
+.hist-trades-tbl{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:10px}
+.hist-trades-tbl th{text-align:left;font-size:8px;color:var(--text3);letter-spacing:0.08em;text-transform:uppercase;padding:6px 8px;border-bottom:1px solid var(--border);font-weight:400}
+.hist-trades-tbl td{padding:8px;border-bottom:1px solid rgba(255,255,255,0.04);color:var(--text)}
+.hist-trades-tbl tr:hover td{background:rgba(255,255,255,0.02)}
+.hist-level-row{display:flex;align-items:center;gap:10px;padding:5px 0;font-family:var(--mono);font-size:11px;color:var(--text)}
+.hist-level-price{font-weight:700;color:var(--gold);min-width:70px}
+.hist-level-type{font-size:9px;color:var(--text2);text-transform:uppercase;letter-spacing:0.06em}
+.hist-reflection-q{margin-bottom:12px}
+.hist-reflection-q label{font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:0.06em;text-transform:uppercase;display:block;margin-bottom:4px}
+.hist-reflection-q p{font-family:var(--sans);font-size:13px;color:var(--text);line-height:1.6;margin:0;padding:10px 12px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:6px}
+.hist-loading{display:flex;align-items:center;justify-content:center;height:100%;color:var(--text3);font-family:var(--mono);font-size:11px}
+.hist-back-btn{display:none;background:none;border:1px solid var(--border);color:var(--text2);font-family:var(--mono);font-size:10px;padding:6px 12px;border-radius:6px;cursor:pointer;letter-spacing:0.04em}
+.hist-back-btn:hover{color:var(--text);border-color:var(--gold)}
+.hist-tf-notes{font-family:var(--mono);font-size:10px;color:var(--text2);font-style:italic;margin-left:4px}
+@media(max-width:700px){
+  .hist-body{flex-direction:column}
+  .hist-list{width:100%;border-right:none;border-bottom:1px solid var(--border)}
+  .hist-list.hidden{display:none}
+  .hist-detail.hidden{display:none}
+  .hist-back-btn{display:inline-flex}
+  .hist-detail{padding:16px}
+  .hist-kv{grid-template-columns:1fr 1fr}
+  .hist-trades-tbl{font-size:9px;display:block;overflow-x:auto}
+}
 </style>
 </head>
 <body>
@@ -3380,6 +3442,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
       <div class="sheets-dot" id="sheets-dot"></div>
       <span id="sheets-status-text">Supabase connected</span>
     </div>
+    <button class="sb-btn" onclick="openHistory();mobMenuClose();" style="border-color:rgba(96,165,250,0.4);color:#60a5fa">📋 History</button>
     <button onclick="window.open('/admin/','_blank','noopener')" id="sb-admin-btn" class="sb-btn" style="display:none;border-color:rgba(240,188,78,0.4);color:var(--gold)">⚙ Admin Panel</button>
     <button onclick="testAlert()" class="sb-btn" style="border-color:rgba(240,96,96,0.4);color:var(--red)">⚠ Test alert</button>
     <button class="sb-btn" onclick="openModal('api-modal')">⚙ API Key</button>
@@ -17726,6 +17789,12 @@ async function tdlOnAuth(user) {
       if (window.cbUpdateGate) cbUpdateGate();
       // Auto-restore today's session data (sets _morningSaved if already saved)
       setTimeout(function() { if (window.autoRestoreToday) autoRestoreToday('pageload'); }, 800);
+      // Cross-device sync: re-fetch from Supabase when user switches back to this tab
+      document.addEventListener('visibilitychange', function() {
+        if (!document.hidden && window.autoRestoreToday) autoRestoreToday('visibilitychange');
+      });
+      // Periodic background sync every 90s (skipped when user is actively editing)
+      setInterval(function() { if (window.autoRestoreToday) autoRestoreToday('timer'); }, 90000);
       // Direct trade restore — runs after everything else settles, guaranteed
       setTimeout(async function() {
         try {
@@ -21831,6 +21900,236 @@ function onboardDone() {
 }
 window.onboardDone = onboardDone;
 </script>
+
+<!-- ── HISTORY PANEL ─────────────────────────────── -->
+<div id="hist-overlay">
+  <div class="hist-topbar">
+    <h2>TRADE<span style="color:var(--gold)">HISTORY</span></h2>
+    <button class="hist-close" onclick="closeHistory()">&times;</button>
+  </div>
+  <div class="hist-body">
+    <div class="hist-list" id="hist-list"><div class="hist-loading">Loading...</div></div>
+    <div class="hist-detail" id="hist-detail"><div class="hist-detail-empty">Select a day to view details</div></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var _cache = null;
+
+  window.openHistory = function(){
+    var el = document.getElementById('hist-overlay');
+    el.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    _cache = null;
+    loadHistoryData();
+  };
+  window.closeHistory = function(){
+    document.getElementById('hist-overlay').classList.remove('open');
+    document.body.style.overflow = '';
+  };
+
+  async function loadHistoryData(){
+    var listEl = document.getElementById('hist-list');
+    var detailEl = document.getElementById('hist-detail');
+    listEl.innerHTML = '<div class="hist-loading">Loading history...</div>';
+    detailEl.innerHTML = '<div class="hist-detail-empty">Select a day to view details</div>';
+
+    var uid = localStorage.getItem('td_user_id');
+    var sb = window._tdSB;
+    if (!uid || !sb) { listEl.innerHTML = '<div class="hist-empty">Not logged in</div>'; return; }
+
+    try {
+      var res = await Promise.all([
+        sb.from('morning_analysis').select('*').eq('user_id',uid).order('date',{ascending:false}).limit(60),
+        sb.from('trades').select('*').eq('user_id',uid).order('date',{ascending:false}).order('created_at',{ascending:true}).limit(500),
+        sb.from('daily_summaries').select('*').eq('user_id',uid).order('date',{ascending:false}).limit(60)
+      ]);
+      var mornings = res[0].data || [];
+      var trades = res[1].data || [];
+      var summaries = res[2].data || [];
+
+      var dateSet = {};
+      mornings.forEach(function(m){ dateSet[m.date] = dateSet[m.date] || {}; dateSet[m.date].morning = m; });
+      trades.forEach(function(t){ dateSet[t.date] = dateSet[t.date] || {}; if(!dateSet[t.date].trades) dateSet[t.date].trades = []; dateSet[t.date].trades.push(t); });
+      summaries.forEach(function(s){ dateSet[s.date] = dateSet[s.date] || {}; dateSet[s.date].summary = s; });
+
+      var dates = Object.keys(dateSet).sort().reverse();
+      _cache = { dates: dates, data: dateSet };
+
+      if (!dates.length) { listEl.innerHTML = '<div class="hist-empty">No history yet — complete your first trading day</div>'; return; }
+
+      renderList(dates, dateSet);
+    } catch(e) {
+      listEl.innerHTML = '<div class="hist-empty">Error: ' + e.message + '</div>';
+    }
+  }
+
+  function fmtDate(iso){
+    var d = new Date(iso + 'T12:00:00');
+    return d.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+  }
+
+  function renderList(dates, data){
+    var listEl = document.getElementById('hist-list');
+    var html = '';
+    dates.forEach(function(dt){
+      var d = data[dt];
+      var m = d.morning;
+      var s = d.summary;
+      var tr = d.trades || [];
+      var score = m ? m.score : 0;
+      var wins = tr.filter(function(t){return t.result==='win'}).length;
+      var losses = tr.filter(function(t){return t.result==='loss'}).length;
+      var pnl = s ? (s.usd_pnl || 0) : 0;
+      var verdict = m ? (m.verdict || '') : '';
+      var scoreCls = score > 0 ? 'bull' : score < 0 ? 'bear' : 'neu';
+      var pnlColor = pnl > 0 ? 'color:#4ed68a' : pnl < 0 ? 'color:#f06060' : 'color:var(--text3)';
+      var pnlStr = pnl !== 0 ? (pnl > 0 ? '+' : '') + '$' + Math.abs(pnl).toLocaleString(undefined,{minimumFractionDigits:0,maximumFractionDigits:0}) : '—';
+
+      html += '<div class="hist-day" data-date="'+dt+'" onclick="window._histSelectDay(\''+dt+'\')">';
+      html += '<div class="hist-day-date">' + fmtDate(dt) + '</div>';
+      html += '<div class="hist-day-meta">';
+      if (score !== 0) html += '<span class="hist-score-badge '+scoreCls+'">' + (score > 0 ? '+' : '') + score + '</span>';
+      if (tr.length) html += '<span class="hist-day-stat">' + tr.length + ' trade' + (tr.length>1?'s':'') + '</span>';
+      if (wins || losses) html += '<span class="hist-day-stat" style="color:#4ed68a">' + wins + 'W</span><span class="hist-day-stat" style="color:#f06060">' + losses + 'L</span>';
+      html += '<span class="hist-day-pnl" style="'+pnlColor+'">' + pnlStr + '</span>';
+      html += '</div>';
+      if (verdict) html += '<div class="hist-day-verdict">' + verdict + '</div>';
+      html += '</div>';
+    });
+    listEl.innerHTML = html;
+  }
+
+  window._histSelectDay = function(dt){
+    if (!_cache) return;
+    // Active state
+    document.querySelectorAll('.hist-day').forEach(function(el){ el.classList.toggle('active', el.dataset.date === dt); });
+    // Mobile: hide list, show detail
+    var isMob = window.innerWidth <= 700;
+    if (isMob) {
+      document.getElementById('hist-list').classList.add('hidden');
+      document.getElementById('hist-detail').classList.remove('hidden');
+    }
+    renderDetail(dt, _cache.data[dt]);
+  };
+
+  function renderDetail(dt, d){
+    var el = document.getElementById('hist-detail');
+    var m = d.morning;
+    var s = d.summary;
+    var tr = d.trades || [];
+    var html = '';
+
+    // Back button (mobile)
+    html += '<button class="hist-back-btn" onclick="document.getElementById(\'hist-list\').classList.remove(\'hidden\');document.getElementById(\'hist-detail\').classList.add(\'hidden\');">&larr; Back</button>';
+    html += '<h3 style="font-family:var(--display);font-size:16px;color:var(--text);margin:8px 0 20px;letter-spacing:0.04em">' + fmtDate(dt) + '</h3>';
+
+    // 1. Score & Bias
+    if (m) {
+      html += '<div class="hist-section"><div class="hist-section-title">Score & Bias</div>';
+      html += '<div class="hist-kv">';
+      html += kvItem('Score', (m.score > 0 ? '+' : '') + (m.score || 0));
+      html += kvItem('Verdict', m.verdict || '—');
+      html += kvItem('Market Dir', m.market_dir || '—');
+      html += kvItem('London Bias', m.london_bias || '—');
+      html += kvItem('Pivot', m.pivot_state || '—');
+      html += kvItem('Trading Mode', m.trading_mode || '—');
+      html += '</div></div>';
+
+      // 2. Top-Down Breakdown
+      var tf = {};
+      try { tf = JSON.parse(m.tf_state || '{}'); } catch(e){}
+      if (Object.keys(tf).length) {
+        html += '<div class="hist-section"><div class="hist-section-title">Top-Down Analysis</div>';
+        ['1M','1W','D','4H','1H'].forEach(function(k){
+          var s = tf[k];
+          if (!s) return;
+          html += '<div class="hist-tf-row">';
+          html += '<span class="hist-tf-label">' + k + '</span>';
+          var bias = s.bias || [];
+          bias.forEach(function(b){
+            var cls = b.toLowerCase().indexOf('bull') > -1 ? 'bull' : b.toLowerCase().indexOf('bear') > -1 ? 'bear' : 'neu';
+            html += '<span class="hist-pill '+cls+'">' + b + '</span>';
+          });
+          var trend = s.trend || [];
+          trend.forEach(function(t){
+            var cls = t.toLowerCase().indexOf('up') > -1 ? 'bull' : t.toLowerCase().indexOf('down') > -1 ? 'bear' : 'neu';
+            html += '<span class="hist-pill '+cls+'">' + t + '</span>';
+          });
+          if (s.ao) html += '<span class="hist-pill ind">AO: ' + s.ao + '</span>';
+          if (s.macd) html += '<span class="hist-pill ind">MACD: ' + s.macd + '</span>';
+          if (s.notes) html += '<span class="hist-tf-notes">' + escHtml(s.notes) + '</span>';
+          html += '</div>';
+        });
+        html += '</div>';
+      }
+
+      // 3. Key Levels
+      var levels = [];
+      try { levels = JSON.parse(m.levels_json || '[]'); } catch(e){}
+      if (levels.length) {
+        html += '<div class="hist-section"><div class="hist-section-title">Key Levels</div>';
+        levels.forEach(function(lv){
+          html += '<div class="hist-level-row">';
+          html += '<span class="hist-level-price">' + (lv.price || lv.p || '—') + '</span>';
+          html += '<span class="hist-level-type">' + (lv.type || lv.t || '') + '</span>';
+          html += '<span style="color:var(--text2);font-size:10px;margin-left:auto">' + escHtml(lv.label || lv.l || lv.note || '') + '</span>';
+          html += '</div>';
+        });
+        html += '</div>';
+      }
+    }
+
+    // 4. Trades
+    if (tr.length) {
+      html += '<div class="hist-section"><div class="hist-section-title">Trades (' + tr.length + ')</div>';
+      html += '<table class="hist-trades-tbl"><thead><tr>';
+      html += '<th>Time</th><th>Dir</th><th>Setup</th><th>Session</th><th>Result</th><th>R</th><th>$</th><th>Mindset</th><th>Notes</th>';
+      html += '</tr></thead><tbody>';
+      tr.forEach(function(t){
+        var resCls = t.result === 'win' ? 'color:#4ed68a' : t.result === 'loss' ? 'color:#f06060' : '';
+        var rStr = t.r_achieved ? (t.r_achieved > 0 ? '+' : '') + t.r_achieved.toFixed(1) + 'R' : '—';
+        var usdStr = t.usd_achieved != null ? (t.usd_achieved >= 0 ? '+' : '') + '$' + Math.abs(t.usd_achieved).toFixed(0) : '—';
+        html += '<tr>';
+        html += '<td>' + (t.time || '—') + '</td>';
+        html += '<td style="' + (t.direction === 'Long' ? 'color:#4ed68a' : t.direction === 'Short' ? 'color:#f06060' : '') + '">' + (t.direction || '—') + '</td>';
+        html += '<td>' + (t.setup || '—') + '</td>';
+        html += '<td>' + (t.session || '—') + '</td>';
+        html += '<td style="' + resCls + ';font-weight:600">' + (t.result || '—') + '</td>';
+        html += '<td style="' + resCls + '">' + rStr + '</td>';
+        html += '<td style="' + resCls + '">' + usdStr + '</td>';
+        html += '<td>' + (t.mindset != null ? t.mindset + '/5' : '—') + '</td>';
+        html += '<td style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="' + escAttr(t.notes || '') + '">' + escHtml(t.notes || t.mistakes || '—') + '</td>';
+        html += '</tr>';
+      });
+      html += '</tbody></table></div>';
+    }
+
+    // 5. Reflection
+    if (s && (s.did_well || s.to_correct || s.tomorrow_goal)) {
+      html += '<div class="hist-section"><div class="hist-section-title">End of Day Reflection</div>';
+      if (s.did_well) html += '<div class="hist-reflection-q"><label>What went well</label><p>' + escHtml(s.did_well) + '</p></div>';
+      if (s.to_correct) html += '<div class="hist-reflection-q"><label>To improve</label><p>' + escHtml(s.to_correct) + '</p></div>';
+      if (s.tomorrow_goal) html += '<div class="hist-reflection-q"><label>Tomorrow\'s goal</label><p>' + escHtml(s.tomorrow_goal) + '</p></div>';
+      html += '</div>';
+    }
+
+    if (!m && !tr.length && !s) {
+      html += '<div class="hist-empty">No data recorded for this day</div>';
+    }
+
+    el.innerHTML = html;
+  }
+
+  function kvItem(label, value){
+    return '<div class="hist-kv-item"><div class="hist-kv-label">'+label+'</div><div class="hist-kv-value">'+escHtml(String(value))+'</div></div>';
+  }
+  function escHtml(s){ return s ? s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;') : ''; }
+  function escAttr(s){ return escHtml(s).replace(/'/g,'&#39;'); }
+})();
+</script>
+
 </body>
 </html>
 <!-- deploy 1781991931 -->
