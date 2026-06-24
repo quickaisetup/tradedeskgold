@@ -5952,7 +5952,7 @@ function confirmAcctSetup() {
   var size = (sizeEl && parseFloat(sizeEl.value)) || 100000;
   var phase = _acctSetupType === 'OwnFund' ? 'Own Fund' : 'Evaluation';
   var profitTargetPct = _acctSetupType === 'Challenge' ? ((tgtEl && parseFloat(tgtEl.value)) || 10) : null;
-  _tdAccounts.push({ id: next, name: name, size: size, currency: _acctSetupCur, phase: phase, accountType: _acctSetupType, profitTargetPct: profitTargetPct });
+  _tdAccounts.push({ id: next, name: name, size: size, balance: size, currency: _acctSetupCur, phase: phase, accountType: _acctSetupType, profitTargetPct: profitTargetPct });
   saveAccounts(); renderAccountsPanel(); refreshTradeFormAccounts();
   updatePALFromRows(window._tdLastPalRows||[], window._tdLastPalRank||'DEGENERATE');
   closeAcctSetup();
@@ -5987,18 +5987,15 @@ function acctToggleSizeEdit(id) {
   var acc = _tdAccounts.find(function(a){return a.id===id;}) || {};
   var editing = inp.style.display !== 'none';
   if (editing) {
-    var desired = parseFloat(inp.value)||0;
-    if (desired) {
-      var computed = _tdComputeAccountStats(acc);
-      var totalUsd = computed ? (computed.balance - (parseFloat(acc.size)||100000)) : 0;
-      var newSize = Math.round(desired - totalUsd);
-      updateAccount(id,'size',newSize);
+    var v = parseFloat(inp.value)||0;
+    if (v) {
+      updateAccount(id,'balance',v);
+      if (!acc.size) updateAccount(id,'size',v);
     }
     renderAccountsPanel();
   } else {
-    var computed2 = _tdComputeAccountStats(acc);
-    var curBal = computed2 ? computed2.balance : (parseFloat(acc.balance) || parseFloat(acc.size) || 100000);
-    inp.value = curBal;
+    var curBal = parseFloat(acc.balance) || parseFloat(acc.size) || 100000;
+    inp.value = Math.round(curBal);
     inp.style.display=''; disp.style.display='none';
     if(btn){btn.textContent='Save';btn.style.color='var(--green)';}
     inp.focus(); inp.select();
@@ -6203,13 +6200,8 @@ function renderAccountsPanel() {
     var isFunded   = phase === 'Funded';
     var dayUsd     = Math.round(_perAcctPnl[acc.name||acc.id]||0);
     var dayClr     = dayUsd>0?'#4ed68a':dayUsd<0?'#f06060':'#505070';
-    // Balance + weekly P&L are derived fresh from the full trade-history cache
-    // (size + sum of every matched trade's $) rather than a stored number nudged
-    // by +/- deltas — that incremental approach was the source of "balance is
-    // always incorrect" (any missed match or sync hiccup left it permanently wrong).
-    // Falls back to the old stored balance only until the cache has loaded once.
+    var effectiveBal = Math.round(parseFloat(acc.balance) || size);
     var computed   = _tdComputeAccountStats(acc);
-    var effectiveBal = computed ? computed.balance : Math.round(parseFloat(acc.balance) || size);
     var weeklyUsd  = computed ? computed.weeklyUsd : 0;
     var weeklyClr  = weeklyUsd>0?'#4ed68a':weeklyUsd<0?'#f06060':'#505070';
     var weeklyDisp = (weeklyUsd>=0?'+':'-')+(acc.currency||'$')+Math.abs(weeklyUsd).toLocaleString();
