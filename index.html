@@ -6350,12 +6350,10 @@ var _TD_LOCAL_KEY = 'td_trades_local';
 window._persistTradesToLocal = function() {
   try {
     var today = _tdTodayBKK();
-    // Only persist trades whose date matches today — never mix in previous-day trades
-    // (trades logged with a future time get _dateISO = yesterday, so exclude those too)
     var saved = state.trades.filter(function(t){ return t.saved && t._dateISO === today; });
-    var snapshot = saved.map(function(t){
+    var _snapTrade = function(t, dateF) {
       return {
-        _sbId:t._sbId||null, _dateISO:t._dateISO||today,
+        _sbId:t._sbId||null, _dateISO:t._dateISO||dateF,
         time:t.time||'', session:t.session||'', type:t.type||'',
         direction:t.direction||'', setup:t.setup||'', tfTrigger:t.tfTrigger||'',
         entryType:t.entryType||'', account:t.account||'',
@@ -6369,10 +6367,21 @@ window._persistTradesToLocal = function() {
         notes:t.notes||'', usdAchieved:t.usdAchieved||'',
         _balanceApplied: t._balanceApplied || false
       };
-    });
+    };
+    var snapshot = saved.map(function(t){ return _snapTrade(t, today); });
     var store = { date: today, trades: snapshot };
     localStorage.setItem(_TD_LOCAL_KEY, JSON.stringify(store));
-    console.log('[local] Persisted', snapshot.length, 'trades to localStorage');
+    // Separately persist any unsynced trades (no _sbId) so they survive day rollover
+    var unsynced = state.trades.filter(function(t){ return t.saved && !t._sbId; });
+    var prevUnsynced = [];
+    try { prevUnsynced = JSON.parse(localStorage.getItem('td_unsynced_trades') || '[]'); } catch(e){}
+    // Merge: keep previous unsynced that aren't in current state
+    var curIds = {};
+    unsynced.forEach(function(t){ curIds[t.time + '_' + t.direction + '_' + t._dateISO] = true; });
+    var merged = prevUnsynced.filter(function(t){ return !curIds[t.time + '_' + t.direction + '_' + t._dateISO]; });
+    unsynced.forEach(function(t){ merged.push(_snapTrade(t, today)); });
+    localStorage.setItem('td_unsynced_trades', JSON.stringify(merged));
+    console.log('[local] Persisted', snapshot.length, 'trades +', merged.length, 'unsynced');
   } catch(e) { console.warn('[local] Persist failed:', e.message); }
 };
 
@@ -6526,8 +6535,24 @@ window._restoreTradesFromDB = function(trades) {
 var _syncInFlight = false;
 window._syncUnsavedTradesToDB = async function() {
   if (_syncInFlight) { console.log('[sync] Already syncing — skipping overlapping call'); return; }
+  // Also pull in any trades from the persistent unsynced queue (survives day rollover)
+  var queuedRaw = [];
+  try { queuedRaw = JSON.parse(localStorage.getItem('td_unsynced_trades') || '[]'); } catch(e){}
+  if (queuedRaw.length) {
+    console.log('[sync] Found', queuedRaw.length, 'trade(s) in unsynced queue — syncing...');
+    queuedRaw.forEach(function(tr) {
+      var exists = state.trades.some(function(t){ return t.saved && t.time === tr.time && t.direction === tr.direction && t._dateISO === tr._dateISO; });
+      if (!exists) {
+        addTrade();
+        var t = state.trades[state.trades.length - 1];
+        Object.keys(tr).forEach(function(k){ t[k] = tr[k]; });
+        t._sbId = null; t.saved = true;
+        collapseTradeToCard(t.id);
+      }
+    });
+  }
   var unsynced = state.trades.filter(function(t){ return t.saved && !t._sbId && !t._syncing; });
-  if (!unsynced.length) return;
+  if (!unsynced.length) { localStorage.setItem('td_unsynced_trades', '[]'); return; }
   _syncInFlight = true;
   unsynced.forEach(function(t){ t._syncing = true; });
   console.log('[sync] Found', unsynced.length, 'trade(s) not in Supabase — syncing...');
@@ -6565,6 +6590,11 @@ window._syncUnsavedTradesToDB = async function() {
       }
     }
     _persistTradesToLocal(); // update localStorage with new _sbIds
+    // Clear unsynced queue for trades that now have _sbIds
+    var remaining = state.trades.filter(function(t){ return t.saved && !t._sbId; });
+    localStorage.setItem('td_unsynced_trades', JSON.stringify(remaining.length ? remaining.map(function(t){
+      return { _dateISO:t._dateISO, time:t.time, session:t.session, type:t.type, direction:t.direction, setup:t.setup, tfTrigger:t.tfTrigger, entryType:t.entryType, account:t.account, entry:t.entry, sl:t.sl, tp:t.tp, riskPct:t.riskPct, slPlacement:t.slPlacement, htfBias:t.htfBias, mindset:t.mindset, confluence:t.confluence, result:t.result, rAchieved:t.rAchieved, took50:t.took50, movedSL:t.movedSL, wouldHaveWorked:t.wouldHaveWorked, wouldHaveR:t.wouldHaveR, mistakes:t.mistakes, notes:t.notes, usdAchieved:t.usdAchieved };
+    }) : []));
   } finally {
     _syncInFlight = false;
   }
@@ -9073,14 +9103,16 @@ async function saveTrade(id) {
       });
       await Promise.all(saves);
     }
-    // Verify it actually got a Supabase ID (postToSheets sets _stateRef._sbId on insert)
     if (!t._sbId) {
-      console.warn('[save] ⚠ Trade saved to UI but Supabase ID missing — will retry on next load');
+      console.warn('[save] ⚠ Trade saved locally but NOT in Supabase — queued for retry');
+      var btn3 = document.getElementById('save-trade-' + id);
+      if (btn3) { btn3.textContent = '⚠ Saved locally — syncing...'; btn3.style.color = '#f0bc4e'; }
+      setTimeout(function(){ if (window._syncUnsavedTradesToDB) _syncUnsavedTradesToDB(); }, 3000);
     }
   } catch(e) {
     console.error('[save] ✗ Supabase save failed:', e.message);
     var btn2 = document.getElementById('save-trade-' + id);
-    if (btn2) { btn2.textContent = '⚠ Saved locally — DB error'; btn2.style.color = '#f0bc4e'; }
+    if (btn2) { btn2.textContent = '⚠ Saved locally — will retry'; btn2.style.color = '#f0bc4e'; }
   }
 
   // Apply this trade's USD result to the matching account's running balance.
@@ -21924,6 +21956,12 @@ function onboardDone() {
   }, 300);
 }
 window.onboardDone = onboardDone;
+
+// Warn before closing if trades haven't synced to Supabase
+window.addEventListener('beforeunload', function(e) {
+  var unsynced = (state && state.trades) ? state.trades.filter(function(t){ return t.saved && !t._sbId; }) : [];
+  if (unsynced.length) { e.preventDefault(); e.returnValue = ''; }
+});
 </script>
 
 <!-- ── HISTORY PANEL ─────────────────────────────── -->
