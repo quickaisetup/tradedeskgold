@@ -5826,9 +5826,11 @@ async function _tdRefreshAllTradesCache() {
     var uid = localStorage.getItem('td_user_id');
     var sb = window._tdSB;
     if (!uid || !sb) return;
-    var res = await sb.from('trades').select('date,result,r_achieved,risk_pct,usd_achieved,account,accounts,setup,direction,session,mindset,mistakes').eq('user_id', uid);
+    var res = await sb.from('trades').select('date,result,r_achieved,risk_pct,usd_achieved,account,setup,direction,session,mindset,mistakes').eq('user_id', uid);
+    if (res && res.error) console.warn('[allTrades] cache fetch error:', res.error.message);
     if (res && res.data) {
       window._tdAllTradesCache = res.data;
+      console.log('[allTrades] cache loaded:', res.data.length, 'trades');
       if (typeof renderAccountsPanel === 'function') renderAccountsPanel();
       // Refresh the locally-computed "Your Edge" panel too, if it's on screen
       var patsEl = document.getElementById('ai-patterns-body');
