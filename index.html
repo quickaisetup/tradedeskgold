@@ -6421,41 +6421,60 @@ window._restoreTradesFromDB = function(trades) {
 // After a localStorage restore, any trade with no _sbId was never saved to
 // Supabase (e.g. saved before the patch loaded, or saved offline).
 // This function pushes them to Supabase silently so they survive future clears.
+//
+// This is called from two independent, unguarded setTimeout()s (one fired by
+// tdlPatchApp at 1500ms, one fired after a local restore at 3000ms). If a
+// trade's insert from the FIRST call hadn't resolved yet by the time the
+// SECOND call ran — e.g. a slow connection or a serverless cold start taking
+// >1.5s — both calls saw the same trade as "saved but no _sbId yet" and both
+// inserted it, creating a genuine duplicate row in Supabase. _syncInFlight and
+// the per-trade _syncing flag below close that race: only one sync runs at a
+// time, and a trade already being inserted is skipped by the other.
+var _syncInFlight = false;
 window._syncUnsavedTradesToDB = async function() {
-  var unsynced = state.trades.filter(function(t){ return t.saved && !t._sbId; });
+  if (_syncInFlight) { console.log('[sync] Already syncing — skipping overlapping call'); return; }
+  var unsynced = state.trades.filter(function(t){ return t.saved && !t._sbId && !t._syncing; });
   if (!unsynced.length) return;
+  _syncInFlight = true;
+  unsynced.forEach(function(t){ t._syncing = true; });
   console.log('[sync] Found', unsynced.length, 'trade(s) not in Supabase — syncing...');
-  for (var i = 0; i < unsynced.length; i++) {
-    var t = unsynced[i];
-    try {
-      var accts = t.accounts && t.accounts.length ? t.accounts : (t.account ? [t.account] : ['unknown']);
-      var today = t._dateISO || _tdTodayBKK();
-      var basePayload = {
-        type:'trade', dateISO: today,
-        time:t.time, session:t.session,
-        direction:t.direction||'', type2:t.type||'', setup:t.setup||'',
-        tfTrigger:t.tfTrigger||'', entryType:t.entryType||'',
-        entry:t.entry||'', sl:t.sl||'', tp:t.tp||'',
-        riskPct:t.riskPct||'', slPlacement:t.slPlacement||'',
-        htfBias:t.htfBias||'', mindset:t.mindset||'',
-        confluence:(t.confluence||[]).join(','),
-        result:t.result||'', rAchieved:t.rAchieved||'',
-        took50:t.took50||'', movedSL:t.movedSL||'',
-        wouldHaveWorked:t.wouldHaveWorked||'', wouldHaveR:t.wouldHaveR||'',
-        mistakes:(t.mistakes||[]).join(','), notes:t.notes||'',
-        usdAchieved:t.usdAchieved||'',
-        sbId: null, _stateRef: t
-      };
-      var saves = accts.map(function(acct){
-        return window.postToSheets(Object.assign({}, basePayload, {account:acct}));
-      });
-      await Promise.all(saves);
-      console.log('[sync] ✓ Trade', t.time, 'synced to Supabase (id=' + t._sbId + ')');
-    } catch(e) {
-      console.warn('[sync] Failed to sync trade', t.time, ':', e.message);
+  try {
+    for (var i = 0; i < unsynced.length; i++) {
+      var t = unsynced[i];
+      try {
+        var accts = t.accounts && t.accounts.length ? t.accounts : (t.account ? [t.account] : ['unknown']);
+        var today = t._dateISO || _tdTodayBKK();
+        var basePayload = {
+          type:'trade', dateISO: today,
+          time:t.time, session:t.session,
+          direction:t.direction||'', type2:t.type||'', setup:t.setup||'',
+          tfTrigger:t.tfTrigger||'', entryType:t.entryType||'',
+          entry:t.entry||'', sl:t.sl||'', tp:t.tp||'',
+          riskPct:t.riskPct||'', slPlacement:t.slPlacement||'',
+          htfBias:t.htfBias||'', mindset:t.mindset||'',
+          confluence:(t.confluence||[]).join(','),
+          result:t.result||'', rAchieved:t.rAchieved||'',
+          took50:t.took50||'', movedSL:t.movedSL||'',
+          wouldHaveWorked:t.wouldHaveWorked||'', wouldHaveR:t.wouldHaveR||'',
+          mistakes:(t.mistakes||[]).join(','), notes:t.notes||'',
+          usdAchieved:t.usdAchieved||'',
+          sbId: null, _stateRef: t
+        };
+        var saves = accts.map(function(acct){
+          return window.postToSheets(Object.assign({}, basePayload, {account:acct}));
+        });
+        await Promise.all(saves);
+        console.log('[sync] ✓ Trade', t.time, 'synced to Supabase (id=' + t._sbId + ')');
+      } catch(e) {
+        console.warn('[sync] Failed to sync trade', t.time, ':', e.message);
+      } finally {
+        t._syncing = false;
+      }
     }
+    _persistTradesToLocal(); // update localStorage with new _sbIds
+  } finally {
+    _syncInFlight = false;
   }
-  _persistTradesToLocal(); // update localStorage with new _sbIds
 };
 
 // ── DISMISSIBLE EXPLAINERS ────────────────────────────
@@ -8942,6 +8961,9 @@ async function saveTrade(id) {
   };
 
   // ── If trade has a Supabase ID → UPDATE, else INSERT ─
+  // Dedupe accts defensively — one DB row gets inserted per entry here, so any
+  // accidental duplicate value would otherwise create a genuine duplicate trade row.
+  accts = accts.filter(function(a, i){ return accts.indexOf(a) === i; });
   var _wasNew = !t._sbId;
   try {
     if (t._sbId) {
