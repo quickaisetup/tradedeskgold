@@ -8056,20 +8056,19 @@ function lvlRenderCard(lvl) {
       var acctSize = typeof totalAccountSize === 'function' ? totalAccountSize() : 100000;
       var riskPct = typeof BASE_RISK_PCT !== 'undefined' ? BASE_RISK_PCT : 0.5;
       var riskUsd = acctSize * (riskPct / 100);
-      var slPips = slDist * 10;
-      var lots = slPips > 0 ? (riskUsd / slPips / 1).toFixed(2) : '—';
+      var lots = slDist > 0 ? (riskUsd / (slDist * 100)).toFixed(2) : '—';
       return '<div style="display:flex;gap:6px;margin-bottom:' + (lvl.notes ? '8' : '0') + 'px;padding-top:6px;border-top:1px solid rgba(255,255,255,0.04)">' +
         (rr ? '<div style="flex:1;background:' + rrBg + ';border:1px solid ' + rrBdr + ';border-radius:5px;padding:4px 8px;text-align:center">' +
           '<div style="' + _mn + 'font-size:6px;color:rgba(255,255,255,0.3);letter-spacing:0.1em;text-transform:uppercase">R:R</div>' +
           '<div style="' + _mn + 'font-size:13px;font-weight:700;color:' + rrClr + '">' + rr + '</div>' +
         '</div>' : '') +
-        (slPips > 0 ? '<div style="flex:1;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:5px;padding:4px 8px;text-align:center">' +
+        (slDist > 0 ? '<div style="flex:1;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:5px;padding:4px 8px;text-align:center">' +
           '<div style="' + _mn + 'font-size:6px;color:rgba(255,255,255,0.3);letter-spacing:0.1em;text-transform:uppercase">Lot size</div>' +
           '<div style="' + _mn + 'font-size:13px;font-weight:700;color:rgba(255,255,255,0.7)">' + lots + '</div>' +
         '</div>' : '') +
         '<div style="flex:1;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:5px;padding:4px 8px;text-align:center">' +
           '<div style="' + _mn + 'font-size:6px;color:rgba(255,255,255,0.3);letter-spacing:0.1em;text-transform:uppercase">Risk</div>' +
-          '<div style="' + _mn + 'font-size:13px;font-weight:700;color:rgba(240,188,78,0.8)">' + (slPips > 0 ? '$' + Math.round(riskUsd) : '—') + '</div>' +
+          '<div style="' + _mn + 'font-size:13px;font-weight:700;color:rgba(240,188,78,0.8)">' + (slDist > 0 ? '$' + Math.round(riskUsd) : '—') + '</div>' +
         '</div>' +
       '</div>';
     })() : '') +
