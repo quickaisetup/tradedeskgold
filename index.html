@@ -5886,14 +5886,12 @@ function _tdComputeAccountStats(acc) {
   var all = window._tdAllTradesCache;
   if (!all) return null;
   var wkKey = _tdWeekStartKey();
-  var weeklyUsd = 0, allTimeUsd = 0;
+  var weeklyUsd = 0;
   all.forEach(function(t) {
     if (!_tdTradeMatchesAccount(t, acc)) return;
-    var usd = _tdTradeUsdForAccount(t, acc);
-    allTimeUsd += usd;
-    if (String(t.date || '').slice(0, 10) >= wkKey) weeklyUsd += usd;
+    if (String(t.date || '').slice(0, 10) >= wkKey) weeklyUsd += _tdTradeUsdForAccount(t, acc);
   });
-  return { weeklyUsd: Math.round(weeklyUsd), allTimeUsd: Math.round(allTimeUsd) };
+  return { weeklyUsd: Math.round(weeklyUsd) };
 }
 
 function addTradingAccount() {
@@ -5986,12 +5984,7 @@ function acctToggleSizeEdit(id) {
   var editing = inp.style.display !== 'none';
   if (editing) {
     var v = parseFloat(inp.value)||0;
-    if (v) {
-      var computed = _tdComputeAccountStats(acc);
-      var allTimeUsd = computed ? computed.allTimeUsd : 0;
-      updateAccount(id,'size', Math.round(v - allTimeUsd));
-      updateAccount(id,'balance',v);
-    }
+    if (v) updateAccount(id,'balance',v);
     renderAccountsPanel();
   } else {
     var curBal = parseFloat(acc.balance) || parseFloat(acc.size) || 100000;
@@ -6200,9 +6193,8 @@ function renderAccountsPanel() {
     var isFunded   = phase === 'Funded';
     var dayUsd     = Math.round(_perAcctPnl[acc.name||acc.id]||0);
     var dayClr     = dayUsd>0?'#4ed68a':dayUsd<0?'#f06060':'#505070';
+    var effectiveBal = Math.round(parseFloat(acc.balance) || size);
     var computed   = _tdComputeAccountStats(acc);
-    var computedBal = computed ? Math.round(size + computed.allTimeUsd) : null;
-    var effectiveBal = computedBal !== null ? computedBal : Math.round(parseFloat(acc.balance) || size);
     var weeklyUsd  = computed ? computed.weeklyUsd : 0;
     var weeklyClr  = weeklyUsd>0?'#4ed68a':weeklyUsd<0?'#f06060':'#505070';
     var weeklyDisp = (weeklyUsd>=0?'+':'-')+(acc.currency||'$')+Math.abs(weeklyUsd).toLocaleString();
@@ -8345,7 +8337,7 @@ async function redateTradeToYesterday(id) {
   var res = await window._tdSB.from('trades').update({date: yISO}).eq('id', t._sbId);
   if (res.error) { alert('Error: ' + res.error.message); return; }
   // Reverse its balance effect (it's leaving today)
-  if (t._balanceApplied) { _updateAccountBalance(t, -1); t._balanceApplied = false; }
+  _updateAccountBalance(t, -1);
   // Remove from today's UI/state
   var el = document.getElementById('tf-' + id);
   if (el) el.remove();
@@ -8362,6 +8354,7 @@ function removeTrade(id) {
   var t = state.trades.find(function(x){ return x.id === id; });
   // Delete from Supabase if it was saved
   if (t && t._sbId && window._tdSB) {
+    if (t.saved) _updateAccountBalance(t, -1);
     window._tdSB.from('trades').delete().eq('id', t._sbId).then(function(res){
       if (res.error) console.warn('[removeTrade] DB delete error:', res.error.message);
       else {
@@ -9074,8 +9067,10 @@ async function saveTrade(id) {
     if (btn2) { btn2.textContent = '⚠ Saved locally — will retry'; btn2.style.color = '#f0bc4e'; }
   }
 
-  // Balance is computed from size + all trades in cache — no incremental adjustment needed.
-  // Just refresh the cache after save so the new trade appears.
+  // Adjust account balance only when Supabase confirmed the save
+  if (t._sbId && _wasNew) {
+    _updateAccountBalance(t, +1);
+  }
 
   t.saved = true;
   // After saving/updating a trade, prompt to update EOD review
