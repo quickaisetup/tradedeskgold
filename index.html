@@ -8830,8 +8830,8 @@ function buildTradeForm(id) {
     '<button class="close-trade" onclick="duplicateTrade(' + id + ')" style="border-color:rgba(240,188,78,0.3);color:rgba(240,188,78,0.7)" onmouseover="this.style.borderColor=\'rgba(240,188,78,0.6)\';this.style.color=\'var(--gold)\'" onmouseout="this.style.borderColor=\'rgba(240,188,78,0.3)\';this.style.color=\'rgba(240,188,78,0.7)\'">⧉ Duplicate</button>' +
     '<button class="close-trade" onclick="removeTrade(' + id + ')">Remove</button>' +
     '</div></div>' +
+    '<div class="form-field" style="margin-bottom:14px"><label style="font-size:9px;letter-spacing:0.1em">INSTRUMENT</label><div class="toggle-group" id="tkr-grp-' + id + '" style="gap:6px">' + buildTickerButtons(id) + '</div></div>' +
     '<div class="form-grid">' +
-    '<div class="form-field"><label>Ticker</label><div class="toggle-group" id="tkr-grp-' + id + '">' + buildTickerButtons(id) + '</div></div>' +
     '<div class="form-field"><label>Trade type</label><div class="toggle-group"><button class="tgl" onclick="setTradeType(' + id + ',\'Alex\',this)">Alex</button><button class="tgl" onclick="setTradeType(' + id + ',\'Own\',this)">Own</button></div></div>' +
     '<div class="form-field"><label>Direction</label><div class="toggle-group"><button class="tgl" onclick="setTV(' + id + ',\'direction\',\'Long\',this)">Long</button><button class="tgl" onclick="setTV(' + id + ',\'direction\',\'Short\',this)">Short</button></div></div>' +
     '<div class="form-field"><label>Risk %</label><div class="toggle-group"><button class="tgl" onclick="setTV(' + id + ',\'riskPct\',\'0.25\',this)">0.25%</button><button class="tgl" onclick="setTV(' + id + ',\'riskPct\',\'0.5\',this)">0.5%</button><button class="tgl" onclick="setTV(' + id + ',\'riskPct\',\'1.0\',this)">1.0%</button></div></div>' +
