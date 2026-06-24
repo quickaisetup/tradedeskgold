@@ -7888,6 +7888,8 @@ function lvlAddFromForm() {
   lvlRenderCard(lvl);
   markSection('levels');
   scheduleLevelsSave();
+  if (typeof window.leoRenderKLBar === 'function') leoRenderKLBar();
+  if (typeof window._wizUpdateLevelPills === 'function') window._wizUpdateLevelPills();
 
   // Reset form
   document.getElementById('lvl-in-price').value = '';
@@ -8054,12 +8056,17 @@ function removeLevel(id) {
   window.levels=levels;
   window._levelsUserEditedAt = Date.now();
   leoRenderKLBar(); if (window.leoDrawKeyLevels) leoDrawKeyLevels();
+  // The wizard's "Key Levels" step has its own pill bar (#wiz-kl-pills), built
+  // once when that step loads — leoRenderKLBar() above doesn't touch it, so a
+  // deleted level kept showing there until the step was re-entered. Refresh it
+  // too whenever it's currently on screen.
+  if (typeof window._wizUpdateLevelPills === 'function') window._wizUpdateLevelPills();
   // Save immediately — don't debounce, user expects delete to persist
   try { localStorage.setItem('td_levels_cache', JSON.stringify(window.levels)); } catch(e){}
   if (typeof window.tdSaveLevels === 'function') window.tdSaveLevels();
   else scheduleLevelsSave();
 }
-function setLvlField(id, f, v) { var l = levels.find(function(l) { return l.id === id; }); if (l) { l[f] = v; window.levels = levels; leoRenderKLBar(); if (f === 'price' && window.leoDrawKeyLevels) leoDrawKeyLevels(); scheduleLevelsSave(); } }
+function setLvlField(id, f, v) { var l = levels.find(function(l) { return l.id === id; }); if (l) { l[f] = v; window.levels = levels; leoRenderKLBar(); if (f === 'price' && window.leoDrawKeyLevels) leoDrawKeyLevels(); if (typeof window._wizUpdateLevelPills === 'function') window._wizUpdateLevelPills(); scheduleLevelsSave(); } }
 var _levelsSaveTimer = null;
 function scheduleLevelsSave() {
   // Immediate localStorage backup so refresh never loses data
