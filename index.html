@@ -5981,6 +5981,18 @@ function renderAccountsPanel() {
   var list = document.getElementById('nd-acct-list');
   if (!list) return;
 
+  // Balance/weekly-P&L per account depend on window._tdAllTradesCache, which is
+  // normally fetched once at login. If this render happens before that fetch
+  // started (or it failed/raced), every account would be permanently stuck
+  // showing "This week: $0" since nothing else triggers a retry. Self-heal: any
+  // time we render without the cache loaded, kick off one fetch (guarded
+  // against piling up duplicate concurrent requests) — _tdRefreshAllTradesCache
+  // already re-calls renderAccountsPanel() once it resolves.
+  if (!window._tdAllTradesCache && !window._tdTradesCacheLoading && typeof _tdRefreshAllTradesCache === 'function') {
+    window._tdTradesCacheLoading = true;
+    _tdRefreshAllTradesCache().then(function(){ window._tdTradesCacheLoading = false; }, function(){ window._tdTradesCacheLoading = false; });
+  }
+
   // ── Light/dark color palette for inline JS-rendered cards ──
   var _lm = document.body.classList.contains('light-mode');
   var _CB = _lm ? '#ffffff'                   : '#13151a';   // card background
@@ -18646,6 +18658,18 @@ window.diagTrades = async function() {
   console.log('[diag] Trades for today (' + today + '):', tod.error || tod.data);
   // State
   console.log('[diag] state.trades in UI:', state.trades.length, 'items, saved:', state.trades.filter(function(t){return t.saved;}).length);
+};
+
+// ── ACCOUNT BALANCE/WEEKLY-P&L DIAGNOSTIC (call window.diagAccounts() in console) ──
+window.diagAccounts = function() {
+  console.log('[diag] _tdAllTradesCache loaded?', !!window._tdAllTradesCache, '| trade count:', (window._tdAllTradesCache||[]).length);
+  console.log('[diag] week start (BKK):', typeof _tdWeekStartKey === 'function' ? _tdWeekStartKey() : 'n/a');
+  _tdAccounts.forEach(function(acc) {
+    var matched = (window._tdAllTradesCache || []).filter(function(t){ return _tdTradeMatchesAccount(t, acc); });
+    var stats = typeof _tdComputeAccountStats === 'function' ? _tdComputeAccountStats(acc) : null;
+    console.log('[diag] Account:', acc.name || acc.id, '| matched trades:', matched.length, '| computed:', stats,
+      '| matched dates:', matched.map(function(t){ return t.date + ' (acct field: "' + (t.account||'') + '")'; }));
+  });
 };
 
 // ── FORCE RESTORE TRADES ─────────────────────────────
