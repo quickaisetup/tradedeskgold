@@ -13795,7 +13795,7 @@ function updatePALFromRows(rows, rankName) {
   var wUsd   = wDays > 0 && wHasUsd ? Math.round(wUsdSum) : (riskPerTrade && wDays > 0 ? Math.round(wR * riskPerTrade) : null);
   var wDisp  = wUsd !== null ? (wUsd >= 0 ? '+$' : '-$') + Math.abs(wUsd).toLocaleString() : (wDays > 0 ? (wR >= 0 ? '+' : '') + Math.round(wR*10)/10 + 'R' : '—');
   var wSub   = wDays > 0 ? (wR >= 0?'+':'')+Math.round(wR*10)/10+'R · ' + wDays + ' session' + (wDays!==1?'s':'') + ' this week' : 'no data this week';
-  var wColor = wUsd != null ? (wUsd > 0 ? color : wUsd < 0 ? 'var(--red)' : 'var(--text3)') : (wR > 0 ? color : wR < 0 ? 'var(--red)' : 'var(--text3)');
+  var wColor = wUsd != null ? (wUsd > 0 ? '#4ed68a' : wUsd < 0 ? '#f06060' : 'var(--text3)') : (wR > 0 ? '#4ed68a' : wR < 0 ? '#f06060' : 'var(--text3)');
 
   var TRADING_DAYS_PER_MONTH = 21.65; // 5 × 4.33
 
@@ -13840,7 +13840,7 @@ function updatePALFromRows(rows, rankName) {
   var mSub   = histMonthlyUsd != null
     ? (thisMonthUsd >= 0 ? '+$' : '-$') + Math.abs(Math.round(thisMonthUsd)).toLocaleString() + ' so far · ' + histSessions + ' session' + (histSessions !== 1 ? 's' : '')
     : (wDays > 0 ? daysLeft + ' days left this week' : 'no data');
-  var mColor = mUsd > 0 ? color : mUsd < 0 ? 'var(--red)' : 'var(--text3)';
+  var mColor = mUsd > 0 ? '#4ed68a' : mUsd < 0 ? '#f06060' : 'var(--text3)';
 
   // Write to DOM
   var palVal = document.getElementById('s-pal-val');
