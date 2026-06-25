@@ -22231,10 +22231,14 @@ window.addEventListener('beforeunload', function(e) {
     if (!uid || !sb) return;
     document.getElementById('tj-tbody').innerHTML = '<tr><td colspan="12" style="text-align:center;padding:40px;color:var(--text3)">Loading...</td></tr>';
 
-    var res = await sb.from('trades').select('*').eq('user_id', uid).order('date',{ascending:false}).order('created_at',{ascending:true});
-    _allTrades = res.data || [];
-    renderFilters();
-    applyFilter();
+    try {
+      var res = await sb.from('trades').select('*').eq('user_id', uid).order('date',{ascending:false}).order('created_at',{ascending:true}).limit(2000);
+      _allTrades = res.data || [];
+      renderFilters();
+      applyFilter();
+    } catch(e) {
+      document.getElementById('tj-tbody').innerHTML = '<tr><td colspan="12" class="tj-empty">Error: '+esc(e.message)+'</td></tr>';
+    }
   }
 
   function renderFilters(){
@@ -22257,11 +22261,13 @@ window.addEventListener('beforeunload', function(e) {
     applyFilter();
   };
 
+  function rNorm(r){ return (r||'').toLowerCase(); }
+
   function applyFilter(){
     var trades = _allTrades;
-    if (_filter === 'win') trades = trades.filter(function(t){ return t.result === 'win'; });
-    else if (_filter === 'loss') trades = trades.filter(function(t){ return t.result === 'loss'; });
-    else if (_filter === 'be') trades = trades.filter(function(t){ return t.result === 'breakeven' || t.result === 'be'; });
+    if (_filter === 'win') trades = trades.filter(function(t){ return rNorm(t.result) === 'win'; });
+    else if (_filter === 'loss') trades = trades.filter(function(t){ return rNorm(t.result) === 'loss'; });
+    else if (_filter === 'be') trades = trades.filter(function(t){ var r=rNorm(t.result); return r === 'breakeven' || r === 'be'; });
     else if (_filter.indexOf('acct:') === 0) { var a = _filter.slice(5); trades = trades.filter(function(t){ return t.account === a; }); }
     renderStats(trades);
     renderTable(trades);
@@ -22269,8 +22275,8 @@ window.addEventListener('beforeunload', function(e) {
 
   function renderStats(trades){
     var total = trades.length;
-    var wins = trades.filter(function(t){ return t.result === 'win'; }).length;
-    var losses = trades.filter(function(t){ return t.result === 'loss'; }).length;
+    var wins = trades.filter(function(t){ return rNorm(t.result) === 'win'; }).length;
+    var losses = trades.filter(function(t){ return rNorm(t.result) === 'loss'; }).length;
     var wr = total > 0 ? ((wins / total) * 100).toFixed(1) : '0';
     var totalR = 0; var totalUsd = 0; var avgR = 0;
     trades.forEach(function(t){
@@ -22285,8 +22291,8 @@ window.addEventListener('beforeunload', function(e) {
 
     var streak = 0; var streakType = '';
     for (var i = 0; i < trades.length; i++){
-      if (i === 0) { streakType = trades[i].result; streak = 1; }
-      else if (trades[i].result === streakType) streak++;
+      if (i === 0) { streakType = rNorm(trades[i].result); streak = 1; }
+      else if (rNorm(trades[i].result) === streakType) streak++;
       else break;
     }
 
@@ -22306,7 +22312,7 @@ window.addEventListener('beforeunload', function(e) {
     html += stat('Best Trade', '+' + bestR.toFixed(1) + 'R', '#4ed68a');
     html += stat('Worst Trade', worstR.toFixed(1) + 'R', '#f06060');
     html += stat('Trading Days', Object.keys(days).length, 'var(--text)');
-    if (streak > 1) html += stat('Current Streak', streak + ' ' + streakType + 's', streakType === 'win' ? '#4ed68a' : '#f06060');
+    if (streak > 1) html += stat('Current Streak', streak + ' ' + streakType + 's', streakType === 'win' ? '#4ed68a' : streakType === 'loss' ? '#f06060' : 'var(--text)');
     document.getElementById('tj-stats').innerHTML = html;
   }
 
@@ -22318,7 +22324,7 @@ window.addEventListener('beforeunload', function(e) {
     if (!trades.length) { document.getElementById('tj-tbody').innerHTML = '<tr><td colspan="12" class="tj-empty">No trades found</td></tr>'; return; }
     var html = '';
     trades.forEach(function(t){
-      var cls = t.result === 'win' ? 'win' : t.result === 'loss' ? 'loss' : 'be';
+      var cls = rNorm(t.result) === 'win' ? 'win' : rNorm(t.result) === 'loss' ? 'loss' : 'be';
       var rStr = t.r_achieved != null ? (t.r_achieved > 0 ? '+' : '') + t.r_achieved.toFixed(1) + 'R' : '—';
       var usdStr = t.usd_achieved != null ? (t.usd_achieved >= 0 ? '+$' : '-$') + Math.abs(t.usd_achieved).toFixed(0) : '—';
       var riskStr = t.risk_pct != null ? t.risk_pct.toFixed(1) + '%' : '—';
