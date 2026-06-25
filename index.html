@@ -8058,8 +8058,7 @@ function lvlRenderCard(lvl) {
     // ── R:R + Lot size row ──
     (rr || slDist ? (function() {
       var _mn = 'font-family:var(--mono);';
-      var _firstAcct = (window._tdAccounts && _tdAccounts.length) ? _tdAccounts[0] : null;
-      var acctSize = _firstAcct ? (parseFloat(_firstAcct.size) || 100000) : 100000;
+      var acctSize = typeof totalAccountSize === 'function' ? totalAccountSize() : 100000;
       var riskPct = typeof BASE_RISK_PCT !== 'undefined' ? BASE_RISK_PCT : 0.5;
       var riskUsd = acctSize * (riskPct / 100);
       var lots = slDist > 0 ? (riskUsd / (slDist * 100)).toFixed(2) : '—';
