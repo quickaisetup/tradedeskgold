@@ -5971,6 +5971,22 @@ function updateAccount(id, field, val) {
   if (field==='name') refreshTradeFormAccounts();
   updatePALFromRows(window._tdLastPalRows||[], window._tdLastPalRank||'DEGENERATE');
 }
+function fmtCompact(n, cur) {
+  if (!n && n!==0) return '—';
+  cur = cur || '$';
+  var a = Math.abs(Math.round(n));
+  var s = n < 0 ? '-' : '+';
+  if (a >= 1000000) return s + cur + (a/1000000).toFixed(1).replace('.0','') + 'M';
+  if (a >= 100000) return s + cur + (a/1000).toFixed(0) + 'k';
+  return s + cur + a.toLocaleString();
+}
+function fmtBalCompact(n, cur) {
+  if (!n && n!==0) return '—';
+  cur = cur || '$';
+  var a = Math.abs(Math.round(n));
+  if (a >= 10000000) return cur + (a/1000000).toFixed(1).replace('.0','') + 'M';
+  return cur + a.toLocaleString();
+}
 function fmtK(n) {
   if (!n && n!==0) return '—';
   n = Math.round(n);
@@ -6091,7 +6107,7 @@ function renderAccountsPanel() {
       '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:'+(hasFunded?'8px':'0')+'">' +
         '<span style="'+MN+'font-size:9px;color:'+_CL2+'">All accounts</span>' +
         '<span style="'+MN+'font-size:22px;font-weight:700;letter-spacing:-0.02em;color:'+(todayPnl.hasTrades?tC:_CZ)+'">' +
-          (todayPnl.hasTrades ? (todayPnl.total>=0?'+$':'-$')+Math.abs(todayPnl.total).toLocaleString() : '$0') +
+          (todayPnl.hasTrades ? fmtCompact(todayPnl.total) : '$0') +
         '</span>' +
       '</div>' +
       // Funded (only if any funded account exists)
@@ -6135,8 +6151,8 @@ function renderAccountsPanel() {
   var _mR = pal.monthlyR ? Math.round((pal.monthlyR)*100)/100 : null;
   window._acctWeekUsd = _wU;
   window._acctMonthUsd = _mU;
-  var _wP = _wU ? (_wU>=0?'+$':'-$')+Math.abs(_wU).toLocaleString() : (_wR?(_wR>=0?'+':'')+_wR+'R':'—');
-  var _mP = _mU ? (_mU>=0?'+$':'-$')+Math.abs(_mU).toLocaleString() : (_mR?(_mR>=0?'+':'')+_mR+'R':'—');
+  var _wP = _wU ? fmtCompact(_wU) : (_wR?(_wR>=0?'+':'')+_wR+'R':'—');
+  var _mP = _mU ? fmtCompact(_mU) : (_mR?(_mR>=0?'+':'')+_mR+'R':'—');
   var _wC = _wU ? (_wU>=0?'#4ed68a':'#f06060') : (pal.weeklyColor||_CL2);
   var _mC = _mU ? (_mU>=0?'#4ed68a':'#f06060') : (pal.monthlyColor||_CL2);
   html +=
@@ -6210,7 +6226,7 @@ function renderAccountsPanel() {
     var progPct    = size ? Math.min(100, Math.max(0, profit / targetUsd * 100)) : 0;
     var progClr    = profit>=0 ? '#4ed68a' : '#f06060';
     var cur        = acc.currency || '$';
-    var profitDisp = profit>=0 ? '+'+cur+profit.toLocaleString() : '-'+cur+Math.abs(profit).toLocaleString();
+    var profitDisp = fmtCompact(profit, cur);
     var barClr     = dayUsd>0?'rgba(78,214,138,0.5)':dayUsd<0?'rgba(240,96,96,0.5)':'rgba(255,255,255,0.08)';
     // Funded: withdrawable = current profit (capped at 0 if negative)
     var withdrawable    = Math.max(0, profit);
@@ -6230,7 +6246,7 @@ function renderAccountsPanel() {
           // Row 2: BIG BALANCE + Today P&L
           '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">' +
             '<div style="display:flex;align-items:baseline;gap:6px">' +
-              '<span style="font-family:var(--display);font-size:22px;color:#fff;letter-spacing:0.02em;font-weight:700">'+cur+effectiveBal.toLocaleString()+'</span>' +
+              '<span style="font-family:var(--display);font-size:'+(effectiveBal>=1000000?'16':'22')+'px;color:#fff;letter-spacing:0.02em;font-weight:700">'+fmtBalCompact(effectiveBal,cur)+'</span>' +
               '<span style="'+MN+'font-size:9px;color:'+progClr+';font-weight:700">'+profitDisp+'</span>' +
             '</div>' +
             '<div style="text-align:right">' +
