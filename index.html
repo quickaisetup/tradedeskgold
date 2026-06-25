@@ -20985,7 +20985,14 @@ function wizNext() {
 }
 
 function wizBack() {
-  if (_wizStep > 0) { _wizStep--; _wizSubStep = 0; wizShowStep(); }
+  if (_wizSubStep > 0) {
+    _wizSubStep--;
+    wizShowStep();
+  } else if (_wizStep > 0) {
+    _wizStep--;
+    _wizSubStep = 0;
+    wizShowStep();
+  }
 }
 
 function wizDone() {
