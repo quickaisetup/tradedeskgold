@@ -2985,7 +2985,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 <div id="td-login-screen">
   <div class="tdl-card">
     <div class="tdl-logo">TRADE<span>DESK</span></div>
-    <div class="tdl-sub" id="tdl-sub">Gold · FTMO · Bangkok GMT+7</div>
+    <div class="tdl-sub" id="tdl-sub">Gold · FTMO</div>
+    <script>(function(){try{var tz=Intl.DateTimeFormat().resolvedOptions().timeZone;var city=tz.split('/').pop().replace(/_/g,' ');var off=new Date().getTimezoneOffset();var h=Math.abs(Math.floor(off/60));var m=Math.abs(off%60);var sign=off<=0?'+':'-';var gmt='GMT'+sign+h+(m?':'+('0'+m).slice(-2):'');document.getElementById('tdl-sub').textContent='Gold · FTMO · '+city+' '+gmt;}catch(e){}})()</script>
 
     <!-- LOGIN FORM -->
     <div id="tdl-login-form">
@@ -8058,7 +8059,8 @@ function lvlRenderCard(lvl) {
     // ── R:R + Lot size row ──
     (rr || slDist ? (function() {
       var _mn = 'font-family:var(--mono);';
-      var acctSize = typeof totalAccountSize === 'function' ? totalAccountSize() : 100000;
+      var _firstAcct = (window._tdAccounts && _tdAccounts.length) ? _tdAccounts[0] : null;
+      var acctSize = _firstAcct ? (parseFloat(_firstAcct.size) || 100000) : 100000;
       var riskPct = typeof BASE_RISK_PCT !== 'undefined' ? BASE_RISK_PCT : 0.5;
       var riskUsd = acctSize * (riskPct / 100);
       var lots = slDist > 0 ? (riskUsd / (slDist * 100)).toFixed(2) : '—';
