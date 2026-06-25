@@ -22325,9 +22325,11 @@ window.addEventListener('beforeunload', function(e) {
     var html = '';
     trades.forEach(function(t){
       var cls = rNorm(t.result) === 'win' ? 'win' : rNorm(t.result) === 'loss' ? 'loss' : 'be';
-      var rStr = t.r_achieved != null ? (t.r_achieved > 0 ? '+' : '') + t.r_achieved.toFixed(1) + 'R' : '—';
-      var usdStr = t.usd_achieved != null ? (t.usd_achieved >= 0 ? '+$' : '-$') + Math.abs(t.usd_achieved).toFixed(0) : '—';
-      var riskStr = t.risk_pct != null ? t.risk_pct.toFixed(1) + '%' : '—';
+      var _r = t.r_achieved != null ? parseFloat(t.r_achieved) : null;
+      var _u = t.usd_achieved != null ? parseFloat(t.usd_achieved) : null;
+      var rStr = _r != null ? (_r > 0 ? '+' : '') + _r.toFixed(1) + 'R' : '—';
+      var usdStr = _u != null ? (_u >= 0 ? '+$' : '-$') + Math.abs(_u).toFixed(0) : '—';
+      var riskStr = t.risk_pct != null ? parseFloat(t.risk_pct).toFixed(1) + '%' : '—';
       html += '<tr>';
       html += '<td>' + fmtD(t.date) + '</td>';
       html += '<td>' + (t.time || '—') + '</td>';
