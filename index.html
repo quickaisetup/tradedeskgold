@@ -5544,7 +5544,14 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 
   <!-- leo-trade-alert removed — global popup handles alerts -->
 
-  <div id="leo-charts-grid">
+  <div id="leo-charts-grid" style="position:relative">
+    <div id="leo-score-toast" style="display:none;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:100;pointer-events:none;text-align:center">
+      <div style="background:rgba(6,7,8,0.92);border:1.5px solid rgba(240,188,78,0.5);border-radius:12px;padding:14px 32px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);box-shadow:0 4px 30px rgba(0,0,0,0.6)">
+        <div style="font-family:var(--mono);font-size:7px;letter-spacing:0.16em;color:rgba(255,255,255,0.35);text-transform:uppercase;margin-bottom:4px">SCORE UPDATE</div>
+        <div id="leo-toast-score" style="font-family:var(--display);font-size:42px;font-weight:700;letter-spacing:0.02em;line-height:1">0</div>
+        <div id="leo-toast-label" style="font-family:var(--display);font-size:11px;letter-spacing:0.1em;margin-top:4px;font-weight:700">—</div>
+      </div>
+    </div>
     <div class="leo-tv-cell" id="leo-tv-D">
       <div class="leo-tv-cell-wm" onclick="cycleWmTrend(this)"><div>1D</div><div class="wm-bias-label"></div></div>
       <div class="leo-tv-cell-cd cd-green" id="leo-cd-D"><div class="cd-tf">1D</div><div class="cd-time">—</div></div>
@@ -12866,6 +12873,48 @@ function cycleWmTrend(el) {
   }
 }
 
+// ── SCORE TOAST POPUP ─────────────────────────────────
+var _toastTimer = null;
+var _lastToastScore = null;
+function showScoreToast() {
+  var overlay = document.getElementById('live-exec-overlay');
+  if (!overlay || !overlay.classList.contains('show')) return;
+  var scoreEl = document.getElementById('score-num');
+  var vtMain = document.getElementById('vt-main');
+  if (!scoreEl) return;
+  var scoreVal = scoreEl.textContent;
+  if (scoreVal === _lastToastScore) return;
+  _lastToastScore = scoreVal;
+  var toast = document.getElementById('leo-score-toast');
+  if (!toast) return;
+  var ts = document.getElementById('leo-toast-score');
+  var tl = document.getElementById('leo-toast-label');
+  var color = scoreEl.style.color || 'var(--gold)';
+  if (ts) { ts.textContent = scoreVal; ts.style.color = color; }
+  if (tl && vtMain) { tl.textContent = vtMain.textContent; tl.style.color = color; }
+  toast.style.display = 'block';
+  toast.style.opacity = '0';
+  toast.style.transform = 'translate(-50%,-50%) scale(0.8)';
+  toast.style.transition = 'opacity 0.2s, transform 0.2s';
+  requestAnimationFrame(function() {
+    toast.style.opacity = '1';
+    toast.style.transform = 'translate(-50%,-50%) scale(1)';
+  });
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(function() {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translate(-50%,-50%) scale(0.9)';
+    setTimeout(function() { toast.style.display = 'none'; }, 250);
+  }, 1800);
+}
+
+// Hook into updateVerdictAuto to trigger toast
+var _origUpdateVerdictAuto = updateVerdictAuto;
+updateVerdictAuto = function() {
+  _origUpdateVerdictAuto();
+  showScoreToast();
+};
+
 // ── LTF TREND STATE + INTRADAY SCORING ────────────────
 var ltfTrendState = { '15m': null, '5m': null, '1m': null };
 var LTF_WEIGHTS = { '15m': 1, '5m': 0.5, '1m': 0.25 };
@@ -12922,27 +12971,29 @@ cycleWmTrend = function(el) {
   var wmTrend = el.dataset.trend || null;
   var biasMap = { up: 'bull', down: 'bear', ranging: 'neutral' };
   var targetBias = biasMap[wmTrend] || null;
-  var card = document.getElementById('tfc-' + mappedTF);
-  if (!card) { updateIntradayScore(); return; }
-  // Clear all bias buttons for this TF first
-  var biasBtns = card.querySelectorAll('.bias-btns .bb');
+  // Find the bias button group by ID (bias-D, bias-4H, bias-1H)
+  var biasGroup = document.getElementById('bias-' + mappedTF);
+  if (!biasGroup) { updateIntradayScore(); return; }
+  var btns = biasGroup.querySelectorAll('.bb');
+  // Clear all existing bias for this TF
   if (!tfState[mappedTF]) tfState[mappedTF] = { bias: [], trend: [] };
-  // Clear existing bias
   tfState[mappedTF].bias = [];
-  biasBtns.forEach(function(b) {
+  btns.forEach(function(b) {
     b.classList.remove('sel', 'sel-bull', 'sel-bear', 'sel-range');
     b.style.color = ''; b.style.borderColor = ''; b.style.background = '';
   });
-  // If there's a target bias, simulate clicking it
+  // Set new bias by calling toggleBias with the matching button
   if (targetBias) {
+    var saved = window._inRestore;
     window._inRestore = true;
-    biasBtns.forEach(function(b) {
-      var txt = b.textContent.trim().toLowerCase();
-      if (txt === targetBias || (txt === 'neutral' && targetBias === 'neutral')) {
-        toggleBias(mappedTF, targetBias, b);
+    for (var i = 0; i < btns.length; i++) {
+      var btnVal = (btns[i].getAttribute('onclick') || '').match(/toggleBias\('[^']+','([^']+)'/);
+      if (btnVal && btnVal[1] === targetBias) {
+        toggleBias(mappedTF, targetBias, btns[i]);
+        break;
       }
-    });
-    window._inRestore = false;
+    }
+    window._inRestore = saved;
   }
   updateVerdictAuto();
   colorTFCard(mappedTF);
