@@ -17669,7 +17669,14 @@ function renderLeaderboard(rows) {
   patchedRows.sort(function(a, b) { return (Number(b.week_pnl)||0) - (Number(a.week_pnl)||0); });
 
   var html = '';
-  patchedRows.slice(0, 3).forEach(function(r, i) { html += lbCardHtml(r, i + 1, r.user_id === _userId); });
+  var top3 = patchedRows.slice(0, 3);
+  top3.forEach(function(r, i) { html += lbCardHtml(r, i + 1, r.user_id === _userId); });
+  // Always show the current user even if not in top 3
+  var meInTop3 = top3.some(function(r){ return r.user_id === _userId; });
+  if (!meInTop3 && _userId) {
+    var meIdx = patchedRows.findIndex(function(r){ return r.user_id === _userId; });
+    if (meIdx > -1) html += lbCardHtml(patchedRows[meIdx], meIdx + 1, true);
+  }
   wrap.innerHTML = html;
   var metaEl = document.getElementById('lb-meta');
   if (metaEl) metaEl.textContent = rows.length + ' traders · today, weekly & monthly P&L';
@@ -19960,12 +19967,12 @@ window.fwFinish = fwFinish;
     <span id="wiz-step-badge">1 / 13</span>
     <div id="wiz-title"></div>
     <div id="wiz-progress-wrap"><div id="wiz-progress-fill"></div></div>
-    <button id="wiz-close" onclick="wizDone()" title="Exit wizard">✕</button>
+    <button id="wiz-close" onclick="wizPause()" title="Exit wizard">✕</button>
   </div>
   <div id="wiz-body"></div>
   <div id="wiz-footer">
     <button id="wiz-back" onclick="wizBack()">← Back</button>
-    <button id="wiz-skip" onclick="wizDone()">skip wizard</button>
+    <button id="wiz-skip" onclick="wizPause()">skip wizard</button>
     <button id="wiz-next" onclick="wizNext()">Next →</button>
   </div>
 </div>
@@ -21092,13 +21099,22 @@ function wizBack() {
   }
 }
 
+function wizPause() {
+  _wizSaveProgress();
+  wizReturnAll();
+  var ov = document.getElementById('wiz-overlay');
+  if (ov) ov.classList.remove('show');
+  var chartWrap = document.getElementById('tv-chart-wrap');
+  if (chartWrap) chartWrap.style.height = '';
+}
+
 function wizDone() {
   wizReturnAll();
   var ov = document.getElementById('wiz-overlay');
   if (ov) ov.classList.remove('show');
+  localStorage.setItem('td_onboarded', '1');
   localStorage.removeItem('td_walkthrough_pending');
   localStorage.removeItem(_wizProgressKey());
-  // Restore chart height
   var chartWrap = document.getElementById('tv-chart-wrap');
   if (chartWrap) chartWrap.style.height = '';
 }
