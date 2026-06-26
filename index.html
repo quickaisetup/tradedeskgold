@@ -14101,8 +14101,9 @@ var _tvChartCreated = false;
 var _tvChartInstrument = null;
 var _tvShowDrawingTools = false;
 function initTVChart(forceInstrument) {
-  // Guard: create the TradingView widget only once per page load UNLESS the
-  // instrument has changed (tab switch) — in that case force a full rebuild.
+  // Temporarily disabled — chart iframe was causing page to become unresponsive
+  console.log('[chart] TradingView chart disabled for debugging');
+  return;
   var currentInstr = typeof _tdActiveInstrument !== 'undefined' ? _tdActiveInstrument : 'Gold';
   if (_tvChartCreated && !forceInstrument && _tvChartInstrument === currentInstr) return;
   if (_tvChartCreated && _tvChartInstrument === currentInstr && !forceInstrument) return;
