@@ -20078,9 +20078,28 @@ function _wizRenderAccounts(container) {
   html += '<div style="font-family:var(--display);font-size:22px;color:#fff;letter-spacing:0.04em;margin-bottom:6px">Add Your Trading Accounts</div>';
   html += '<div style="font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:24px;text-align:center;line-height:1.6">Add your prop firm or personal accounts so TradeDesk can track P&L, lot sizes, and progress for each one.</div>';
   html += '<div id="wiz-acct-list" style="width:100%;margin-bottom:16px"></div>';
-  html += '<button onclick="_wizAddAccount()" style="width:100%;padding:14px;font-family:var(--display);font-size:13px;letter-spacing:0.08em;color:var(--gold);background:rgba(240,188,78,0.06);border:1px dashed rgba(240,188,78,0.3);border-radius:10px;cursor:pointer;transition:all 0.15s" onmouseover="this.style.background=\'rgba(240,188,78,0.12)\';this.style.borderColor=\'rgba(240,188,78,0.5)\'" onmouseout="this.style.background=\'rgba(240,188,78,0.06)\';this.style.borderColor=\'rgba(240,188,78,0.3)\'">+ Add Account</button>';
+  // Inline account form
+  html += '<div id="wiz-acct-form" style="width:100%;background:rgba(255,255,255,0.03);border:1px solid rgba(240,188,78,0.2);border-radius:12px;padding:20px;margin-bottom:12px">';
+  html += '<div style="font-family:var(--mono);font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3);margin-bottom:8px">Account type</div>';
+  html += '<div style="display:flex;gap:8px;margin-bottom:16px">';
+  html += '<button id="wiz-as-challenge" onclick="document.getElementById(\'wiz-as-challenge\').style.background=\'rgba(240,188,78,0.15)\';document.getElementById(\'wiz-as-challenge\').style.borderColor=\'rgba(240,188,78,0.4)\';document.getElementById(\'wiz-as-challenge\').style.color=\'var(--gold)\';document.getElementById(\'wiz-as-own\').style.background=\'transparent\';document.getElementById(\'wiz-as-own\').style.borderColor=\'rgba(255,255,255,0.1)\';document.getElementById(\'wiz-as-own\').style.color=\'var(--text2)\';window._wizAcctType=\'Challenge\';document.getElementById(\'wiz-as-target-wrap\').style.display=\'\'" style="flex:1;font-family:var(--mono);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;padding:10px;border-radius:7px;border:1px solid rgba(240,188,78,0.4);background:rgba(240,188,78,0.15);color:var(--gold);cursor:pointer">Challenge</button>';
+  html += '<button id="wiz-as-own" onclick="document.getElementById(\'wiz-as-own\').style.background=\'rgba(139,92,246,0.15)\';document.getElementById(\'wiz-as-own\').style.borderColor=\'rgba(139,92,246,0.4)\';document.getElementById(\'wiz-as-own\').style.color=\'#a78bfa\';document.getElementById(\'wiz-as-challenge\').style.background=\'transparent\';document.getElementById(\'wiz-as-challenge\').style.borderColor=\'rgba(255,255,255,0.1)\';document.getElementById(\'wiz-as-challenge\').style.color=\'var(--text2)\';window._wizAcctType=\'OwnFund\';document.getElementById(\'wiz-as-target-wrap\').style.display=\'none\'" style="flex:1;font-family:var(--mono);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;padding:10px;border-radius:7px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:var(--text2);cursor:pointer">Own Fund</button>';
+  html += '</div>';
+  html += '<div style="display:flex;gap:10px;margin-bottom:16px"><div style="flex:2"><div style="font-family:var(--mono);font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3);margin-bottom:6px">Account name</div><input id="wiz-as-name" type="text" placeholder="e.g. FTMO 100K" maxlength="30" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);border-radius:6px;color:var(--text);font-family:var(--mono);font-size:11px;padding:8px 10px;outline:none"></div>';
+  html += '<div style="flex:1"><div style="font-family:var(--mono);font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3);margin-bottom:6px">Size</div><input id="wiz-as-size" type="number" placeholder="100000" min="0" step="1000" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);border-radius:6px;color:var(--gold);font-family:var(--mono);font-size:11px;font-weight:700;padding:8px 10px;outline:none;-moz-appearance:textfield"></div></div>';
+  html += '<div id="wiz-as-target-wrap" style="margin-bottom:16px"><div style="font-family:var(--mono);font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3);margin-bottom:6px">Profit target %</div><input id="wiz-as-target" type="number" placeholder="10" min="0" step="1" value="10" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);border-radius:6px;color:var(--text);font-family:var(--mono);font-size:11px;padding:8px 10px;outline:none;-moz-appearance:textfield"></div>';
+  html += '<div style="font-family:var(--mono);font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3);margin-bottom:8px">Currency</div>';
+  html += '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px">';
+  ['$','€','£','¥','A$','C$','CHF'].forEach(function(c) {
+    html += '<button onclick="document.querySelectorAll(\'#wiz-acct-form .wac\').forEach(function(b){b.style.background=\'transparent\';b.style.borderColor=\'rgba(255,255,255,0.12)\';b.style.color=\'var(--text2)\'});this.style.background=\'rgba(240,188,78,0.15)\';this.style.borderColor=\'rgba(240,188,78,0.4)\';this.style.color=\'var(--gold)\';window._wizAcctCur=\'' + c + '\'" class="wac" style="font-family:var(--mono);font-size:10px;padding:6px 10px;border-radius:5px;border:1px solid ' + (c==='$' ? 'rgba(240,188,78,0.4)' : 'rgba(255,255,255,0.12)') + ';background:' + (c==='$' ? 'rgba(240,188,78,0.15)' : 'transparent') + ';color:' + (c==='$' ? 'var(--gold)' : 'var(--text2)') + ';cursor:pointer;transition:all 0.15s">' + c + '</button>';
+  });
+  html += '</div>';
+  html += '<button onclick="_wizConfirmAccount()" style="width:100%;padding:12px;font-family:var(--display);font-size:13px;letter-spacing:0.08em;color:#0a0b0d;background:#f0bc4e;border:none;border-radius:8px;cursor:pointer;font-weight:700;transition:all 0.15s" onmouseover="this.style.background=\'#ffd070\'" onmouseout="this.style.background=\'#f0bc4e\'">Add Account</button>';
+  html += '</div>';
   html += '</div>';
   container.innerHTML = html;
+  window._wizAcctType = 'Challenge';
+  window._wizAcctCur = '$';
   _wizRefreshAccountList();
 }
 
@@ -20105,12 +20124,23 @@ function _wizRefreshAccountList() {
   list.innerHTML = html;
 }
 
-function _wizAddAccount() {
-  // Use the main app's account setup modal
-  window._wizAcctCallback = function() {
-    _wizRefreshAccountList();
-  };
-  if (typeof addTradingAccount === 'function') addTradingAccount();
+function _wizConfirmAccount() {
+  var name = (document.getElementById('wiz-as-name').value || '').trim();
+  var size = parseFloat(document.getElementById('wiz-as-size').value) || 100000;
+  var target = parseFloat((document.getElementById('wiz-as-target') || {}).value) || 10;
+  if (!name) { document.getElementById('wiz-as-name').style.borderColor = '#f06060'; return; }
+  var type = window._wizAcctType || 'Challenge';
+  var cur = window._wizAcctCur || '$';
+  var phase = type === 'OwnFund' ? 'Own Fund' : 'Evaluation';
+  var used = _tdAccounts.map(function(a){ return a.id; });
+  var next = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').find(function(c){ return used.indexOf(c) < 0; }) || ('ACC' + (Date.now() % 1000));
+  _tdAccounts.push({ id: next, name: name, size: size, balance: size, currency: cur, phase: phase, accountType: type, profitTargetPct: type === 'Challenge' ? target : null });
+  saveAccounts();
+  if (typeof renderAccountsPanel === 'function') renderAccountsPanel();
+  // Reset form
+  document.getElementById('wiz-as-name').value = '';
+  document.getElementById('wiz-as-size').value = '';
+  _wizRefreshAccountList();
 }
 
 function _wizRemoveAccount(id) {
