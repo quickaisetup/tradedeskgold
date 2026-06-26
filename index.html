@@ -12961,7 +12961,7 @@ function updateIntradayScore() {
 }
 
 // ── SYNC WATERMARK CLICKS (D/4H/1H) → TOP-DOWN tfState ──
-var _wmToTF = { '1D': 'D', '4H': '4H', '1H': '1H' };
+var _wmToTF = { '1D': 'D', 'D': 'D', '4H': '4H', '1H': '1H' };
 var _origCycleWmTrend = cycleWmTrend;
 cycleWmTrend = function(el) {
   _origCycleWmTrend(el);
