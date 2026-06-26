@@ -17794,6 +17794,9 @@ async function tdlOnAuth(user) {
   ls.style.zIndex = '-1';
   ls.style.opacity = '0';
   console.log('[td] Login screen hidden');
+  if (!localStorage.getItem('td_onboarded') && typeof onboardingOpen === 'function') {
+    setTimeout(function(){ onboardingOpen(); }, 600);
+  }
   if (window._fwTryShow) window._fwTryShow();
 
   // Show username in sidebar
