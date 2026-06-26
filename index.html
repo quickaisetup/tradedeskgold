@@ -5957,6 +5957,7 @@ function confirmAcctSetup() {
   saveAccounts(); renderAccountsPanel(); refreshTradeFormAccounts();
   updatePALFromRows(window._tdLastPalRows||[], window._tdLastPalRank||'DEGENERATE');
   closeAcctSetup();
+  if (window._wizAcctCallback) { window._wizAcctCallback(); window._wizAcctCallback = null; }
 }
 function removeAccount(id) {
   _tdAccounts = _tdAccounts.filter(function(a){ return a.id!==id; });
@@ -20104,19 +20105,12 @@ function _wizRefreshAccountList() {
   list.innerHTML = html;
 }
 
-async function _wizAddAccount() {
-  var name = await tdPrompt('Account Name', '', 'e.g. FTMO 100k, Personal Account');
-  if (!name || !name.trim()) return;
-  name = name.trim();
-  var sizeStr = await tdPrompt('Account Size (USD)', '100000', 'Starting balance in USD');
-  var size = parseFloat(sizeStr) || 100000;
-  var phase = await tdPrompt('Phase', 'Evaluation', 'Type "Evaluation" or "Funded"');
-  if (phase && phase.toLowerCase().indexOf('fund') > -1) phase = 'Funded'; else phase = 'Evaluation';
-  var next = _tdAccounts.length ? Math.max.apply(null, _tdAccounts.map(function(a){return parseInt(a.id)||0;})) + 1 : 1;
-  _tdAccounts.push({ id: String(next), name: name, size: size, balance: size, currency: '$', phase: phase, accountType: 'Challenge', profitTargetPct: 10 });
-  saveAccounts();
-  _wizRefreshAccountList();
-  if (typeof renderAccountsPanel === 'function') renderAccountsPanel();
+function _wizAddAccount() {
+  // Use the main app's account setup modal
+  window._wizAcctCallback = function() {
+    _wizRefreshAccountList();
+  };
+  if (typeof addTradingAccount === 'function') addTradingAccount();
 }
 
 function _wizRemoveAccount(id) {
