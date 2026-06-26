@@ -7597,6 +7597,23 @@ function updateVerdictAuto() {
     // Pure RANGING or no trend = 0 points
   });
 
+  // ── LTF TRENDS (15m ±1, 5m ±0.5, 1m ±0.25) ────────
+  if (typeof ltfTrendState !== 'undefined') {
+    var ltfDefs = [
+      { tf: '15m', pts: 1 },
+      { tf: '5m',  pts: 0.5 },
+      { tf: '1m',  pts: 0.25 },
+    ];
+    var ltfTotal = 0;
+    ltfDefs.forEach(function(ld) {
+      var st = ltfTrendState[ld.tf];
+      if (st === 'up') { ltfTotal += ld.pts; bullSignals.push({ label: ld.tf + ' trend ↑', pts: '+' + ld.pts }); }
+      else if (st === 'down') { ltfTotal -= ld.pts; bearSignals.push({ label: ld.tf + ' trend ↓', pts: '-' + ld.pts }); }
+    });
+    ltfTotal = Math.max(-3, Math.min(3, ltfTotal));
+    score += ltfTotal;
+  }
+
   // ── 4H AO ─────────────────────────────────────────────
   var ao4 = getInd('4H', 'AO');
   if (ao4 === 'Above zero') { score += 1.5; bullSignals.push({ label: '4H AO >0', pts: '+1.5' }); }
@@ -12998,6 +13015,7 @@ cycleWmTrend = function(el) {
       if (ltfTrendState[ltfTF] === 'up') b.classList.add('ltf-up');
       else if (ltfTrendState[ltfTF] === 'down') b.classList.add('ltf-down');
     });
+    updateVerdictAuto();
     updateIntradayScore();
     return;
   }
