@@ -16725,6 +16725,7 @@ document.addEventListener('DOMContentLoaded', function() {
   if (location.search.includes('reset=onboarding')) { localStorage.removeItem('td_onboarded'); localStorage.removeItem('fw_done'); localStorage.removeItem('td_trading_insights'); history.replaceState(null,'',location.pathname); }
   var _isFirstTime = !localStorage.getItem('td_onboarded');
   if (_isFirstTime) {
+    if (!localStorage.getItem('td_user_id')) return;
     if (splash) splash.style.display = 'none';
     setTimeout(function() { if (typeof onboardingOpen === 'function') onboardingOpen(); }, 800);
     return;
