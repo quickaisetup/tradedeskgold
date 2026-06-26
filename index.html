@@ -20159,8 +20159,8 @@ function wizShowStep() {
   var s = _wizSteps[_wizStep];
   var total = _wizSteps.length;
 
-  // Skip accounts step if user already has accounts set up
-  if (s && s.key === 'accounts' && _tdAccounts && _tdAccounts.length) {
+  // Skip accounts step only for returning users (already onboarded)
+  if (s && s.key === 'accounts' && localStorage.getItem('td_onboarded') && _tdAccounts && _tdAccounts.length) {
     _wizStep++;
     if (_wizStep >= _wizSteps.length) { wizDone(); return; }
     s = _wizSteps[_wizStep];
