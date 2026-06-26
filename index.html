@@ -22053,10 +22053,7 @@ function onboardUpload() {
 }
 
 function onboardDone() {
-  localStorage.setItem('td_onboarded', '1');
-  localStorage.setItem('fw_done', '1');
   document.getElementById('onboard-overlay').classList.remove('show');
-  // Start the wizard
   setTimeout(function() {
     wizOpen();
   }, 300);
