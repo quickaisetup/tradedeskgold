@@ -6052,7 +6052,11 @@ function calcTodayPnl() {
   return { total: Math.round(total), funded: Math.round(funded), hasTrades: true };
 }
 
+var _rapLastRun = 0;
 function renderAccountsPanel() {
+  var _now = Date.now();
+  if (_now - _rapLastRun < 500) return;
+  _rapLastRun = _now;
   var list = document.getElementById('nd-acct-list');
   if (!list) return;
 
