@@ -3181,7 +3181,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
         ⚙ Admin
       </a>
     </div>
-    <button onclick="if(confirm('Log out?'))tdlSignOut().then(function(){location.reload()})" title="Log out"
+    <button onclick="tdConfirm('Log out?').then(function(ok){if(ok)tdlSignOut().then(function(){location.reload()})})" title="Log out"
       style="display:flex;align-items:center;gap:4px;font-family:var(--mono);font-size:7px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.25);background:transparent;border:1px solid rgba(255,255,255,0.06);border-radius:20px;padding:3px 10px;cursor:pointer;transition:all 0.15s;flex-shrink:0"
       onmouseover="this.style.color='rgba(240,96,96,0.7)';this.style.borderColor='rgba(240,96,96,0.3)'" onmouseout="this.style.color='rgba(255,255,255,0.25)';this.style.borderColor='rgba(255,255,255,0.06)'">
       ↪ Logout
@@ -6825,8 +6825,8 @@ async function editGateItem(id) {
   renderGateItems();
 }
 
-function deleteGateItem(id) {
-  if (!confirm('Remove this routine item?')) return;
+async function deleteGateItem(id) {
+  if (!(await tdConfirm('Remove this routine item?'))) return;
   var defs = _getGateDefs().filter(function(g){ return g.id !== id; });
   _saveGateDefs(defs);
   // Also clear its saved state for today
@@ -7114,8 +7114,8 @@ function addAnalysisInstrument() {
   if (typeof aaiOpen === 'function') aaiOpen();
 }
 
-function removeAnalysisInstrument(name) {
-  if (!confirm('Remove "' + name + '" from your top-down analysis tabs?\n(Anything you filled in for it stays saved in this browser — the tab just disappears.)')) return;
+async function removeAnalysisInstrument(name) {
+  if (!(await tdConfirm('Remove "' + name + '" from your top-down analysis tabs?\n\nAnything you filled in for it stays saved in this browser — the tab just disappears.'))) return;
   var list = _tdLoadAnalysisTickers().filter(function(x){ return x !== name; });
   _tdSaveAnalysisTickers(list);
   if (_tdActiveInstrument === name) switchAnalysisInstrument('Gold', _tdFindInstrTabBtn('Gold'));
@@ -8359,7 +8359,7 @@ async function redateTradeToYesterday(id) {
   var d = new Date();
   d.setDate(d.getDate() - 1);
   var yISO = d.toLocaleDateString('sv-SE', {timeZone:'Asia/Bangkok'});
-  if (!confirm('Move this trade to ' + yISO + '?')) return;
+  if (!(await tdConfirm('Move this trade to ' + yISO + '?'))) return;
   var res = await window._tdSB.from('trades').update({date: yISO}).eq('id', t._sbId);
   if (res.error) { alert('Error: ' + res.error.message); return; }
   // Reverse its balance effect (it's leaving today)
@@ -9323,8 +9323,8 @@ async function saveAll(dateISOOverride) {
 // Used to gate the "See Traders' Analysis" / AI community panels.
 window._morningSaved = false;
 
-window.clearMorningAnalysis = function() {
-  if (!confirm('Clear all bias/trend for today and start fresh?')) return;
+window.clearMorningAnalysis = async function() {
+  if (!(await tdConfirm('Clear all bias/trend for today and start fresh?'))) return;
   var today = _tdTodayBKK();
   localStorage.removeItem('td_tfstate_' + today);
   // Deactivate all bias + trend buttons without re-triggering saves
@@ -9624,7 +9624,7 @@ async function loadYesterdaySession() {
 
 async function saveAllYesterday() {
   var tradeCount = state.trades.filter(function(t){ return t.saved; }).length;
-  if (!confirm('Save ' + tradeCount + ' trade(s) as yesterday and reset today\'s session?\n\nThis will clear the current UI. Your trades are already saved in Supabase and will remain there.')) return;
+  if (!(await tdConfirm('Save ' + tradeCount + ' trade(s) as yesterday and reset today\'s session?\n\nThis will clear the current UI. Your trades are already saved in Supabase and will remain there.'))) return;
   var todayBKK = _tdTodayBKK();
   var d = new Date(todayBKK + 'T12:00:00');
   d.setDate(d.getDate() - 1);
@@ -9751,6 +9751,29 @@ function tdPrompt(label, defaultVal, hint) {
   });
 }
 window.tdPrompt = tdPrompt;
+
+function tdConfirm(msg) {
+  return new Promise(function(resolve) {
+    var existing = document.getElementById('td-confirm-modal');
+    if (existing) existing.remove();
+    var ov = document.createElement('div');
+    ov.id = 'td-confirm-modal';
+    ov.style.cssText = 'position:fixed;inset:0;z-index:200010;background:rgba(4,5,7,0.92);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:24px;animation:eodFadeIn 0.2s ease';
+    ov.onclick = function(e){ if(e.target===ov){ ov.remove(); resolve(false); } };
+    ov.innerHTML =
+      '<div style="background:linear-gradient(160deg,#14130d,#0c0d10);border:1px solid rgba(240,188,78,0.3);border-radius:14px;padding:28px 26px;width:380px;max-width:90vw;box-shadow:0 24px 80px rgba(0,0,0,0.7)">' +
+        '<div style="font-family:var(--sans);font-size:14px;color:rgba(255,255,255,0.85);line-height:1.6;margin-bottom:20px;white-space:pre-line">' + msg + '</div>' +
+        '<div style="display:flex;gap:10px">' +
+          '<button id="td-confirm-no" style="flex:1;font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.4);background:transparent;border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:12px 0;cursor:pointer">Cancel</button>' +
+          '<button id="td-confirm-yes" style="flex:1;font-family:var(--display);font-size:14px;color:#0a0b0d;background:#f0bc4e;border:none;border-radius:8px;padding:12px 0;cursor:pointer;font-weight:700">OK</button>' +
+        '</div>' +
+      '</div>';
+    document.body.appendChild(ov);
+    document.getElementById('td-confirm-no').onclick = function(){ ov.remove(); resolve(false); };
+    document.getElementById('td-confirm-yes').onclick = function(){ ov.remove(); resolve(true); };
+  });
+}
+window.tdConfirm = tdConfirm;
 
 function _showHardStopPopup() {
   var existing = document.getElementById('hard-stop-overlay');
@@ -11010,7 +11033,7 @@ async function importJSON(input) {
     row.user_id = uid;
     return row;
   });
-  if (!confirm('Import ' + toInsert.length + ' trades? Existing trades with the same ID will be updated, new ones will be added.')) return;
+  if (!(await tdConfirm('Import ' + toInsert.length + ' trades? Existing trades with the same ID will be updated, new ones will be added.'))) return;
   try {
     var { error } = await sb.from('trades').upsert(toInsert, { onConflict: 'id' });
     if (error) throw error;
@@ -12298,8 +12321,8 @@ async function leoAddCustomTab() {
   leoSetSymbol(label, newBtn);
 }
 
-function leoRemoveCustomTab(label) {
-  if (!confirm('Remove "' + label + '" ticker tab?')) return;
+async function leoRemoveCustomTab(label) {
+  if (!(await tdConfirm('Remove "' + label + '" ticker tab?'))) return;
   var list = _leoLoadCustomTabs().filter(function(x){ return x.label !== label; });
   _leoSaveCustomTabs(list);
   delete LEO_SYMBOL_MAP[label];
@@ -20074,13 +20097,13 @@ function _wizRefreshAccountList() {
   list.innerHTML = html;
 }
 
-function _wizAddAccount() {
-  var name = prompt('Account name (e.g. FTMO 100k, Personal Account)');
+async function _wizAddAccount() {
+  var name = await tdPrompt('Account Name', '', 'e.g. FTMO 100k, Personal Account');
   if (!name || !name.trim()) return;
   name = name.trim();
-  var sizeStr = prompt('Account size in USD (e.g. 100000)', '100000');
+  var sizeStr = await tdPrompt('Account Size (USD)', '100000', 'Starting balance in USD');
   var size = parseFloat(sizeStr) || 100000;
-  var phase = prompt('Phase: Evaluation or Funded?', 'Evaluation');
+  var phase = await tdPrompt('Phase', 'Evaluation', 'Type "Evaluation" or "Funded"');
   if (phase && phase.toLowerCase().indexOf('fund') > -1) phase = 'Funded'; else phase = 'Evaluation';
   var next = _tdAccounts.length ? Math.max.apply(null, _tdAccounts.map(function(a){return parseInt(a.id)||0;})) + 1 : 1;
   _tdAccounts.push({ id: String(next), name: name, size: size, balance: size, currency: '$', phase: phase, accountType: 'Challenge', profitTargetPct: 10 });
