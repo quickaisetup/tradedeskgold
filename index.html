@@ -14103,9 +14103,6 @@ var _tvChartCreated = false;
 var _tvChartInstrument = null;
 var _tvShowDrawingTools = false;
 function initTVChart(forceInstrument) {
-  // Temporarily disabled — chart iframe was causing page to become unresponsive
-  console.log('[chart] TradingView chart disabled for debugging');
-  return;
   var currentInstr = typeof _tdActiveInstrument !== 'undefined' ? _tdActiveInstrument : 'Gold';
   if (_tvChartCreated && !forceInstrument && _tvChartInstrument === currentInstr) return;
   if (_tvChartCreated && _tvChartInstrument === currentInstr && !forceInstrument) return;
