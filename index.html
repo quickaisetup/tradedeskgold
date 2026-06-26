@@ -12971,33 +12971,37 @@ cycleWmTrend = function(el) {
   var wmTrend = el.dataset.trend || null;
   var biasMap = { up: 'bull', down: 'bear', ranging: 'neutral' };
   var targetBias = biasMap[wmTrend] || null;
-  // Find the bias button group by ID (bias-D, bias-4H, bias-1H)
+  console.log('[WM SYNC] tf=' + tfLabel + ' mapped=' + mappedTF + ' trend=' + wmTrend + ' bias=' + targetBias);
+  // Directly find the bias button and click it
   var biasGroup = document.getElementById('bias-' + mappedTF);
-  if (!biasGroup) { updateIntradayScore(); return; }
-  var btns = biasGroup.querySelectorAll('.bb');
-  // Clear all existing bias for this TF
-  if (!tfState[mappedTF]) tfState[mappedTF] = { bias: [], trend: [] };
-  tfState[mappedTF].bias = [];
-  btns.forEach(function(b) {
-    b.classList.remove('sel', 'sel-bull', 'sel-bear', 'sel-range');
-    b.style.color = ''; b.style.borderColor = ''; b.style.background = '';
-  });
-  // Set new bias by calling toggleBias with the matching button
-  if (targetBias) {
-    var saved = window._inRestore;
-    window._inRestore = true;
-    for (var i = 0; i < btns.length; i++) {
-      var btnVal = (btns[i].getAttribute('onclick') || '').match(/toggleBias\('[^']+','([^']+)'/);
-      if (btnVal && btnVal[1] === targetBias) {
-        toggleBias(mappedTF, targetBias, btns[i]);
-        break;
-      }
+  console.log('[WM SYNC] biasGroup=', biasGroup);
+  if (biasGroup) {
+    var btns = biasGroup.querySelectorAll('.bb');
+    console.log('[WM SYNC] found ' + btns.length + ' buttons');
+    // First clear all
+    btns.forEach(function(b) {
+      b.classList.remove('sel', 'sel-bull', 'sel-bear', 'sel-range');
+      b.style.color = ''; b.style.borderColor = ''; b.style.background = '';
+    });
+    if (!tfState[mappedTF]) tfState[mappedTF] = { bias: [], trend: [] };
+    tfState[mappedTF].bias = [];
+    // Then set the new one
+    if (targetBias) {
+      tfState[mappedTF].bias = [targetBias];
+      var biasCls = { bull: 'sel-bull', bear: 'sel-bear', neutral: 'sel-range' };
+      btns.forEach(function(b) {
+        var oc = b.getAttribute('onclick') || '';
+        if (oc.indexOf("'" + targetBias + "'") > -1) {
+          b.classList.add(biasCls[targetBias] || 'sel');
+          console.log('[WM SYNC] activated button:', b.textContent);
+        }
+      });
     }
-    window._inRestore = saved;
+    console.log('[WM SYNC] tfState[' + mappedTF + '].bias =', JSON.stringify(tfState[mappedTF].bias));
   }
   updateVerdictAuto();
-  colorTFCard(mappedTF);
-  _saveTFStateLocal();
+  if (typeof colorTFCard === 'function') colorTFCard(mappedTF);
+  if (typeof _saveTFStateLocal === 'function') _saveTFStateLocal();
   if (window.scheduleMorningAutosave) scheduleMorningAutosave(0.001);
   updateIntradayScore();
 };
