@@ -12880,6 +12880,10 @@ var _lastToastScore = null;
 function showScoreToast() {
   var overlay = document.getElementById('live-exec-overlay');
   if (!overlay || !overlay.classList.contains('show')) return;
+  var grid = document.getElementById('leo-charts-grid');
+  if (!grid || grid.offsetParent === null) return;
+  var ptg = document.getElementById('ptg-overlay');
+  if (ptg && ptg.style.display !== 'none') return;
   // Debounce: wait 1s after last score change before showing
   clearTimeout(_toastDebounce);
   _toastDebounce = setTimeout(_doShowToast, 1000);
