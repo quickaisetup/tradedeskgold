@@ -12844,6 +12844,9 @@ function _leoShowNudge() {
   var el = document.getElementById('leo-nudge');
   var btn = document.getElementById('leo-log-trade-btn');
   if (!el || !btn) return;
+  // Don't show during onboarding tutorial
+  var ob = document.getElementById('leo-onboard');
+  if (ob && ob.style.display !== 'none') return;
   var overlay = document.getElementById('live-exec-overlay');
   var oRect = overlay ? overlay.getBoundingClientRect() : {left:0, top:0};
   var bRect = btn.getBoundingClientRect();
