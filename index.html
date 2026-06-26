@@ -10972,22 +10972,34 @@ async function exportCSV() {
 
         if (!trades.length && !summaries.length) { alert('No data to export yet.'); return; }
 
+        var morRes = await sb.from('morning_analysis').select('*').eq('user_id', uid).order('date', {ascending:true});
+        var mornings = morRes.data || [];
+
+        if (!trades.length && !summaries.length && !mornings.length) { alert('No data to export yet.'); return; }
+
         if (trades.length) {
-          var tradeCols = ['date','time','session','trade_type','direction','setup','tf_trigger','entry','sl','tp',
+          var tradeCols = ['date','time','session','instrument','trade_type','direction','setup','tf_trigger','entry','sl','tp',
             'risk_pct','sl_placement','htf_bias','confluence','mindset','entry_type','result','r_achieved',
             'took_50','moved_sl','would_have_worked','would_have_r','mistakes','notes','account','usd_achieved'];
           var tradeRows = [tradeCols];
-          trades.forEach(function(t) { tradeRows.push(tradeCols.map(function(c){ return t[c]; })); });
+          trades.forEach(function(t) { tradeRows.push(tradeCols.map(function(c){ return t[c] != null ? t[c] : ''; })); });
           _downloadCSV('tradedesk_trades_' + stamp + '.csv', tradeRows);
         }
 
         if (summaries.length) {
-          var sumCols = ['date','total_trades','own_trades','wins','losses','total_r',
+          var sumCols = ['date','total_trades','own_trades','wins','losses','total_r','usd_pnl',
             'rules_followed','did_well','to_correct','tomorrow_goal'];
           var sumRows = [sumCols];
-          summaries.forEach(function(s) { sumRows.push(sumCols.map(function(c){ return s[c]; })); });
-          // stagger the second download so the browser doesn't block it
+          summaries.forEach(function(s) { sumRows.push(sumCols.map(function(c){ return s[c] != null ? s[c] : ''; })); });
           setTimeout(function(){ _downloadCSV('tradedesk_daily_summaries_' + stamp + '.csv', sumRows); }, 400);
+        }
+
+        if (mornings.length) {
+          var morCols = ['date','score','verdict','market_dir','pivot_state','london_bias','trading_mode',
+            'news_notes','high_impact','tf_state','levels_json'];
+          var morRows = [morCols];
+          mornings.forEach(function(m) { morRows.push(morCols.map(function(c){ return m[c] != null ? m[c] : ''; })); });
+          setTimeout(function(){ _downloadCSV('tradedesk_morning_analysis_' + stamp + '.csv', morRows); }, 800);
         }
         return;
       }
