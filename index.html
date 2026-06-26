@@ -19973,6 +19973,7 @@ window.fwFinish = fwFinish;
 <script>
 // ── FULL-SCREEN WIZARD ENGINE ─────────────────────────
 var _wizSteps = [
+  { key:'accounts',  label:'Your Trading Accounts', type:'accounts' },
   { key:'morning',   label:'Morning Routine',     type:'section', sourceId:'gate-items',  doneCheck:'gates' },
   { key:'news',      label:'Economic Calendar',   type:'section', sourceId:'_econ_card'  },
   { key:'instrument', label:'Select Instrument',  type:'section', sourceId:'td-instr-tabs' },
@@ -20031,6 +20032,62 @@ function wizReturnAll() {
   }
 }
 
+function _wizRenderAccounts(container) {
+  var nextBtn = document.getElementById('wiz-next');
+  if (nextBtn) nextBtn.textContent = 'Continue →';
+  var html = '<div style="display:flex;flex-direction:column;align-items:center;max-width:480px;margin:0 auto;padding:20px 0">';
+  html += '<div style="font-size:36px;margin-bottom:8px">💼</div>';
+  html += '<div style="font-family:var(--display);font-size:22px;color:#fff;letter-spacing:0.04em;margin-bottom:6px">Add Your Trading Accounts</div>';
+  html += '<div style="font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:24px;text-align:center;line-height:1.6">Add your prop firm or personal accounts so TradeDesk can track P&L, lot sizes, and progress for each one.</div>';
+  html += '<div id="wiz-acct-list" style="width:100%;margin-bottom:16px"></div>';
+  html += '<button onclick="_wizAddAccount()" style="width:100%;padding:14px;font-family:var(--display);font-size:13px;letter-spacing:0.08em;color:var(--gold);background:rgba(240,188,78,0.06);border:1px dashed rgba(240,188,78,0.3);border-radius:10px;cursor:pointer;transition:all 0.15s" onmouseover="this.style.background=\'rgba(240,188,78,0.12)\';this.style.borderColor=\'rgba(240,188,78,0.5)\'" onmouseout="this.style.background=\'rgba(240,188,78,0.06)\';this.style.borderColor=\'rgba(240,188,78,0.3)\'">+ Add Account</button>';
+  html += '</div>';
+  container.innerHTML = html;
+  _wizRefreshAccountList();
+}
+
+function _wizRefreshAccountList() {
+  var list = document.getElementById('wiz-acct-list');
+  if (!list) return;
+  if (!_tdAccounts.length) {
+    list.innerHTML = '<div style="font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.25);text-align:center;padding:20px">No accounts yet — add your first one below</div>';
+    return;
+  }
+  var html = '';
+  _tdAccounts.forEach(function(a) {
+    var cur = a.currency || '$';
+    html += '<div style="display:flex;align-items:center;gap:12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:12px 16px;margin-bottom:8px">';
+    html += '<div style="flex:1">';
+    html += '<div style="font-family:var(--display);font-size:13px;color:#fff;letter-spacing:0.04em">' + (a.name || 'Account') + '</div>';
+    html += '<div style="font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.4);margin-top:2px">' + cur + (parseFloat(a.size)||100000).toLocaleString() + ' · ' + (a.phase||'Evaluation') + '</div>';
+    html += '</div>';
+    html += '<button onclick="_wizRemoveAccount(\'' + a.id + '\')" style="background:none;border:none;color:rgba(240,96,96,0.5);font-size:16px;cursor:pointer;padding:4px" title="Remove">×</button>';
+    html += '</div>';
+  });
+  list.innerHTML = html;
+}
+
+function _wizAddAccount() {
+  var name = prompt('Account name (e.g. FTMO 100k, Personal Account)');
+  if (!name || !name.trim()) return;
+  name = name.trim();
+  var sizeStr = prompt('Account size in USD (e.g. 100000)', '100000');
+  var size = parseFloat(sizeStr) || 100000;
+  var phase = prompt('Phase: Evaluation or Funded?', 'Evaluation');
+  if (phase && phase.toLowerCase().indexOf('fund') > -1) phase = 'Funded'; else phase = 'Evaluation';
+  var next = _tdAccounts.length ? Math.max.apply(null, _tdAccounts.map(function(a){return parseInt(a.id)||0;})) + 1 : 1;
+  _tdAccounts.push({ id: String(next), name: name, size: size, balance: size, currency: '$', phase: phase, accountType: 'Challenge', profitTargetPct: 10 });
+  saveAccounts();
+  _wizRefreshAccountList();
+  if (typeof renderAccountsPanel === 'function') renderAccountsPanel();
+}
+
+function _wizRemoveAccount(id) {
+  _tdAccounts = _tdAccounts.filter(function(a){ return a.id !== id; });
+  saveAccounts();
+  _wizRefreshAccountList();
+}
+
 function wizShowStep() {
   wizReturnAll();
   var body = document.getElementById('wiz-body');
@@ -20041,6 +20098,12 @@ function wizShowStep() {
   var s = _wizSteps[_wizStep];
   var total = _wizSteps.length;
 
+  // Skip accounts step if user already has accounts set up
+  if (s && s.key === 'accounts' && _tdAccounts && _tdAccounts.length) {
+    _wizStep++;
+    if (_wizStep >= _wizSteps.length) { wizDone(); return; }
+    s = _wizSteps[_wizStep];
+  }
   // Skip London Open step if before London open (10:00 Bangkok / 03:00 UTC)
   if (s && s.key === 'london' && !_wizSingleMode) {
     var _bkkNow = typeof _tzNow === 'function' ? _tzNow() : new Date();
@@ -20083,6 +20146,8 @@ function wizShowStep() {
     _wizRenderChoice(s, body);
   } else if (s.type === 'levels') {
     _wizRenderLevels(s, body);
+  } else if (s.type === 'accounts') {
+    _wizRenderAccounts(body);
   } else if (s.type === 'reveal') {
     _wizRenderReveal(body);
   }
