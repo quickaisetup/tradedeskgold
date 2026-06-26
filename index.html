@@ -5417,7 +5417,17 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
       <button onclick="closeLiveExec()" style="background:transparent;border:none;color:rgba(255,255,255,0.3);font-size:16px;cursor:pointer;padding:0;line-height:1" title="Close (Esc)">✕</button>
       <div id="leo-live-dot"></div>
       <div id="leo-bias" style="font-family:var(--display);font-size:14px;letter-spacing:0.08em;font-weight:700;color:#aaa">—</div>
-      <div id="leo-score" style="font-family:var(--display);font-size:18px;color:rgba(255,255,255,0.35);letter-spacing:0.02em">0</div>
+      <div id="leo-score-wrap" style="display:flex;align-items:center;gap:8px">
+        <div style="display:flex;flex-direction:column;align-items:center;line-height:1.1">
+          <span style="font-family:var(--mono);font-size:6px;letter-spacing:0.12em;color:rgba(255,255,255,0.3);text-transform:uppercase">Morning</span>
+          <span id="leo-score-morning" style="font-family:var(--display);font-size:15px;color:rgba(255,255,255,0.35);letter-spacing:0.02em;font-weight:700">0</span>
+        </div>
+        <div style="width:1px;height:20px;background:rgba(255,255,255,0.1)"></div>
+        <div style="display:flex;flex-direction:column;align-items:center;line-height:1.1">
+          <span style="font-family:var(--mono);font-size:6px;letter-spacing:0.12em;color:rgba(255,255,255,0.3);text-transform:uppercase">Intraday</span>
+          <span id="leo-score" style="font-family:var(--display);font-size:18px;color:rgba(255,255,255,0.35);letter-spacing:0.02em;font-weight:700">0</span>
+        </div>
+      </div>
       <div style="width:1px;height:16px;background:rgba(255,255,255,0.1)"></div>
       <div id="leo-mode" style="font-family:var(--display);font-size:13px;letter-spacing:0.04em;color:rgba(240,188,78,0.7);font-weight:700">— no mode —</div>
       <div id="leo-dir" style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.25)">—</div>
@@ -5457,6 +5467,16 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
         <span class="leo-tips-label">EXPLAINER POPUPS</span>
       </label>
     </div>
+  </div>
+
+  <div id="leo-ltf-trend-bar">
+    <span class="ltf-lbl">LTF Trend</span>
+    <button class="ltf-trend-btn" onclick="setLtfTrend('15m',this)" data-tf="15m">15m —</button>
+    <button class="ltf-trend-btn" onclick="setLtfTrend('5m',this)" data-tf="5m">5m —</button>
+    <div class="ltf-sep"></div>
+    <button class="ltf-trend-btn" onclick="setLtfTrend('1m',this)" data-tf="1m">1m —</button>
+    <div class="ltf-sep"></div>
+    <span id="leo-ltf-adj" style="font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.3);letter-spacing:0.06em;margin-left:auto">LTF: 0</span>
   </div>
 
   <!-- POSITION CALCULATOR + ADMIN ALERT BAR -->
@@ -12280,15 +12300,24 @@ function _leoSyncHeader() {
     leoM.textContent = tmVal || '— no mode —';
   }
   if (leoS) {
-    var newScore = scoreEl ? scoreEl.textContent : '0';
-    if (leoS.textContent !== newScore) {
+    var morningScore = scoreEl ? scoreEl.textContent : '0';
+    var morningNum = parseFloat(morningScore.replace('+', '')) || 0;
+    var ltfAdj = window._ltfAdjustment || 0;
+    var intradayNum = Math.round((morningNum + ltfAdj) * 10) / 10;
+    var intradayStr = (intradayNum > 0 ? '+' : '') + intradayNum;
+    if (leoS.textContent !== intradayStr) {
       window._lastAnalysisTs = Date.now();
       localStorage.setItem('td_last_analysis_ts', String(Date.now()));
       _leoUpdateAnalysisAge();
     }
-    leoS.textContent = newScore;
+    leoS.textContent = intradayStr;
     leoS.style.color = badgeColor;
     leoS.style.background = badgeBg;
+    var leoSM = document.getElementById('leo-score-morning');
+    if (leoSM) {
+      leoSM.textContent = morningScore;
+      leoSM.style.color = badgeColor;
+    }
   }
 }
 
@@ -12836,6 +12865,102 @@ function cycleWmTrend(el) {
     else localStorage.removeItem(el.dataset.wmKey);
   }
 }
+
+// ── LTF TREND STATE + INTRADAY SCORING ────────────────
+var ltfTrendState = { '15m': null, '5m': null, '1m': null };
+var LTF_WEIGHTS = { '15m': 1, '5m': 0.5, '1m': 0.25 };
+var LTF_MAX = 3;
+
+function setLtfTrend(tf, btn) {
+  var states = [null, 'up', 'down'];
+  var cur = ltfTrendState[tf];
+  var next = states[(states.indexOf(cur) + 1) % states.length];
+  ltfTrendState[tf] = next;
+  btn.classList.remove('ltf-up', 'ltf-down', 'ltf-ranging');
+  var labels = { up: tf + ' ↑', down: tf + ' ↓' };
+  btn.textContent = labels[next] || tf + ' —';
+  if (next === 'up') btn.classList.add('ltf-up');
+  else if (next === 'down') btn.classList.add('ltf-down');
+  updateIntradayScore();
+}
+
+function getLtfAdjustment() {
+  var adj = 0;
+  Object.keys(ltfTrendState).forEach(function(tf) {
+    var v = ltfTrendState[tf];
+    if (v === 'up') adj += LTF_WEIGHTS[tf];
+    else if (v === 'down') adj -= LTF_WEIGHTS[tf];
+  });
+  return Math.max(-LTF_MAX, Math.min(LTF_MAX, Math.round(adj * 100) / 100));
+}
+
+function updateIntradayScore() {
+  var morningEl = document.getElementById('score-num');
+  var morning = parseFloat(morningEl ? morningEl.textContent.replace('+', '') : '0') || 0;
+  var ltfAdj = getLtfAdjustment();
+  var intraday = Math.round((morning + ltfAdj) * 10) / 10;
+  window._ltfAdjustment = ltfAdj;
+  window._intradayScore = intraday;
+  window._morningScore = morning;
+  var adjEl = document.getElementById('leo-ltf-adj');
+  if (adjEl) {
+    var sign = ltfAdj > 0 ? '+' : '';
+    adjEl.textContent = 'LTF: ' + sign + ltfAdj;
+    adjEl.style.color = ltfAdj > 0 ? '#4ed68a' : ltfAdj < 0 ? '#f06060' : 'rgba(255,255,255,0.3)';
+  }
+  _leoSyncHeader();
+}
+
+// ── SYNC WATERMARK CLICKS (D/4H/1H) → TOP-DOWN tfState ──
+var _wmToTF = { '1D': 'D', '4H': '4H', '1H': '1H' };
+var _origCycleWmTrend = cycleWmTrend;
+cycleWmTrend = function(el) {
+  _origCycleWmTrend(el);
+  var tfLabel = el.querySelector('div') ? el.querySelector('div').textContent.trim() : '';
+  var mappedTF = _wmToTF[tfLabel];
+  if (mappedTF && el.dataset.trend) {
+    var biasMap = { up: 'bull', down: 'bear', ranging: 'neutral' };
+    var newBias = biasMap[el.dataset.trend];
+    if (newBias) {
+      if (!tfState[mappedTF]) tfState[mappedTF] = { bias: [], trend: [] };
+      tfState[mappedTF].bias = [newBias];
+      var card = document.getElementById('tfc-' + mappedTF);
+      if (card) {
+        var biasBtns = card.querySelectorAll('.bias-btns .bb');
+        biasBtns.forEach(function(b) {
+          b.classList.remove('sel', 'sel-bull', 'sel-bear', 'sel-range');
+          b.style.color = ''; b.style.borderColor = ''; b.style.background = '';
+          var onclick = b.getAttribute('onclick') || '';
+          var match = onclick.match(/'([^']+)'/g);
+          if (match && match.length >= 2) {
+            var bv = match[1].replace(/'/g, '');
+            if (bv === newBias) {
+              var cls = { bull: 'sel-bull', bear: 'sel-bear', neutral: 'sel-range', range: 'sel-range' };
+              b.classList.add(cls[bv] || 'sel');
+            }
+          }
+        });
+      }
+      updateVerdictAuto();
+      colorTFCard(mappedTF);
+      _saveTFStateLocal();
+      if (!window._inRestore && window.scheduleMorningAutosave) scheduleMorningAutosave(0.001);
+    }
+  } else if (mappedTF && !el.dataset.trend) {
+    if (tfState[mappedTF]) tfState[mappedTF].bias = [];
+    var card = document.getElementById('tfc-' + mappedTF);
+    if (card) {
+      card.querySelectorAll('.bias-btns .bb').forEach(function(b) {
+        b.classList.remove('sel', 'sel-bull', 'sel-bear', 'sel-range');
+        b.style.color = ''; b.style.borderColor = ''; b.style.background = '';
+      });
+    }
+    updateVerdictAuto();
+    colorTFCard(mappedTF);
+    _saveTFStateLocal();
+  }
+  updateIntradayScore();
+};
 
 window.leoQuickLogTrade = function() {
   closeLiveExec();
