@@ -16752,9 +16752,17 @@ document.addEventListener('DOMContentLoaded', function() {
   var _isFirstTime = !localStorage.getItem('td_onboarded');
   if (_isFirstTime) {
     if (!localStorage.getItem('td_user_id')) return;
-    if (splash) splash.style.display = 'none';
-    setTimeout(function() { if (typeof onboardingOpen === 'function') onboardingOpen(); }, 800);
-    return;
+    // If wizard has saved progress, show splash with "Continue Setup" — don't auto-open wizard
+    var _wizSaved = null;
+    try { _wizSaved = JSON.parse(localStorage.getItem(_wizProgressKey()) || 'null'); } catch(e){}
+    if (_wizSaved && _wizSaved.step > 0) {
+      // Splash already updated above with "Finish setting up" text — just let it show
+    } else {
+      // Brand new user — skip splash, go straight to onboarding
+      if (splash) splash.style.display = 'none';
+      setTimeout(function() { if (typeof onboardingOpen === 'function') onboardingOpen(); }, 800);
+      return;
+    }
   }
   if (splash) setTimeout(function(){
     splash.classList.add('show');
