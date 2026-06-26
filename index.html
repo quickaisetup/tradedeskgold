@@ -12429,6 +12429,8 @@ var _eodRulesVal = '';
 function eodNudgeOpen() {
   var overlay = document.getElementById('eod-nudge-overlay');
   if (!overlay) return;
+  // Don't show if day was already saved (check both localStorage and Supabase restore flag)
+  if (localStorage.getItem(_eodDaySavedKey())) return;
 
   var alreadyGranted = !!localStorage.getItem(_eodXpGrantedKey());
   var xpPill = document.getElementById('eod-nudge-xp-pill');
@@ -17446,6 +17448,7 @@ window.autoRestoreToday = async function(source) {
       }
 
       if (summ.did_well || summ.to_correct) markSection('reflection');
+      if (typeof _eodDaySavedKey === 'function') localStorage.setItem(_eodDaySavedKey(), '1');
     }
 
     // ── 5. Update all derived UI ──────────────────────────
