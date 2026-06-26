@@ -12970,38 +12970,28 @@ cycleWmTrend = function(el) {
   if (!mappedTF) { updateIntradayScore(); return; }
   var wmTrend = el.dataset.trend || null;
   var biasMap = { up: 'bull', down: 'bear', ranging: 'neutral' };
-  var targetBias = biasMap[wmTrend] || null;
-  console.log('[WM SYNC] tf=' + tfLabel + ' mapped=' + mappedTF + ' trend=' + wmTrend + ' bias=' + targetBias);
-  // Directly find the bias button and click it
+  var targetBias = wmTrend ? (biasMap[wmTrend] || null) : null;
+  if (!tfState[mappedTF]) tfState[mappedTF] = { bias: [], trend: [] };
+  // Set bias directly — no toggleBias call to avoid array accumulation
+  tfState[mappedTF].bias = targetBias ? [targetBias] : [];
+  // Update the visual buttons in the top-down analysis section
   var biasGroup = document.getElementById('bias-' + mappedTF);
-  console.log('[WM SYNC] biasGroup=', biasGroup);
   if (biasGroup) {
-    var btns = biasGroup.querySelectorAll('.bb');
-    console.log('[WM SYNC] found ' + btns.length + ' buttons');
-    // First clear all
-    btns.forEach(function(b) {
+    var biasCls = { bull: 'sel-bull', bear: 'sel-bear', neutral: 'sel-range' };
+    biasGroup.querySelectorAll('.bb').forEach(function(b) {
       b.classList.remove('sel', 'sel-bull', 'sel-bear', 'sel-range');
       b.style.color = ''; b.style.borderColor = ''; b.style.background = '';
-    });
-    if (!tfState[mappedTF]) tfState[mappedTF] = { bias: [], trend: [] };
-    tfState[mappedTF].bias = [];
-    // Then set the new one
-    if (targetBias) {
-      tfState[mappedTF].bias = [targetBias];
-      var biasCls = { bull: 'sel-bull', bear: 'sel-bear', neutral: 'sel-range' };
-      btns.forEach(function(b) {
+      if (targetBias) {
         var oc = b.getAttribute('onclick') || '';
         if (oc.indexOf("'" + targetBias + "'") > -1) {
           b.classList.add(biasCls[targetBias] || 'sel');
-          console.log('[WM SYNC] activated button:', b.textContent);
         }
-      });
-    }
-    console.log('[WM SYNC] tfState[' + mappedTF + '].bias =', JSON.stringify(tfState[mappedTF].bias));
+      }
+    });
   }
   updateVerdictAuto();
-  if (typeof colorTFCard === 'function') colorTFCard(mappedTF);
-  if (typeof _saveTFStateLocal === 'function') _saveTFStateLocal();
+  colorTFCard(mappedTF);
+  _saveTFStateLocal();
   if (window.scheduleMorningAutosave) scheduleMorningAutosave(0.001);
   updateIntradayScore();
 };
