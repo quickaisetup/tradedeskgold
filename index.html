@@ -12960,13 +12960,47 @@ function updateIntradayScore() {
   _leoSyncHeader();
 }
 
+// ── CLEANUP: deduplicate corrupted tfState bias/trend arrays ──
+(function() {
+  var tfs = ['1M','1W','D','4H','1H'];
+  tfs.forEach(function(tf) {
+    if (!tfState[tf]) return;
+    if (tfState[tf].bias && tfState[tf].bias.length > 1) {
+      var seen = {};
+      tfState[tf].bias = tfState[tf].bias.filter(function(v) { return seen[v] ? false : (seen[v] = true); });
+    }
+    if (tfState[tf].trend && tfState[tf].trend.length > 1) {
+      var seen = {};
+      tfState[tf].trend = tfState[tf].trend.filter(function(v) { return seen[v] ? false : (seen[v] = true); });
+    }
+  });
+  if (typeof _saveTFStateLocal === 'function') _saveTFStateLocal();
+})();
+
 // ── SYNC WATERMARK CLICKS (D/4H/1H) → TOP-DOWN tfState ──
 var _wmToTF = { '1D': 'D', 'D': 'D', '4H': '4H', '1H': '1H' };
+var _wmToLTF = { '15': '15m', '15m': '15m', '5': '5m', '5m': '5m', '1': '1m', '1m': '1m' };
 var _origCycleWmTrend = cycleWmTrend;
 cycleWmTrend = function(el) {
   _origCycleWmTrend(el);
   var tfLabel = el.querySelector('div') ? el.querySelector('div').textContent.trim() : '';
   var mappedTF = _wmToTF[tfLabel];
+  // LTF watermarks (15m/5m/1m) → update ltfTrendState + intraday score
+  var ltfTF = _wmToLTF[tfLabel];
+  if (ltfTF) {
+    var wmTrendLTF = el.dataset.trend || null;
+    ltfTrendState[ltfTF] = wmTrendLTF === 'up' ? 'up' : wmTrendLTF === 'down' ? 'down' : null;
+    var ltfBtns = document.querySelectorAll('#leo-ltf-trend-bar .ltf-trend-btn[data-tf="' + ltfTF + '"]');
+    ltfBtns.forEach(function(b) {
+      b.classList.remove('ltf-up', 'ltf-down');
+      var labels = { up: ltfTF + ' ↑', down: ltfTF + ' ↓' };
+      b.textContent = labels[ltfTrendState[ltfTF]] || ltfTF + ' —';
+      if (ltfTrendState[ltfTF] === 'up') b.classList.add('ltf-up');
+      else if (ltfTrendState[ltfTF] === 'down') b.classList.add('ltf-down');
+    });
+    updateIntradayScore();
+    return;
+  }
   if (!mappedTF) { updateIntradayScore(); return; }
   var wmTrend = el.dataset.trend || null;
   var biasMap = { up: 'bull', down: 'bear', ranging: 'neutral' };
