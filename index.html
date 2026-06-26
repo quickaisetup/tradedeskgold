@@ -16728,7 +16728,11 @@ document.addEventListener('DOMContentLoaded', function() {
   var _hasEod = typeof _eodDaySavedKey === 'function' && !!localStorage.getItem(_eodDaySavedKey());
   var saved = _wtLoadProgress();
 
-  if (_hasEod) {
+  if (!localStorage.getItem('td_onboarded') && localStorage.getItem('td_user_id')) {
+    if (titleEl) titleEl.textContent = 'Finish setting up';
+    if (subEl)   subEl.textContent   = 'Complete your account setup to get the most out of TradeDesk.';
+    if (btnEl)   btnEl.textContent   = '▶ Continue Setup';
+  } else if (_hasEod) {
     if (titleEl) titleEl.textContent = 'Session complete ✓';
     if (subEl) subEl.textContent = 'Your day is saved. Review key levels or jump into live execution.';
     if (btnEl) { btnEl.textContent = '📌 Key Levels Guide'; btnEl.onclick = function(){ sessionSplashDismiss(); wizOpenSingle('levels'); }; }
@@ -16736,10 +16740,6 @@ document.addEventListener('DOMContentLoaded', function() {
     if (titleEl) titleEl.textContent = 'Continue your session';
     if (subEl) subEl.textContent = 'Analysis done — save your end of day notes or mark key levels.';
     if (btnEl) { btnEl.textContent = '💾 Save Day'; btnEl.onclick = function(){ sessionSplashDismiss(); if(typeof eodNudgeOpen==='function') eodNudgeOpen(); else { var r=document.getElementById('reflection'); if(r) r.scrollIntoView({behavior:'smooth'}); } }; }
-  } else if (!localStorage.getItem('td_onboarded')) {
-    if (titleEl) titleEl.textContent = 'Finish setting up';
-    if (subEl)   subEl.textContent   = 'Complete your account setup to get the most out of TradeDesk.';
-    if (btnEl)   btnEl.textContent   = '▶ Continue Setup';
   } else if (saved && saved.step > 0) {
     var s = _wtSteps[saved.step];
     if (titleEl) titleEl.textContent = 'Continue your session';
