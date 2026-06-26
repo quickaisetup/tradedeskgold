@@ -7061,6 +7061,16 @@ function _restoreTFStateLocal() {
     } catch(e) {}
 
     window._inRestore = false;
+    // Deduplicate any corrupted bias/trend arrays from prior bug
+    ['1M','1W','D','4H','1H'].forEach(function(tf) {
+      if (!tfState[tf]) return;
+      ['bias','trend'].forEach(function(k) {
+        if (tfState[tf][k] && tfState[tf][k].length > 1) {
+          var seen = {};
+          tfState[tf][k] = tfState[tf][k].filter(function(v) { return seen[v] ? false : (seen[v] = true); });
+        }
+      });
+    });
     console.log('[restore] Full analysis restored from localStorage ✓');
     return true;
   } catch(e) { window._inRestore = false; console.warn('[restore] tfState local error:', e.message); return false; }
@@ -12979,23 +12989,6 @@ function updateIntradayScore() {
   }
   _leoSyncHeader();
 }
-
-// ── CLEANUP: deduplicate corrupted tfState bias/trend arrays ──
-(function() {
-  var tfs = ['1M','1W','D','4H','1H'];
-  tfs.forEach(function(tf) {
-    if (!tfState[tf]) return;
-    if (tfState[tf].bias && tfState[tf].bias.length > 1) {
-      var seen = {};
-      tfState[tf].bias = tfState[tf].bias.filter(function(v) { return seen[v] ? false : (seen[v] = true); });
-    }
-    if (tfState[tf].trend && tfState[tf].trend.length > 1) {
-      var seen = {};
-      tfState[tf].trend = tfState[tf].trend.filter(function(v) { return seen[v] ? false : (seen[v] = true); });
-    }
-  });
-  if (typeof _saveTFStateLocal === 'function') _saveTFStateLocal();
-})();
 
 // ── SYNC WATERMARK CLICKS (D/4H/1H) → TOP-DOWN tfState ──
 var _wmToTF = { '1D': 'D', 'D': 'D', '4H': '4H', '1H': '1H' };
