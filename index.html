@@ -20972,7 +20972,7 @@ function _wizBuildLevelPills() {
   }).forEach(function(e) { entries.push(e); });
   window._wizKlEntries = entries;
 
-  if (!entries.length) return '<span style="font-family:var(--mono);font-size:8px;color:rgba(255,255,255,0.2)">loading levels...</span>';
+  if (!entries.length) return '<span style="font-family:var(--mono);font-size:8px;color:rgba(255,255,255,0.2)">' + (window._klAllLevels !== undefined ? 'no community levels yet' : 'loading levels...') + '</span>';
   return entries.map(function(e, idx) {
     var l = e.l, user = e.user;
     var isLong = l.type === 'long' || l.direction === 'long';
