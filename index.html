@@ -12881,9 +12881,15 @@ function showScoreToast() {
   var overlay = document.getElementById('live-exec-overlay');
   if (!overlay || !overlay.classList.contains('show')) return;
   var grid = document.getElementById('leo-charts-grid');
-  if (!grid || grid.offsetParent === null) return;
-  var ptg = document.getElementById('ptg-overlay');
-  if (ptg && ptg.style.display !== 'none') return;
+  if (!grid) return;
+  // Only show toast when charts are actually visible (not behind pre-trade gate)
+  var iframes = grid.querySelectorAll('iframe');
+  if (!iframes.length) return;
+  var ptg = document.getElementById('ptg-gate');
+  if (ptg) {
+    var ptgStyle = window.getComputedStyle(ptg);
+    if (ptgStyle.display !== 'none' && ptgStyle.visibility !== 'hidden') return;
+  }
   // Debounce: wait 1s after last score change before showing
   clearTimeout(_toastDebounce);
   _toastDebounce = setTimeout(_doShowToast, 1000);
