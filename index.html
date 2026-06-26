@@ -16752,9 +16752,8 @@ document.addEventListener('DOMContentLoaded', function() {
   var _isFirstTime = !localStorage.getItem('td_onboarded');
   if (_isFirstTime) {
     if (!localStorage.getItem('td_user_id')) return;
-    // If wizard has saved progress, show splash with "Continue Setup" — don't auto-open wizard
     var _wizSaved = null;
-    try { _wizSaved = JSON.parse(localStorage.getItem(_wizProgressKey()) || 'null'); } catch(e){}
+    try { _wizSaved = JSON.parse(localStorage.getItem('td_wiz_onboard_progress') || 'null'); } catch(e){}
     if (_wizSaved && _wizSaved.step > 0) {
       // Splash already updated above with "Finish setting up" text — just let it show
     } else {
@@ -20038,7 +20037,12 @@ var _wizSubStep = 0;
 var _wizBorrowed = [];
 
 function _wizProgressKey() { return 'td_wiz_progress_' + (typeof _tdTodayBKK === 'function' ? _tdTodayBKK() : new Date().toLocaleDateString('sv-SE')); }
-function _wizSaveProgress() { try { localStorage.setItem(_wizProgressKey(), JSON.stringify({step:_wizStep, sub:_wizSubStep})); } catch(e){} }
+function _wizSaveProgress() {
+  try {
+    localStorage.setItem(_wizProgressKey(), JSON.stringify({step:_wizStep, sub:_wizSubStep}));
+    if (!localStorage.getItem('td_onboarded')) localStorage.setItem('td_wiz_onboard_progress', JSON.stringify({step:_wizStep, sub:_wizSubStep}));
+  } catch(e){}
+}
 function _wizLoadProgress() { try { return JSON.parse(localStorage.getItem(_wizProgressKey()) || 'null'); } catch(e){ return null; } }
 
 function wizBorrow(id) {
@@ -21150,12 +21154,16 @@ function wizDone() {
   localStorage.setItem('td_onboarded', '1');
   localStorage.removeItem('td_walkthrough_pending');
   localStorage.removeItem(_wizProgressKey());
+  localStorage.removeItem('td_wiz_onboard_progress');
   var chartWrap = document.getElementById('tv-chart-wrap');
   if (chartWrap) chartWrap.style.height = '';
 }
 
 function wizOpen() {
   var saved = _wizLoadProgress();
+  if (!saved || !saved.step) {
+    try { saved = JSON.parse(localStorage.getItem('td_wiz_onboard_progress') || 'null'); } catch(e){}
+  }
   _wizStep = (saved && saved.step > 0) ? saved.step : 0;
   _wizSubStep = (saved) ? (saved.sub || 0) : 0;
   var ov = document.getElementById('wiz-overlay');
