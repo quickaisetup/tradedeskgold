@@ -7597,23 +7597,6 @@ function updateVerdictAuto() {
     // Pure RANGING or no trend = 0 points
   });
 
-  // ── LTF TRENDS (15m ±1, 5m ±0.5, 1m ±0.25) ────────
-  if (typeof ltfTrendState !== 'undefined') {
-    var ltfDefs = [
-      { tf: '15m', pts: 1 },
-      { tf: '5m',  pts: 0.5 },
-      { tf: '1m',  pts: 0.25 },
-    ];
-    var ltfTotal = 0;
-    ltfDefs.forEach(function(ld) {
-      var st = ltfTrendState[ld.tf];
-      if (st === 'up') { ltfTotal += ld.pts; bullSignals.push({ label: ld.tf + ' trend ↑', pts: '+' + ld.pts }); }
-      else if (st === 'down') { ltfTotal -= ld.pts; bearSignals.push({ label: ld.tf + ' trend ↓', pts: '-' + ld.pts }); }
-    });
-    ltfTotal = Math.max(-3, Math.min(3, ltfTotal));
-    score += ltfTotal;
-  }
-
   // ── 4H AO ─────────────────────────────────────────────
   var ao4 = getInd('4H', 'AO');
   if (ao4 === 'Above zero') { score += 1.5; bullSignals.push({ label: '4H AO >0', pts: '+1.5' }); }
@@ -12892,23 +12875,33 @@ function cycleWmTrend(el) {
 
 // ── SCORE TOAST POPUP ─────────────────────────────────
 var _toastTimer = null;
+var _toastDebounce = null;
 var _lastToastScore = null;
 function showScoreToast() {
   var overlay = document.getElementById('live-exec-overlay');
   if (!overlay || !overlay.classList.contains('show')) return;
+  // Debounce: wait 1s after last score change before showing
+  clearTimeout(_toastDebounce);
+  _toastDebounce = setTimeout(_doShowToast, 1000);
+}
+function _doShowToast() {
   var scoreEl = document.getElementById('score-num');
   var vtMain = document.getElementById('vt-main');
   if (!scoreEl) return;
-  var scoreVal = scoreEl.textContent;
-  if (scoreVal === _lastToastScore) return;
-  _lastToastScore = scoreVal;
+  // Compute intraday score for display
+  var morning = parseFloat(scoreEl.textContent.replace('+', '')) || 0;
+  var ltfAdj = window._ltfAdjustment || 0;
+  var intraday = Math.round((morning + ltfAdj) * 10) / 10;
+  var intradayStr = (intraday > 0 ? '+' : '') + intraday;
+  if (intradayStr === _lastToastScore) return;
+  _lastToastScore = intradayStr;
   var toast = document.getElementById('leo-score-toast');
   if (!toast) return;
   var ts = document.getElementById('leo-toast-score');
   var tl = document.getElementById('leo-toast-label');
   var color = scoreEl.style.color || 'var(--gold)';
-  if (ts) { ts.textContent = scoreVal; ts.style.color = color; }
-  if (tl && vtMain) { tl.textContent = vtMain.textContent; tl.style.color = color; }
+  if (ts) { ts.textContent = intradayStr; ts.style.color = color; }
+  if (tl) { tl.textContent = 'INTRADAY'; tl.style.color = color; }
   toast.style.display = 'block';
   toast.style.opacity = '0';
   toast.style.transform = 'translate(-50%,-50%) scale(0.8)';
@@ -12922,7 +12915,7 @@ function showScoreToast() {
     toast.style.opacity = '0';
     toast.style.transform = 'translate(-50%,-50%) scale(0.9)';
     setTimeout(function() { toast.style.display = 'none'; }, 250);
-  }, 1800);
+  }, 3000);
 }
 
 // Hook into updateVerdictAuto to trigger toast
@@ -13015,8 +13008,8 @@ cycleWmTrend = function(el) {
       if (ltfTrendState[ltfTF] === 'up') b.classList.add('ltf-up');
       else if (ltfTrendState[ltfTF] === 'down') b.classList.add('ltf-down');
     });
-    updateVerdictAuto();
     updateIntradayScore();
+    showScoreToast();
     return;
   }
   if (!mappedTF) { updateIntradayScore(); return; }
