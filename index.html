@@ -12918,47 +12918,36 @@ cycleWmTrend = function(el) {
   _origCycleWmTrend(el);
   var tfLabel = el.querySelector('div') ? el.querySelector('div').textContent.trim() : '';
   var mappedTF = _wmToTF[tfLabel];
-  if (mappedTF && el.dataset.trend) {
-    var biasMap = { up: 'bull', down: 'bear', ranging: 'neutral' };
-    var newBias = biasMap[el.dataset.trend];
-    if (newBias) {
-      if (!tfState[mappedTF]) tfState[mappedTF] = { bias: [], trend: [] };
-      tfState[mappedTF].bias = [newBias];
-      var card = document.getElementById('tfc-' + mappedTF);
-      if (card) {
-        var biasBtns = card.querySelectorAll('.bias-btns .bb');
-        biasBtns.forEach(function(b) {
-          b.classList.remove('sel', 'sel-bull', 'sel-bear', 'sel-range');
-          b.style.color = ''; b.style.borderColor = ''; b.style.background = '';
-          var onclick = b.getAttribute('onclick') || '';
-          var match = onclick.match(/'([^']+)'/g);
-          if (match && match.length >= 2) {
-            var bv = match[1].replace(/'/g, '');
-            if (bv === newBias) {
-              var cls = { bull: 'sel-bull', bear: 'sel-bear', neutral: 'sel-range', range: 'sel-range' };
-              b.classList.add(cls[bv] || 'sel');
-            }
-          }
-        });
+  if (!mappedTF) { updateIntradayScore(); return; }
+  var wmTrend = el.dataset.trend || null;
+  var biasMap = { up: 'bull', down: 'bear', ranging: 'neutral' };
+  var targetBias = biasMap[wmTrend] || null;
+  var card = document.getElementById('tfc-' + mappedTF);
+  if (!card) { updateIntradayScore(); return; }
+  // Clear all bias buttons for this TF first
+  var biasBtns = card.querySelectorAll('.bias-btns .bb');
+  if (!tfState[mappedTF]) tfState[mappedTF] = { bias: [], trend: [] };
+  // Clear existing bias
+  tfState[mappedTF].bias = [];
+  biasBtns.forEach(function(b) {
+    b.classList.remove('sel', 'sel-bull', 'sel-bear', 'sel-range');
+    b.style.color = ''; b.style.borderColor = ''; b.style.background = '';
+  });
+  // If there's a target bias, simulate clicking it
+  if (targetBias) {
+    window._inRestore = true;
+    biasBtns.forEach(function(b) {
+      var txt = b.textContent.trim().toLowerCase();
+      if (txt === targetBias || (txt === 'neutral' && targetBias === 'neutral')) {
+        toggleBias(mappedTF, targetBias, b);
       }
-      updateVerdictAuto();
-      colorTFCard(mappedTF);
-      _saveTFStateLocal();
-      if (!window._inRestore && window.scheduleMorningAutosave) scheduleMorningAutosave(0.001);
-    }
-  } else if (mappedTF && !el.dataset.trend) {
-    if (tfState[mappedTF]) tfState[mappedTF].bias = [];
-    var card = document.getElementById('tfc-' + mappedTF);
-    if (card) {
-      card.querySelectorAll('.bias-btns .bb').forEach(function(b) {
-        b.classList.remove('sel', 'sel-bull', 'sel-bear', 'sel-range');
-        b.style.color = ''; b.style.borderColor = ''; b.style.background = '';
-      });
-    }
-    updateVerdictAuto();
-    colorTFCard(mappedTF);
-    _saveTFStateLocal();
+    });
+    window._inRestore = false;
   }
+  updateVerdictAuto();
+  colorTFCard(mappedTF);
+  _saveTFStateLocal();
+  if (window.scheduleMorningAutosave) scheduleMorningAutosave(0.001);
   updateIntradayScore();
 };
 
