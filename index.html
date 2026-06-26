@@ -20007,6 +20007,7 @@ window.fwFinish = fwFinish;
 // ── FULL-SCREEN WIZARD ENGINE ─────────────────────────
 var _wizSteps = [
   { key:'accounts',  label:'Your Trading Accounts', type:'accounts' },
+  { key:'ready',     label:'Your First Session',   type:'ready' },
   { key:'morning',   label:'Morning Routine',     type:'section', sourceId:'gate-items',  doneCheck:'gates' },
   { key:'news',      label:'Economic Calendar',   type:'section', sourceId:'_econ_card'  },
   { key:'instrument', label:'Select Instrument',  type:'section', sourceId:'td-instr-tabs' },
@@ -20068,6 +20069,18 @@ function wizReturnAll() {
     _tvChartCreated = false;
     setTimeout(function() { if (typeof initTVChart === 'function') initTVChart(true); }, 200);
   }
+}
+
+function _wizRenderReady(container) {
+  var nextBtn = document.getElementById('wiz-next');
+  if (nextBtn) nextBtn.style.display = 'none';
+  container.innerHTML =
+    '<div style="display:flex;flex-direction:column;align-items:center;max-width:440px;margin:0 auto;padding:40px 0;text-align:center">' +
+      '<div style="font-size:48px;margin-bottom:16px">🎯</div>' +
+      '<div style="font-family:var(--display);font-size:26px;color:#fff;letter-spacing:0.04em;line-height:1.2;margin-bottom:10px">Let\'s walk through<br><span style="color:var(--gold)">your first session</span></div>' +
+      '<div style="font-family:var(--mono);font-size:12px;color:rgba(255,255,255,0.45);line-height:1.7;margin-bottom:32px">I\'ll guide you step by step — morning checks, reading the market, setting your bias, marking key levels, and going live. No guesswork.</div>' +
+      '<button onclick="wizNext()" style="width:100%;max-width:320px;padding:18px;font-family:var(--display);font-size:18px;letter-spacing:0.08em;color:#0a0b0d;background:linear-gradient(135deg,#f0bc4e,#ffd070);border:none;border-radius:12px;cursor:pointer;font-weight:700;box-shadow:0 4px 24px rgba(240,188,78,0.3);transition:all 0.15s" onmouseover="this.style.boxShadow=\'0 6px 32px rgba(240,188,78,0.5)\'" onmouseout="this.style.boxShadow=\'0 4px 24px rgba(240,188,78,0.3)\'">I\'m Ready →</button>' +
+    '</div>';
 }
 
 function _wizRenderAccounts(container) {
@@ -20159,7 +20172,12 @@ function wizShowStep() {
   var s = _wizSteps[_wizStep];
   var total = _wizSteps.length;
 
-  // Skip accounts step only for returning users (already onboarded)
+  // Skip ready/accounts steps for returning users (already onboarded)
+  if (s && s.key === 'ready' && localStorage.getItem('td_onboarded')) {
+    _wizStep++;
+    if (_wizStep >= _wizSteps.length) { wizDone(); return; }
+    s = _wizSteps[_wizStep];
+  }
   if (s && s.key === 'accounts' && localStorage.getItem('td_onboarded') && _tdAccounts && _tdAccounts.length) {
     _wizStep++;
     if (_wizStep >= _wizSteps.length) { wizDone(); return; }
@@ -20207,6 +20225,8 @@ function wizShowStep() {
     _wizRenderChoice(s, body);
   } else if (s.type === 'levels') {
     _wizRenderLevels(s, body);
+  } else if (s.type === 'ready') {
+    _wizRenderReady(body);
   } else if (s.type === 'accounts') {
     _wizRenderAccounts(body);
   } else if (s.type === 'reveal') {
