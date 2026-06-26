@@ -4585,6 +4585,16 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 
     <!-- LEVEL CARDS LIST -->
     <div id="level-list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin-bottom:10px"></div>
+
+    <!-- COMMUNITY LEVELS -->
+    <div id="community-levels-wrap" style="margin-top:16px;border-top:1px solid rgba(255,255,255,0.06);padding-top:14px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+        <span style="font-family:var(--mono);font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--text3)">👥 Community Levels</span>
+        <span id="cl-count" style="font-family:var(--mono);font-size:8px;color:rgba(255,255,255,0.2)"></span>
+      </div>
+      <div id="community-level-list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px"></div>
+    </div>
+
     <!-- Trendlines / extra notes removed -->
     <textarea id="level-notes" style="display:none"></textarea>
   </div>
@@ -13506,9 +13516,46 @@ async function leoFetchAllLevels() {
       } catch(e) {}
     });
     leoRenderKLBar();
+    renderCommunityLevels();
   } catch(e) { console.warn('[kl] fetch all levels:', e.message); }
 }
 window.leoFetchAllLevels = leoFetchAllLevels;
+
+function renderCommunityLevels() {
+  var list = document.getElementById('community-level-list');
+  var countEl = document.getElementById('cl-count');
+  if (!list) return;
+  var entries = _klAllLevels || [];
+  if (countEl) countEl.textContent = entries.length ? entries.length + ' level' + (entries.length > 1 ? 's' : '') : '';
+  if (!entries.length) {
+    list.innerHTML = '<div style="font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.2);padding:12px 0">No community levels today</div>';
+    return;
+  }
+  list.innerHTML = entries.map(function(entry, idx) {
+    var l = entry.l, user = entry.user;
+    var isLong = l.type === 'long' || l.direction === 'long';
+    var gc = isLong ? '#4ed68a' : '#f06060';
+    var gc2 = isLong ? 'rgba(78,214,138,0.08)' : 'rgba(240,96,96,0.08)';
+    var gbdr = isLong ? 'rgba(78,214,138,0.2)' : 'rgba(240,96,96,0.2)';
+    var arr = isLong ? '▲' : '▼';
+    var tpD = (l.price && l.tp) ? Math.abs(parseFloat(l.tp) - parseFloat(l.price)) : 0;
+    var slD = (l.price && l.sl) ? Math.abs(parseFloat(l.sl) - parseFloat(l.price)) : 0;
+    var rr = (tpD && slD) ? (tpD / slD).toFixed(1) + 'R' : '';
+    var confs = (l.confluence || []).slice(0, 3).join(', ');
+    return '<div onclick="klhShow(' + idx + ',this)" style="background:' + gc2 + ';border:1px solid ' + gbdr + ';border-radius:10px;padding:12px 14px;cursor:pointer;transition:all 0.12s" onmouseover="this.style.borderColor=\'' + gc + '44\'" onmouseout="this.style.borderColor=\'' + gbdr + '\'">' +
+      '<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">' +
+        '<span style="font-family:var(--display);font-size:11px;color:' + gc + '">' + arr + ' ' + (isLong ? 'LONG' : 'SHORT') + '</span>' +
+        (rr ? '<span style="font-family:var(--mono);font-size:9px;font-weight:700;color:' + gc + '">' + rr + '</span>' : '') +
+        '<span style="font-family:var(--mono);font-size:8px;color:rgba(255,255,255,0.25);margin-left:auto">@' + user + '</span>' +
+      '</div>' +
+      '<div style="font-family:var(--mono);font-size:14px;font-weight:700;color:#fff;margin-bottom:4px">' + (l.price || '—') + '</div>' +
+      '<div style="font-family:var(--mono);font-size:8px;color:rgba(255,255,255,0.3)">SL ' + (l.sl || '—') + ' · TP ' + (l.tp || '—') + '</div>' +
+      (confs ? '<div style="font-family:var(--mono);font-size:7px;color:rgba(255,255,255,0.2);margin-top:4px">' + confs + '</div>' : '') +
+      (l.chartImg ? '<div style="font-family:var(--mono);font-size:7px;color:rgba(240,188,78,0.5);margin-top:4px">📷 Chart attached</div>' : '') +
+    '</div>';
+  }).join('');
+}
+window.renderCommunityLevels = renderCommunityLevels;
 
 // ── ALARM SOUNDS ─────────────────────────────────────
 var _alertSoundInterval = null;
