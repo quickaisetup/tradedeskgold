@@ -13757,7 +13757,11 @@ function setNewsAlert(btnId, title, timeStr, eventTs) {
 
 // ── WEEKLY PAL / MONTHLY GAIN ─────────────────────────
 // Called directly with raw Sheets rows (each row has date + totalR)
+var _palLastRun = 0;
 function updatePALFromRows(rows, rankName) {
+  var _now2 = Date.now();
+  if (_now2 - _palLastRun < 800) return;
+  _palLastRun = _now2;
   // Cache for re-render when risk input changes
   window._tdLastPalRows = rows;
   window._tdLastPalRank = rankName;
