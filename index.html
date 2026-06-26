@@ -22078,7 +22078,10 @@ function onboardUpload() {
 
 function onboardDone() {
   document.getElementById('onboard-overlay').classList.remove('show');
+  localStorage.removeItem(_wizProgressKey());
+  localStorage.removeItem('td_wiz_onboard_progress');
   setTimeout(function() {
+    _wizStep = 0; _wizSubStep = 0;
     wizOpen();
   }, 300);
 }
