@@ -20997,7 +20997,7 @@ function _wizRenderTF(s, body) {
   // Question area — overlaid on chart bottom
   var qArea = document.createElement('div');
   qArea.id = 'wiz-tf-question';
-  qArea.style.cssText = 'position:absolute;bottom:0;left:0;right:0;z-index:10;text-align:center;padding:14px 20px 18px;background:linear-gradient(to top,rgba(10,11,13,0.95) 60%,rgba(10,11,13,0.7) 85%,transparent);pointer-events:none';
+  qArea.style.cssText = 'position:absolute;top:60px;left:50%;transform:translateX(-50%);z-index:10;text-align:center;padding:16px 28px 18px;pointer-events:none;background:rgba(10,11,13,0.75);border:1px solid rgba(255,255,255,0.08);border-radius:14px;backdrop-filter:blur(12px);box-shadow:0 8px 32px rgba(0,0,0,0.5);max-width:480px;width:auto';
   chartWrap.appendChild(qArea);
 
   // Hide footer next button — sub-steps auto-advance
