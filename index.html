@@ -4397,9 +4397,9 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
       <div id="community-bias-panel" style="border-top:1px solid rgba(168,85,247,0.2);background:linear-gradient(180deg,rgba(168,85,247,0.04) 0%,rgba(0,0,0,0) 100%)">
         <div id="cb-cta-row" style="padding:20px 24px;display:flex;align-items:center;gap:24px">
           <div style="flex:1;min-width:0">
-            <div id="cb-cta-head" style="font-family:var(--display);font-size:18px;letter-spacing:0.06em;color:#c084fc;margin-bottom:6px">WHAT DOES THE ROOM SEE TODAY?</div>
-            <div id="cb-cta-sub" style="font-family:var(--mono);font-size:11px;color:var(--text2);line-height:1.7">See the average top-down score from all traders. Find out if the room is aligned or split — and where you stand against the crowd.</div>
-            <span id="cb-main-hint" style="font-family:var(--mono);font-size:9px;color:rgba(192,132,252,0.6);letter-spacing:0.06em;margin-top:6px;display:block">community top-down scores · updated live</span>
+            <div id="cb-cta-head" style="font-family:var(--display);font-size:18px;letter-spacing:0.06em;color:#c084fc;margin-bottom:6px">WONDERING WHAT OTHER TRADERS SEE?</div>
+            <div id="cb-cta-sub" style="font-family:var(--mono);font-size:11px;color:var(--text2);line-height:1.7">Compare your analysis with the room. See if traders are aligned or split — and where you stand against the crowd.</div>
+            <span id="cb-main-hint" style="font-family:var(--mono);font-size:9px;color:rgba(192,132,252,0.6);letter-spacing:0.06em;margin-top:6px;display:block">Click here to see other traders' analysis</span>
             <span id="cb-instr-note" style="font-family:var(--mono);font-size:8px;color:rgba(240,188,78,0.55);letter-spacing:0.04em;margin-top:4px;display:none">⚠ Community scores reflect traders' <b>Gold</b> analysis only — not directly comparable to your current instrument's view.</span>
           </div>
           <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:8px">
@@ -16186,13 +16186,13 @@ window.updateEdgeButtonState = function(analysisScore) {
     btn.onmouseover = function(){ this.style.background='rgba(240,188,78,0.22)'; this.style.boxShadow='0 0 28px rgba(240,188,78,0.32)'; };
     btn.onmouseout  = function(){ this.style.background='rgba(240,188,78,0.12)'; this.style.boxShadow='0 0 18px rgba(240,188,78,0.2),inset 0 0 24px rgba(240,188,78,0.05)'; };
 
-    if (hint) { hint.textContent = 'Click here to see AI analysis for this score'; hint.style.color='rgba(240,188,78,0.6)'; }
+    if (hint) { hint.textContent = 'Click here to get your AI analysis'; hint.style.color='rgba(240,188,78,0.6)'; }
     // Show save morning analysis button
     var morningBtn = document.getElementById('save-morning-btn');
     if (morningBtn) morningBtn.style.display = 'block';
     // Update locked state text to show score context
-    if (headEl) { headEl.textContent = (strength ? strength+' ' : '')+dir+' BIAS — SCORE '+scoreLabel; headEl.style.color='var(--gold)'; }
-    if (subEl)  { subEl.textContent  = 'Your analysis is set. Click the button to get AI insights for your score.'; }
+    if (headEl) { headEl.textContent = 'On days you scored '+scoreLabel+', what worked and what didn\'t?'; headEl.style.color='var(--gold)'; }
+    if (subEl)  { subEl.textContent  = 'Get personalized AI insights based on your score history and today\'s bias.'; }
   } else {
     btn.disabled = true;
     btn.style.cssText = 'background:rgba(240,188,78,0.04);border:1px solid rgba(240,188,78,0.15);border-radius:8px;'+
