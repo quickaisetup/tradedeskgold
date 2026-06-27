@@ -19747,9 +19747,9 @@ body.fw-active .wt-banner{display:none!important}
 #wiz-tf-card-wrap .tf-card>.tf-name{display:none!important}
 #wiz-chart-indbar{flex-shrink:0;background:rgba(240,188,78,0.12);border-top:1px solid rgba(240,188,78,0.35);padding:7px 16px;font-family:var(--mono);font-size:10px;font-weight:700;color:#f0bc4e;letter-spacing:0.04em;text-align:center;animation:eodFadeIn 0.25s ease}
 #wiz-tf-question *{pointer-events:auto}
-.wiz-q-title{font-family:var(--display);font-size:20px;color:#fff;margin-bottom:10px;letter-spacing:0.04em;text-shadow:0 2px 12px rgba(0,0,0,0.6)}
-.wiz-q-btns{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
-.wiz-q-btn{font-family:var(--mono);font-size:12px;letter-spacing:0.04em;padding:10px 28px;border-radius:10px;border:1.5px solid rgba(255,255,255,0.15);background:rgba(10,11,13,0.7);color:rgba(255,255,255,0.6);cursor:pointer;transition:all 0.18s;backdrop-filter:blur(8px)}
+.wiz-q-title{font-family:var(--display);font-size:15px;color:#fff;margin-bottom:6px;letter-spacing:0.06em}
+.wiz-q-btns{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
+.wiz-q-btn{font-family:var(--mono);font-size:11px;letter-spacing:0.04em;padding:7px 22px;border-radius:8px;border:1.5px solid rgba(255,255,255,0.15);background:rgba(10,11,13,0.5);color:rgba(255,255,255,0.6);cursor:pointer;transition:all 0.18s}
 .wiz-q-btn:hover{border-color:rgba(240,188,78,0.4);color:#fff;background:rgba(240,188,78,0.06)}
 .wiz-q-btn.wiz-sel{border-color:var(--gold);color:var(--gold);background:rgba(240,188,78,0.1);box-shadow:0 0 12px rgba(240,188,78,0.15)}
 /* Match the colors of the real bias/trend/AO/MACD buttons */
@@ -20997,7 +20997,7 @@ function _wizRenderTF(s, body) {
   // Question area — overlaid on chart bottom
   var qArea = document.createElement('div');
   qArea.id = 'wiz-tf-question';
-  qArea.style.cssText = 'position:absolute;top:60px;left:50%;transform:translateX(-50%);z-index:10;text-align:center;padding:16px 28px 18px;pointer-events:none;background:rgba(10,11,13,0.75);border:1px solid rgba(255,255,255,0.08);border-radius:14px;backdrop-filter:blur(12px);box-shadow:0 8px 32px rgba(0,0,0,0.5);max-width:480px;width:auto';
+  qArea.style.cssText = 'position:absolute;top:46px;left:50%;transform:translateX(-50%);z-index:10;text-align:center;padding:8px 22px 10px;pointer-events:none;background:rgba(10,11,13,0.7);border:1px solid rgba(255,255,255,0.06);border-radius:10px;backdrop-filter:blur(10px);box-shadow:0 4px 20px rgba(0,0,0,0.4);width:auto';
   chartWrap.appendChild(qArea);
 
   // Hide footer next button — sub-steps auto-advance
