@@ -5463,9 +5463,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
       <button class="leo-ind-btn" onclick="leoSetIndicator('volume',this)">Volume</button>
       <button class="leo-ind-btn" onclick="leoSetIndicator('rsi',this)">RSI</button>
       <button class="leo-ind-btn" onclick="leoSetIndicator('stoch',this)">Stoch</button>
-      <div style="width:1px;height:16px;background:rgba(255,255,255,0.1);margin:0 4px"></div>
-      <button class="leo-ind-btn" onclick="leoRandomIndicator()" style="color:rgba(168,85,247,0.7);border-color:rgba(168,85,247,0.3)" onmouseover="this.style.color='#a855f7';this.style.borderColor='rgba(168,85,247,0.6)'" onmouseout="this.style.color='rgba(168,85,247,0.7)';this.style.borderColor='rgba(168,85,247,0.3)'">🎲 Random</button>
-      <div style="width:1px;height:16px;background:rgba(255,255,255,0.1);margin:0 4px"></div>
+      <div style="width:1px;height:16px;background:rgba(255,255,255,0.1);margin:0 8px"></div>
       <label class="leo-tips-toggle" title="Explainer popups on/off" onclick="leoToggleTips()">
         <span class="leo-tips-track" id="leo-tips-track">
           <span class="leo-tips-knob"></span>
@@ -5538,6 +5536,16 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
         onmouseout="this.style.background='linear-gradient(135deg,rgba(78,214,138,0.18),rgba(78,214,138,0.08))';this.style.borderColor='rgba(78,214,138,0.55)';this.style.boxShadow=''">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         Log & Journal a Trade
+      </button>
+      <button onclick="leoRandomIndicator()"
+        style="display:flex;align-items:center;gap:7px;padding:7px 18px;border-radius:7px;
+               background:linear-gradient(135deg,rgba(168,85,247,0.18),rgba(168,85,247,0.08));
+               border:1.5px solid rgba(168,85,247,0.55);color:#a855f7;
+               font-family:var(--mono);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;
+               cursor:pointer;white-space:nowrap;transition:all 0.18s;font-weight:700;flex-shrink:0"
+        onmouseover="this.style.background='linear-gradient(135deg,rgba(168,85,247,0.32),rgba(168,85,247,0.16))';this.style.borderColor='rgba(168,85,247,0.85)';this.style.boxShadow='0 0 18px rgba(168,85,247,0.25)'"
+        onmouseout="this.style.background='linear-gradient(135deg,rgba(168,85,247,0.18),rgba(168,85,247,0.08))';this.style.borderColor='rgba(168,85,247,0.55)';this.style.boxShadow=''">
+        🎲 Random Indicator
       </button>
     </div>
 
