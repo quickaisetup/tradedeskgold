@@ -755,6 +755,9 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 .lb-col-head{display:grid;grid-template-columns:28px 36px 1fr 80px 80px 80px 50px;align-items:center;gap:0;padding:9px 16px 7px;border-bottom:1px solid rgba(255,255,255,0.05)}
 .lb-col-lbl{font-family:var(--mono);font-size:7px;letter-spacing:0.14em;text-transform:uppercase;color:var(--text3)}
 .lb-col-lbl.right{text-align:right}
+.lb-sort-btn{cursor:pointer;transition:color 0.15s}
+.lb-sort-btn:hover{color:var(--gold)}
+.lb-sort-btn.lb-sort-active{color:var(--gold)}
 /* table rows */
 .lb-row{display:flex;flex-direction:column}
 .lb-card{display:grid;grid-template-columns:28px 36px 1fr 80px 80px 80px 50px;align-items:center;gap:0;padding:10px 16px;border-bottom:1px solid rgba(255,255,255,0.04);transition:background .12s;cursor:default}
@@ -3900,10 +3903,10 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
       <div class="lb-col-lbl" style="text-align:center">#</div>
       <div></div>
       <div class="lb-col-lbl">Trader</div>
-      <div class="lb-col-lbl right">Today</div>
-      <div class="lb-col-lbl right">This Week</div>
-      <div class="lb-col-lbl right">Month Est.</div>
-      <div class="lb-col-lbl right">Streak</div>
+      <div class="lb-col-lbl right lb-sort-btn" data-sort="today" onclick="lbSetSort('today')">Today</div>
+      <div class="lb-col-lbl right lb-sort-btn" data-sort="week" onclick="lbSetSort('week')">This Week</div>
+      <div class="lb-col-lbl right lb-sort-btn" data-sort="month" onclick="lbSetSort('month')">Month Est.</div>
+      <div class="lb-col-lbl right lb-sort-btn lb-sort-active" data-sort="streak" onclick="lbSetSort('streak')">Streak ▼</div>
     </div>
     <div class="lb-row" id="lb-row">
       <div class="lb-card rank1">
@@ -18077,6 +18080,20 @@ function lbCardHtml(row, rank, isMe) {
     + '<div class="lb-cell neutral">' + score + 'd</div>'
     + '</div>';
 }
+window._lbSortKey = 'streak';
+function lbSetSort(key) {
+  window._lbSortKey = key;
+  var labels = { today:'Today', week:'This Week', month:'Month Est.', streak:'Streak' };
+  document.querySelectorAll('.lb-sort-btn').forEach(function(b) {
+    b.classList.remove('lb-sort-active');
+    b.textContent = labels[b.dataset.sort] || b.dataset.sort;
+  });
+  var active = document.querySelector('.lb-sort-btn[data-sort="'+key+'"]');
+  if (active) { active.classList.add('lb-sort-active'); active.textContent = labels[key] + ' ▼'; }
+  if (window._lbLastRows) renderLeaderboard(window._lbLastRows);
+}
+window.lbSetSort = lbSetSort;
+
 function renderLeaderboard(rows) {
   var wrap = document.getElementById('lb-row');
   if (!wrap || !rows || !rows.length) return;
@@ -18120,8 +18137,15 @@ function renderLeaderboard(rows) {
     return live;
   });
 
-  // Re-sort by week_pnl descending so rank reflects live numbers
-  patchedRows.sort(function(a, b) { return (Number(b.week_pnl)||0) - (Number(a.week_pnl)||0); });
+  // Sort by selected metric
+  var _lbSortKey = window._lbSortKey || 'streak';
+  var sortFns = {
+    today:  function(a,b){ return (Number(b.yesterday_pnl)||0) - (Number(a.yesterday_pnl)||0); },
+    week:   function(a,b){ return (Number(b.week_pnl)||0) - (Number(a.week_pnl)||0); },
+    month:  function(a,b){ return (Number(b.month_est)||0) - (Number(a.month_est)||0); },
+    streak: function(a,b){ return (Number(b.streak_score)||0) - (Number(a.streak_score)||0); }
+  };
+  patchedRows.sort(sortFns[_lbSortKey] || sortFns.streak);
 
   var html = '';
   var top3 = patchedRows.slice(0, 3);
