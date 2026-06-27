@@ -5547,16 +5547,6 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
         onmouseout="this.style.background='linear-gradient(135deg,rgba(168,85,247,0.18),rgba(168,85,247,0.08))';this.style.borderColor='rgba(168,85,247,0.55)';this.style.boxShadow=''">
         🎲 Quick View
       </button>
-      <button onclick="leoFVGScanner()"
-        style="display:flex;align-items:center;gap:7px;padding:7px 18px;border-radius:7px;
-               background:linear-gradient(135deg,rgba(240,188,78,0.18),rgba(240,188,78,0.08));
-               border:1.5px solid rgba(240,188,78,0.55);color:#f0bc4e;
-               font-family:var(--mono);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;
-               cursor:pointer;white-space:nowrap;transition:all 0.18s;font-weight:700;flex-shrink:0"
-        onmouseover="this.style.background='linear-gradient(135deg,rgba(240,188,78,0.32),rgba(240,188,78,0.16))';this.style.borderColor='rgba(240,188,78,0.85)';this.style.boxShadow='0 0 18px rgba(240,188,78,0.25)'"
-        onmouseout="this.style.background='linear-gradient(135deg,rgba(240,188,78,0.18),rgba(240,188,78,0.08))';this.style.borderColor='rgba(240,188,78,0.55)';this.style.boxShadow=''">
-        👁 FVG Scanner
-      </button>
     </div>
 
     <!-- ADMIN ALERT BUTTON (admin only) -->
@@ -12049,7 +12039,8 @@ function leoSetIndicator(key, btn) {
 // ── RANDOM INDICATOR POPUP ─────────────────────────────
 var _randIndList = [
   { name: 'Bollinger Bands', study: {"id":"STD;Bollinger_Bands"} },
-  { name: 'VWAP', study: {"id":"STD;VWAP"} }
+  { name: 'VWAP', study: {"id":"STD;VWAP"} },
+  { name: 'Fair Value Gaps', study: null }
 ];
 function leoRandomIndicator() {
   var pick = _randIndList[Math.floor(Math.random() * _randIndList.length)];
@@ -12061,30 +12052,35 @@ function leoRandomIndicator() {
   ov.id = 'rand-ind-overlay';
   ov.style.cssText = 'position:fixed;inset:0;z-index:300000;background:rgba(0,0,0,0.92);display:flex;flex-direction:column;animation:eodFadeIn 0.25s ease';
 
+  var isFVG = !pick.study;
+  var labelClr = isFVG ? '#f0bc4e' : '#a855f7';
+  var borderClr = isFVG ? 'rgba(240,188,78,0.3)' : 'rgba(168,85,247,0.3)';
+
   // Indicator label — top center pill
   var indLabel = document.createElement('div');
-  indLabel.style.cssText = 'position:absolute;top:10px;left:50%;transform:translateX(-50%);z-index:10;font-family:var(--display);font-size:32px;letter-spacing:0.1em;color:#a855f7;background:rgba(10,11,13,0.8);border:1px solid rgba(168,85,247,0.3);border-radius:24px;padding:10px 32px;backdrop-filter:blur(8px);pointer-events:none;white-space:nowrap';
-  indLabel.textContent = pick.name.toUpperCase();
+  indLabel.style.cssText = 'position:absolute;top:10px;left:50%;transform:translateX(-50%);z-index:10;font-family:var(--display);font-size:32px;letter-spacing:0.1em;color:' + labelClr + ';background:rgba(10,11,13,0.8);border:1px solid ' + borderClr + ';border-radius:24px;padding:10px 32px;backdrop-filter:blur(8px);pointer-events:none;white-space:nowrap';
+  indLabel.textContent = isFVG ? '👁 LOOK FOR FAIR VALUE GAPS' : pick.name.toUpperCase();
   ov.appendChild(indLabel);
 
   // Charts container
   var charts = document.createElement('div');
-  charts.style.cssText = 'flex:1;display:grid;grid-template-columns:1fr 1fr;gap:2px;padding:2px;min-height:0';
+  charts.style.cssText = 'flex:1;display:grid;grid-template-columns:1fr 1fr;' + (isFVG ? 'grid-template-rows:1fr 1fr;' : '') + 'gap:2px;padding:2px;min-height:0;overflow:hidden';
 
   function makeChart(interval, label) {
     var wrap = document.createElement('div');
-    wrap.style.cssText = 'position:relative;overflow:hidden;min-height:0;height:100%';
+    wrap.style.cssText = 'position:relative;overflow:hidden;min-height:0;min-width:0;height:100%';
     var wm = document.createElement('div');
-    wm.style.cssText = 'position:absolute;left:50%;top:45%;transform:translate(-50%,-50%);z-index:1;font-family:-apple-system,Helvetica,Arial,sans-serif;font-size:clamp(80px,12vw,160px);font-weight:600;line-height:1;color:rgba(255,255,255,0.04);pointer-events:none;user-select:none';
+    wm.style.cssText = 'position:absolute;left:50%;top:45%;transform:translate(-50%,-50%);z-index:1;font-family:-apple-system,Helvetica,Arial,sans-serif;font-size:clamp(' + (isFVG ? '50px,8vw,100px' : '80px,12vw,160px') + ');font-weight:600;line-height:1;color:rgba(255,255,255,' + (isFVG ? '0.12' : '0.04') + ');pointer-events:none;user-select:none';
     wm.textContent = label;
     wrap.appendChild(wm);
+    var studies = pick.study ? [pick.study] : [];
     var cfg = JSON.stringify({
       autosize:true, symbol:sym, interval:interval, timezone:_tzIANA(),
       theme:'dark', style:'1', locale:'en',
       hide_top_toolbar:true, hide_legend:true, hide_side_toolbar:true,
       allow_symbol_change:false, save_image:false, calendar:false,
       hide_volume:true,
-      studies: [pick.study],
+      studies: studies,
       support_host:'https://www.tradingview.com'
     });
     var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><style>*{margin:0;padding:0;box-sizing:border-box}html,body{width:100%;height:100%;overflow:hidden;background:#060708}.tradingview-widget-container,.tradingview-widget-container__widget{width:100%;height:100%}</style></head><body><div class="tradingview-widget-container"><div class="tradingview-widget-container__widget"></div><script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>' + cfg + '<\/script></div></body></html>';
@@ -12095,15 +12091,21 @@ function leoRandomIndicator() {
     return wrap;
   }
 
-  charts.appendChild(makeChart('15', '15M'));
-  charts.appendChild(makeChart('5', '5M'));
+  if (isFVG) {
+    charts.appendChild(makeChart('240', '4H'));
+    charts.appendChild(makeChart('60', '1H'));
+    charts.appendChild(makeChart('15', '15M'));
+    charts.appendChild(makeChart('5', '5M'));
+  } else {
+    charts.appendChild(makeChart('15', '15M'));
+    charts.appendChild(makeChart('5', '5M'));
+  }
   ov.appendChild(charts);
 
   // Floating buttons — bottom center, matching main app style
   var btnWrap = document.createElement('div');
   btnWrap.style.cssText = 'position:absolute;bottom:32px;left:50%;transform:translateX(-50%);z-index:10;display:flex;flex-direction:column;align-items:center;gap:10px';
   btnWrap.innerHTML =
-    '<button onclick="document.getElementById(\'rand-ind-overlay\').remove();leoFVGScanner()" style="display:flex;align-items:center;gap:10px;padding:11px 34px;border-radius:50px;background:linear-gradient(135deg,rgba(240,188,78,0.22),rgba(240,188,78,0.08));border:1.5px solid rgba(240,188,78,0.65);color:#fff;font-family:var(--display);font-size:17px;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;transition:all 0.2s;backdrop-filter:blur(8px);box-shadow:0 0 24px rgba(240,188,78,0.28),0 8px 32px rgba(0,0,0,0.6);white-space:nowrap" onmouseover="this.style.background=\'linear-gradient(135deg,rgba(240,188,78,0.38),rgba(240,188,78,0.18))\';this.style.boxShadow=\'0 0 40px rgba(240,188,78,0.5),0 8px 32px rgba(0,0,0,0.7)\';this.style.borderColor=\'rgba(240,188,78,1)\'" onmouseout="this.style.background=\'linear-gradient(135deg,rgba(240,188,78,0.22),rgba(240,188,78,0.08))\';this.style.boxShadow=\'0 0 24px rgba(240,188,78,0.28),0 8px 32px rgba(0,0,0,0.6)\';this.style.borderColor=\'rgba(240,188,78,0.65)\'">👁 FVG Scanner</button>' +
     '<button onclick="leoRandomIndicator()" style="display:flex;align-items:center;gap:10px;padding:11px 34px;border-radius:50px;background:linear-gradient(135deg,rgba(168,85,247,0.22),rgba(168,85,247,0.08));border:1.5px solid rgba(168,85,247,0.65);color:#fff;font-family:var(--display);font-size:17px;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;transition:all 0.2s;backdrop-filter:blur(8px);box-shadow:0 0 24px rgba(168,85,247,0.28),0 8px 32px rgba(0,0,0,0.6);white-space:nowrap" onmouseover="this.style.background=\'linear-gradient(135deg,rgba(168,85,247,0.38),rgba(168,85,247,0.18))\';this.style.boxShadow=\'0 0 40px rgba(168,85,247,0.5),0 8px 32px rgba(0,0,0,0.7)\';this.style.borderColor=\'rgba(168,85,247,1)\'" onmouseout="this.style.background=\'linear-gradient(135deg,rgba(168,85,247,0.22),rgba(168,85,247,0.08))\';this.style.boxShadow=\'0 0 24px rgba(168,85,247,0.28),0 8px 32px rgba(0,0,0,0.6)\';this.style.borderColor=\'rgba(168,85,247,0.65)\'">🎲 Switch Indicator</button>' +
     '<button onclick="document.getElementById(\'rand-ind-overlay\').remove()" style="display:flex;align-items:center;gap:10px;padding:11px 34px;border-radius:50px;background:linear-gradient(135deg,rgba(240,96,96,0.22),rgba(240,96,96,0.08));border:1.5px solid rgba(240,96,96,0.65);color:#fff;font-family:var(--display);font-size:17px;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;transition:all 0.2s;backdrop-filter:blur(8px);box-shadow:0 0 24px rgba(240,96,96,0.28),0 8px 32px rgba(0,0,0,0.6);white-space:nowrap" onmouseover="this.style.background=\'linear-gradient(135deg,rgba(240,96,96,0.38),rgba(240,96,96,0.18))\';this.style.boxShadow=\'0 0 40px rgba(240,96,96,0.5),0 8px 32px rgba(0,0,0,0.7)\';this.style.borderColor=\'rgba(240,96,96,1)\'" onmouseout="this.style.background=\'linear-gradient(135deg,rgba(240,96,96,0.22),rgba(240,96,96,0.08))\';this.style.boxShadow=\'0 0 24px rgba(240,96,96,0.28),0 8px 32px rgba(0,0,0,0.6)\';this.style.borderColor=\'rgba(240,96,96,0.65)\'"><div style="width:10px;height:10px;border-radius:50%;background:#f06060;flex-shrink:0;box-shadow:0 0 8px rgba(240,96,96,0.6)"></div>Live Execution</button>';
   ov.appendChild(btnWrap);
@@ -12525,16 +12527,9 @@ var _ftFeatures = [
   {
     id: 'quick_view_v1',
     title: 'New: Quick View',
-    body: 'Get a second opinion on price action. Opens 15M + 5M charts with a random overlay indicator — Bollinger Bands or VWAP. Hit the purple button to try it!',
+    body: 'Get a second opinion on price action. Opens charts with a random overlay — Bollinger Bands, VWAP, or Fair Value Gap scanner. Hit the purple button to try it!',
     target: function(){ return document.querySelector('button[onclick="leoRandomIndicator()"]'); },
     color: '#a855f7'
-  },
-  {
-    id: 'fvg_scanner_v1',
-    title: 'New: FVG Scanner',
-    body: 'Spot Fair Value Gaps across 4 timeframes at once. Opens 4H, 1H, 15M and 5M charts side by side — pure candles, no distractions. Look for the gold button!',
-    target: function(){ return document.querySelector('button[onclick="leoFVGScanner()"]'); },
-    color: '#f0bc4e'
   },
   {
     id: 'log_trade_v1',
