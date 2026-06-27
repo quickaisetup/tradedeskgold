@@ -12051,12 +12051,7 @@ function leoRandomIndicator() {
   ov.id = 'rand-ind-overlay';
   ov.style.cssText = 'position:fixed;inset:0;z-index:300000;background:rgba(0,0,0,0.92);display:flex;flex-direction:column;animation:eodFadeIn 0.25s ease';
 
-  // Header — minimal
-  var hdr = document.createElement('div');
-  hdr.style.cssText = 'display:flex;align-items:center;justify-content:center;padding:10px 24px;border-bottom:1px solid rgba(255,255,255,0.06);flex-shrink:0';
-  hdr.innerHTML = '<span style="font-size:18px;margin-right:8px">🎲</span>' +
-    '<span style="font-family:var(--display);font-size:18px;color:#a855f7;letter-spacing:0.08em">QUICK VIEW — ' + pick.name.toUpperCase() + '</span>';
-  ov.appendChild(hdr);
+  // No header — clean full-screen charts
 
   // Charts container
   var charts = document.createElement('div');
@@ -12092,13 +12087,13 @@ function leoRandomIndicator() {
   charts.appendChild(makeChart('5', '5M'));
   ov.appendChild(charts);
 
-  // Footer — two buttons
-  var ftr = document.createElement('div');
-  ftr.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:12px;padding:12px 24px;border-top:1px solid rgba(255,255,255,0.06);flex-shrink:0';
-  ftr.innerHTML =
-    '<button onclick="document.getElementById(\'rand-ind-overlay\').remove()" style="flex:1;max-width:280px;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 24px;border-radius:8px;background:linear-gradient(135deg,rgba(78,214,138,0.18),rgba(78,214,138,0.08));border:1.5px solid rgba(78,214,138,0.55);color:#4ed68a;font-family:var(--display);font-size:14px;letter-spacing:0.08em;cursor:pointer;transition:all 0.18s;font-weight:700" onmouseover="this.style.background=\'linear-gradient(135deg,rgba(78,214,138,0.32),rgba(78,214,138,0.16))\';this.style.boxShadow=\'0 0 18px rgba(78,214,138,0.25)\'" onmouseout="this.style.background=\'linear-gradient(135deg,rgba(78,214,138,0.18),rgba(78,214,138,0.08))\';this.style.boxShadow=\'\'">← Back to Live Execution</button>' +
-    '<button onclick="leoRandomIndicator()" style="flex:1;max-width:280px;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 24px;border-radius:8px;background:linear-gradient(135deg,rgba(168,85,247,0.25),rgba(168,85,247,0.1));border:1.5px solid rgba(168,85,247,0.55);color:#a855f7;font-family:var(--display);font-size:14px;letter-spacing:0.08em;cursor:pointer;transition:all 0.18s;font-weight:700" onmouseover="this.style.background=\'linear-gradient(135deg,rgba(168,85,247,0.4),rgba(168,85,247,0.2))\';this.style.boxShadow=\'0 0 18px rgba(168,85,247,0.25)\'" onmouseout="this.style.background=\'linear-gradient(135deg,rgba(168,85,247,0.25),rgba(168,85,247,0.1))\';this.style.boxShadow=\'\'">🎲 Switch Indicator</button>';
-  ov.appendChild(ftr);
+  // Floating buttons — bottom center, overlaid on charts
+  var btnWrap = document.createElement('div');
+  btnWrap.style.cssText = 'position:absolute;bottom:24px;left:50%;transform:translateX(-50%);z-index:10;display:flex;flex-direction:column;align-items:center;gap:8px';
+  btnWrap.innerHTML =
+    '<button onclick="leoRandomIndicator()" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:11px 28px;border-radius:20px;background:rgba(168,85,247,0.12);border:1.5px solid rgba(168,85,247,0.5);color:#a855f7;font-family:var(--display);font-size:12px;letter-spacing:0.08em;cursor:pointer;transition:all 0.18s;font-weight:700;backdrop-filter:blur(8px);white-space:nowrap" onmouseover="this.style.background=\'rgba(168,85,247,0.25)\';this.style.borderColor=\'rgba(168,85,247,0.8)\'" onmouseout="this.style.background=\'rgba(168,85,247,0.12)\';this.style.borderColor=\'rgba(168,85,247,0.5)\'">🎲 Switch to ' + _randIndList.filter(function(x){return x.name!==pick.name;})[0].name + '</button>' +
+    '<button onclick="document.getElementById(\'rand-ind-overlay\').remove()" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:11px 28px;border-radius:20px;background:rgba(240,96,96,0.12);border:1.5px solid rgba(240,96,96,0.5);color:#f06060;font-family:var(--display);font-size:12px;letter-spacing:0.08em;cursor:pointer;transition:all 0.18s;font-weight:700;backdrop-filter:blur(8px);white-space:nowrap" onmouseover="this.style.background=\'rgba(240,96,96,0.25)\';this.style.borderColor=\'rgba(240,96,96,0.8)\'" onmouseout="this.style.background=\'rgba(240,96,96,0.12)\';this.style.borderColor=\'rgba(240,96,96,0.5)\'"><div style="width:8px;height:8px;border-radius:50%;background:#f06060;flex-shrink:0"></div>Live Execution</button>';
+  ov.appendChild(btnWrap);
 
   // ESC to close
   function escClose(e) { if (e.key === 'Escape') { ov.remove(); document.removeEventListener('keydown', escClose); } }
