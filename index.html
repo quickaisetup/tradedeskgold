@@ -18450,7 +18450,14 @@ async function tdlOnAuth(user) {
   ls.style.opacity = '0';
   console.log('[td] Login screen hidden');
   if (!localStorage.getItem('td_onboarded') && typeof onboardingOpen === 'function') {
-    setTimeout(function(){ onboardingOpen(); }, 600);
+    // If wizard has saved progress, resume it instead of showing welcome screen
+    var _wizSaved = null;
+    try { _wizSaved = JSON.parse(localStorage.getItem('td_wiz_onboard_progress') || 'null'); } catch(e){}
+    if (_wizSaved && _wizSaved.step > 0) {
+      setTimeout(function(){ _wizStep = _wizSaved.step; _wizSubStep = _wizSaved.sub || 0; wizOpen(); }, 600);
+    } else {
+      setTimeout(function(){ onboardingOpen(); }, 600);
+    }
   }
   if (window._fwTryShow) window._fwTryShow();
 
