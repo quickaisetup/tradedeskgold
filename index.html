@@ -21002,6 +21002,16 @@ function _wizRenderTF(s, body) {
   qArea.style.cssText = 'position:absolute;top:6px;left:50%;transform:translateX(-50%);z-index:10;text-align:center;padding:8px 18px 10px;pointer-events:none;background:rgba(10,11,13,0.7);border:1px solid rgba(255,255,255,0.06);border-radius:10px;backdrop-filter:blur(10px);box-shadow:0 4px 20px rgba(0,0,0,0.4);width:auto';
   chartWrap.appendChild(qArea);
 
+  // Skip analysis button — bottom-right corner of chart
+  var skipBtn = document.createElement('button');
+  skipBtn.id = 'wiz-skip-analysis';
+  skipBtn.textContent = 'Skip analysis →';
+  skipBtn.style.cssText = 'position:absolute;bottom:10px;right:10px;z-index:10;font-family:var(--mono);font-size:8px;letter-spacing:0.06em;color:rgba(255,255,255,0.25);background:rgba(10,11,13,0.5);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:5px 12px;cursor:pointer;transition:all 0.15s;backdrop-filter:blur(6px)';
+  skipBtn.onmouseover = function(){ this.style.color='rgba(255,255,255,0.6)'; this.style.borderColor='rgba(255,255,255,0.2)'; };
+  skipBtn.onmouseout = function(){ this.style.color='rgba(255,255,255,0.25)'; this.style.borderColor='rgba(255,255,255,0.08)'; };
+  skipBtn.onclick = function(){ var idx=_wizSteps.findIndex(function(st){return st.key==='overview'});if(idx>-1){_wizStep=idx;_wizSubStep=0;wizShowStep();} };
+  chartWrap.appendChild(skipBtn);
+
   // Hide footer next button — sub-steps auto-advance
   var nextBtn = document.getElementById('wiz-next');
   if (nextBtn) nextBtn.style.display = 'none';
@@ -21055,8 +21065,7 @@ function _wizRenderSubQ(s, container) {
       }).join('') +
       (defs.skippable ? '<button class="wiz-q-btn" onclick="_wizSubSkip(\'' + s.tfKey + '\',\'' + key + '\')" style="border-style:dashed;color:rgba(255,255,255,0.2)">I don\'t see this — Skip</button>' : '') +
     '</div>' +
-    (canGoBack ? '<button onclick="_wizSubBack()" style="margin-top:12px;font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.25);background:transparent;border:none;cursor:pointer;letter-spacing:0.06em">← Go back to previous question</button>' : '') +
-    '<button onclick="var idx=_wizSteps.findIndex(function(st){return st.key===\'overview\'});if(idx>-1){_wizStep=idx;_wizSubStep=0;wizShowStep();}" style="margin-top:14px;font-family:var(--mono);font-size:9px;letter-spacing:0.06em;color:rgba(240,188,78,0.45);background:transparent;border:1px solid rgba(240,188,78,0.18);border-radius:6px;padding:7px 16px;cursor:pointer;transition:all 0.15s" onmouseover="this.style.color=\'var(--gold)\';this.style.borderColor=\'rgba(240,188,78,0.5)\'" onmouseout="this.style.color=\'rgba(240,188,78,0.45)\';this.style.borderColor=\'rgba(240,188,78,0.18)\'">Skip analysis →</button>';
+    (canGoBack ? '<button onclick="_wizSubBack()" style="margin-top:8px;font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.25);background:transparent;border:none;cursor:pointer;letter-spacing:0.06em">← Back</button>' : '');
 
   // Pre-highlight whatever answer is already set, so going back/forward shows your current pick
   var curVal = _wizGetCurrentVal(s.tfKey, key);
