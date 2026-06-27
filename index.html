@@ -4379,7 +4379,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
               style="background:rgba(240,188,78,0.04);border:1px solid rgba(240,188,78,0.15);border-radius:8px;
                      color:rgba(240,188,78,0.25);font-family:var(--display);font-size:15px;letter-spacing:0.1em;
                      padding:13px 32px;cursor:not-allowed;transition:all 0.25s;white-space:nowrap;text-transform:uppercase">
-              ✦ AI Analysis
+              ✦ Get My AI Analysis
             </button>
             <span id="edge-ai-hint" style="font-family:var(--mono);font-size:8px;color:var(--text3);letter-spacing:0.06em">complete top-down to unlock</span>
           </div>
@@ -4410,7 +4410,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
                      box-shadow:0 0 18px rgba(168,85,247,0.18),inset 0 0 24px rgba(168,85,247,0.05)"
               onmouseover="this.style.background='rgba(168,85,247,0.24)';this.style.boxShadow='0 0 28px rgba(168,85,247,0.35)';this.style.borderColor='rgba(168,85,247,0.8)'"
               onmouseout="this.style.background='rgba(168,85,247,0.13)';this.style.boxShadow='0 0 18px rgba(168,85,247,0.18),inset 0 0 24px rgba(168,85,247,0.05)';this.style.borderColor='rgba(168,85,247,0.55)'">
-              👥 See Traders' Analysis
+              👥 See What Others Think
             </button>
           </div>
         </div>
@@ -15841,14 +15841,14 @@ window.cbMainClick = function() {
   if (isOpen) {
     body.style.display = 'none';
     if (mainBtn) {
-      mainBtn.textContent = '👥 See Traders\' Analysis';
+      mainBtn.textContent = '👥 See What Others Think';
       mainBtn.style.background = 'rgba(168,85,247,0.13)';
       mainBtn.style.borderColor = 'rgba(168,85,247,0.55)';
     }
   } else {
     body.style.display = 'block';
     if (mainBtn) {
-      mainBtn.textContent = '👥 See Traders\' Analysis';
+      mainBtn.textContent = '👥 See What Others Think';
     }
     if (!_cbLoaded) cbLoad();
   }
