@@ -20382,6 +20382,43 @@ var _wizSubStep = 0;
 var _wizBorrowed = [];
 
 function _wizProgressKey() { return 'td_wiz_progress_' + (typeof _tdTodayBKK === 'function' ? _tdTodayBKK() : new Date().toLocaleDateString('sv-SE')); }
+
+function _wizUpdateProgress() {
+  var total = _wizSteps.length;
+  var s = _wizSteps[_wizStep];
+  var basePct = ((_wizStep) / total) * 100;
+  var stepPct = (1 / total) * 100;
+  // For TF steps with sub-questions, interpolate within the step
+  if (s && s.type === 'tf') {
+    var subKeys = ['bias', 'trend', 'ao'];
+    if (s.hasMacd) subKeys.push('macd');
+    var subTotal = subKeys.length;
+    var subDone = Math.min(_wizSubStep, subTotal);
+    basePct += (subDone / subTotal) * stepPct;
+  } else {
+    basePct += stepPct;
+  }
+  var pct = Math.min(100, Math.round(basePct));
+  var fill = document.getElementById('wiz-progress-fill');
+  var _scoreEl = document.getElementById('score-num');
+  var _sc = parseFloat(_scoreEl ? _scoreEl.textContent.replace('+','') : '0') || 0;
+  var _t = Math.max(-1, Math.min(1, _sc / 10));
+  var _barClr, _barGlow;
+  if (_t > 0.05) {
+    var g = Math.min(1, _t / 0.6);
+    _barClr = 'rgb(' + Math.round(240 - g*162) + ',' + Math.round(188 + g*26) + ',' + Math.round(78 - g*10) + ')';
+    _barGlow = 'rgba(78,214,138,' + (0.15 + g*0.25).toFixed(2) + ')';
+  } else if (_t < -0.05) {
+    var r = Math.min(1, Math.abs(_t) / 0.6);
+    _barClr = 'rgb(' + Math.round(240) + ',' + Math.round(188 - r*92) + ',' + Math.round(78 - r*18) + ')';
+    _barGlow = 'rgba(240,96,96,' + (0.15 + r*0.25).toFixed(2) + ')';
+  } else {
+    _barClr = '#f0bc4e'; _barGlow = 'rgba(240,188,78,0.3)';
+  }
+  if (fill) { fill.style.width = pct + '%'; fill.style.background = 'linear-gradient(90deg,' + _barClr + ',' + _barClr + ')'; fill.style.boxShadow = '0 0 10px ' + _barGlow; }
+  var pctEl = document.getElementById('wiz-progress-pct');
+  if (pctEl) { pctEl.textContent = pct + '%'; pctEl.style.left = pct + '%'; pctEl.style.color = _barClr; pctEl.style.textShadow = '0 0 8px ' + _barGlow; }
+}
 function _wizSaveProgress() {
   try {
     localStorage.setItem(_wizProgressKey(), JSON.stringify({step:_wizStep, sub:_wizSubStep}));
@@ -20551,27 +20588,7 @@ function wizShowStep() {
   if (badge) badge.textContent = (_wizStep + 1) + ' / ' + total;
   var title = document.getElementById('wiz-title');
   if (title) title.textContent = s.label;
-  var fill = document.getElementById('wiz-progress-fill');
-  var pct = Math.round(((_wizStep + 1) / total) * 100);
-  // Color the bar based on current score: yellow → green (bullish) or yellow → red (bearish)
-  var _scoreEl = document.getElementById('score-num');
-  var _sc = parseFloat(_scoreEl ? _scoreEl.textContent.replace('+','') : '0') || 0;
-  var _t = Math.max(-1, Math.min(1, _sc / 10));
-  var _barClr, _barGlow;
-  if (_t > 0.05) {
-    var g = Math.min(1, _t / 0.6);
-    _barClr = 'rgb(' + Math.round(240 - g*162) + ',' + Math.round(188 + g*26) + ',' + Math.round(78 - g*10) + ')';
-    _barGlow = 'rgba(78,214,138,' + (0.15 + g*0.25).toFixed(2) + ')';
-  } else if (_t < -0.05) {
-    var r = Math.min(1, Math.abs(_t) / 0.6);
-    _barClr = 'rgb(' + Math.round(240) + ',' + Math.round(188 - r*92) + ',' + Math.round(78 - r*18) + ')';
-    _barGlow = 'rgba(240,96,96,' + (0.15 + r*0.25).toFixed(2) + ')';
-  } else {
-    _barClr = '#f0bc4e'; _barGlow = 'rgba(240,188,78,0.3)';
-  }
-  if (fill) { fill.style.width = pct + '%'; fill.style.background = 'linear-gradient(90deg,' + _barClr + ',' + _barClr + ')'; fill.style.boxShadow = '0 0 10px ' + _barGlow; }
-  var pctEl = document.getElementById('wiz-progress-pct');
-  if (pctEl) { pctEl.textContent = pct + '%'; pctEl.style.left = pct + '%'; pctEl.style.color = _barClr; pctEl.style.textShadow = '0 0 8px ' + _barGlow; }
+  _wizUpdateProgress();
 
   // Back button
   var backBtn = document.getElementById('wiz-back');
@@ -21166,6 +21183,7 @@ function _wizSubClick(tf, key, val, btn) {
   // Advance sub-step
   setTimeout(function() {
     _wizSubStep++;
+    _wizUpdateProgress();
     var s = _wizSteps[_wizStep];
     var container = document.getElementById('wiz-tf-question');
     if (container && s) _wizRenderSubQ(s, container);
@@ -21189,6 +21207,7 @@ function _wizSubSkip(tf, key) {
     }
   }
   _wizSubStep++;
+  _wizUpdateProgress();
   var s = _wizSteps[_wizStep];
   var container = document.getElementById('wiz-tf-question');
   if (container && s) _wizRenderSubQ(s, container);
@@ -21198,6 +21217,7 @@ window._wizSubSkip = _wizSubSkip;
 function _wizSubBack() {
   if (_wizSubStep > 0) {
     _wizSubStep--;
+    _wizUpdateProgress();
     var s = _wizSteps[_wizStep];
     var container = document.getElementById('wiz-tf-question');
     if (container && s) _wizRenderSubQ(s, container);
