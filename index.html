@@ -21006,9 +21006,9 @@ function _wizRenderTF(s, body) {
   var skipBtn = document.createElement('button');
   skipBtn.id = 'wiz-skip-analysis';
   skipBtn.textContent = 'Skip analysis →';
-  skipBtn.style.cssText = 'position:absolute;bottom:10px;right:10px;z-index:10;font-family:var(--mono);font-size:8px;letter-spacing:0.06em;color:rgba(255,255,255,0.25);background:rgba(10,11,13,0.5);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:5px 12px;cursor:pointer;transition:all 0.15s;backdrop-filter:blur(6px)';
-  skipBtn.onmouseover = function(){ this.style.color='rgba(255,255,255,0.6)'; this.style.borderColor='rgba(255,255,255,0.2)'; };
-  skipBtn.onmouseout = function(){ this.style.color='rgba(255,255,255,0.25)'; this.style.borderColor='rgba(255,255,255,0.08)'; };
+  skipBtn.style.cssText = 'position:absolute;bottom:12px;right:12px;z-index:10;font-family:var(--mono);font-size:10px;letter-spacing:0.08em;color:rgba(240,188,78,0.7);background:rgba(10,11,13,0.7);border:1px solid rgba(240,188,78,0.3);border-radius:6px;padding:7px 16px;cursor:pointer;transition:all 0.15s;backdrop-filter:blur(6px)';
+  skipBtn.onmouseover = function(){ this.style.color='#f0bc4e'; this.style.borderColor='rgba(240,188,78,0.6)'; this.style.background='rgba(240,188,78,0.1)'; };
+  skipBtn.onmouseout = function(){ this.style.color='rgba(240,188,78,0.7)'; this.style.borderColor='rgba(240,188,78,0.3)'; this.style.background='rgba(10,11,13,0.7)'; };
   skipBtn.onclick = function(){ var idx=_wizSteps.findIndex(function(st){return st.key==='overview'});if(idx>-1){_wizStep=idx;_wizSubStep=0;wizShowStep();} };
   chartWrap.appendChild(skipBtn);
 
