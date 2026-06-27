@@ -14496,20 +14496,12 @@ function initTVChart(forceInstrument) {
     hide_side_toolbar: !_tvShowDrawingTools,
     hide_volume: true,
     studies: [
-      // NOTE: the widget appears to silently cap how many auto-loaded studies
-      // it will render (AO vanished once total count pushed past ~4-5).
-      // Re-adding EMA 9 & 20 brings us back to 6 total — if AO or MACD
-      // disappear again, trim this back to the 4-study set (MACD, AO,
-      // EMA50, EMA200) that's confirmed to work reliably.
-      // Order matters: TradingView's embed widget renders panes bottom-up from
-      // this array, so MACD first → appears at bottom, AO second → appears above it.
-      // On-screen order: Price → AO → MACD (top to bottom).
-      'STD;MACD',
-      'STD;Awesome_Oscillator',
       { id: 'MAExp@tv-basicstudies', inputs: { length: 9 },   styles: { 'Plot.color': '#a855f7', 'Plot.linewidth': 2 } },
       { id: 'MAExp@tv-basicstudies', inputs: { length: 20 },  styles: { 'Plot.color': '#f0bc4e', 'Plot.linewidth': 2 } },
       { id: 'MAExp@tv-basicstudies', inputs: { length: 50 },  styles: { 'Plot.color': '#6aa3f5', 'Plot.linewidth': 2 } },
-      { id: 'MAExp@tv-basicstudies', inputs: { length: 200 }, styles: { 'Plot.color': '#ffffff', 'Plot.linewidth': 3 } }
+      { id: 'MAExp@tv-basicstudies', inputs: { length: 200 }, styles: { 'Plot.color': '#ffffff', 'Plot.linewidth': 3 } },
+      'STD;Awesome_Oscillator',
+      'STD;MACD'
     ],
     support_host: 'https://www.tradingview.com'
   });
