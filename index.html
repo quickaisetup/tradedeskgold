@@ -12051,15 +12051,11 @@ function leoRandomIndicator() {
   ov.id = 'rand-ind-overlay';
   ov.style.cssText = 'position:fixed;inset:0;z-index:300000;background:rgba(0,0,0,0.92);display:flex;flex-direction:column;animation:eodFadeIn 0.25s ease';
 
-  // Header
+  // Header — minimal
   var hdr = document.createElement('div');
-  hdr.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:12px 24px;border-bottom:1px solid rgba(255,255,255,0.06);flex-shrink:0';
-  hdr.innerHTML = '<div style="display:flex;align-items:center;gap:12px">' +
-    '<span style="font-size:20px">🎲</span>' +
-    '<span style="font-family:var(--display);font-size:18px;color:#a855f7;letter-spacing:0.06em">' + pick.name.toUpperCase() + '</span>' +
-    '<button onclick="leoRandomIndicator()" style="font-family:var(--display);font-size:14px;letter-spacing:0.08em;color:#fff;background:linear-gradient(135deg,rgba(168,85,247,0.35),rgba(168,85,247,0.15));border:1.5px solid rgba(168,85,247,0.6);border-radius:8px;padding:10px 24px;cursor:pointer;transition:all 0.18s;font-weight:700;box-shadow:0 0 16px rgba(168,85,247,0.2)" onmouseover="this.style.background=\'linear-gradient(135deg,rgba(168,85,247,0.5),rgba(168,85,247,0.25))\';this.style.boxShadow=\'0 0 24px rgba(168,85,247,0.4)\'" onmouseout="this.style.background=\'linear-gradient(135deg,rgba(168,85,247,0.35),rgba(168,85,247,0.15))\';this.style.boxShadow=\'0 0 16px rgba(168,85,247,0.2)\'">🎲 Switch Indicator</button>' +
-    '</div>' +
-    '<button onclick="document.getElementById(\'rand-ind-overlay\').remove()" style="background:none;border:none;color:rgba(255,255,255,0.3);font-size:22px;cursor:pointer;padding:4px 8px;line-height:1" onmouseover="this.style.color=\'#fff\'" onmouseout="this.style.color=\'rgba(255,255,255,0.3)\'">&times;</button>';
+  hdr.style.cssText = 'display:flex;align-items:center;justify-content:center;padding:10px 24px;border-bottom:1px solid rgba(255,255,255,0.06);flex-shrink:0';
+  hdr.innerHTML = '<span style="font-size:18px;margin-right:8px">🎲</span>' +
+    '<span style="font-family:var(--display);font-size:18px;color:#a855f7;letter-spacing:0.08em">QUICK VIEW — ' + pick.name.toUpperCase() + '</span>';
   ov.appendChild(hdr);
 
   // Charts container
@@ -12095,6 +12091,14 @@ function leoRandomIndicator() {
   charts.appendChild(makeChart('15', '15M'));
   charts.appendChild(makeChart('5', '5M'));
   ov.appendChild(charts);
+
+  // Footer — two buttons
+  var ftr = document.createElement('div');
+  ftr.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:12px;padding:12px 24px;border-top:1px solid rgba(255,255,255,0.06);flex-shrink:0';
+  ftr.innerHTML =
+    '<button onclick="document.getElementById(\'rand-ind-overlay\').remove()" style="flex:1;max-width:280px;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 24px;border-radius:8px;background:linear-gradient(135deg,rgba(78,214,138,0.18),rgba(78,214,138,0.08));border:1.5px solid rgba(78,214,138,0.55);color:#4ed68a;font-family:var(--display);font-size:14px;letter-spacing:0.08em;cursor:pointer;transition:all 0.18s;font-weight:700" onmouseover="this.style.background=\'linear-gradient(135deg,rgba(78,214,138,0.32),rgba(78,214,138,0.16))\';this.style.boxShadow=\'0 0 18px rgba(78,214,138,0.25)\'" onmouseout="this.style.background=\'linear-gradient(135deg,rgba(78,214,138,0.18),rgba(78,214,138,0.08))\';this.style.boxShadow=\'\'">← Back to Live Execution</button>' +
+    '<button onclick="leoRandomIndicator()" style="flex:1;max-width:280px;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 24px;border-radius:8px;background:linear-gradient(135deg,rgba(168,85,247,0.25),rgba(168,85,247,0.1));border:1.5px solid rgba(168,85,247,0.55);color:#a855f7;font-family:var(--display);font-size:14px;letter-spacing:0.08em;cursor:pointer;transition:all 0.18s;font-weight:700" onmouseover="this.style.background=\'linear-gradient(135deg,rgba(168,85,247,0.4),rgba(168,85,247,0.2))\';this.style.boxShadow=\'0 0 18px rgba(168,85,247,0.25)\'" onmouseout="this.style.background=\'linear-gradient(135deg,rgba(168,85,247,0.25),rgba(168,85,247,0.1))\';this.style.boxShadow=\'\'">🎲 Switch Indicator</button>';
+  ov.appendChild(ftr);
 
   // ESC to close
   function escClose(e) { if (e.key === 'Escape') { ov.remove(); document.removeEventListener('keydown', escClose); } }
