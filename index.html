@@ -5545,7 +5545,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
                cursor:pointer;white-space:nowrap;transition:all 0.18s;font-weight:700;flex-shrink:0"
         onmouseover="this.style.background='linear-gradient(135deg,rgba(168,85,247,0.32),rgba(168,85,247,0.16))';this.style.borderColor='rgba(168,85,247,0.85)';this.style.boxShadow='0 0 18px rgba(168,85,247,0.25)'"
         onmouseout="this.style.background='linear-gradient(135deg,rgba(168,85,247,0.18),rgba(168,85,247,0.08))';this.style.borderColor='rgba(168,85,247,0.55)';this.style.boxShadow=''">
-        🎲 Random Indicator
+        🎲 Quick View
       </button>
     </div>
 
@@ -12057,7 +12057,7 @@ function leoRandomIndicator() {
   hdr.innerHTML = '<div style="display:flex;align-items:center;gap:12px">' +
     '<span style="font-size:20px">🎲</span>' +
     '<span style="font-family:var(--display);font-size:18px;color:#a855f7;letter-spacing:0.06em">' + pick.name.toUpperCase() + '</span>' +
-    '<button onclick="leoRandomIndicator()" style="font-family:var(--mono);font-size:9px;color:rgba(168,85,247,0.7);background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.3);border-radius:5px;padding:4px 12px;cursor:pointer;transition:all 0.15s" onmouseover="this.style.background=\'rgba(168,85,247,0.2)\'" onmouseout="this.style.background=\'rgba(168,85,247,0.1)\'">🎲 Reroll</button>' +
+    '<button onclick="leoRandomIndicator()" style="font-family:var(--display);font-size:14px;letter-spacing:0.08em;color:#fff;background:linear-gradient(135deg,rgba(168,85,247,0.35),rgba(168,85,247,0.15));border:1.5px solid rgba(168,85,247,0.6);border-radius:8px;padding:10px 24px;cursor:pointer;transition:all 0.18s;font-weight:700;box-shadow:0 0 16px rgba(168,85,247,0.2)" onmouseover="this.style.background=\'linear-gradient(135deg,rgba(168,85,247,0.5),rgba(168,85,247,0.25))\';this.style.boxShadow=\'0 0 24px rgba(168,85,247,0.4)\'" onmouseout="this.style.background=\'linear-gradient(135deg,rgba(168,85,247,0.35),rgba(168,85,247,0.15))\';this.style.boxShadow=\'0 0 16px rgba(168,85,247,0.2)\'">🎲 Switch Indicator</button>' +
     '</div>' +
     '<button onclick="document.getElementById(\'rand-ind-overlay\').remove()" style="background:none;border:none;color:rgba(255,255,255,0.3);font-size:22px;cursor:pointer;padding:4px 8px;line-height:1" onmouseover="this.style.color=\'#fff\'" onmouseout="this.style.color=\'rgba(255,255,255,0.3)\'">&times;</button>';
   ov.appendChild(hdr);
