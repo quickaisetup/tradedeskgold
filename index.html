@@ -12986,10 +12986,19 @@ var LTF_MAX = 3;
 (function() {
   try {
     var saved = JSON.parse(localStorage.getItem('td_ltf_trend_' + _tdTodayBKK()) || '{}');
+    var hasData = false;
     ['15m','5m','1m'].forEach(function(tf) {
-      if (saved[tf] === 'up' || saved[tf] === 'down') ltfTrendState[tf] = saved[tf];
+      if (saved[tf] === 'up' || saved[tf] === 'down') { ltfTrendState[tf] = saved[tf]; hasData = true; }
     });
-    if (saved['15m'] || saved['5m'] || saved['1m']) {
+    // Fallback: read from wm_* keys (watermark localStorage) if no dedicated key yet
+    if (!hasData) {
+      var inst = window._lvlInstrument || 'XAUUSD';
+      ['15m','5m','1m'].forEach(function(tf) {
+        var v = localStorage.getItem('wm_' + inst + '_' + tf);
+        if (v === 'up' || v === 'down') { ltfTrendState[tf] = v; hasData = true; }
+      });
+    }
+    if (hasData) {
       window._ltfAdjustment = getLtfAdjustment();
     }
   } catch(e) {}
