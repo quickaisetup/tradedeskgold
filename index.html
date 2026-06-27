@@ -17059,6 +17059,18 @@ document.addEventListener('DOMContentLoaded', function() {
     if (titleEl) titleEl.textContent = 'Continue your session';
     if (subEl) subEl.textContent = 'Analysis done — save your end of day notes or mark key levels.';
     if (btnEl) { btnEl.textContent = '💾 Save Day'; btnEl.onclick = function(){ sessionSplashDismiss(); if(typeof eodNudgeOpen==='function') eodNudgeOpen(); else { var r=document.getElementById('reflection'); if(r) r.scrollIntoView({behavior:'smooth'}); } }; }
+    // Add Redo Analysis button
+    var secBtns = document.getElementById('splash-secondary-btns');
+    if (secBtns && !document.getElementById('splash-redo-btn')) {
+      var redoBtn = document.createElement('button');
+      redoBtn.id = 'splash-redo-btn';
+      redoBtn.textContent = '↻ Redo Analysis';
+      redoBtn.style.cssText = 'padding:11px 0;font-family:var(--display);font-size:11px;letter-spacing:0.08em;color:rgba(255,255,255,0.45);background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:10px;cursor:pointer;transition:all 0.15s;flex:1;text-align:center';
+      redoBtn.onmouseover = function(){ this.style.background='rgba(255,255,255,0.08)'; this.style.borderColor='rgba(255,255,255,0.25)'; this.style.color='#fff'; };
+      redoBtn.onmouseout = function(){ this.style.background='rgba(255,255,255,0.03)'; this.style.borderColor='rgba(255,255,255,0.1)'; this.style.color='rgba(255,255,255,0.45)'; };
+      redoBtn.onclick = function(){ sessionSplashStart(); };
+      secBtns.insertBefore(redoBtn, secBtns.lastElementChild);
+    }
   } else if (saved && saved.step > 0) {
     var s = _wtSteps[saved.step];
     if (titleEl) titleEl.textContent = 'Continue your session';
