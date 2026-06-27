@@ -5507,7 +5507,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
       </div>
       <div style="width:1px;height:20px;background:rgba(255,255,255,0.08);flex-shrink:0"></div>
       <div style="display:flex;align-items:center;gap:4px">
-        <span id="calc-ccy" onclick="var c=['$','€','£','฿','¥'];var i=(c.indexOf(this.textContent.replace('ACCT ',''))+1)%c.length;this.textContent='ACCT '+c[i];localStorage.setItem('calc_ccy',c[i])" style="font-family:var(--mono);font-size:8px;color:rgba(240,188,78,0.5);text-transform:uppercase;letter-spacing:0.08em;cursor:pointer;transition:color 0.15s" onmouseover="this.style.color='#f0bc4e'" onmouseout="this.style.color='rgba(240,188,78,0.5)'" title="Click to change currency">ACCT $</span>
+        <span style="font-family:var(--mono);font-size:8px;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:0.08em">ACCT</span>
+        <span id="calc-ccy" onclick="var c=['$','€','£','฿','¥'];var i=(c.indexOf(this.textContent)+1)%c.length;this.textContent=c[i];localStorage.setItem('calc_ccy',c[i])" style="font-family:var(--mono);font-size:11px;color:rgba(240,188,78,0.6);cursor:pointer;transition:color 0.15s;padding:2px 4px;border:1px solid rgba(240,188,78,0.2);border-radius:3px;background:rgba(240,188,78,0.05)" onmouseover="this.style.color='#f0bc4e';this.style.borderColor='rgba(240,188,78,0.5)'" onmouseout="this.style.color='rgba(240,188,78,0.6)';this.style.borderColor='rgba(240,188,78,0.2)'" title="Click to change currency">$</span>
         <input id="calc-acct" type="number" placeholder="100000" step="1000" oninput="calcLotSize();localStorage.setItem('calc_acct',this.value)" style="width:80px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);border-radius:4px;color:rgba(255,255,255,0.7);font-family:var(--mono);font-size:11px;padding:4px 7px;outline:none;text-align:center">
       </div>
       <div style="display:flex;align-items:center;gap:4px">
@@ -11835,7 +11836,7 @@ document.addEventListener('DOMContentLoaded', function() {
   if (savedAcct && calcAcctEl) calcAcctEl.value = savedAcct;
   var savedCcy = localStorage.getItem('calc_ccy');
   var ccyEl = document.getElementById('calc-ccy');
-  if (savedCcy && ccyEl) ccyEl.textContent = 'ACCT ' + savedCcy;
+  if (savedCcy && ccyEl) ccyEl.textContent = savedCcy;
   // Show admin alert button for admins
   if (localStorage.getItem('td_is_admin') === '1') {
     var wrap = document.getElementById('leo-admin-alert-wrap');
