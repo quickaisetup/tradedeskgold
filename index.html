@@ -13652,34 +13652,36 @@ function klhShow(idx, el) {
 
   var _hasImg = !!l.chartImg;
   card.innerHTML =
-    // Close button
-    '<button onclick="klhHide()" style="position:absolute;top:12px;right:14px;background:none;border:none;color:rgba(255,255,255,0.3);font-size:20px;cursor:pointer;z-index:1;padding:4px" onmouseover="this.style.color=\'#fff\'" onmouseout="this.style.color=\'rgba(255,255,255,0.3)\'">&times;</button>' +
-    // Two-column layout: chart left, info right
-    '<div style="display:flex;gap:20px;' + (_hasImg ? '' : 'flex-direction:column') + '">' +
-      // Left: chart screenshot (takes most space)
-      (_hasImg ? '<div style="flex:3;min-width:0"><img src="'+l.chartImg+'" style="width:100%;border-radius:8px;border:1px solid rgba(255,255,255,0.08);cursor:pointer;display:block" onclick="event.stopPropagation();lvlShowLightbox(this.src,\''+user+'\')"></div>' : '') +
-      // Right: compact info panel
-      '<div style="' + (_hasImg ? 'flex:2;min-width:200px' : '') + '">' +
-        // Header
-        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap">' +
-          '<span style="font-family:var(--display);font-size:15px;letter-spacing:0.1em;color:'+gc+'">'+arr+' '+(isLong?'LONG':'SHORT')+'</span>' +
-          (confLvl ? '<span style="font-family:var(--mono);font-size:8px;padding:2px 9px;border-radius:4px;border:1px solid '+gborder+';background:'+gc2+';color:'+gc+'">'+confLvl+'</span>' : '') +
-          (rr ? '<span style="font-family:var(--mono);font-size:10px;font-weight:700;padding:2px 9px;border-radius:4px;border:1px solid '+rrClr+'44;background:'+rrClr+'14;color:'+rrClr+'">'+rr+'</span>' : '') +
+    '<button onclick="klhHide()" style="position:absolute;top:14px;right:16px;background:none;border:none;color:rgba(255,255,255,0.25);font-size:22px;cursor:pointer;z-index:1;padding:4px;line-height:1" onmouseover="this.style.color=\'#fff\'" onmouseout="this.style.color=\'rgba(255,255,255,0.25)\'">&times;</button>' +
+    '<div style="display:flex;gap:0;' + (_hasImg ? '' : 'flex-direction:column') + ';height:100%">' +
+      // Left: chart screenshot — dominant
+      (_hasImg ? '<div style="flex:3;min-width:0;border-right:1px solid rgba(255,255,255,0.06);padding-right:24px;display:flex;align-items:center"><img src="'+l.chartImg+'" style="width:100%;border-radius:10px;display:block;cursor:pointer" onclick="event.stopPropagation();lvlShowLightbox(this.src,\''+user+'\')"></div>' : '') +
+      // Right: info panel
+      '<div style="' + (_hasImg ? 'flex:1.4;min-width:240px;padding-left:24px' : '') + ';display:flex;flex-direction:column;justify-content:center">' +
+        // Direction badge + RR
+        '<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">' +
+          '<span style="font-family:var(--display);font-size:18px;letter-spacing:0.12em;font-weight:700;color:'+gc+'">'+arr+' '+(isLong?'LONG':'SHORT')+'</span>' +
+          (confLvl ? '<span style="font-family:var(--mono);font-size:8px;padding:3px 10px;border-radius:4px;border:1px solid '+gborder+';background:'+gc2+';color:'+gc+';letter-spacing:0.06em">'+confLvl+'</span>' : '') +
+          (rr ? '<span style="font-family:var(--mono);font-size:11px;font-weight:700;padding:3px 10px;border-radius:4px;border:1px solid '+rrClr+'44;background:'+rrClr+'14;color:'+rrClr+'">'+rr+'</span>' : '') +
         '</div>' +
-        '<div style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.3);margin-bottom:12px">@'+user+'</div>' +
-        // Price ladder
-        '<div style="display:flex;gap:10px;margin-bottom:14px">' +
+        '<div style="font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.25);margin-bottom:20px;letter-spacing:0.04em">@'+user+'</div>' +
+        // Price ladder — vertical with colored bar
+        '<div style="display:flex;gap:14px;margin-bottom:20px">' +
           '<div style="width:3px;border-radius:2px;background:'+barGrad+';flex-shrink:0"></div>' +
-          '<div style="flex:1">' + prow(topRow.lbl,topRow.val,topRow.c,true) + prow(midRow.lbl,midRow.val,midRow.c,true) + prow(bottomRow.lbl,bottomRow.val,bottomRow.c,false) + '</div>' +
+          '<div style="flex:1">' +
+            prow(topRow.lbl,topRow.val,topRow.c,true) +
+            prow(midRow.lbl,midRow.val,midRow.c,true) +
+            prow(bottomRow.lbl,bottomRow.val,bottomRow.c,false) +
+          '</div>' +
         '</div>' +
         // Confluences
-        (confs.length ? '<div style="margin-bottom:12px;display:flex;align-items:center;gap:4px;flex-wrap:wrap"><span style="font-family:var(--mono);font-size:7px;letter-spacing:0.08em;color:rgba(255,255,255,0.25);text-transform:uppercase">Confluence:</span>' + confs.map(function(c){ return '<span style="font-family:var(--mono);font-size:8px;padding:2px 8px;border-radius:4px;background:'+gc2+';color:'+gc+'">'+c+'</span>'; }).join('') + '</div>' : '') +
+        (confs.length ? '<div style="margin-bottom:16px"><div style="font-family:var(--mono);font-size:7px;letter-spacing:0.12em;color:rgba(255,255,255,0.2);text-transform:uppercase;margin-bottom:6px">Confluence</div><div style="display:flex;gap:5px;flex-wrap:wrap">' + confs.map(function(c){ return '<span style="font-family:var(--mono);font-size:8px;padding:3px 10px;border-radius:4px;background:'+gc2+';border:1px solid '+gborder+';color:'+gc+'">'+c+'</span>'; }).join('') + '</div></div>' : '') +
         // Notes
-        (l.notes ? '<div style="margin-bottom:12px;font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.4);font-style:italic;line-height:1.5">'+l.notes+'</div>' : '') +
-        // Buttons
-        '<div style="border-top:1px solid rgba(255,255,255,0.06);padding-top:12px;display:flex;gap:6px;flex-wrap:wrap">' +
-          '<button onclick="klSendToCalc('+idx+')" style="flex:1;font-family:var(--mono);font-size:9px;letter-spacing:0.08em;text-transform:uppercase;color:'+gc+';background:'+gc2+';border:1px solid '+gborder+';border-radius:6px;padding:8px 0;cursor:pointer;transition:filter 0.12s" onmouseover="this.style.filter=\'brightness(1.3)\'" onmouseout="this.style.filter=\'\'">⊞ Load into calculator</button>' +
-          (!entry.mine ? '<button onclick="event.stopPropagation();tdHideLevelForever(\''+entry.ownerId+'\','+l.id+')" style="font-family:var(--mono);font-size:9px;letter-spacing:0.06em;text-transform:uppercase;color:rgba(255,255,255,0.4);background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:6px;padding:8px 10px;cursor:pointer;transition:all 0.15s;white-space:nowrap" onmouseover="this.style.color=\'#f06060\';this.style.borderColor=\'rgba(240,96,96,0.4)\'" onmouseout="this.style.color=\'rgba(255,255,255,0.4)\';this.style.borderColor=\'rgba(255,255,255,0.14)\'">🚫 Hide</button>' : '') +
+        (l.notes ? '<div style="margin-bottom:16px;font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.35);font-style:italic;line-height:1.6">'+l.notes+'</div>' : '') +
+        // Action button
+        '<div style="margin-top:auto;padding-top:16px;border-top:1px solid rgba(255,255,255,0.06);display:flex;gap:6px">' +
+          '<button onclick="klSendToCalc('+idx+')" style="flex:1;font-family:var(--mono);font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:#0d0f14;background:'+gc+';border:none;border-radius:6px;padding:10px 0;cursor:pointer;font-weight:700;transition:filter 0.12s" onmouseover="this.style.filter=\'brightness(1.15)\'" onmouseout="this.style.filter=\'\'">⊞ LOAD INTO CALCULATOR</button>' +
+          (!entry.mine ? '<button onclick="event.stopPropagation();tdHideLevelForever(\''+entry.ownerId+'\','+l.id+')" style="font-family:var(--mono);font-size:9px;letter-spacing:0.06em;text-transform:uppercase;color:rgba(255,255,255,0.3);background:transparent;border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:10px 12px;cursor:pointer;transition:all 0.15s;white-space:nowrap" onmouseover="this.style.color=\'#f06060\';this.style.borderColor=\'rgba(240,96,96,0.4)\'" onmouseout="this.style.color=\'rgba(255,255,255,0.3)\';this.style.borderColor=\'rgba(255,255,255,0.1)\'">Hide</button>' : '') +
         '</div>' +
       '</div>' +
     '</div>';
