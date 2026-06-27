@@ -1880,7 +1880,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 .klh-conf-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
 
 /* SYMBOL + EMA + PRICE BAR */
-#leo-ltf-trend-bar{display:flex;align-items:center;gap:6px;padding:5px 14px;background:#0a0b0e;border-bottom:1px solid rgba(255,255,255,0.07);flex-shrink:0}
+#leo-ltf-trend-bar{display:none;align-items:center;gap:6px;padding:5px 14px;background:#0a0b0e;border-bottom:1px solid rgba(255,255,255,0.07);flex-shrink:0}
 #leo-ltf-trend-bar .ltf-lbl{font-family:var(--mono);font-size:8px;letter-spacing:0.12em;color:rgba(255,255,255,0.3);text-transform:uppercase;margin-right:4px}
 .ltf-trend-btn{font-family:var(--mono);font-size:9px;letter-spacing:0.08em;padding:3px 10px;border-radius:4px;border:1px solid rgba(255,255,255,0.13);background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.4);cursor:pointer;transition:all 0.15s;min-width:70px;text-align:center}
 .ltf-trend-btn:hover{border-color:rgba(255,255,255,0.3);color:rgba(255,255,255,0.8)}
@@ -12180,6 +12180,14 @@ function leoLoadWidget(tfId, sym, interval) {
   else if (savedTrend === 'ranging') wm.classList.add('wm-ranging');
   wm.onclick = function() { cycleWmTrend(this); };
   container.appendChild(wm);
+
+  // Restore LTF watermark trend into ltfTrendState so intraday score reflects it
+  if (savedTrend && typeof ltfTrendState !== 'undefined') {
+    var _ltfMap = { '15m': '15m', '5m': '5m', '1m': '1m' };
+    if (_ltfMap[tfId]) {
+      ltfTrendState[_ltfMap[tfId]] = (savedTrend === 'up' || savedTrend === 'down') ? savedTrend : null;
+    }
+  }
   (function(el){
     var tip = document.getElementById('leo-wm-tooltip');
     if (!tip) return;
@@ -12243,6 +12251,18 @@ function leoLoadIframes() {
   LEO_TFS.forEach(function(tf) {
     leoLoadWidget(tf.id, _leoSymbol, tf.interval);
   });
+  // Watermarks restored — sync LTF buttons + intraday score
+  if (typeof updateIntradayScore === 'function') {
+    ['15m','5m','1m'].forEach(function(tf) {
+      var btn = document.querySelector('#leo-ltf-trend-bar .ltf-trend-btn[data-tf="' + tf + '"]');
+      if (btn && ltfTrendState[tf]) {
+        btn.classList.remove('ltf-up','ltf-down');
+        btn.textContent = tf + (ltfTrendState[tf] === 'up' ? ' ↑' : ' ↓');
+        btn.classList.add(ltfTrendState[tf] === 'up' ? 'ltf-up' : 'ltf-down');
+      }
+    });
+    updateIntradayScore();
+  }
 }
 
 function leoRefreshCharts(btn) {
@@ -12476,6 +12496,19 @@ function openLiveExec() {
   var md = document.querySelector('#market-direction .bb.sel-bull, #market-direction .bb.sel-bear, #market-direction .bb.sel-range');
   if (leoD) leoD.textContent = md ? md.textContent.trim() : '—';
   _leoSyncHeader();
+
+  // Restore LTF buttons + intraday score from persisted ltfTrendState
+  if (typeof updateIntradayScore === 'function') {
+    ['15m','5m','1m'].forEach(function(tf) {
+      var btn = document.querySelector('#leo-ltf-trend-bar .ltf-trend-btn[data-tf="' + tf + '"]');
+      if (btn && ltfTrendState[tf]) {
+        btn.classList.remove('ltf-up','ltf-down');
+        btn.textContent = tf + (ltfTrendState[tf] === 'up' ? ' ↑' : ' ↓');
+        btn.classList.add(ltfTrendState[tf] === 'up' ? 'ltf-up' : 'ltf-down');
+      }
+    });
+    updateIntradayScore();
+  }
 
   if (window.leoRestoreIndicatorBtn) leoRestoreIndicatorBtn();
 
@@ -12949,6 +12982,18 @@ updateVerdictAuto = function() {
 var ltfTrendState = { '15m': null, '5m': null, '1m': null };
 var LTF_WEIGHTS = { '15m': 1, '5m': 0.5, '1m': 0.25 };
 var LTF_MAX = 3;
+// Restore ltfTrendState from localStorage immediately
+(function() {
+  try {
+    var saved = JSON.parse(localStorage.getItem('td_ltf_trend_' + _tdTodayBKK()) || '{}');
+    ['15m','5m','1m'].forEach(function(tf) {
+      if (saved[tf] === 'up' || saved[tf] === 'down') ltfTrendState[tf] = saved[tf];
+    });
+    if (saved['15m'] || saved['5m'] || saved['1m']) {
+      window._ltfAdjustment = getLtfAdjustment();
+    }
+  } catch(e) {}
+})();
 
 function setLtfTrend(tf, btn) {
   var states = [null, 'up', 'down'];
@@ -12988,6 +13033,9 @@ function updateIntradayScore() {
     adjEl.style.color = ltfAdj > 0 ? '#4ed68a' : ltfAdj < 0 ? '#f06060' : 'rgba(255,255,255,0.3)';
   }
   _leoSyncHeader();
+  // Persist LTF state to localStorage + Supabase so intraday score survives refresh
+  try { localStorage.setItem('td_ltf_trend_' + _tdTodayBKK(), JSON.stringify(ltfTrendState)); } catch(e) {}
+  if (!window._inRestore && window.scheduleMorningAutosave) scheduleMorningAutosave(morning || 0.001);
 }
 
 // ── SYNC WATERMARK CLICKS (D/4H/1H) → TOP-DOWN tfState ──
@@ -17545,8 +17593,21 @@ window.autoRestoreToday = async function(source) {
           }
         });
 
+        // Restore LTF trend state (15m/5m/1m) from tf_state._ltf
+        if (tf._ltf) {
+          ['15m','5m','1m'].forEach(function(ltf) {
+            var v = tf._ltf[ltf];
+            if (v === 'up' || v === 'down') {
+              if (typeof ltfTrendState !== 'undefined') ltfTrendState[ltf] = v;
+              // Sync to localStorage so watermarks pick it up when live exec opens
+              var wmKey = 'wm_' + (window._lvlInstrument || 'XAUUSD') + '_' + ltf;
+              localStorage.setItem(wmKey, v);
+            }
+          });
+        }
+
         // Trigger score recalculation after all buttons are set (keep _inRestore so it doesn't set _lastUserActivity)
-        setTimeout(function() { window._inRestore = true; if (window.updateVerdictAuto) updateVerdictAuto(); window._inRestore = false; }, 150);
+        setTimeout(function() { window._inRestore = true; if (window.updateVerdictAuto) updateVerdictAuto(); if (window.updateIntradayScore) updateIntradayScore(); window._inRestore = false; }, 150);
       } else {
         // DB has no tf_state — fall back to localStorage (same-device session)
         if (window._restoreTFStateLocal) window._restoreTFStateLocal();
@@ -18792,6 +18853,10 @@ function tdlPatchApp() {
           var n = payload['notes_' + tf];
           if (n) _tfStateObj[tf].notes = n;
         });
+        // Persist LTF trend state (15m/5m/1m watermarks) for intraday score
+        if (typeof ltfTrendState !== 'undefined') {
+          _tfStateObj._ltf = { '15m': ltfTrendState['15m'], '5m': ltfTrendState['5m'], '1m': ltfTrendState['1m'] };
+        }
         var _pivotRaw = payload.pivotRaw || '';
         var _morningRes = await sb.from('morning_analysis').upsert({
           user_id:      _userId,
