@@ -12128,7 +12128,7 @@ function leoFVGScanner() {
 
   // Big watermark label
   var wm = document.createElement('div');
-  wm.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:5;font-family:var(--display);font-size:clamp(30px,5vw,60px);letter-spacing:0.1em;color:rgba(240,188,78,0.08);pointer-events:none;user-select:none;white-space:nowrap;text-align:center;line-height:1.4';
+  wm.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:5;font-family:var(--display);font-size:clamp(40px,6vw,80px);letter-spacing:0.12em;color:rgba(240,188,78,0.15);pointer-events:none;user-select:none;white-space:nowrap;text-align:center;line-height:1.4';
   wm.textContent = 'FAIR VALUE GAPS';
   ov.appendChild(wm);
 
@@ -12147,7 +12147,7 @@ function leoFVGScanner() {
     var cell = document.createElement('div');
     cell.style.cssText = 'position:relative;overflow:hidden;min-height:0';
     var cellWm = document.createElement('div');
-    cellWm.style.cssText = 'position:absolute;left:50%;top:45%;transform:translate(-50%,-50%);z-index:1;font-family:-apple-system,Helvetica,Arial,sans-serif;font-size:clamp(50px,8vw,100px);font-weight:600;line-height:1;color:rgba(255,255,255,0.04);pointer-events:none;user-select:none';
+    cellWm.style.cssText = 'position:absolute;left:50%;top:45%;transform:translate(-50%,-50%);z-index:1;font-family:-apple-system,Helvetica,Arial,sans-serif;font-size:clamp(50px,8vw,100px);font-weight:600;line-height:1;color:rgba(255,255,255,0.12);pointer-events:none;user-select:none';
     cellWm.textContent = tf.label;
     cell.appendChild(cellWm);
     var cfg = JSON.stringify({
