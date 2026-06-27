@@ -17084,7 +17084,7 @@ document.addEventListener('DOMContentLoaded', function() {
       redoBtn.style.cssText = 'padding:11px 0;font-family:var(--display);font-size:11px;letter-spacing:0.08em;color:rgba(255,255,255,0.45);background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:10px;cursor:pointer;transition:all 0.15s;flex:1;text-align:center';
       redoBtn.onmouseover = function(){ this.style.background='rgba(255,255,255,0.08)'; this.style.borderColor='rgba(255,255,255,0.25)'; this.style.color='#fff'; };
       redoBtn.onmouseout = function(){ this.style.background='rgba(255,255,255,0.03)'; this.style.borderColor='rgba(255,255,255,0.1)'; this.style.color='rgba(255,255,255,0.45)'; };
-      redoBtn.onclick = function(){ sessionSplashDismiss(); var idx=_wizSteps.findIndex(function(s){return s.key==='morning';}); if(idx>-1){_wizStep=idx;_wizSubStep=0;} setTimeout(wizOpen,400); };
+      redoBtn.onclick = function(){ sessionSplashDismiss(); setTimeout(function(){ var idx=_wizSteps.findIndex(function(s){return s.key==='morning';}); if(idx>-1){_wizStep=idx;_wizSubStep=0;} var ov=document.getElementById('wiz-overlay'); if(ov)ov.classList.add('show'); wizShowStep(); },400); };
       secBtns.insertBefore(redoBtn, secBtns.lastElementChild);
     }
   } else if (saved && saved.step > 0) {
