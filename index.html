@@ -12042,8 +12042,10 @@ var _randIndList = [
   { name: 'VWAP', study: {"id":"STD;VWAP"} },
   { name: 'Fair Value Gaps', study: null }
 ];
+var _randIndIdx = -1;
 function leoRandomIndicator() {
-  var pick = _randIndList[Math.floor(Math.random() * _randIndList.length)];
+  _randIndIdx = (_randIndIdx + 1) % _randIndList.length;
+  var pick = _randIndList[_randIndIdx];
   var sym = _leoSymbol || 'CAPITALCOM:XAUUSD';
   var existing = document.getElementById('rand-ind-overlay');
   if (existing) existing.remove();
