@@ -14506,12 +14506,10 @@ function initTVChart(forceInstrument) {
       // On-screen order: Price → AO → MACD (top to bottom).
       'STD;MACD',
       'STD;Awesome_Oscillator',
-      // Explicit colors/widths so the EMAs are actually visible against the
-      // candles — matches the Live Execution chart's EMA styling exactly.
-      { id: 'MAExp@tv-basicstudies', inputs: { length: 9 },   styles: { 'Plot.color': '#a855f7', 'Plot.linewidth': 1 } },
-      { id: 'MAExp@tv-basicstudies', inputs: { length: 20 },  styles: { 'Plot.color': '#f0bc4e', 'Plot.linewidth': 1 } },
-      { id: 'MAExp@tv-basicstudies', inputs: { length: 50 },  styles: { 'Plot.color': '#6aa3f5', 'Plot.linewidth': 1 } },
-      { id: 'MAExp@tv-basicstudies', inputs: { length: 200 }, styles: { 'Plot.color': '#ffffff', 'Plot.linewidth': 2 } }
+      { id: 'MAExp@tv-basicstudies', inputs: { length: 9 },   styles: { 'Plot.color': '#a855f7', 'Plot.linewidth': 2 } },
+      { id: 'MAExp@tv-basicstudies', inputs: { length: 20 },  styles: { 'Plot.color': '#f0bc4e', 'Plot.linewidth': 2 } },
+      { id: 'MAExp@tv-basicstudies', inputs: { length: 50 },  styles: { 'Plot.color': '#6aa3f5', 'Plot.linewidth': 2 } },
+      { id: 'MAExp@tv-basicstudies', inputs: { length: 200 }, styles: { 'Plot.color': '#ffffff', 'Plot.linewidth': 3 } }
     ],
     support_host: 'https://www.tradingview.com'
   });
