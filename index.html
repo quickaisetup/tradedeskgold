@@ -21055,7 +21055,7 @@ function _wizRenderSection(s, body) {
     anHeader.innerHTML =
       '<div style="font-size:36px;margin-bottom:8px">✨</div>' +
       '<div style="font-family:var(--display);font-size:28px;color:#fff;letter-spacing:0.04em;margin-bottom:6px">AI Analysis</div>' +
-      '<div style="font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.4);line-height:1.6;max-width:480px;margin:0 auto">Click the button to see AI analysis for your score of <span style="color:' + anClr + ';font-weight:700">' + anScore + '</span> (' + (anVtEl ? anVtEl.textContent : '—') + ').<br>See what other traders in the room are seeing.</div>';
+      '<div style="font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.4);line-height:1.6;max-width:480px;margin:0 auto">On days you scored <span style="color:' + anClr + ';font-weight:700">' + anScore + '</span> (' + (anVtEl ? anVtEl.textContent : '—') + '), what worked and what didn\'t?<br>Click below to get your AI analysis or see other traders\' views.</div>';
     wrap.appendChild(anHeader);
 
     var edgeEl = wizBorrow('edge-panel');
