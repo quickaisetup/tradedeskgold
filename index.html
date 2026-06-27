@@ -12771,8 +12771,7 @@ function openLiveExec() {
   // Show pre-trade gate first; charts load only after it's dismissed
   ptgOpen();
 
-  // Feature tour for new features
-  if (typeof _ftCheckOnLeoOpen === 'function') _ftCheckOnLeoOpen();
+  // Feature tour triggers after pre-trade gate is dismissed (in _leoInitCharts)
 
   // EOD nudge deferred until charts have loaded (triggered in ptg unlock/skip/override)
 }
@@ -13687,6 +13686,8 @@ function _leoInitCharts() {
     leoUpdateCountdowns();
     _leoCdTimer = setInterval(leoUpdateCountdowns, 1000);
     _eodScheduleNudge();
+    // Feature tour after charts are visible
+    if (typeof _ftCheckOnLeoOpen === 'function') _ftCheckOnLeoOpen();
   }
 }
 function ptgSkip() {
