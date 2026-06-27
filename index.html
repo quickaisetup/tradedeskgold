@@ -12602,7 +12602,10 @@ function _ftShowNext() {
 }
 
 function _ftCheckOnLeoOpen() {
-  setTimeout(_ftShowNext, 1500);
+  setTimeout(function() {
+    var ov = document.getElementById('live-exec-overlay');
+    if (ov && ov.classList.contains('show')) _ftShowNext();
+  }, 2000);
 }
 
 // ── CUSTOM TICKER TABS — user can add any TradingView symbol ──
