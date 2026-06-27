@@ -17059,6 +17059,18 @@ document.addEventListener('DOMContentLoaded', function() {
     if (titleEl) titleEl.textContent = 'Session complete ✓';
     if (subEl) subEl.textContent = 'Your day is saved. Review key levels or jump into live execution.';
     if (btnEl) { btnEl.textContent = '📌 Key Levels Guide'; btnEl.onclick = function(){ sessionSplashDismiss(); wizOpenSingle('levels'); }; }
+    // Add Redo Analysis button for completed sessions too
+    var secBtnsEod = document.getElementById('splash-secondary-btns');
+    if (secBtnsEod && !document.getElementById('splash-redo-btn')) {
+      var redoBtnEod = document.createElement('button');
+      redoBtnEod.id = 'splash-redo-btn';
+      redoBtnEod.textContent = '↻ Redo Analysis';
+      redoBtnEod.style.cssText = 'padding:11px 0;font-family:var(--display);font-size:11px;letter-spacing:0.08em;color:rgba(255,255,255,0.45);background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:10px;cursor:pointer;transition:all 0.15s;flex:1;text-align:center';
+      redoBtnEod.onmouseover = function(){ this.style.background='rgba(255,255,255,0.08)'; this.style.borderColor='rgba(255,255,255,0.25)'; this.style.color='#fff'; };
+      redoBtnEod.onmouseout = function(){ this.style.background='rgba(255,255,255,0.03)'; this.style.borderColor='rgba(255,255,255,0.1)'; this.style.color='rgba(255,255,255,0.45)'; };
+      redoBtnEod.onclick = function(){ sessionSplashStart(); };
+      secBtnsEod.insertBefore(redoBtnEod, secBtnsEod.lastElementChild);
+    }
   } else if (_hasMorning) {
     if (titleEl) titleEl.textContent = 'Continue your session';
     if (subEl) subEl.textContent = 'Analysis done — save your end of day notes or mark key levels.';
