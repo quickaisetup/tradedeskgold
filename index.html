@@ -12064,7 +12064,7 @@ function leoRandomIndicator() {
 
   // Charts container
   var charts = document.createElement('div');
-  charts.style.cssText = 'flex:1;display:grid;grid-template-columns:1fr 1fr;' + (isFVG ? 'grid-template-rows:1fr 1fr;' : '') + 'gap:2px;padding:2px;min-height:0;overflow:hidden';
+  charts.style.cssText = 'flex:1;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:2px;padding:2px;min-height:0;overflow:hidden';
 
   function makeChart(interval, label) {
     var wrap = document.createElement('div');
@@ -12091,15 +12091,10 @@ function leoRandomIndicator() {
     return wrap;
   }
 
-  if (isFVG) {
-    charts.appendChild(makeChart('240', '4H'));
-    charts.appendChild(makeChart('60', '1H'));
-    charts.appendChild(makeChart('15', '15M'));
-    charts.appendChild(makeChart('5', '5M'));
-  } else {
-    charts.appendChild(makeChart('15', '15M'));
-    charts.appendChild(makeChart('5', '5M'));
-  }
+  var chartTFs = isFVG
+    ? [{i:'240',l:'4H'},{i:'60',l:'1H'},{i:'15',l:'15M'},{i:'5',l:'5M'}]
+    : [{i:'60',l:'1H'},{i:'15',l:'15M'},{i:'5',l:'5M'},{i:'1',l:'1M'}];
+  chartTFs.forEach(function(tf){ charts.appendChild(makeChart(tf.i, tf.l)); });
   ov.appendChild(charts);
 
   // Floating buttons — bottom center, matching main app style
