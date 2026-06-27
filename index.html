@@ -12519,6 +12519,85 @@ function _leoSyncHeader() {
   }
 }
 
+// ── FEATURE TOUR — one-time popups for new features ──────────
+var _ftFeatures = [
+  {
+    id: 'quick_view_v1',
+    title: 'New: Quick View',
+    body: 'Get a second opinion on price action. Opens 15M + 5M charts with a random overlay indicator — Bollinger Bands or VWAP. Hit the purple button to try it!',
+    target: function(){ return document.querySelector('button[onclick="leoRandomIndicator()"]'); },
+    color: '#a855f7'
+  },
+  {
+    id: 'fvg_scanner_v1',
+    title: 'New: FVG Scanner',
+    body: 'Spot Fair Value Gaps across 4 timeframes at once. Opens 4H, 1H, 15M and 5M charts side by side — pure candles, no distractions. Look for the gold button!',
+    target: function(){ return document.querySelector('button[onclick="leoFVGScanner()"]'); },
+    color: '#f0bc4e'
+  }
+];
+
+function _ftShowNext() {
+  var unseen = _ftFeatures.filter(function(f){ return !localStorage.getItem('ft_' + f.id); });
+  if (!unseen.length) return;
+  var f = unseen[0];
+  var el = f.target ? f.target() : null;
+
+  var existing = document.getElementById('ft-popup');
+  if (existing) existing.remove();
+
+  var popup = document.createElement('div');
+  popup.id = 'ft-popup';
+  popup.style.cssText = 'position:fixed;z-index:400000;display:flex;flex-direction:column;align-items:center;gap:0;animation:eodFadeIn 0.3s ease';
+
+  // Position near the target button, or center screen
+  if (el) {
+    var rect = el.getBoundingClientRect();
+    popup.style.top = (rect.bottom + 12) + 'px';
+    popup.style.left = Math.max(16, Math.min(rect.left + rect.width/2 - 160, window.innerWidth - 336)) + 'px';
+  } else {
+    popup.style.top = '50%'; popup.style.left = '50%'; popup.style.transform = 'translate(-50%,-50%)';
+  }
+
+  // Arrow
+  if (el) {
+    var arrow = document.createElement('div');
+    arrow.style.cssText = 'width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-bottom:8px solid ' + f.color + '33;margin-bottom:-1px';
+    popup.appendChild(arrow);
+  }
+
+  // Card
+  var card = document.createElement('div');
+  card.style.cssText = 'width:320px;background:rgba(10,11,13,0.95);border:1px solid ' + f.color + '55;border-radius:12px;padding:18px 20px;backdrop-filter:blur(12px);box-shadow:0 8px 32px rgba(0,0,0,0.6),0 0 20px ' + f.color + '15';
+  card.innerHTML =
+    '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">' +
+      '<span style="font-family:var(--display);font-size:15px;letter-spacing:0.06em;color:' + f.color + '">' + f.title + '</span>' +
+      '<span style="font-family:var(--mono);font-size:7px;letter-spacing:0.1em;color:rgba(255,255,255,0.25);background:rgba(255,255,255,0.06);border-radius:3px;padding:2px 6px;text-transform:uppercase">New</span>' +
+    '</div>' +
+    '<div style="font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.5);line-height:1.6;margin-bottom:14px">' + f.body + '</div>' +
+    '<div style="display:flex;gap:8px;justify-content:flex-end">' +
+      (unseen.length > 1 ? '<span style="font-family:var(--mono);font-size:8px;color:rgba(255,255,255,0.2);align-self:center;margin-right:auto">' + unseen.length + ' new features</span>' : '') +
+      '<button onclick="localStorage.setItem(\'ft_' + f.id + '\',\'1\');document.getElementById(\'ft-popup\').remove();_ftShowNext()" style="font-family:var(--mono);font-size:10px;letter-spacing:0.06em;color:#fff;background:' + f.color + ';border:none;border-radius:6px;padding:8px 20px;cursor:pointer;font-weight:700;transition:filter 0.15s" onmouseover="this.style.filter=\'brightness(1.2)\'" onmouseout="this.style.filter=\'\'">Got it</button>' +
+    '</div>';
+  popup.appendChild(card);
+
+  // Pulse the target button
+  if (el) {
+    el.style.boxShadow = '0 0 0 3px ' + f.color + '44, 0 0 20px ' + f.color + '33';
+    el.dataset.ftOrigShadow = el.style.boxShadow;
+    var cleanup = function() { el.style.boxShadow = ''; };
+    popup.addEventListener('remove', cleanup);
+    popup._ftCleanup = cleanup;
+    popup._ftEl = el;
+  }
+
+  document.body.appendChild(popup);
+}
+
+function _ftCheckOnLeoOpen() {
+  setTimeout(_ftShowNext, 1500);
+}
+
 // ── CUSTOM TICKER TABS — user can add any TradingView symbol ──
 // Persisted in localStorage so the tab "stays there" across sessions/reloads.
 var LEO_CUSTOM_KEY = 'leo_custom_tickers_v1';
@@ -12681,6 +12760,9 @@ function openLiveExec() {
 
   // Show pre-trade gate first; charts load only after it's dismissed
   ptgOpen();
+
+  // Feature tour for new features
+  if (typeof _ftCheckOnLeoOpen === 'function') _ftCheckOnLeoOpen();
 
   // EOD nudge deferred until charts have loaded (triggered in ptg unlock/skip/override)
 }
