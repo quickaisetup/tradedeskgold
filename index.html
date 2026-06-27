@@ -4033,7 +4033,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
           <button class="tv-tf-btn" data-tf="60" onclick="setTVInterval('60',this)">1H</button>
         </div>
       </div>
-      <div class="ema-legend"><span style="color:#f0bc4e">━</span> EMA 20 <span style="color:#6aa3f5">━</span> EMA 50 <span style="color:#fff">━</span> EMA 200</div>
+      <div class="ema-legend"><span style="color:#6aa3f5">━</span> EMA 20 · 50 · 200</div>
       <div id="tv-chart-wrap" style="height:580px;width:100%"></div>
     </div>
 
@@ -20914,7 +20914,7 @@ function _wizRenderTF(s, body) {
   // EMA legend
   var emaLeg = document.createElement('div');
   emaLeg.className = 'ema-legend';
-  emaLeg.innerHTML = '<span style="color:#f0bc4e">━</span> EMA 20 <span style="color:#6aa3f5">━</span> EMA 50 <span style="color:#fff">━</span> EMA 200';
+  emaLeg.innerHTML = '<span style="color:#6aa3f5">━</span> EMA 20 · 50 · 200';
   chartWrap.appendChild(emaLeg);
 
   var chart = wizBorrow('tv-chart-wrap');
