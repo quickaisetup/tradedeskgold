@@ -15941,13 +15941,13 @@ window.updateEdgeButtonState = function(analysisScore) {
     btn.onmouseover = function(){ this.style.background='rgba(240,188,78,0.22)'; this.style.boxShadow='0 0 28px rgba(240,188,78,0.32)'; };
     btn.onmouseout  = function(){ this.style.background='rgba(240,188,78,0.12)'; this.style.boxShadow='0 0 18px rgba(240,188,78,0.2),inset 0 0 24px rgba(240,188,78,0.05)'; };
 
-    if (hint) { hint.textContent = 'score '+scoreLabel+' · click for today\'s coaching'; hint.style.color='rgba(240,188,78,0.6)'; }
+    if (hint) { hint.textContent = 'Click here to see AI analysis for this score'; hint.style.color='rgba(240,188,78,0.6)'; }
     // Show save morning analysis button
     var morningBtn = document.getElementById('save-morning-btn');
     if (morningBtn) morningBtn.style.display = 'block';
     // Update locked state text to show score context
     if (headEl) { headEl.textContent = (strength ? strength+' ' : '')+dir+' BIAS — SCORE '+scoreLabel; headEl.style.color='var(--gold)'; }
-    if (subEl)  { subEl.textContent  = 'Your analysis is set. Get AI coaching specific to today\'s score and your historical edge.'; }
+    if (subEl)  { subEl.textContent  = 'Your analysis is set. Click the button to get AI insights for your score.'; }
   } else {
     btn.disabled = true;
     btn.style.cssText = 'background:rgba(240,188,78,0.04);border:1px solid rgba(240,188,78,0.15);border-radius:8px;'+
@@ -20779,7 +20779,7 @@ function _wizRenderSection(s, body) {
     anHeader.innerHTML =
       '<div style="font-size:36px;margin-bottom:8px">✨</div>' +
       '<div style="font-family:var(--display);font-size:28px;color:#fff;letter-spacing:0.04em;margin-bottom:6px">AI Analysis</div>' +
-      '<div style="font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.4);line-height:1.6;max-width:480px;margin:0 auto">Get AI coaching based on your score of <span style="color:' + anClr + ';font-weight:700">' + anScore + '</span> (' + (anVtEl ? anVtEl.textContent : '—') + ').<br>Optionally see what other traders in the room are seeing.</div>';
+      '<div style="font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.4);line-height:1.6;max-width:480px;margin:0 auto">Click the button to see AI analysis for your score of <span style="color:' + anClr + ';font-weight:700">' + anScore + '</span> (' + (anVtEl ? anVtEl.textContent : '—') + ').<br>See what other traders in the room are seeing.</div>';
     wrap.appendChild(anHeader);
 
     var edgeEl = wizBorrow('edge-panel');
