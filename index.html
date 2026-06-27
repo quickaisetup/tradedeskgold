@@ -20339,6 +20339,7 @@ window.fwFinish = fwFinish;
     <span id="wiz-step-badge">1 / 13</span>
     <div id="wiz-title"></div>
     <div id="wiz-progress-wrap"><div id="wiz-progress-fill"></div></div>
+    <span id="wiz-progress-pct" style="font-family:var(--mono);font-size:9px;letter-spacing:0.06em;color:rgba(255,255,255,0.35);white-space:nowrap;min-width:30px;text-align:right"></span>
     <button id="wiz-close" onclick="wizPause()" title="Exit wizard">✕</button>
   </div>
   <div id="wiz-body"></div>
@@ -20546,7 +20547,10 @@ function wizShowStep() {
   var title = document.getElementById('wiz-title');
   if (title) title.textContent = s.label;
   var fill = document.getElementById('wiz-progress-fill');
-  if (fill) fill.style.width = Math.round(((_wizStep + 1) / total) * 100) + '%';
+  var pct = Math.round(((_wizStep + 1) / total) * 100);
+  if (fill) fill.style.width = pct + '%';
+  var pctEl = document.getElementById('wiz-progress-pct');
+  if (pctEl) pctEl.textContent = pct + '%';
 
   // Back button
   var backBtn = document.getElementById('wiz-back');
