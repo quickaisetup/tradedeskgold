@@ -12029,9 +12029,10 @@ function leoSetIndicator(key, btn) {
 var _randIndList = [
   { name: 'Bollinger Bands', study: {"id":"STD;Bollinger_Bands"} },
   { name: 'VWAP', study: {"id":"STD;VWAP"} },
-  { name: 'Fair Value Gap', study: {"id":"STD;Fair%1Value%1Gap"} },
+  { name: 'Donchian Channels', study: {"id":"STD;Donchian_Channels"} },
   { name: 'Ichimoku Cloud', study: {"id":"STD;Ichimoku%1Cloud"} },
-  { name: 'Pivot Points', study: {"id":"STD;Pivot%1Points%1Standard"} }
+  { name: 'Parabolic SAR', study: {"id":"STD;Parabolic_SAR"} },
+  { name: 'Keltner Channels', study: {"id":"STD;Keltner_Channels"} }
 ];
 function leoRandomIndicator() {
   var pick = _randIndList[Math.floor(Math.random() * _randIndList.length)];
