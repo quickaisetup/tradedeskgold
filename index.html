@@ -20367,6 +20367,7 @@ window.fwFinish = fwFinish;
   <div id="wiz-footer">
     <button id="wiz-back" onclick="wizBack()">← Back</button>
     <button id="wiz-skip" onclick="wizPause()">skip wizard</button>
+    <button id="wiz-skip-tf" onclick="var idx=_wizSteps.findIndex(function(st){return st.key==='overview'});if(idx>-1){_wizStep=idx;_wizSubStep=0;wizShowStep();}" style="display:none;font-family:var(--display);font-size:12px;letter-spacing:0.08em;color:#0a0b0d;background:linear-gradient(135deg,#f0bc4e,#ffd070);border:none;border-radius:10px;padding:12px 28px;cursor:pointer;transition:all 0.18s;font-weight:700;box-shadow:0 0 16px rgba(240,188,78,0.2)" onmouseover="this.style.boxShadow='0 0 24px rgba(240,188,78,0.4)'" onmouseout="this.style.boxShadow='0 0 16px rgba(240,188,78,0.2)'">Skip Analysis →</button>
     <button id="wiz-next" onclick="wizNext()">Next →</button>
   </div>
 </div>
@@ -20613,6 +20614,8 @@ function wizShowStep() {
   // Next button — always reset visibility and state
   var nextBtn = document.getElementById('wiz-next');
   if (nextBtn) { nextBtn.disabled = false; nextBtn.textContent = 'Next →'; nextBtn.style.display = ''; }
+  var skipTfBtn = document.getElementById('wiz-skip-tf');
+  if (skipTfBtn) skipTfBtn.style.display = (s && s.type === 'tf') ? '' : 'none';
   // The choice-step Skip button lives in the persistent footer (not the step
   // body), so it must be cleaned up explicitly on every step change.
   var oldChoiceSkip = document.getElementById('wiz-choice-skip');
