@@ -5547,6 +5547,16 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
         onmouseout="this.style.background='linear-gradient(135deg,rgba(168,85,247,0.18),rgba(168,85,247,0.08))';this.style.borderColor='rgba(168,85,247,0.55)';this.style.boxShadow=''">
         🎲 Quick View
       </button>
+      <button onclick="leoFVGScanner()"
+        style="display:flex;align-items:center;gap:7px;padding:7px 18px;border-radius:7px;
+               background:linear-gradient(135deg,rgba(240,188,78,0.18),rgba(240,188,78,0.08));
+               border:1.5px solid rgba(240,188,78,0.55);color:#f0bc4e;
+               font-family:var(--mono);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;
+               cursor:pointer;white-space:nowrap;transition:all 0.18s;font-weight:700;flex-shrink:0"
+        onmouseover="this.style.background='linear-gradient(135deg,rgba(240,188,78,0.32),rgba(240,188,78,0.16))';this.style.borderColor='rgba(240,188,78,0.85)';this.style.boxShadow='0 0 18px rgba(240,188,78,0.25)'"
+        onmouseout="this.style.background='linear-gradient(135deg,rgba(240,188,78,0.18),rgba(240,188,78,0.08))';this.style.borderColor='rgba(240,188,78,0.55)';this.style.boxShadow=''">
+        👁 FVG Scanner
+      </button>
     </div>
 
     <!-- ADMIN ALERT BUTTON (admin only) -->
@@ -12051,9 +12061,9 @@ function leoRandomIndicator() {
   ov.id = 'rand-ind-overlay';
   ov.style.cssText = 'position:fixed;inset:0;z-index:300000;background:rgba(0,0,0,0.92);display:flex;flex-direction:column;animation:eodFadeIn 0.25s ease';
 
-  // Indicator label — top-left
+  // Indicator label — large, top center
   var indLabel = document.createElement('div');
-  indLabel.style.cssText = 'position:absolute;top:12px;left:50%;transform:translateX(-50%);z-index:10;font-family:var(--display);font-size:14px;letter-spacing:0.1em;color:#a855f7;background:rgba(10,11,13,0.7);border:1px solid rgba(168,85,247,0.3);border-radius:8px;padding:6px 18px;backdrop-filter:blur(8px);pointer-events:none';
+  indLabel.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:5;font-family:var(--display);font-size:clamp(40px,6vw,80px);letter-spacing:0.08em;color:rgba(168,85,247,0.12);pointer-events:none;user-select:none;white-space:nowrap';
   indLabel.textContent = pick.name.toUpperCase();
   ov.appendChild(indLabel);
 
@@ -12106,6 +12116,68 @@ function leoRandomIndicator() {
   document.body.appendChild(ov);
 }
 window.leoRandomIndicator = leoRandomIndicator;
+
+function leoFVGScanner() {
+  var sym = _leoSymbol || 'CAPITALCOM:XAUUSD';
+  var existing = document.getElementById('fvg-scan-overlay');
+  if (existing) existing.remove();
+
+  var ov = document.createElement('div');
+  ov.id = 'fvg-scan-overlay';
+  ov.style.cssText = 'position:fixed;inset:0;z-index:300000;background:rgba(0,0,0,0.95);display:flex;flex-direction:column;animation:eodFadeIn 0.25s ease';
+
+  // Big watermark label
+  var wm = document.createElement('div');
+  wm.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:5;font-family:var(--display);font-size:clamp(30px,5vw,60px);letter-spacing:0.1em;color:rgba(240,188,78,0.08);pointer-events:none;user-select:none;white-space:nowrap;text-align:center;line-height:1.4';
+  wm.textContent = 'FAIR VALUE GAPS';
+  ov.appendChild(wm);
+
+  // Prompt banner
+  var banner = document.createElement('div');
+  banner.style.cssText = 'position:absolute;top:12px;left:50%;transform:translateX(-50%);z-index:10;font-family:var(--display);font-size:16px;letter-spacing:0.08em;color:#f0bc4e;background:rgba(10,11,13,0.8);border:1px solid rgba(240,188,78,0.3);border-radius:10px;padding:8px 24px;backdrop-filter:blur(8px);text-align:center;white-space:nowrap';
+  banner.innerHTML = '👁 Look for Fair Value Gaps on each timeframe';
+  ov.appendChild(banner);
+
+  // 4 charts grid
+  var grid = document.createElement('div');
+  grid.style.cssText = 'flex:1;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:2px;padding:2px;min-height:0';
+
+  var tfs = [{interval:'240',label:'4H'},{interval:'60',label:'1H'},{interval:'15',label:'15M'},{interval:'1',label:'1M'}];
+  tfs.forEach(function(tf) {
+    var cell = document.createElement('div');
+    cell.style.cssText = 'position:relative;overflow:hidden;min-height:0';
+    var cellWm = document.createElement('div');
+    cellWm.style.cssText = 'position:absolute;left:50%;top:45%;transform:translate(-50%,-50%);z-index:1;font-family:-apple-system,Helvetica,Arial,sans-serif;font-size:clamp(50px,8vw,100px);font-weight:600;line-height:1;color:rgba(255,255,255,0.04);pointer-events:none;user-select:none';
+    cellWm.textContent = tf.label;
+    cell.appendChild(cellWm);
+    var cfg = JSON.stringify({
+      autosize:true, symbol:sym, interval:tf.interval, timezone:_tzIANA(),
+      theme:'dark', style:'1', locale:'en',
+      hide_top_toolbar:true, hide_legend:true, hide_side_toolbar:true,
+      allow_symbol_change:false, save_image:false, calendar:false, hide_volume:true,
+      studies:[],
+      support_host:'https://www.tradingview.com'
+    });
+    var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><style>*{margin:0;padding:0;box-sizing:border-box}html,body{width:100%;height:100%;overflow:hidden;background:#060708}.tradingview-widget-container,.tradingview-widget-container__widget{width:100%;height:100%}</style></head><body><div class="tradingview-widget-container"><div class="tradingview-widget-container__widget"></div><script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>' + cfg + '<\/script></div></body></html>';
+    var iframe = document.createElement('iframe');
+    iframe.style.cssText = 'width:100%;height:100%;border:none';
+    iframe.srcdoc = html;
+    cell.appendChild(iframe);
+    grid.appendChild(cell);
+  });
+  ov.appendChild(grid);
+
+  // Bottom button
+  var btnWrap = document.createElement('div');
+  btnWrap.style.cssText = 'position:absolute;bottom:32px;left:50%;transform:translateX(-50%);z-index:10';
+  btnWrap.innerHTML = '<button onclick="document.getElementById(\'fvg-scan-overlay\').remove()" style="display:flex;align-items:center;gap:10px;padding:11px 34px;border-radius:50px;background:linear-gradient(135deg,rgba(240,96,96,0.22),rgba(240,96,96,0.08));border:1.5px solid rgba(240,96,96,0.65);color:#fff;font-family:var(--display);font-size:17px;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;transition:all 0.2s;backdrop-filter:blur(8px);box-shadow:0 0 24px rgba(240,96,96,0.28),0 8px 32px rgba(0,0,0,0.6);white-space:nowrap" onmouseover="this.style.background=\'linear-gradient(135deg,rgba(240,96,96,0.38),rgba(240,96,96,0.18))\';this.style.boxShadow=\'0 0 40px rgba(240,96,96,0.5),0 8px 32px rgba(0,0,0,0.7)\';this.style.borderColor=\'rgba(240,96,96,1)\'" onmouseout="this.style.background=\'linear-gradient(135deg,rgba(240,96,96,0.22),rgba(240,96,96,0.08))\';this.style.boxShadow=\'0 0 24px rgba(240,96,96,0.28),0 8px 32px rgba(0,0,0,0.6)\';this.style.borderColor=\'rgba(240,96,96,0.65)\'"><div style="width:10px;height:10px;border-radius:50%;background:#f06060;flex-shrink:0;box-shadow:0 0 8px rgba(240,96,96,0.6)"></div>Live Execution</button>';
+  ov.appendChild(btnWrap);
+
+  function escClose(e) { if (e.key === 'Escape') { ov.remove(); document.removeEventListener('keydown', escClose); } }
+  document.addEventListener('keydown', escClose);
+  document.body.appendChild(ov);
+}
+window.leoFVGScanner = leoFVGScanner;
 
 function _leoBind(elId, tipId, w, h) {
   var el = document.getElementById(elId);
