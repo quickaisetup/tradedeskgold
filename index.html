@@ -19746,6 +19746,7 @@ body.fw-active .wt-banner{display:none!important}
 #wiz-tf-card-wrap .tf-card{border:none!important;background:transparent!important;padding:4px 0!important;box-shadow:none!important}
 #wiz-tf-card-wrap .tf-card>.tf-name{display:none!important}
 #wiz-chart-indbar{flex-shrink:0;background:rgba(240,188,78,0.12);border-top:1px solid rgba(240,188,78,0.35);padding:7px 16px;font-family:var(--mono);font-size:10px;font-weight:700;color:#f0bc4e;letter-spacing:0.04em;text-align:center;animation:eodFadeIn 0.25s ease}
+@keyframes wizQPulse{0%{box-shadow:0 0 20px rgba(240,188,78,0.08),0 4px 24px rgba(0,0,0,0.5)}50%{box-shadow:0 0 30px rgba(240,188,78,0.25),0 4px 24px rgba(0,0,0,0.5);border-color:rgba(240,188,78,0.5)}100%{box-shadow:0 0 20px rgba(240,188,78,0.08),0 4px 24px rgba(0,0,0,0.5)}}
 #wiz-tf-question *{pointer-events:auto}
 .wiz-q-title{font-family:var(--display);font-size:15px;color:#fff;margin-bottom:6px;letter-spacing:0.06em}
 .wiz-q-btns{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
@@ -20999,7 +21000,7 @@ function _wizRenderTF(s, body) {
   // Question area — overlaid on chart bottom
   var qArea = document.createElement('div');
   qArea.id = 'wiz-tf-question';
-  qArea.style.cssText = 'position:absolute;top:6px;left:50%;transform:translateX(-50%);z-index:10;text-align:center;padding:8px 18px 10px;pointer-events:none;background:rgba(10,11,13,0.7);border:1px solid rgba(255,255,255,0.06);border-radius:10px;backdrop-filter:blur(10px);box-shadow:0 4px 20px rgba(0,0,0,0.4);width:auto';
+  qArea.style.cssText = 'position:absolute;top:6px;left:50%;transform:translateX(-50%);z-index:10;text-align:center;padding:10px 22px 12px;pointer-events:none;background:rgba(10,11,13,0.85);border:1px solid rgba(240,188,78,0.3);border-radius:12px;backdrop-filter:blur(12px);box-shadow:0 0 20px rgba(240,188,78,0.08),0 4px 24px rgba(0,0,0,0.5);width:auto;animation:wizQPulse 2s ease-in-out 1';
   chartWrap.appendChild(qArea);
 
   // Skip analysis button — bottom-right corner of chart
